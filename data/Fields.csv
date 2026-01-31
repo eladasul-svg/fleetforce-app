@@ -1,0 +1,26 @@
+Label,PluralLabel,FullName,Description
+Fleet Asset,Fleet Assets,Fleet_Asset__c,Core vehicle and equipment tracking object. Enrolled assets consume licenses.
+Fleet Branch,Fleet Branches,Fleet_Branch__c,Physical locations,hubs,and parking lots.
+Asset Document,Asset Documents,Asset_Document__c,Regulatory papers (Registration,Title,Permits).
+Insurance Policy,Insurance Policies,Insurance_Policy__c,Commercial insurance contracts (Liability,Cargo,etc.).
+Asset Insurance Link,Asset Insurance Links,Asset_Insurance_Link__c,Junction object for many-to-many policy coverage.
+Reservation,Reservations,Reservation__c,Motorpool requests and scheduling logic.
+Allocation,Allocations,Allocation__c,Physical possession and trip logging.
+Fleet Schedule,Fleet Schedules,Fleet_Schedule__c,Operating hours templates (e.g.,"9-5 Shift"")."
+Schedule Window,Schedule Windows,Schedule_Window__c,Time slots defining a schedule template.
+Schedule Assignment,Schedule Assignments,Schedule_Assignment__c,Linking schedules to assets,branches,or drivers.
+Schedule Exception,Schedule Exceptions,Schedule_Exception__c,Overrides for holidays or closures.
+Availability Blackout,Availability Blackouts,Availability_Blackout__c,System-generated blocks for the availability engine.
+Fuel Card,Fuel Cards,Fuel_Card__c,Financial instruments for fueling.
+Fuel Log,Fuel Logs,Fuel_Log__c,Transaction ledger for energy consumption and fraud detection.
+Service Ticket,Service Tickets,Service_Ticket__c,Maintenance work orders (Preventative & Corrective).
+Service Line Item,Service Line Items,Service_Line_Item__c,Granular parts and labor costs.
+Citation,Citations,Citation__c,Traffic violations and fines.
+Telematics Equipment,Telematics Equipment,Telematics_Equipment__c,Hardware tracking (GPS/Dashcams).
+Telemetry Violation,Telemetry Violations,Telemetry_Violation__c,Tier 2 alerts for driver behavior exceptions.
+Carbon Log,Carbon Logs,Carbon_Log__c,ESG and emissions tracking (Scope 1 & 2).
+Vendor Rate Card,Vendor Rate Cards,Vendor_Rate_Card__c,Contracted pricing for services (Auditing).
+Asset Component,Asset Components,Asset_Component__c,Sub-asset tracking (Batteries,Tires,Lift Gates).
+Branch Assignment,Branch Assignments,Branch_Assignment__c,Security scoping for Users and Drivers.
+Authorized Driver,Authorized Drivers,Authorized_Driver__c,Permissions for specific assets (Keys/Permanent Assign).
+Driver Qualification,Driver Qualifications,Driver_Qualification__c,Tracking certifications,skills,and compliance.

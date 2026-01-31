@@ -1,0 +1,166 @@
+Object,Field Label,API Name,Data Type,Requirement/Logic
+Fleet_Asset__c,Asset Name,Name,Text(80),Formula: Year + " " + Make + " " + Model + " (" + Customer_Asset_ID__c + ")"
+Fleet_Asset__c,Customer Asset ID,Customer_Asset_ID__c,Text(50),Unique External ID (e.g. FA-1002)
+Fleet_Asset__c,Enrolled in Fleetforce,Is_Enrolled__c,Checkbox,LICENSING: Enrolled assets consume the license pool.
+Fleet_Asset__c,Home Base,Home_Base__c,Lookup(Home_Base__c),Required for Motorpool scoping and driver proximity.
+Fleet_Asset__c,Operational Status,Op_Status__c,Picklist,"In Service, Maintenance, Grounded (Compliance), Disposed"
+Fleet_Asset__c,Asset Type,Type__c,Picklist,"Truck, Van, Aircraft, Trailer, Motorcycle, Vessel"
+Fleet_Asset__c,Body Type,Body_Type__c,Picklist,"Sedan, SUV, Pickup, Hatchback, Box Truck, Flatbed"
+Fleet_Asset__c,Seat Count,Seat_Count__c,Number(2,0),Used for Reservation matching logic.
+Fleet_Asset__c,Transmission,Transmission__c,Picklist,"Automatic, Manual"
+Fleet_Asset__c,Engine Type,Engine_Type__c,Picklist,"ICE (Internal Combustion), EV (Electric), Hybrid, Hydrogen"
+Fleet_Asset__c,Fuel Type,Fuel_Type__c,Picklist,"Diesel, Petrol, Jet-A, Electricity"
+Fleet_Asset__c,Full Tank Range,Max_Range__c,Number(10,2),Expected distance for anomaly/fraud detection.
+Fleet_Asset__c,Fuel Capacity,Fuel_Capacity__c,Number(10,2),Max volume of tank/battery.
+Fleet_Asset__c,VIN / Serial,VIN_Serial__c,Text(17),Unique/Case-Insensitive External ID.
+Fleet_Asset__c,Make,Make__c,Text(50),e.g. Ford, Tesla, Boeing.
+Fleet_Asset__c,Model,Model__c,Text(50),e.g. F-150, Model 3, 737.
+Fleet_Asset__c,Year,Year__c,Number(4,0),
+Fleet_Asset__c,In-Service Date,In_Service_Date__c,Date,Date asset entered the fleet.
+Fleet_Asset__c,Retirement Date,Retirement_Date__c,Date,Scheduled decommissioning date.
+Fleet_Asset__c,License Plate,License_Plate__c,Text(12),
+Fleet_Asset__c,Registered State,Registered_State__c,Picklist,US State List (Required for US Market).
+Fleet_Asset__c,Total Mileage,Total_Mileage__c,Roll-Up Summary,SUM of Trip__c.Distance__c
+Asset_Document__c,Document Name,Name,Text(80),Auto-Number or Description (e.g. 2025 Registration)
+Asset_Document__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The parent asset this document belongs to.
+Asset_Document__c,Document Type,Doc_Type__c,Picklist,"Registration, Title, Inspection, Permit, Lease, Weight Certificate"
+Asset_Document__c,Is Required,Is_Required__c,Checkbox,If true, asset becomes 'Grounded' if doc expires or is missing.
+Asset_Document__c,Annual Renewal Required,Annual_Renewal__c,Checkbox,Flags for automated task creation for the fleet manager.
+Asset_Document__c,Document Number,Doc_Number__c,Text(50),The alphanumeric ID on the physical doc.
+Asset_Document__c,Issuing Authority,Issuing_Authority__c,Text(100),e.g. CA DMV, Ministry of Transport, FAA.
+Asset_Document__c,Jurisdiction Type,Jurisdiction_Type__c,Picklist,"Federal, State, Municipal, Private"
+Asset_Document__c,Valid From,Valid_From__c,Date,
+Asset_Document__c,Valid Until,Valid_Until__c,Date,
+Asset_Document__c,Status,Status__c,Picklist,"Pending, Valid, Expired, Missing, Under Review"
+Asset_Document__c,URL / External Link,Doc_Link__c,URL,For digital-only permits or shared cloud storage links.
+Asset_Document__c,Compliance State,Compliance_State__c,Formula,"Logic: Valid, Expiring Soon (<30 Days), or Expired."
+Asset_Document__c,File Type,File_Type__c,Picklist,"PDF, PNG, JPG, DocX"
+Insurance_Policy__c,Policy Number,Name,Text(80),The unique policy identifier.
+Insurance_Policy__c,Policy Type,Policy_Type__c,Picklist,"Liability (Chova), Comprehensive (Mekif), Third Party, Cargo, Umbrella"
+Insurance_Policy__c,Provider,Provider__c,Text(100),Insurance carrier name.
+Insurance_Policy__c,Effective Date,Effective_Date__c,Date,
+Insurance_Policy__c,Expiration Date,Expiration_Date__c,Date,
+Insurance_Policy__c,Coverage Limit,Coverage_Limit__c,Currency(16,2),
+Insurance_Policy__c,Policy Status,Status__c,Formula,"Logic: Valid, Expiring Soon (<30 Days), or Expired."
+Asset_Insurance_Link__c,Asset Insurance ID,Name,Auto-Number,AS-INS-{0000}
+Asset_Insurance_Link__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The vehicle being covered.
+Asset_Insurance_Link__c,Insurance Policy,Insurance_Policy__c,Master-Detail,The policy providing coverage.
+Home_Base__c,Branch Name,Name,Text(80),e.g. "Tel Aviv South Lot"
+Home_Base__c,Location,Location__c,Geolocation,Required for LWC Map visualizations and proximity logic.
+Home_Base__c,Time Zone,Time_Zone__c,Picklist,Required for scheduling across different global regions.
+Home_Base__c,Street Address,Street__c,Text(255),
+Home_Base__c,City,City__c,Text(100),
+Home_Base__c,Country,Country__c,Picklist,Standard ISO Country List.
+Home_Base__c,Is Active,Is_Active__c,Checkbox,Determines if assets can be assigned to this base.
+User_Base_Link__c,Assignment Name,Name,Auto-Number,UBL-{0000}
+User_Base_Link__c,User,User__c,Lookup(User),The driver or manager being assigned.
+User_Base_Link__c,Home Base,Home_Base__c,Lookup(Home_Base__c),The authorized location.
+User_Base_Link__c,Is Primary,Is_Primary__c,Checkbox,The user's default home location for reservations. Reservation__c,Reservation Name,Name,Auto-Number,RES-{0000} Reservation__c,Requestor,Requestor__c,Lookup(User),The person requesting the vehicle. Reservation__c,Origin Branch,Origin_Branch__c,Lookup(Home_Base__c),Filters available vehicles by the user's authorized branch. Reservation__c,Required Seats,Min_Seats__c,Number(2,0),Matching criteria: At least X seats. Reservation__c,Preferred Engine,Preferred_Engine__c,Picklist,"EV, ICE (Internal Combustion), No Preference" Reservation__c,Preferred Body Type,Preferred_Body__c,Picklist,"Sedan, SUV, Pickup, Van, Hatchback" Reservation__c,Start Time,Start_Time__c,DateTime,Required for conflict checking. Reservation__c,End Time,End_Time__c,DateTime,Required for conflict checking. Reservation__c,Status,Status__c,Picklist,"Draft, Pending Approval, Assigned, In Progress, Completed, Cancelled" Reservation__c,Assigned Asset,Assigned_Asset__c,Lookup(Fleet_Asset__c),Populated by the fleet manager or the auto-allocation engine. Availability_Blackout__c,Blackout Name,Name,Auto-Number,BLK-{00000} Availability_Blackout__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The asset that is being "blocked" from the pool. Availability_Blackout__c,Start Time,Start_Time__c,DateTime, Availability_Blackout__c,End Time,End_Time__c,DateTime, Availability_Blackout__c,Reason,Reason__c,Picklist,"Reservation, Maintenance, Allocation, Grounded" Availability_Blackout__c,Source Record ID,Source_ID__c,Text(18),The Salesforce ID of the Reservation or Service Ticket causing the block.
+Reservation__c,Reservation Name,Name,Auto-Number,RES-{0000}
+Reservation__c,Requestor,Requestor__c,Lookup(User),
+Reservation__c,Origin Branch,Origin_Branch__c,Lookup(Home_Base__c),
+Reservation__c,Required Seats,Min_Seats__c,Number(2,0),
+Reservation__c,Preferred Engine,Preferred_Engine__c,Picklist,"EV, ICE, No Preference"
+Reservation__c,Start Time,Start_Time__c,DateTime,
+Reservation__c,End Time,End_Time__c,DateTime,
+Reservation__c,Status,Status__c,Picklist,"Pending, Assigned, In Progress, Completed"
+Reservation__c,Assigned Asset,Assigned_Asset__c,Lookup(Fleet_Asset__c),
+Availability_Blackout__c,Blackout Name,Name,Auto-Number,BLK-{00000}
+Availability_Blackout__c,Fleet Asset,Fleet_Asset__c,Master-Detail,
+Availability_Blackout__c,Start Time,Start_Time__c,DateTime,
+Availability_Blackout__c,End Time,End_Time__c,DateTime,
+Availability_Blackout__c,Reason,Reason__c,Picklist,"Reservation, Maintenance, Allocation"
+Driver__c,Full Name,Name,Text(80),The legal name of the personnel.
+Driver__c,License Number,License_Number__c,Text(50),Primary ID for ground/air/sea compliance.
+Driver__c,License Expiration,License_Expiration__c,Date,Triggers automated alerts.
+Driver__c,Safety Rating,Safety_Rating__c,Percent(3,0),Calculated based on violations and telemetry.
+Driver__c,Driver Status,Status__c,Picklist,"Active, On Leave, Suspended, Retired"
+Allocation__c,Allocation Name,Name,Auto-Number,AL-{00000}
+Allocation__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The asset in possession.
+Allocation__c,Driver,Driver__c,Lookup,The driver responsible.
+Allocation__c,Reservation,Reservation__c,Lookup,Links to the initial motorpool request.
+Allocation__c,Scheduled Start,Scheduled_Start__c,DateTime,Expected pickup time.
+Allocation__c,Scheduled End,Scheduled_End__c,DateTime,Expected return time.
+Allocation__c,Actual Check-Out,Actual_Check_Out__c,DateTime,Timestamp of physical key exchange.
+Allocation__c,Actual Check-In,Actual_Check_In__c,DateTime,Timestamp of physical return.
+Allocation__c,Odometer Start,Odometer_Start__c,Number(12,1),
+Allocation__c,Odometer End,Odometer_End__c,Number(12,1),
+Allocation__c,Check-Out Condition,Condition_Out__c,Long Text,Notes on damage/cleanliness at handover.
+
+Fuel_Card__c,Card Number,Name,Text(20),The primary card identifier (Masked).
+Fuel_Card__c,Assigned Driver,Assigned_Driver__c,Lookup(Driver__c),Primary cardholder.
+Fuel_Card__c,Provider,Provider__c,Text(100),e.g. WEX, Fuelman, Shell.
+Fuel_Card__c,Expiration Date,Expiration_Date__c,Date,
+Fuel_Card__c,Status,Status__c,Picklist,"Active, Blocked, Expired"
+Fuel_Log__c,Fuel Log Name,Name,Auto-Number,FL-{00000}
+Fuel_Log__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The vehicle that was fueled.
+Fuel_Log__c,Driver,Driver__c,Lookup,The individual performing the fueling.
+Fuel_Log__c,Fuel Card,Fuel_Card__c,Lookup,The payment method used.
+Fuel_Log__c,Transaction Date,Transaction_Date__c,DateTime,Date and time of the pump event.
+Fuel_Log__c,Fuel Volume,Volume__c,Number(10,3),Amount of fuel/energy added.
+Fuel_Log__c,Unit of Measure,UOM__c,Picklist,"Liters, Gallons (US), Gallons (UK)"
+Fuel_Log__c,Total Cost,Total_Cost__c,Currency(12,2),The final transaction amount.
+Fuel_Log__c,Odometer Reading,Odometer__c,Number(12,1),Used for consumption calculation.
+Fuel_Log__c,Vendor / Station,Vendor_Name__c,Text(100),e.g. Shell, BP, Exxon.
+Fuel_Log__c,Full Tank?,Full_Tank__c,Checkbox,Indicates if the tank was filled to 100%.
+Fuel_Log__c,Fuel Economy,Fuel_Economy__c,Formula,Calculated MPG/L-per-100KM.
+Fuel_Log__c,Anomaly Detected,Anomaly_Detected__c,Formula,"Logic: True if Volume > Asset.Capacity."
+Service_Ticket__c,Ticket Number,Name,Auto-Number,SRV-{00000}
+Service_Ticket__c,Fleet Asset,Fleet_Asset__c,Master-Detail,The asset being repaired.
+Service_Ticket__c,Subject,Subject__c,Text(100),Summary of the issue.
+Service_Ticket__c,Category,Category__c,Picklist,"Preventative, Corrective, Warranty, Roadside"
+Service_Ticket__c,Priority,Priority__c,Picklist,"Low, Medium, High, Critical (Grounded)"
+Service_Ticket__c,Status,Status__c,Picklist,"Draft, Open, In Progress, Waiting Parts, Completed, Cancelled"
+Service_Ticket__c,Detailed Description,Description__c,Long Text,
+Service_Ticket__c,Scheduled Date,Scheduled_Date__c,Date,
+Service_Ticket__c,Completion Date,Completion_Date__c,Date,
+Service_Ticket__c,Odometer at Service,Odometer__c,Number(12,1),
+Service_Ticket__c,Service Vendor,Service_Vendor__c,Text(100),External or internal shop.
+Service_Ticket__c,Parts Cost,Parts_Cost__c,Currency(12,2),
+Service_Ticket__c,Labor Cost,Labor_Cost__c,Currency(12,2),
+Service_Ticket__c,Total Service Cost,Total_Cost__c,Formula,Parts_Cost__c + Labor_Cost__c.
+Service_Line_Item__c,Service Ticket,Service_Ticket__c,Master-Detail,Parent repair ticket.
+Service_Line_Item__c,Description,Description__c,Text(255),e.g. Synthetic Oil change.
+Service_Line_Item__c,Entry Type,Type__c,Picklist,"Part, Labor, Fluid, Fee"
+Service_Line_Item__c,Quantity,Quantity__c,Number(8,2),
+Service_Line_Item__c,Unit Price,Unit_Price__c,Currency(12,2),
+Service_Line_Item__c,Line Subtotal,Subtotal__c,Formula,Quantity__c * Unit_Price__c.
+Citation__c,Ticket Number,Name,Text(50),Unique identifier from the physical ticket.
+Citation__c,Fleet Asset,Fleet_Asset__c,Lookup,The asset involved in the violation.
+Citation__c,Driver,Driver__c,Lookup,The driver responsible for the fine.
+Citation__c,Violation Type,Violation_Type__c,Picklist,"Speeding (Legal), Parking, Red Light, Overweight, Toll"
+Citation__c,Fine Amount,Fine_Amount__c,Currency(12,2),
+Citation__c,Issue Date,Issue_Date__c,DateTime,
+Citation__c,Is Paid,Is_Paid__c,Checkbox,
+Telematics_Equipment__c,Device ID,Name,Text(80),Serial Number of the hardware.
+Telematics_Equipment__c,Fleet Asset,Fleet_Asset__c,Lookup,Asset where hardware is currently installed.
+Telematics_Equipment__c,Equipment Type,Equipment_Type__c,Picklist,"GPS Tracker, Dashcam, OBD-II Dongle, Gateway"
+Telematics_Equipment__c,IMEI / ICCID,IMEI__c,Text(20),Cellular/Network identifiers.
+Telematics_Equipment__c,Status,Status__c,Picklist,"Active, Faulty, In Warehouse, Retired"
+Telemetry_Violation__c,Violation ID,Name,Auto-Number,VIO-{00000}
+Telemetry_Violation__c,Fleet Asset,Fleet_Asset__c,Lookup,Vehicle that triggered the sensor alert.
+Telemetry_Violation__c,Driver,Driver__c,Lookup,Driver assigned at time of event.
+Telemetry_Violation__c,Equipment,Equipment__c,Lookup,The specific device that reported the event.
+Telemetry_Violation__c,Violation Type,Type__c,Picklist,"Critical Speeding, Hard Braking, G-Force Impact, Geofence Exit"
+Telemetry_Violation__c,Recorded Value,Value__c,Text(50),e.g. "105 MPH" or "3.5G".
+Telemetry_Violation__c,Severity,Severity__c,Picklist,"Low, Medium, High, Critical"
+Telemetry_Violation__c,Timestamp,Timestamp__c,DateTime,
+Telemetry_Raw__b,Asset ID,Asset_ID__c,Text(18),Big Object Index Position 1.
+Telemetry_Raw__b,Timestamp,Timestamp__c,DateTime,Big Object Index Position 2.
+Telemetry_Raw__b,Location,Location__c,Geolocation,
+Telemetry_Raw__b,Speed,Speed__c,Number(3,0),
+Vendor_Rate_Card__c,Negotiated Rate,Negotiated_Rate__c,Currency(12,2),The contract price for this service.
+Vendor_Rate_Card__c,Region,Region__c,Picklist,"Global, US-West, EU-Central, Israel"
+Vendor_Rate_Card__c,Effective Date,Effective_Date__c,Date,
+Asset_Component__c,Component Name,Name,Text(100),e.g. "Battery Pack A"
+Asset_Component__c,Fleet Asset,Fleet_Asset__c,Lookup,Parent asset the component is installed in.
+Asset_Component__c,Component Type,Type__c,Picklist,"Battery, Tire, Engine, Transmission, Lift Gate"
+Asset_Component__c,Serial Number,Serial_Number__c,Text(50),Unique ID for part tracking.
+Asset_Component__c,Install Date,Install_Date__c,Date,
+Asset_Component__c,Current Status,Status__c,Picklist,"Active, In Repair, Replaced, Disposed"
+Carbon_Log__c,Log ID,Name,Auto-Number,CARB-{00000}
+Carbon_Log__c,Fleet Asset,Fleet_Asset__c,Master-Detail,Vehicle producing the emissions.
+Carbon_Log__c,CO2 Produced,CO2_KG__c,Number(12,4),Calculated carbon footprint in KG.
+Carbon_Log__c,Source Fuel Log,Fuel_Log__c,Lookup,Link to the transaction that generated this log.
+Carbon_Log__c,Emission Type,Emission_Type__c,Picklist,"Scope 1 (Combustion), Scope 2 (Energy)"
+Carbon_Log__c,Calculation Date,Date__c,Date,

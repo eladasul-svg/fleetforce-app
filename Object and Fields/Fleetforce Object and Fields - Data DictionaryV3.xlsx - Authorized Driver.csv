@@ -1,0 +1,7 @@
+Field Label,API Name,Data Type,Logic / Requirement,Picklist Values,Global (Y/N)
+Authorization ID,Name,Auto-Number,AUTH-{0000},,
+Fleet Asset,Fleet_Asset__c,Master-Detail,The vehicle.,,
+Driver (Contact),Driver__c,Master-Detail,The human.,,
+Authorization Type,Type__c,Picklist,"Permanent, Temporary, Emergency.",,
+Is Active,Is_Active__c,Checkbox,Unchecking this revokes access without deleting history.,,
+Key Access,Has_Key__c,Checkbox,Does this driver physically hold a spare key for this car?,,
