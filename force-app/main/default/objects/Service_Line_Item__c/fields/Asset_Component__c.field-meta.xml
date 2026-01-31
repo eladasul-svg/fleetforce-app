@@ -4,5 +4,5 @@
     <label>Asset Component</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Asset_Component</relationshipName>
+    <relationshipName>Rel_Asset_Component_VJZI</relationshipName>
 </CustomField>

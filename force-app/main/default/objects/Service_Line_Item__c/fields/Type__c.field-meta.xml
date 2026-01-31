@@ -6,6 +6,7 @@
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -4,5 +4,5 @@
     <label>Driver Branch</label>
     <type>Lookup</type>
     <referenceTo>Fleet_Branch__c</referenceTo>
-    <relationshipName>Driver_Branch</relationshipName>
+    <relationshipName>Rel_Driver_Branch_FJDD</relationshipName>
 </CustomField>

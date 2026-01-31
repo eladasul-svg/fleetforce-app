@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Driver__c</fullName>
-    <label>Driver</label>
+    <fullName>Equipment__c</fullName>
+    <label>Equipment</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Driver</relationshipName>
+    <relationshipName>Rel_Equipment_NEEV</relationshipName>
 </CustomField>

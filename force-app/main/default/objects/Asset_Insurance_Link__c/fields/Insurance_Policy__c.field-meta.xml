@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Manager__c</fullName>
-    <label>Approving Manager</label>
+    <fullName>Insurance_Policy__c</fullName>
+    <label>Insurance Policy</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Manager_DNPG</relationshipName>
+    <relationshipName>Rel_Insurance_Policy_WLDM</relationshipName>
 </CustomField>

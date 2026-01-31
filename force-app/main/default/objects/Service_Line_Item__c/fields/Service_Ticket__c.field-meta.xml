@@ -4,6 +4,6 @@
     <label>Service Ticket</label>
     <type>MasterDetail</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Service_Ticket</relationshipName>
+    <relationshipName>Rel_Service_Ticket_VYEU</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

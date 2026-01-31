@@ -2,5 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fuel_Economy__c</fullName>
     <label>Calculated Economy</label>
-    <type>Formula</type>
+    <type>Number</type>
+    <precision>18</precision>
+    <scale>2</scale>
 </CustomField>

@@ -2,5 +2,5 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Doc_Link__c</fullName>
     <label>External URL</label>
-    <type>URL</type>
+    <type>Url</type>
 </CustomField>

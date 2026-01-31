@@ -2,5 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Subtotal__c</fullName>
     <label>Total Line</label>
-    <type>Formula</type>
+    <type>Number</type>
+    <precision>18</precision>
+    <scale>2</scale>
 </CustomField>

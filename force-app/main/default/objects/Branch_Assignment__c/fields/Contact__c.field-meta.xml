@@ -4,5 +4,5 @@
     <label>Assigned Contact</label>
     <type>Lookup</type>
     <referenceTo>Contact</referenceTo>
-    <relationshipName>Contact</relationshipName>
+    <relationshipName>Rel_Contact_OEQS</relationshipName>
 </CustomField>

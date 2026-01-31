@@ -4,6 +4,6 @@
     <label>Fleet Schedule</label>
     <type>MasterDetail</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Fleet_Schedule</relationshipName>
+    <relationshipName>Rel_Fleet_Schedule_WCWL</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

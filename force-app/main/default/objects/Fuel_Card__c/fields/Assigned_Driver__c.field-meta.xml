@@ -4,5 +4,5 @@
     <label>Assigned Driver</label>
     <type>Lookup</type>
     <referenceTo>Contact</referenceTo>
-    <relationshipName>Assigned_Driver</relationshipName>
+    <relationshipName>Rel_Assigned_Driver_VHBZ</relationshipName>
 </CustomField>

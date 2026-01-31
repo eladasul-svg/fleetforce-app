@@ -4,5 +4,5 @@
     <label>Fleet Branch</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Fleet_Branch</relationshipName>
+    <relationshipName>Rel_Fleet_Branch_OTRW</relationshipName>
 </CustomField>

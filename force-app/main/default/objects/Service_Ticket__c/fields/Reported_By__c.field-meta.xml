@@ -4,5 +4,5 @@
     <label>Reported By</label>
     <type>Lookup</type>
     <referenceTo>User</referenceTo>
-    <relationshipName>Reported_By</relationshipName>
+    <relationshipName>Rel_Reported_By_GQEZ</relationshipName>
 </CustomField>

@@ -3,4 +3,6 @@
     <fullName>Unit_Price__c</fullName>
     <label>Unit Cost</label>
     <type>Currency</type>
+    <precision>18</precision>
+    <scale>0</scale>
 </CustomField>

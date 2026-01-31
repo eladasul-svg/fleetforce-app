@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Security scoping for Users and Drivers.</description>
     <label>Branch Assignment</label>
     <pluralLabel>Branch Assignments</pluralLabel>
-    <sharingModel>ReadWrite</sharingModel>
+    <nameField><label>Name</label><type>Text</type></nameField>
+    <sharingModel>ControlledByParent</sharingModel>
 </CustomObject>

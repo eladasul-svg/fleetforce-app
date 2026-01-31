@@ -4,5 +4,5 @@
     <label>Schedule</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Schedule</relationshipName>
+    <relationshipName>Rel_Schedule_KAGO</relationshipName>
 </CustomField>
