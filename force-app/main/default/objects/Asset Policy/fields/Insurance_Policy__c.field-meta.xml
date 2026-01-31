@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Insurance_Policy__c</fullName>
+    <label>Insurance Policy</label>
+    <type>MasterDetail</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Insurance_Policy</relationshipName>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

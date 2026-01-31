@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Proficiency__c</fullName>
+    <label>Proficiency Level</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>1 - Beginner</fullName><default>false</default><label>1 - Beginner</label></value>
+            <value><fullName>2 - Intermediate</fullName><default>false</default><label>2 - Intermediate</label></value>
+            <value><fullName>3 - Expert</fullName><default>false</default><label>3 - Expert</label></value>
+            <value><fullName>4 - Native.</fullName><default>false</default><label>4 - Native.</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

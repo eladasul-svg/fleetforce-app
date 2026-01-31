@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <label>Type</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Certification</fullName><default>false</default><label>Certification</label></value>
+            <value><fullName>Internal Skill</fullName><default>false</default><label>Internal Skill</label></value>
+            <value><fullName>Language</fullName><default>false</default><label>Language</label></value>
+            <value><fullName>Access Badge.</fullName><default>false</default><label>Access Badge.</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

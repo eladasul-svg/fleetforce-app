@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Origin_Branch__c</fullName>
+    <label>Origin Branch</label>
+    <type>Lookup</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Origin_Branch</relationshipName>
+</CustomField>
