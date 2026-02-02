@@ -195,3 +195,67 @@ def build_fleetforce():
 if __name__ == "__main__":
     build_fleetforce()
     print("Done: Total Rebuild Complete.")
+
+    # 🧠 Fleetforce Project Memory
+**Last Updated:** February 3, 2026
+**Status:** MVP Deployed / Console App Active
+**Current Phase:** Data Loading (Core Objects Complete) & UI Polish
+
+---
+
+## 🏗️ Architecture & Configuration
+* **Org Type:** Scratch Org / Developer Edition
+* **Namespace:** `fleetforce__` (CRITICAL)
+    * All Custom Objects and Fields must be prefixed with `fleetforce__` in CLI commands and CSV headers.
+    * *Exception:* The local file names and metadata XML files in `force-app` do NOT use the prefix.
+* **App Type:** Lightning Console (`Fleetforce`)
+* **Permission Set:** `FleetAdmin`
+    * Grants "Modify All" on Objects.
+    * Grants "Read/Edit" on all Custom Fields (FLS).
+    * Grants Visibility to App and Tabs.
+
+---
+
+## 🛠️ The Toolkit (Scripts)
+
+### 1. `builder.py` (The God Script)
+* **Purpose:** Regenerates all Metadata (Objects, Fields, Tabs, App, Permissions) from CSV specs.
+* **Key Logic:**
+    * **Orphan Handling:** Scans `Fields.csv` for objects missing from `Objects.csv` and forces Tab creation for them.
+    * **Standard Objects:** Maps `Contact` -> `standard-Contact` for Tab visibility.
+    * **Permissions:** Automatically generates `<fieldPermissions>` for every field to solve "Field Not Found" API errors.
+
+### 2. `seeder.py` (The Data Factory)
+* **Purpose:** Generates dummy CSV data for import.
+* **Key Logic:**
+    * **Namespace Toggle:** `NAMESPACE_PREFIX = "fleetforce__"` is ON.
+    * **Field Mapping:**
+        * `State__c` → `State_Province__c` (Branch)
+        * `Frequency_Months__c` → `Interval_Value__c` + `Frequency_Type__c` (Maintenance Plan)
+
+---
+
+## 💾 Data State
+| Object | Status | Notes |
+| :--- | :--- | :--- |
+| **Fleet_Branch__c** | ✅ Loaded | 2 Records (NY, NJ) |
+| **Fleet_Asset__c** | ✅ Loaded | Vehicles (Camry, F-150) |
+| **Maintenance_Plan__c** | ✅ Loaded | Standard Oil Change, etc. |
+| **Service_Ticket__c** | ⏳ Pending | Needs Parent IDs (Asset) |
+| **Fuel_Log__c** | ⏳ Pending | Needs Parent IDs (Asset) |
+| **Allocation__c** | ⏳ Pending | Needs Parent IDs (Asset, Driver) |
+
+---
+
+## 🚨 Known "Gotchas" (Do Not Forget)
+1.  **The "Field Not Found" Error:** Usually means **Permissions**, not a missing field. Always redeploy `FleetAdmin` if this happens.
+2.  **The "InvalidBatch" Error:** Usually means **Namespace**. Ensure CSV headers have `fleetforce__`.
+3.  **Master-Detail Fields:** Cannot be assigned Permissions (they are universally required). `builder.py` filters them out to avoid deployment errors.
+4.  **Tab Deployment:** If an Object exists but the Tab is missing, the App deployment will fail. `builder.py` now runs a "Tab Sweep" to prevent this.
+
+---
+
+## ⏭️ Next Session Goals
+1.  **UI Design:** Build the "Fleetforce Command Center" Home Page (Lightning App Builder).
+2.  **Data Linking:** Update `seeder.py` to fetch real IDs from Salesforce (Assets/Contacts) so we can upload Children (Tickets/Logs).
+3.  **Automation:** Create a flow/trigger for "Maintenance Due" status.
