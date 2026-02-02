@@ -4,5 +4,5 @@
     <label>Driver (Contact)</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_JWJN</relationshipName>
+    <relationshipName>Rel_Driver_VMOE</relationshipName>
 </CustomField>

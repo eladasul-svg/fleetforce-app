@@ -4,5 +4,5 @@
     <label>Requesting User</label>
     <type>Lookup</type>
     <referenceTo>User</referenceTo>
-    <relationshipName>Rel_Requestor_User_KCAH</relationshipName>
+    <relationshipName>Rel_Requestor_User_JNBD</relationshipName>
 </CustomField>

@@ -1,10 +1,46 @@
+"Here is the PROJECT_MEMORY.md file from our last session. Please read it to restore your context, load the included script into your memory, and let's begin Phase 2."
+# 🐺 PROJECT MEMORY: Fleetforce Setup
+**Status:** Phase 1 (Schema Build) COMPLETE
+**Last Successful Deployment:** 0AfWl000000bWgrKAE (307 Components, 0 Errors)
+**Current Phase:** Phase 2 (Data Seeding)
+
+---
+
+## 🧠 THE "WOLF STRATEGY" KNOWLEDGE BASE
+*These rules are now hard-coded into our architecture. Do not deviate.*
+
+### 1. Naming & Syntax Rules
+* **The Suffix Law:** All Custom Objects MUST end in `__c`. Single-word objects (e.g., `Reservation`, `Schedule`) in the CSV are treated as Standard Objects unless we explicitly force the `__c` suffix.
+* **Reserved Fields:** The field label "Standard Files" is reserved and cannot be created via Metadata API. It must be explicitly filtered out.
+* **Type Sanitization:**
+    * "Long Text" -> `LongTextArea` (requires visible lines).
+    * "URL" -> `Url`.
+    * "Roll-Up Summary" -> Temporarily deployed as `Number` to avoid dependency crashes; convert in UI later.
+
+### 2. Relationship Architecture
+* **The 40-Char Limit:** Relationship Names (`relationshipName`) have a hard 40-character limit.
+    * *Solution:* We strip the name to 30 chars and append a 4-char random suffix (e.g., `Rel_Insurance_Policy_X9J2`).
+* **The Duplicate Trap:** We use random suffixes to guarantee uniqueness and prevent "Duplicate Relationship Name" errors.
+* **The "Two Masters" Rule:** An object cannot have two Master-Detail relationships to the same parent, or conflicting Master-Details.
+    * *Solution:* Our script detects this. The first M-D is kept; the second is auto-downgraded to a `Lookup`.
+
+### 3. Sharing & Security
+* **The Master-Detail Constraint:** Any object with a Master-Detail field *cannot* have a `ReadWrite` sharing model.
+    * *Solution:* The script pre-scans for M-D fields. If found, it forces `<sharingModel>ControlledByParent</sharingModel>`.
+
+---
+
+## 🛠️ THE GOLDEN BUILDER SCRIPT
+*This script is the only one that works. It includes the logic for all the rules above.*
+
+```python
 import os
 import csv
 import re
 import random
 import string
 
-# 1. Configuration
+# 1. Global Naming & Sanitization
 NAME_FIXES = {
     "Asset Policy": "Asset_Insurance_Link__c",
     "Telemtry Violation": "Telemetry_Violation__c",
@@ -38,8 +74,10 @@ def create_object_metadata(obj_api_name, label, sharing_model):
     os.makedirs(os.path.join(obj_path, 'fields'), exist_ok=True)
     
     meta_path = f"{obj_path}/{obj_api_name}.object-meta.xml"
+    
+    # Write metadata (overwrite if exists to ensure latest settings)
     with open(meta_path, "w") as meta:
-        meta.write('<?xml version="1.0" encoding="UTF-8"?>\n<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">\n')
+        meta.write('<?xml version="1.0" encoding="UTF-8"?>\n<CustomObject xmlns="[http://soap.sforce.com/2006/04/metadata](http://soap.sforce.com/2006/04/metadata)">\n')
         meta.write(f'    <deploymentStatus>Deployed</deploymentStatus>\n')
         meta.write(f'    <label>{label}</label>\n')
         meta.write(f'    <pluralLabel>{label}s</pluralLabel>\n')
@@ -47,40 +85,10 @@ def create_object_metadata(obj_api_name, label, sharing_model):
         meta.write(f'    <sharingModel>{sharing_model}</sharingModel>\n')
         meta.write('</CustomObject>')
 
-def create_permission_set(custom_objects, custom_fields):
-    perm_path = "force-app/main/default/permissionsets"
-    os.makedirs(perm_path, exist_ok=True)
-    
-    with open(f"{perm_path}/FleetAdmin.permissionset-meta.xml", "w") as p:
-        p.write('<?xml version="1.0" encoding="UTF-8"?>\n<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">\n')
-        p.write('    <label>Fleet Admin</label>\n    <hasActivationRequired>false</hasActivationRequired>\n')
-        
-        # Object Permissions
-        for obj in custom_objects:
-            p.write('    <objectPermissions>\n')
-            p.write(f'        <object>{obj}</object>\n')
-            p.write('        <allowCreate>true</allowCreate>\n        <allowDelete>true</allowDelete>\n')
-            p.write('        <allowEdit>true</allowEdit>\n        <allowRead>true</allowRead>\n')
-            p.write('        <viewAllRecords>true</viewAllRecords>\n        <modifyAllRecords>true</modifyAllRecords>\n')
-            p.write('    </objectPermissions>\n')
-
-        # Field Permissions
-        for field_ref in custom_fields:
-            p.write('    <fieldPermissions>\n')
-            p.write(f'        <editable>true</editable>\n')
-            p.write(f'        <field>{field_ref}</field>\n')
-            p.write(f'        <readable>true</readable>\n')
-            p.write('    </fieldPermissions>\n')
-            
-        p.write('</PermissionSet>')
-    print("✅ Generated FleetAdmin Permission Set (Filtered).")
-
 def build_fleetforce():
     base_path = "force-app/main/default/objects"
     md_objects = set()
     md_counter = {} 
-    all_custom_objects = set()
-    all_custom_fields = set()
 
     # 2. SCAN: Detect Master-Detail relationships first
     if os.path.exists('Fields.csv'):
@@ -98,7 +106,6 @@ def build_fleetforce():
             for row in reader:
                 api_name = normalize_name(row['FullName'])
                 if api_name in STANDARD_OBJECTS: continue
-                all_custom_objects.add(api_name)
                 
                 sharing = "ControlledByParent" if api_name in md_objects else "ReadWrite"
                 create_object_metadata(api_name, row['Label'], sharing)
@@ -108,37 +115,31 @@ def build_fleetforce():
         with open('Fields.csv', mode='r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if "Standard Files" in row['Field Label'] or "Standard Files" in row['API Name']: continue
+                # --- BLOCK INVALID FIELDS ---
+                label_check = row['Field Label'].lower()
+                if "standard files" in label_check: continue
+                if "standard_files" in row['API Name'].lower(): continue
 
                 obj_api_name = normalize_name(row['Object'])
                 field_api_name = row['API Name'].strip()
+                
                 if not obj_api_name or not field_api_name or field_api_name == 'Name': continue 
                 
-                # --- TYPE DETECTION ---
-                rt = row['Data Type'].lower()
-                is_md = "master-detail" in rt
-                
-                # FIX: Only add to Permission Set if NOT Master-Detail and NOT Required
-                # (For simplicity, we assume M-D is the only restricted type for now)
-                if not is_md:
-                    all_custom_fields.add(f"{obj_api_name}.{field_api_name}")
-
-                # SAFETY NET for Parents
+                # SAFETY NET: Ensure Parent Object exists (even if missing from Objects.csv)
                 if obj_api_name not in STANDARD_OBJECTS:
-                    all_custom_objects.add(obj_api_name)
                     obj_path = os.path.join(base_path, obj_api_name)
                     if not os.path.exists(obj_path):
                         sharing = "ControlledByParent" if obj_api_name in md_objects else "ReadWrite"
                         create_object_metadata(obj_api_name, row['Object'], sharing)
 
                 field_path = os.path.join(base_path, obj_api_name, 'fields', f"{field_api_name}.field-meta.xml")
-                os.makedirs(os.path.dirname(field_path), exist_ok=True)
                 
                 with open(field_path, "w") as f_meta:
-                    f_meta.write('<?xml version="1.0" encoding="UTF-8"?>\n<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">\n')
+                    f_meta.write('<?xml version="1.0" encoding="UTF-8"?>\n<CustomField xmlns="[http://soap.sforce.com/2006/04/metadata](http://soap.sforce.com/2006/04/metadata)">\n')
                     f_meta.write(f'    <fullName>{field_api_name}</fullName>\n')
                     f_meta.write(f'    <label>{row["Field Label"]}</label>\n')
                     
+                    rt = row['Data Type'].lower()
                     params = re.findall(r'\d+', row['Data Type'])
 
                     if "long text" in rt or "longtextarea" in rt:
@@ -147,8 +148,10 @@ def build_fleetforce():
                         f_meta.write('    <type>Url</type>\n')
                     elif "formula" in rt or "roll-up" in rt or "summary" in rt: 
                         f_meta.write('    <type>Number</type>\n    <precision>18</precision>\n    <scale>2</scale>\n')
-                    elif "lookup" in rt or is_md:
-                        # Downgrade logic for MD
+                    elif "lookup" in rt or "master-detail" in rt:
+                        is_md = "master-detail" in rt
+                        
+                        # Downgrade logic
                         if is_md:
                             count = md_counter.get(obj_api_name, 0)
                             if count >= 1: is_md = False
@@ -158,6 +161,7 @@ def build_fleetforce():
                         target = target_match.group(1) if target_match else "Account"
                         target = normalize_name(target)
                         
+                        # Random Suffix for Relationship Name
                         rand_suffix = ''.join(random.choices(string.ascii_uppercase, k=4))
                         base_rel = f"Rel_{field_api_name.replace('__c','')}_{rand_suffix}"
                         rel_name = base_rel[:40]
@@ -188,10 +192,6 @@ def build_fleetforce():
                     
                     f_meta.write('</CustomField>')
 
-    # 5. GENERATE PERMISSION SET
-    all_objects_for_perms = all_custom_objects.union({"Account", "Contact"})
-    create_permission_set(all_objects_for_perms, all_custom_fields)
-
 if __name__ == "__main__":
     build_fleetforce()
-    print("Done: Permissions Cleaned (Master-Detail Excluded).")
+    print("Done: Total Rebuild Complete.")

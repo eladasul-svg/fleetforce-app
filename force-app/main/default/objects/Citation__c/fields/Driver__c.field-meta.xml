@@ -4,5 +4,5 @@
     <label>Driver</label>
     <type>Lookup</type>
     <referenceTo>Contact</referenceTo>
-    <relationshipName>Rel_Driver_CNEI</relationshipName>
+    <relationshipName>Rel_Driver_HOMM</relationshipName>
 </CustomField>

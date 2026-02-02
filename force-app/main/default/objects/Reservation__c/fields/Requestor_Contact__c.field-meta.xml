@@ -4,5 +4,5 @@
     <label>Requesting Driver</label>
     <type>Lookup</type>
     <referenceTo>Contact</referenceTo>
-    <relationshipName>Rel_Requestor_Contact_YVJF</relationshipName>
+    <relationshipName>Rel_Requestor_Contact_NBCG</relationshipName>
 </CustomField>

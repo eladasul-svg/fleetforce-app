@@ -2,7 +2,7 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
     <label>Telematics Equipment</label>
-    <pluralLabel>Telematics Equipment</pluralLabel>
+    <pluralLabel>Telematics Equipments</pluralLabel>
     <nameField><label>Name</label><type>Text</type></nameField>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

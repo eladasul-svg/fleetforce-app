@@ -1,1 +1,0 @@
-Summary for Tomorrow: > "We have a PBO authorized as fleetforcePBO, the namespace fleetforce is linked, and the local project fleetforce-app is initialized. Ready to create the first Scratch Org and start the data model."

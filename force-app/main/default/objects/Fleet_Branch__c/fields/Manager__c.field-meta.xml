@@ -4,5 +4,5 @@
     <label>Approving Manager</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Manager_DNPG</relationshipName>
+    <relationshipName>Rel_Manager_YLOQ</relationshipName>
 </CustomField>

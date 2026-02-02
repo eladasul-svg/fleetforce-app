@@ -4,5 +4,5 @@
     <label>Source Fuel Log</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fuel_Log_AHKJ</relationshipName>
+    <relationshipName>Rel_Fuel_Log_YOJI</relationshipName>
 </CustomField>

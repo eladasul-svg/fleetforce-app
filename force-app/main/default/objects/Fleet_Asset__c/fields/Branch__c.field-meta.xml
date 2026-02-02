@@ -4,5 +4,5 @@
     <label>Branch</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Branch_MZSG</relationshipName>
+    <relationshipName>Rel_Branch_AEOB</relationshipName>
 </CustomField>

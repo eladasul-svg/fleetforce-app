@@ -4,5 +4,5 @@
     <label>Allocation (Trip)</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Allocation_ZWZA</relationshipName>
+    <relationshipName>Rel_Allocation_QBEJ</relationshipName>
 </CustomField>

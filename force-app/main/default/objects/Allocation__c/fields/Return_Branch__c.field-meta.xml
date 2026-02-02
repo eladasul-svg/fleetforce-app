@@ -4,5 +4,5 @@
     <label>Return Branch</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Return_Branch_KMZO</relationshipName>
+    <relationshipName>Rel_Return_Branch_AIAC</relationshipName>
 </CustomField>

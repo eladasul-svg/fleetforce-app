@@ -4,5 +4,5 @@
     <label>Insurance Policy</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Insurance_Policy_WLDM</relationshipName>
+    <relationshipName>Rel_Insurance_Policy_IQYP</relationshipName>
 </CustomField>
