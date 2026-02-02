@@ -1,2 +1,3 @@
-Name,fleetforce__Frequency_Months__c,fleetforce__Mileage_Interval__c
-Standard Oil Change,6,5000
+Name,fleetforce__Interval_Value__c,fleetforce__Frequency_Type__c
+Standard Oil Change,6,Months
+Tire Rotation,12,Months

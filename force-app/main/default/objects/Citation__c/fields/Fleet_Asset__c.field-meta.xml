@@ -4,6 +4,6 @@
     <label>Fleet Asset</label>
     <type>MasterDetail</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Asset_SYXJ</relationshipName>
+    <relationshipName>Rel_Fleet_Asset_TDMC</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

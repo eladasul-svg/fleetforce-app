@@ -4,5 +4,5 @@
     <label>Primary Contact</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Primary_Contact_SAIS</relationshipName>
+    <relationshipName>Rel_Primary_Contact_FIEY</relationshipName>
 </CustomField>

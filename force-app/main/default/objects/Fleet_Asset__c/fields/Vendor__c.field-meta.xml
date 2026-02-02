@@ -4,5 +4,5 @@
     <label>Vendor/FMC</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Vendor_LSWY</relationshipName>
+    <relationshipName>Rel_Vendor_XGNF</relationshipName>
 </CustomField>

@@ -4,5 +4,5 @@
     <label>Fuel Card</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fuel_Card_RHOZ</relationshipName>
+    <relationshipName>Rel_Fuel_Card_TWLO</relationshipName>
 </CustomField>

@@ -4,5 +4,5 @@
     <label>Driver</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_GIHZ</relationshipName>
+    <relationshipName>Rel_Driver_BIAP</relationshipName>
 </CustomField>

@@ -4,5 +4,5 @@
     <label>Driver (Contact)</label>
     <type>Lookup</type>
     <referenceTo>Contact</referenceTo>
-    <relationshipName>Rel_Driver_IOZQ</relationshipName>
+    <relationshipName>Rel_Driver_RNFR</relationshipName>
 </CustomField>

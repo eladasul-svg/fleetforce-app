@@ -91,11 +91,21 @@ def generate_data():
     write_csv("Fleet_Asset__c.csv", assets, ["Name", "Vin__c", "Status__c", "License_Plate__c"])
 
     # 5. MAINTENANCE PLANS
+    # Updated to match Object Manager: Interval_Value__c + Frequency_Type__c
     plans = [
-        {"Name": "Standard Oil Change", "Frequency_Months__c": "6", "Mileage_Interval__c": "5000"}
+        {
+            "Name": "Standard Oil Change", 
+            "Interval_Value__c": "6", 
+            "Frequency_Type__c": "Months"
+        },
+        {
+            "Name": "Tire Rotation", 
+            "Interval_Value__c": "12", 
+            "Frequency_Type__c": "Months"
+        }
     ]
-    write_csv("Maintenance_Plan__c.csv", plans, ["Name", "Frequency_Months__c", "Mileage_Interval__c"])
-
+    write_csv("Maintenance_Plan__c.csv", plans, ["Name", "Interval_Value__c", "Frequency_Type__c"])
+    
     # --- CHILDREN (Leaves) ---
 
     # 6. SERVICE TICKETS

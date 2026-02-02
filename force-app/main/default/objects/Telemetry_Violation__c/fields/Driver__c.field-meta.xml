@@ -4,5 +4,5 @@
     <label>Driver</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_CWTH</relationshipName>
+    <relationshipName>Rel_Driver_CPTL</relationshipName>
 </CustomField>

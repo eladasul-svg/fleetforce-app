@@ -4,6 +4,6 @@
     <label>Driver</label>
     <type>MasterDetail</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_JTYT</relationshipName>
+    <relationshipName>Rel_Driver_XSGJ</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

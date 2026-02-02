@@ -4,5 +4,5 @@
     <label>Assigned Asset</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Assigned_Asset_GTOU</relationshipName>
+    <relationshipName>Rel_Assigned_Asset_ZTHE</relationshipName>
 </CustomField>
