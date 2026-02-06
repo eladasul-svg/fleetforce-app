@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fuel_Card__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Fuel Card</label>
-    <type>Lookup</type>
     <referenceTo>Account</referenceTo>
     <relationshipName>Rel_Fuel_Card_TWLO</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
 </CustomField>

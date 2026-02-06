@@ -2,13 +2,27 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Liability_Status__c</fullName>
     <label>Liability Status</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Company Liable</fullName><default>false</default><label>Company Liable</label></value>
-            <value><fullName>Transferred to Driver</fullName><default>false</default><label>Transferred to Driver</label></value>
-            <value><fullName>Driver Accepted.</fullName><default>false</default><label>Driver Accepted.</label></value>
+            <value>
+                <fullName>Company Liable</fullName>
+                <default>false</default>
+                <label>Company Liable</label>
+            </value>
+            <value>
+                <fullName>Transferred to Driver</fullName>
+                <default>false</default>
+                <label>Transferred to Driver</label>
+            </value>
+            <value>
+                <fullName>Driver Accepted.</fullName>
+                <default>false</default>
+                <label>Driver Accepted.</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

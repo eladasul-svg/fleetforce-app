@@ -2,5 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Date_Added__c</fullName>
     <label>Date Added</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Date</type>
 </CustomField>

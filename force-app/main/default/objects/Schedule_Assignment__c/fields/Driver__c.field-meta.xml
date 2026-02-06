@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Driver__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Driver (Contact)</label>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Schedule Assignments</relationshipLabel>
+    <relationshipName>Schedule_Assignments</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_JHAW</relationshipName>
 </CustomField>

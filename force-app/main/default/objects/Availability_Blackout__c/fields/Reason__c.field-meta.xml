@@ -2,14 +2,32 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Reason__c</fullName>
     <label>Reason</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Reservation</fullName><default>false</default><label>Reservation</label></value>
-            <value><fullName>Maintenance</fullName><default>false</default><label>Maintenance</label></value>
-            <value><fullName>Allocation</fullName><default>false</default><label>Allocation</label></value>
-            <value><fullName>Grounded.</fullName><default>false</default><label>Grounded.</label></value>
+            <value>
+                <fullName>Reservation</fullName>
+                <default>false</default>
+                <label>Reservation</label>
+            </value>
+            <value>
+                <fullName>Maintenance</fullName>
+                <default>false</default>
+                <label>Maintenance</label>
+            </value>
+            <value>
+                <fullName>Allocation</fullName>
+                <default>false</default>
+                <label>Allocation</label>
+            </value>
+            <value>
+                <fullName>Grounded.</fullName>
+                <default>false</default>
+                <label>Grounded.</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
