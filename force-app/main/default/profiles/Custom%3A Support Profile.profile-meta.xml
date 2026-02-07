@@ -663,6 +663,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Asset__c.Fuel_Energy_Level__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Asset__c.Fuel_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -750,6 +755,11 @@
         <editable>false</editable>
         <field>Fleet_Asset__c.Status__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Fleet_Asset__c.Total_Maintenance_Cost__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>

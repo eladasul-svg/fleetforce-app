@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shop_Floor_Active</fullName>
+    <columns>NAME</columns>
+    <columns>Fleet_Asset__c</columns>
+    <columns>Summary__c</columns>
+    <columns>Status__c</columns>
+    <columns>Priority__c</columns>
+    <columns>Due_Date__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Shop Floor (Active)</label>
+</ListView>
