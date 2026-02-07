@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fixed_Cost__c</fullName>
+    <inlineHelpText>Use only for flat-rate jobs (e.g., &apos;Brake Special $99&apos;). This amount is added in addition to any Parts/Labor entered.</inlineHelpText>
+    <label>Fixed Price</label>
+    <precision>14</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

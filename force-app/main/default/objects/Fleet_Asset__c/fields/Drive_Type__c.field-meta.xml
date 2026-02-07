@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Drive_Type__c</fullName>
+    <label>Drive Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FWD</fullName>
+                <default>false</default>
+                <label>FWD</label>
+            </value>
+            <value>
+                <fullName>RWD</fullName>
+                <default>false</default>
+                <label>RWD</label>
+            </value>
+            <value>
+                <fullName>AWD</fullName>
+                <default>false</default>
+                <label>AWD</label>
+            </value>
+            <value>
+                <fullName>4WD</fullName>
+                <default>false</default>
+                <label>4WD</label>
+            </value>
+            <value>
+                <fullName>6WD</fullName>
+                <default>false</default>
+                <label>6WD</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

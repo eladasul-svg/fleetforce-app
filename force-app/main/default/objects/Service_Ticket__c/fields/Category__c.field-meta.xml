@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Category__c</fullName>
-    <label>Ticket Type</label>
+    <label>Category</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
@@ -9,9 +9,44 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Default</fullName>
+                <fullName>Preventive Maintenance (PM)</fullName>
                 <default>false</default>
-                <label>Default</label>
+                <label>Preventive Maintenance (PM)</label>
+            </value>
+            <value>
+                <fullName>Corrective Repair</fullName>
+                <default>false</default>
+                <label>Corrective Repair</label>
+            </value>
+            <value>
+                <fullName>Recall</fullName>
+                <default>false</default>
+                <label>Recall</label>
+            </value>
+            <value>
+                <fullName>Inspection</fullName>
+                <default>false</default>
+                <label>Inspection</label>
+            </value>
+            <value>
+                <fullName>Tire Change</fullName>
+                <default>false</default>
+                <label>Tire Change</label>
+            </value>
+            <value>
+                <fullName>Glass/Body</fullName>
+                <default>false</default>
+                <label>Glass/Body</label>
+            </value>
+            <value>
+                <fullName>Software Update</fullName>
+                <default>false</default>
+                <label>Software Update</label>
+            </value>
+            <value>
+                <fullName>Roadside Assistance</fullName>
+                <default>false</default>
+                <label>Roadside Assistance</label>
             </value>
         </valueSetDefinition>
     </valueSet>

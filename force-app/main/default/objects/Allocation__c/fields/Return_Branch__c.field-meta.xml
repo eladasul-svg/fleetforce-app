@@ -3,8 +3,9 @@
     <fullName>Return_Branch__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Return Branch</label>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Return_Branch_JNMV</relationshipName>
+    <referenceTo>Fleet_Branch__c</referenceTo>
+    <relationshipLabel>Allocations (Return Branch)</relationshipLabel>
+    <relationshipName>Allocations_Return_Branch</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>

@@ -155,8 +155,9 @@
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>Service Ticket</label>
     <nameField>
-        <label>Name</label>
-        <type>Text</type>
+        <displayFormat>STA-{0000}</displayFormat>
+        <label>Ticket Number</label>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Service Tickets</pluralLabel>
     <searchLayouts></searchLayouts>

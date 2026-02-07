@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Compact</fullName>
+        <default>false</default>
+        <label>Compact</label>
+    </customValue>
+    <customValue>
+        <fullName>Sedan</fullName>
+        <default>false</default>
+        <label>Sedan</label>
+    </customValue>
+    <customValue>
+        <fullName>SUV</fullName>
+        <default>false</default>
+        <label>SUV</label>
+    </customValue>
+    <customValue>
+        <fullName>Truck</fullName>
+        <default>false</default>
+        <label>Truck</label>
+    </customValue>
+    <customValue>
+        <fullName>Van</fullName>
+        <default>false</default>
+        <label>Van</label>
+    </customValue>
+    <customValue>
+        <fullName>Luxury</fullName>
+        <default>false</default>
+        <label>Luxury</label>
+    </customValue>
+    <customValue>
+        <fullName>Motorcycle</fullName>
+        <default>false</default>
+        <label>Motorcycle</label>
+    </customValue>
+    <customValue>
+        <fullName>Aviation</fullName>
+        <default>false</default>
+        <label>Aviation</label>
+    </customValue>
+    <customValue>
+        <fullName>Heavy Machinery</fullName>
+        <default>false</default>
+        <label>Heavy Machinery</label>
+    </customValue>
+    <customValue>
+        <fullName>Commercial</fullName>
+        <default>false</default>
+        <label>Commercial</label>
+    </customValue>
+    <customValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+    </customValue>
+    <masterLabel>Vehicle Class</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

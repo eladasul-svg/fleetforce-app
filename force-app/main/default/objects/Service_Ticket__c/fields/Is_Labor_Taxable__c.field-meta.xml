@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Labor_Taxable__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Check this box if the state/jurisdiction requires sales tax on service labor.</inlineHelpText>
+    <label>Tax Labor?</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

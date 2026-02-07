@@ -6,13 +6,7 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>Default</fullName>
-                <default>false</default>
-                <label>Default</label>
-            </value>
-        </valueSetDefinition>
+        <restricted>true</restricted>
+        <valueSetName>Priority</valueSetName>
     </valueSet>
 </CustomField>

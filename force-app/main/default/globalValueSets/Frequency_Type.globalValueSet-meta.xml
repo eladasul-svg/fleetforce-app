@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Days</fullName>
+        <default>false</default>
+        <label>Days</label>
+    </customValue>
+    <customValue>
+        <fullName>Weeks</fullName>
+        <default>false</default>
+        <label>Weeks</label>
+    </customValue>
+    <customValue>
+        <fullName>Months</fullName>
+        <default>false</default>
+        <label>Months</label>
+    </customValue>
+    <customValue>
+        <fullName>Years</fullName>
+        <default>false</default>
+        <label>Years</label>
+    </customValue>
+    <customValue>
+        <fullName>Miles</fullName>
+        <default>false</default>
+        <label>Miles</label>
+    </customValue>
+    <customValue>
+        <fullName>Kilometers</fullName>
+        <default>false</default>
+        <label>Kilometers</label>
+    </customValue>
+    <customValue>
+        <fullName>Hours</fullName>
+        <default>false</default>
+        <label>Hours</label>
+    </customValue>
+    <masterLabel>Frequency Type</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

@@ -9,9 +9,34 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Default</fullName>
+                <fullName>Hub</fullName>
                 <default>false</default>
-                <label>Default</label>
+                <label>Hub</label>
+            </value>
+            <value>
+                <fullName>Satellite</fullName>
+                <default>false</default>
+                <label>Satellite</label>
+            </value>
+            <value>
+                <fullName>HQ</fullName>
+                <default>false</default>
+                <label>HQ</label>
+            </value>
+            <value>
+                <fullName>Service Center</fullName>
+                <default>false</default>
+                <label>Service Center</label>
+            </value>
+            <value>
+                <fullName>Parking Lot</fullName>
+                <default>false</default>
+                <label>Parking Lot</label>
+            </value>
+            <value>
+                <fullName>Warehouse</fullName>
+                <default>false</default>
+                <label>Warehouse</label>
             </value>
         </valueSetDefinition>
     </valueSet>

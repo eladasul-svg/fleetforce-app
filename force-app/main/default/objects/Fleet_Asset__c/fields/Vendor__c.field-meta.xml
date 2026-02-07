@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Vendor__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Vendor/FMC</label>
-    <type>Lookup</type>
     <referenceTo>Account</referenceTo>
     <relationshipName>Rel_Vendor_XGNF</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
 </CustomField>

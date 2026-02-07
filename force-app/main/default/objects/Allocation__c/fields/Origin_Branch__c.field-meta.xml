@@ -3,8 +3,9 @@
     <fullName>Origin_Branch__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Origin Branch</label>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Origin_Branch_BFTI</relationshipName>
+    <referenceTo>Fleet_Branch__c</referenceTo>
+    <relationshipLabel>Allocations</relationshipLabel>
+    <relationshipName>Allocations</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
