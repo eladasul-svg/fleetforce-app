@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Origin_Branch__c</fullName>
+    <fullName>Destination_Branch__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <label>Origin Branch</label>
+    <label>Destination Branch</label>
     <referenceTo>Fleet_Branch__c</referenceTo>
-    <relationshipLabel>Reservations</relationshipLabel>
-    <relationshipName>Reservations</relationshipName>
+    <relationshipLabel>Reservations (Destination Branch)</relationshipLabel>
+    <relationshipName>Reservations_Dest_Branch</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>

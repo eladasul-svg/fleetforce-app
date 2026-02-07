@@ -155,8 +155,9 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Telemetry Violation</label>
     <nameField>
+        <displayFormat>VIO-{000000}</displayFormat>
         <label>Name</label>
-        <type>Text</type>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Telemetry Violations</pluralLabel>
     <searchLayouts></searchLayouts>

@@ -9,9 +9,29 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Default</fullName>
+                <fullName>PDF</fullName>
                 <default>false</default>
-                <label>Default</label>
+                <label>PDF</label>
+            </value>
+            <value>
+                <fullName>Image (JPG/PNG)</fullName>
+                <default>false</default>
+                <label>Image (JPG/PNG)</label>
+            </value>
+            <value>
+                <fullName>Physical Copy</fullName>
+                <default>false</default>
+                <label>Physical Copy</label>
+            </value>
+            <value>
+                <fullName>Word Doc</fullName>
+                <default>false</default>
+                <label>Word Doc</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
             </value>
         </valueSetDefinition>
     </valueSet>

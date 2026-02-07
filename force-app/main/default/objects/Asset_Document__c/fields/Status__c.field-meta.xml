@@ -9,9 +9,29 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Default</fullName>
+                <fullName>Current</fullName>
                 <default>false</default>
-                <label>Default</label>
+                <label>Current</label>
+            </value>
+            <value>
+                <fullName>Expiring Soon</fullName>
+                <default>false</default>
+                <label>Expiring Soon</label>
+            </value>
+            <value>
+                <fullName>Expired</fullName>
+                <default>false</default>
+                <label>Expired</label>
+            </value>
+            <value>
+                <fullName>Missing</fullName>
+                <default>false</default>
+                <label>Missing</label>
+            </value>
+            <value>
+                <fullName>Pending Renewal</fullName>
+                <default>false</default>
+                <label>Pending Renewal</label>
             </value>
         </valueSetDefinition>
     </valueSet>

@@ -282,6 +282,11 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Carbon_Log__c.Asset_Component__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Carbon_Log__c.CO2_KG__c</field>
         <readable>false</readable>
@@ -303,11 +308,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Carbon_Log__c.Fuel_Log__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Carbon_Log__c.Offset_Status__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -315,6 +315,11 @@
         <editable>false</editable>
         <field>Carbon_Log__c.Scope__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Carbon_Log__c.Source_Fuel_Log__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -628,7 +633,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Fleet_Asset__c.Battery_Kwh__c</field>
+        <field>Fleet_Asset__c.Battery_kWh__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -923,11 +928,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Fuel_Log__c.Fuel_Card__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Fuel_Log__c.Fuel_Economy__c</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -1072,9 +1072,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Reservation__c.Assigned_Asset__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1087,9 +1087,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Reservation__c.Dest_Branch__c</field>
-        <readable>false</readable>
+        <editable>true</editable>
+        <field>Reservation__c.Destination_Branch__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1102,24 +1102,24 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Reservation__c.Origin_Branch__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Reservation__c.Preferred_Body__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Reservation__c.Preferred_Engine__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Reservation__c.Priority__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1550,7 +1550,13 @@
         <layout>Maintenance_Plan__c-Maintenance Plan Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
+        <layout>Reservation__c-Reservation Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>Schedule_Assignment__c-Schedule Assignment Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>Service_Line_Item__c-Service Line Item Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Service_Ticket__c-Service Ticket Layout</layout>

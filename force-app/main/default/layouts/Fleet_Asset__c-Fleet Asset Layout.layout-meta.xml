@@ -95,7 +95,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Battery_Kwh__c</field>
+                <field>Battery_Capacity_kWh__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -241,6 +241,10 @@
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Schedule_Assignment__c.Fleet_Asset__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Reservation__c.Assigned_Asset__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
