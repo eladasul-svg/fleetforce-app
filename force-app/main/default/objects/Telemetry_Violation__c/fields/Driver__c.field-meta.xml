@@ -3,8 +3,9 @@
     <fullName>Driver__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Driver</label>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_CPTL</relationshipName>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Telemetry Violations</relationshipLabel>
+    <relationshipName>Telemetry_Violations</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>

@@ -872,9 +872,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Fuel_Card__c.Assigned_Asset__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1442,9 +1442,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Telemetry_Violation__c.Driver__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1552,6 +1552,9 @@
     </layoutAssignments>
     <layoutAssignments>
         <layout>Fleet_Branch__c-Fleet Branch Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>Fuel_Card__c-Fuel Card Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Fuel_Log__c-Fuel Log Layout</layout>
