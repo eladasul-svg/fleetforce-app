@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Engine_Type__c</fullName>
+    <label>Engine Type</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Diesel</fullName><default>false</default><label>Diesel</label></value>
+            <value><fullName>Petrol</fullName><default>false</default><label>Petrol</label></value>
+            <value><fullName>Electric</fullName><default>false</default><label>Electric</label></value>
+            <value><fullName>Hybrid</fullName><default>false</default><label>Hybrid</label></value>
+            <value><fullName>Hydrogen.</fullName><default>false</default><label>Hydrogen.</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

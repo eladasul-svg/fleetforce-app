@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Fleet Admin</label>
     <hasActivationRequired>false</hasActivationRequired>
@@ -62,10 +62,7 @@
         <tab>Service_Line_Item__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
-        <tab>Schedule__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
+
     <tabSettings>
         <tab>Asset_Component__c</tab>
         <visibility>Visible</visibility>
@@ -253,15 +250,6 @@
         <modifyAllRecords>true</modifyAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <object>Schedule__c</object>
-        <allowCreate>true</allowCreate>
-        <allowDelete>true</allowDelete>
-        <allowEdit>true</allowEdit>
-        <allowRead>true</allowRead>
-        <viewAllRecords>true</viewAllRecords>
-        <modifyAllRecords>true</modifyAllRecords>
-    </objectPermissions>
-    <objectPermissions>
         <object>Asset_Component__c</object>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
@@ -404,11 +392,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Reservation__c.Dest_Branch__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Schedule__c.Time_Zone__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -868,11 +851,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Schedule__c.Effective_Until__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Fleet_Branch__c.Location__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -934,11 +912,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Citation__c.Court_Date__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Schedule__c.Total_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1038,11 +1011,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Schedule__c.Is_24_7__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Branch_Assignment__c.Role__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1104,11 +1072,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Reservation__c.Approval_Date__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Schedule__c.Effective_From__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1254,11 +1217,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Authorized_Driver__c.Is_Active__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Schedule__c.Grace_Period_Mins__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1453,11 +1411,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Fuel_Log__c.Fuel_Card__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Driver_Qualification__c.Authority__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1534,11 +1487,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Citation__c.Citation_Date__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Schedule__c.Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

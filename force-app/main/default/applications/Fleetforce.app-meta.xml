@@ -35,7 +35,7 @@
     <tabs>Schedule_Assignment__c</tabs>
     <tabs>Schedule_Exception__c</tabs>
     <tabs>Schedule_Window__c</tabs>
-    <tabs>Schedule__c</tabs>
+
     <tabs>Service_Line_Item__c</tabs>
     <tabs>Service_Ticket__c</tabs>
     <tabs>Telematics_Equipment__c</tabs>

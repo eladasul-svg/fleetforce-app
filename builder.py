@@ -19,7 +19,7 @@ NAME_FIXES = {
     "Telemetry Raw": "Telemetry_Raw__c",
     "Allocation": "Allocation__c",
     "Citation": "Citation__c",
-    "Schedule": "Schedule__c",
+    "Schedule": "Fleet_Schedule__c",
     "Reservation": "Reservation__c"
 }
 
