@@ -1,0 +1,51 @@
+<template>
+    <lightning-card title="Fleet Snapshot" icon-name="standard:dashboard">
+        <div class="slds-grid slds-gutters slds-p-horizontal_medium slds-m-bottom_small">
+            
+            <!-- Total Active Assets -->
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToAssets}>
+                <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
+                    <p class="slds-text-heading_small slds-text-color_weak">Active Fleet</p>
+                    <p class="slds-text-heading_large slds-text-color_success slds-p-top_x-small">
+                        {kpis.totalActive}
+                    </p>
+                    <lightning-icon icon-name="utility:check" size="small" variant="success" class="slds-m-top_x-small"></lightning-icon>
+                </div>
+            </div>
+
+            <!-- In Maintenance -->
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToAssets}>
+                <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
+                    <p class="slds-text-heading_small slds-text-color_weak">In Shop</p>
+                    <p class="slds-text-heading_large slds-text-color_error slds-p-top_x-small">
+                        {kpis.inMaintenance}
+                    </p>
+                    <lightning-icon icon-name="utility:settings" size="small" variant="error" class="slds-m-top_x-small"></lightning-icon>
+                </div>
+            </div>
+
+            <!-- Critical Violations -->
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToViolations}>
+                <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
+                    <p class="slds-text-heading_small slds-text-color_weak">Violations (30d)</p>
+                    <p class="slds-text-heading_large slds-text-color_error slds-p-top_x-small">
+                        {kpis.criticalViolations}
+                    </p>
+                    <lightning-icon icon-name="utility:warning" size="small" variant="error" class="slds-m-top_x-small"></lightning-icon>
+                </div>
+            </div>
+
+            <!-- Open Tickets -->
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToTickets}>
+                <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
+                    <p class="slds-text-heading_small slds-text-color_weak">Open Tickets</p>
+                    <p class="slds-text-heading_large slds-text-color_warning slds-p-top_x-small">
+                        {kpis.openTickets}
+                    </p>
+                    <lightning-icon icon-name="utility:assignment" size="small" variant="warning" class="slds-m-top_x-small"></lightning-icon>
+                </div>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

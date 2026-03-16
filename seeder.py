@@ -88,11 +88,21 @@ def batch_create(sf_object, records, object_name="Records"):
             print(f"   ❌ Error on {object_name}: {e}")
     return ids
 
-# ==========================================
-# 🚜 SEEDING FUNCTIONS
-# ==========================================
+def get_existing_ids(sf, object_name):
+    """Fetch existing IDs to prevent massive over-seeding if re-run."""
+    query = f"SELECT Id FROM {n(object_name)} LIMIT 100"
+    try:
+        results = sf.query(query)
+        return [r['Id'] for r in results['records']]
+    except:
+        return []
 
 def create_vendors(sf):
+    existing = get_existing_ids(sf, "Account WHERE Type='Vendor'")
+    if existing: 
+        print(f"   Ref: Found {len(existing)} existing Vendors. Skipping creation.")
+        return existing
+        
     print(f"🚀 Seeding {COUNTS['VENDORS']} Vendors...")
     accounts = []
     for _ in range(COUNTS['VENDORS']):
@@ -106,7 +116,12 @@ def create_vendors(sf):
     print(f"   Ref: Created {len(ids)} Vendors.")
     return ids
 
-def create_branches(sf, manager_ids):
+def create_branches(sf):
+    existing = get_existing_ids(sf, "Fleet_Branch__c")
+    if existing:
+        print(f"   Ref: Found {len(existing)} existing Branches. Skipping.")
+        return existing
+
     print(f"🚀 Seeding {COUNTS['BRANCHES']} Branches...")
     branches = []
     types = ["Hub", "Satellite", "HQ"]
@@ -124,6 +139,11 @@ def create_branches(sf, manager_ids):
     return ids
 
 def create_drivers(sf):
+    existing = get_existing_ids(sf, "Contact")
+    if existing:
+        print(f"   Ref: Found {len(existing)} existing Drivers. Skipping.")
+        return existing
+
     print(f"🚀 Seeding {COUNTS['DRIVERS']} Drivers...")
     contacts = []
     for _ in range(COUNTS['DRIVERS']):
@@ -258,7 +278,7 @@ if __name__ == "__main__":
     
     vendor_ids = create_vendors(sf)
     driver_ids = create_drivers(sf)
-    branch_ids = create_branches(sf, driver_ids)
+    branch_ids = create_branches(sf)
     asset_ids = create_assets(sf, branch_ids, vendor_ids)
     
     # NEW: Create Cards before Logs

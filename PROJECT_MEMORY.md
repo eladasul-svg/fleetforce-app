@@ -218,14 +218,20 @@ if __name__ == "__main__":
 
 ## 🛠️ The Toolkit (Scripts)
 
-### 1. `builder.py` (The God Script)
+### 1. `setup_dev.sh` (The Bootstrapper)
+* **Purpose:** Automates Scratch Org creation, metadata deployment, and Permission Set assignment in one command.
+* **Usage:** `bash scripts/setup_dev.sh`
+* **Key Logic:** Waits for scratch org readiness, pushes `force-app` metadata, and assigns `FleetAdmin` to the default user before opening the org.
+
+### 2. `builder.py` (The God Script)
 * **Purpose:** Regenerates all Metadata (Objects, Fields, Tabs, App, Permissions) from CSV specs.
+* **Warning:** `builder.py` reconstructs metadata from scratch but *does not* preserve manual UI overrides (like Auto-Number formats or Field History Tracking). Run this only when making structural schema changes, NOT for daily deployments.
 * **Key Logic:**
     * **Orphan Handling:** Scans `Fields.csv` for objects missing from `Objects.csv` and forces Tab creation for them.
     * **Standard Objects:** Maps `Contact` -> `standard-Contact` for Tab visibility.
     * **Permissions:** Automatically generates `<fieldPermissions>` for every field to solve "Field Not Found" API errors.
 
-### 2. `seeder.py` (The Data Factory)
+### 3. `seeder.py` (The Data Factory)
 * **Purpose:** Generates dummy CSV data for import.
 * **Key Logic:**
     * **Namespace Toggle:** `NAMESPACE_PREFIX = "fleetforce__"` is ON.

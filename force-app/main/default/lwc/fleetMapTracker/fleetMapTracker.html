@@ -1,0 +1,19 @@
+<template>
+    <lightning-card title="Real-Time Asset Tracker" icon-name="standard:location">
+        <div class="slds-m-around_medium map-container">
+            <template if:true={mapMarkers.length}>
+                <lightning-map
+                    map-markers={mapMarkers}
+                    zoom-level="10"
+                    list-view="visible"
+                ></lightning-map>
+            </template>
+            <template if:false={mapMarkers.length}>
+                <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
+                    <lightning-icon icon-name="utility:check" size="large" class="slds-m-bottom_small" variant="weak"></lightning-icon>
+                    <p>No active location telemetry available right now.</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

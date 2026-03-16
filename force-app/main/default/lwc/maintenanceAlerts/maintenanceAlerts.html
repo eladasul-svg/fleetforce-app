@@ -1,0 +1,36 @@
+<template>
+    <lightning-card title="Critical Maintenance Alerts" icon-name="standard:maintenance_plan">
+        <div class="slds-m-around_medium">
+            <template if:true={hasAlerts}>
+                <ul class="slds-has-dividers_bottom-space">
+                    <template for:each={alerts} for:item="alert">
+                        <li class="slds-item" key={alert.Id}>
+                            <lightning-tile label={alert.fleetforce__Fleet_Asset__r.Name}>
+                                <dl class="slds-dl_horizontal">
+                                    <dt class="slds-dl_horizontal__label">
+                                        <p class="slds-truncate" title="Priority">Priority:</p>
+                                    </dt>
+                                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                                        <p class="slds-truncate slds-text-color_error" title={alert.fleetforce__Priority__c}>{alert.fleetforce__Priority__c}</p>
+                                    </dd>
+                                    <dt class="slds-dl_horizontal__label">
+                                        <p class="slds-truncate" title="Description">Issue:</p>
+                                    </dt>
+                                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                                        <p class="slds-truncate" title={alert.fleetforce__Description__c}>{alert.fleetforce__Description__c}</p>
+                                    </dd>
+                                </dl>
+                            </lightning-tile>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template if:false={hasAlerts}>
+                <div class="slds-text-align_center slds-p-around_medium slds-text-color_success">
+                    <lightning-icon icon-name="utility:success" size="medium" variant="success" class="slds-m-bottom_small"></lightning-icon>
+                    <p>No critical maintenance alerts at this time.</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
