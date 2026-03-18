@@ -4,6 +4,6 @@
     <label>Fleet Branch</label>
     <type>MasterDetail</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Branch_JXGC</relationshipName>
+    <relationshipName>Rel_Fleet_Branch_IPAQ</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

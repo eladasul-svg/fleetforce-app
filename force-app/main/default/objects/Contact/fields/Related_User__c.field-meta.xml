@@ -4,5 +4,5 @@
     <label>Related User</label>
     <type>Lookup</type>
     <referenceTo>User</referenceTo>
-    <relationshipName>Rel_Related_User_ADJK</relationshipName>
+    <relationshipName>Rel_Related_User_LWNO</relationshipName>
 </CustomField>

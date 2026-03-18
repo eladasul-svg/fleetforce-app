@@ -2,52 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Service_Type__c</fullName>
     <label>Service Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Default</fullName>
-                <default>false</default>
-                <label>Default</label>
-            </value>
-            <value>
-                <fullName>Towing</fullName>
-                <default>false</default>
-                <label>Towing</label>
-            </value>
-            <value>
-                <fullName>Glass</fullName>
-                <default>false</default>
-                <label>Glass</label>
-            </value>
-            <value>
-                <fullName>Tires</fullName>
-                <default>false</default>
-                <label>Tires</label>
-            </value>
-            <value>
-                <fullName>Oil &amp; Lube</fullName>
-                <default>false</default>
-                <label>Oil &amp; Lube</label>
-            </value>
-            <value>
-                <fullName>Body Work</fullName>
-                <default>false</default>
-                <label>Body Work</label>
-            </value>
-            <value>
-                <fullName>General Repair</fullName>
-                <default>false</default>
-                <label>General Repair</label>
-            </value>
-            <value>
-                <fullName>Other</fullName>
-                <default>false</default>
-                <label>Other</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -2,42 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
     <label>Status</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Active</fullName>
-                <default>false</default>
-                <label>Active</label>
-            </value>
-            <value>
-                <fullName>Maintenance</fullName>
-                <default>false</default>
-                <label>Maintenance</label>
-            </value>
-            <value>
-                <fullName>Impounded</fullName>
-                <default>false</default>
-                <label>Impounded</label>
-            </value>
-            <value>
-                <fullName>Stolen</fullName>
-                <default>false</default>
-                <label>Stolen</label>
-            </value>
-            <value>
-                <fullName>Sold</fullName>
-                <default>false</default>
-                <label>Sold</label>
-            </value>
-            <value>
-                <fullName>Retired</fullName>
-                <default>false</default>
-                <label>Retired</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vehicle_Class__c</fullName>
+    <label>Vehicle Class</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Mini</fullName>
+                <default>false</default>
+                <label>Mini</label>
+            </value>
+            <value>
+                <fullName>Economy</fullName>
+                <default>false</default>
+                <label>Economy</label>
+            </value>
+            <value>
+                <fullName>Compact</fullName>
+                <default>false</default>
+                <label>Compact</label>
+            </value>
+            <value>
+                <fullName>Intermediate</fullName>
+                <default>false</default>
+                <label>Intermediate</label>
+            </value>
+            <value>
+                <fullName>Standard</fullName>
+                <default>false</default>
+                <label>Standard</label>
+            </value>
+            <value>
+                <fullName>Full Size</fullName>
+                <default>false</default>
+                <label>Full Size</label>
+            </value>
+            <value>
+                <fullName>Luxury</fullName>
+                <default>false</default>
+                <label>Luxury</label>
+            </value>
+            <value>
+                <fullName>Motorcycle</fullName>
+                <default>false</default>
+                <label>Motorcycle</label>
+            </value>
+            <value>
+                <fullName>Commercial</fullName>
+                <default>false</default>
+                <label>Commercial</label>
+            </value>
+            <value>
+                <fullName>Heavy Machinery</fullName>
+                <default>false</default>
+                <label>Heavy Machinery</label>
+            </value>
+            <value>
+                <fullName>Aviation</fullName>
+                <default>false</default>
+                <label>Aviation</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

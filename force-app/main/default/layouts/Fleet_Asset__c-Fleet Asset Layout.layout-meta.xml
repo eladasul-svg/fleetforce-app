@@ -13,10 +13,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Asset_Class__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>VIN__c</field>
             </layoutItems>
             <layoutItems>
@@ -34,6 +30,10 @@
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Total_Maintenance_Cost__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Vehicle_Class__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

@@ -4,5 +4,5 @@
     <label>Vendor / Account</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Vendor_OCXO</relationshipName>
+    <relationshipName>Rel_Vendor_ZGPA</relationshipName>
 </CustomField>

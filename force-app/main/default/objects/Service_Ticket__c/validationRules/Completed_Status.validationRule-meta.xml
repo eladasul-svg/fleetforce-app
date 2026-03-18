@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Completed_Status</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISPICKVAL(Status__c, &apos;Completed&apos;) &amp;&amp;  ISNULL(   Actual_End__c )</errorConditionFormula>
+    <errorDisplayField>Actual_End__c</errorDisplayField>
+    <errorMessage>Actual End Date must be populated for &apos;Completed&apos; status.</errorMessage>
+</ValidationRule>

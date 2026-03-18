@@ -1,0 +1,38 @@
+<template>
+    <lightning-card title="Geotab Integration Settings" icon-name="custom:custom67">
+        <div class="slds-p-around_medium">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+
+            <div class="slds-text-body_regular slds-m-bottom_medium">
+                Configure your Geotab MyGeotab API credentials below. These will be securely stored as Custom Metadata and used to authenticate automated telematics syncing for your Fleet Assets.
+            </div>
+
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                    <lightning-input label="Server" required value={server} onchange={handleServerChange} placeholder="e.g., my.geotab.com"></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                    <lightning-input label="Database" required value={database} onchange={handleDatabaseChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                    <lightning-input label="Username" required value={username} onchange={handleUsernameChange} type="email"></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                    <lightning-input label="Password" required value={password} onchange={handlePasswordChange} type="password"></lightning-input>
+                </div>
+            </div>
+
+            <template if:true={jobId}>
+                <div class="slds-m-top_medium slds-notify slds-notify_alert slds-theme_info" role="alert">
+                    <span class="slds-assistive-text">info</span>
+                    <h2>Deployment Job ID: <strong>{jobId}</strong> is queued to save credentials securely in Custom Metadata. Please check Setup -> Deployment Status.</h2>
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+            <lightning-button label="Save Configurations" variant="brand" onclick={handleSave} class="slds-m-left_x-small" disabled={isButtonDisabled}></lightning-button>
+        </div>
+    </lightning-card>
+</template>

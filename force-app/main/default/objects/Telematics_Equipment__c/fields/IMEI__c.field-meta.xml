@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>IMEI__c</fullName>
-    <externalId>false</externalId>
     <label>IMEI / ICCID</label>
-    <length>25</length>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
-    <unique>false</unique>
+    <length>25</length>
 </CustomField>

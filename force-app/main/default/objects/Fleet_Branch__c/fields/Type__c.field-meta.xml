@@ -2,42 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type__c</fullName>
     <label>Location Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Hub</fullName>
-                <default>false</default>
-                <label>Hub</label>
-            </value>
-            <value>
-                <fullName>Satellite</fullName>
-                <default>false</default>
-                <label>Satellite</label>
-            </value>
-            <value>
-                <fullName>HQ</fullName>
-                <default>false</default>
-                <label>HQ</label>
-            </value>
-            <value>
-                <fullName>Service Center</fullName>
-                <default>false</default>
-                <label>Service Center</label>
-            </value>
-            <value>
-                <fullName>Parking Lot</fullName>
-                <default>false</default>
-                <label>Parking Lot</label>
-            </value>
-            <value>
-                <fullName>Warehouse</fullName>
-                <default>false</default>
-                <label>Warehouse</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

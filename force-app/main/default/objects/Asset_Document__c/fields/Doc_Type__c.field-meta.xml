@@ -2,57 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Doc_Type__c</fullName>
     <label>Document Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Registration</fullName>
-                <default>false</default>
-                <label>Registration</label>
-            </value>
-            <value>
-                <fullName>Title</fullName>
-                <default>false</default>
-                <label>Title</label>
-            </value>
-            <value>
-                <fullName>Insurance Card</fullName>
-                <default>false</default>
-                <label>Insurance Card</label>
-            </value>
-            <value>
-                <fullName>Permit (Commercial)</fullName>
-                <default>false</default>
-                <label>Permit (Commercial)</label>
-            </value>
-            <value>
-                <fullName>Inspection Report</fullName>
-                <default>false</default>
-                <label>Inspection Report</label>
-            </value>
-            <value>
-                <fullName>Lease Agreement</fullName>
-                <default>false</default>
-                <label>Lease Agreement</label>
-            </value>
-            <value>
-                <fullName>Owner Manual</fullName>
-                <default>false</default>
-                <label>Owner Manual</label>
-            </value>
-            <value>
-                <fullName>Warranty Certificate</fullName>
-                <default>false</default>
-                <label>Warranty Certificate</label>
-            </value>
-            <value>
-                <fullName>Other</fullName>
-                <default>false</default>
-                <label>Other</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

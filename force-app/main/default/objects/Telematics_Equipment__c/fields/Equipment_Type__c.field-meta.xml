@@ -2,42 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Equipment_Type__c</fullName>
     <label>Equipment Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>OBD-II Dongle</fullName>
-                <default>false</default>
-                <label>OBD-II Dongle</label>
-            </value>
-            <value>
-                <fullName>Hardwired GPS</fullName>
-                <default>false</default>
-                <label>Hardwired GPS</label>
-            </value>
-            <value>
-                <fullName>Dash Cam</fullName>
-                <default>false</default>
-                <label>Dash Cam</label>
-            </value>
-            <value>
-                <fullName>Asset Tracker (Battery)</fullName>
-                <default>false</default>
-                <label>Asset Tracker (Battery)</label>
-            </value>
-            <value>
-                <fullName>Cold Chain Sensor</fullName>
-                <default>false</default>
-                <label>Cold Chain Sensor</label>
-            </value>
-            <value>
-                <fullName>Other</fullName>
-                <default>false</default>
-                <label>Other</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

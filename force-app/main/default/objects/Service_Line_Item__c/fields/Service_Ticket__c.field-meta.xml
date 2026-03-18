@@ -2,12 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Service_Ticket__c</fullName>
     <label>Service Ticket</label>
-    <referenceTo>Service_Ticket__c</referenceTo>
-    <relationshipLabel>Service Line Items</relationshipLabel>
-    <relationshipName>Service_Line_Items</relationshipName>
-    <relationshipOrder>0</relationshipOrder>
-    <reparentableMasterDetail>false</reparentableMasterDetail>
-    <trackTrending>false</trackTrending>
     <type>MasterDetail</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Rel_Service_Ticket_ZIVH</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

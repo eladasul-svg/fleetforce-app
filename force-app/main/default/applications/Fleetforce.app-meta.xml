@@ -14,6 +14,8 @@
     <tabs>standard-home</tabs>
     <tabs>standard-Account</tabs>
     <tabs>standard-Contact</tabs>
+    <tabs>Agreement_Line__c</tabs>
+    <tabs>Agreement__c</tabs>
     <tabs>Allocation__c</tabs>
     <tabs>Asset_Component__c</tabs>
     <tabs>Asset_Document__c</tabs>
@@ -35,7 +37,6 @@
     <tabs>Schedule_Assignment__c</tabs>
     <tabs>Schedule_Exception__c</tabs>
     <tabs>Schedule_Window__c</tabs>
-
     <tabs>Service_Line_Item__c</tabs>
     <tabs>Service_Ticket__c</tabs>
     <tabs>Telematics_Equipment__c</tabs>

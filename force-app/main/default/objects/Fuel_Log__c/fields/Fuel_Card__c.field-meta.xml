@@ -2,12 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fuel_Card__c</fullName>
     <label>Fuel Card</label>
-    <referenceTo>Fuel_Card__c</referenceTo>
-    <relationshipLabel>Fuel Logs</relationshipLabel>
-    <relationshipName>Fuel_Logs</relationshipName>
-    <relationshipOrder>1</relationshipOrder>
-    <reparentableMasterDetail>false</reparentableMasterDetail>
-    <trackTrending>false</trackTrending>
-    <type>MasterDetail</type>
-    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    <type>Lookup</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Rel_Fuel_Card_CDQL</relationshipName>
 </CustomField>

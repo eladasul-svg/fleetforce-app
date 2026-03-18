@@ -4,5 +4,5 @@
     <label>Destination Branch</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Dest_Branch_EPGL</relationshipName>
+    <relationshipName>Rel_Dest_Branch_ASNE</relationshipName>
 </CustomField>

@@ -2,11 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Frequency_Type__c</fullName>
     <label>Frequency Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <restricted>true</restricted>
-        <valueSetName>Frequency_Type</valueSetName>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

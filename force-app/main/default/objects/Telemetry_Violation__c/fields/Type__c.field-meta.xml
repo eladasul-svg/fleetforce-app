@@ -2,62 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type__c</fullName>
     <label>Violation Type</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Speeding</fullName>
-                <default>false</default>
-                <label>Speeding</label>
-            </value>
-            <value>
-                <fullName>Harsh Acceleration</fullName>
-                <default>false</default>
-                <label>Harsh Acceleration</label>
-            </value>
-            <value>
-                <fullName>Harsh Braking</fullName>
-                <default>false</default>
-                <label>Harsh Braking</label>
-            </value>
-            <value>
-                <fullName>Harsh Cornering</fullName>
-                <default>false</default>
-                <label>Harsh Cornering</label>
-            </value>
-            <value>
-                <fullName>Idling</fullName>
-                <default>false</default>
-                <label>Idling</label>
-            </value>
-            <value>
-                <fullName>Seatbelt</fullName>
-                <default>false</default>
-                <label>Seatbelt</label>
-            </value>
-            <value>
-                <fullName>Distracted Driving</fullName>
-                <default>false</default>
-                <label>Distracted Driving</label>
-            </value>
-            <value>
-                <fullName>Geofence Breach</fullName>
-                <default>false</default>
-                <label>Geofence Breach</label>
-            </value>
-            <value>
-                <fullName>Curfew Violation</fullName>
-                <default>false</default>
-                <label>Curfew Violation</label>
-            </value>
-            <value>
-                <fullName>Other</fullName>
-                <default>false</default>
-                <label>Other</label>
-            </value>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

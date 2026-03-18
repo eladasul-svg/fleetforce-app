@@ -2,11 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Priority__c</fullName>
     <label>Priority</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <restricted>true</restricted>
-        <valueSetName>Priority</valueSetName>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

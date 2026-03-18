@@ -4,5 +4,5 @@
     <label>Approving Manager</label>
     <type>Lookup</type>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Manager_KCMC</relationshipName>
+    <relationshipName>Rel_Manager_ZRRL</relationshipName>
 </CustomField>

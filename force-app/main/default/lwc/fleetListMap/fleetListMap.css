@@ -1,0 +1,27 @@
+.vehicle-row:hover {
+    background: #eef1f6 !important;
+}
+
+.map-container {
+    height: 500px;
+}
+
+.scroll-container {
+    overflow-y: auto;
+    height: calc(100% - 40px);
+}
+
+.badge-red {
+    background-color: #C23934 !important;
+    color: white !important;
+}
+
+.badge-green {
+    background-color: #04844B !important;
+    color: white !important;
+}
+
+.badge-gray {
+    background-color: #706E6B !important;
+    color: white !important;
+}

@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Driver__c</fullName>
-    <deleteConstraint>SetNull</deleteConstraint>
     <label>Driver</label>
-    <referenceTo>Contact</referenceTo>
-    <relationshipLabel>Telemetry Violations</relationshipLabel>
-    <relationshipName>Telemetry_Violations</relationshipName>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Lookup</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Rel_Driver_XKWE</relationshipName>
 </CustomField>

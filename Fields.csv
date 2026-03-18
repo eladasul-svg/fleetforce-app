@@ -309,3 +309,28 @@
 "Schedule Window","End Time","End_Time__c","Time","","",""
 "Schedule Window","Duration (Hrs)","Duration__c","Formula","(End_Time__c - Start_Time__c) / 3600000 (Used for the Roll-up Summary).","",""
 "Schedule Window","Activity Type","Type__c","Picklist","Available, Break, Admin Time. (Allows tracking paid vs. unpaid time).","",""
+Agreement,Agreement Name,Name,Text(80),
+Agreement,Vendor,Vendor__c,Lookup(Account),
+Agreement,Manufacturer,Manufacturer__c,Lookup(Account),
+Agreement,Agreement Type,Type__c,Picklist,"Master Lease (MLA), Purchase Agreement, Maintenance Managed"
+Agreement,Status,Status__c,Picklist,"Draft, Active, Expired, Terminated"
+Agreement,Start Date,Start_Date__c,Date,
+Agreement,End Date,End_Date__c,Date,
+Agreement,Total Committed Units,Committed_Units__c,Number(6,0),
+Agreement,Current Unit Count,Current_Unit_Count__c,Number(6,0),
+Agreement,Master Rebate %,Rebate_Percent__c,Percent(3,2),
+Agreement,Agreement Document,Agreement_Doc__c,Url,
+Agreement,Rebate Type,Rebate_Type__c,Picklist,"Percent, Fixed, None"
+Agreement,Rebate Amount,Rebate_Amount__c,Currency(8,0),
+Agreement_Line__c,Agreement,Agreement__c,Master-Detail(Agreement__c),
+Agreement_Line__c,Line Name,Name,Text(80),
+Agreement_Line__c,Make/Model/Year,Model_Reference__c,Text(255),
+Agreement_Line__c,Acquisition Cost,Acquisition_Cost__c,Currency(16,2),
+Agreement_Line__c,Residual Value %,Residual_Value_Percent__c,Percent(5,2),
+Agreement_Line__c,Contracted Monthly Fee,Monthly_Base_Fee__c,Currency(16,2),
+Agreement_Line__c,Included Mileage,Included_Mileage__c,Number(8,0),
+Agreement_Line__c,Excess Mileage Rate,Excess_Mileage_Rate__c,Currency(4,2),
+Agreement_Line__c,Term (Months),Term_Months__c,Number(3,0),
+Agreement_Line__c,Depreciation Rate %,Monthly_Depreciation__c,Percent(5,4),
+Fleet_Asset__c,Agreement,Agreement__c,Lookup(Agreement__c),
+Fleet_Asset__c,Agreement Line Item,Agreement_Line__c,Lookup(Agreement_Line__c),

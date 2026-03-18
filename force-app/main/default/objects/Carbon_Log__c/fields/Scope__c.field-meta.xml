@@ -2,22 +2,12 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Scope__c</fullName>
     <label>Emission Scope</label>
-    <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>Scope 1 (Combustion)</fullName>
-                <default>false</default>
-                <label>Scope 1 (Combustion)</label>
-            </value>
-            <value>
-                <fullName>Scope 2 (Purchased Energy/EV).</fullName>
-                <default>false</default>
-                <label>Scope 2 (Purchased Energy/EV).</label>
-            </value>
+            <value><fullName>Scope 1 (Combustion)</fullName><default>false</default><label>Scope 1 (Combustion)</label></value>
+            <value><fullName>Scope 2 (Purchased Energy/EV).</fullName><default>false</default><label>Scope 2 (Purchased Energy/EV).</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

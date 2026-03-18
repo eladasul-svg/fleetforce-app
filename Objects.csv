@@ -24,3 +24,5 @@
 "Branch Assignment","Branch Assignments","Branch_Assignment__c","Security scoping for Users and Drivers."
 "Authorized Driver","Authorized Drivers","Authorized_Driver__c","Permissions for specific assets (Keys/Permanent Assign)."
 "Driver Qualification","Driver Qualifications","Driver_Qualification__c","Tracking certifications,skills,and compliance."
+"Agreement","Agreements","Agreement__c","Financial and legal contracts relating to fleet assets (Procurement, Leasing, Maintenance)."
+"Agreement Line Item","Agreement Line Items","Agreement_Line__c","Granular breakdown of models, pricing, and terms within an Agreement."

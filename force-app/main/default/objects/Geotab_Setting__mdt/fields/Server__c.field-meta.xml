@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Server__c</fullName>
+    <description>The Geotab API server (e.g., my.geotab.com). The API may return a different server to use after authentication.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Server</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+    <defaultValue>'my.geotab.com'</defaultValue>
+</CustomField>

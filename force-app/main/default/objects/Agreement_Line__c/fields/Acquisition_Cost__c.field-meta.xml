@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Acquisition_Cost__c</fullName>
+    <label>Acquisition Cost</label>
+    <type>Currency</type>
+    <precision>16</precision>
+    <scale>0</scale>
+</CustomField>

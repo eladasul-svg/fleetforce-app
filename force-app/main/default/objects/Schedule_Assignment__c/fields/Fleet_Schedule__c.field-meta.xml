@@ -2,12 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fleet_Schedule__c</fullName>
     <label>Fleet Schedule</label>
-    <referenceTo>Fleet_Schedule__c</referenceTo>
-    <relationshipLabel>Schedule Assignments</relationshipLabel>
-    <relationshipName>Schedule_Assignments</relationshipName>
-    <relationshipOrder>0</relationshipOrder>
-    <reparentableMasterDetail>false</reparentableMasterDetail>
-    <trackTrending>false</trackTrending>
     <type>MasterDetail</type>
+    <referenceTo>Account</referenceTo>
+    <relationshipName>Rel_Fleet_Schedule_OSCN</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>
