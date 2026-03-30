@@ -6,7 +6,12 @@
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+            <value><fullName>Preventive Maintenance</fullName><default>false</default><label>Preventive Maintenance</label></value>
+            <value><fullName>Corrective Repair</fullName><default>false</default><label>Corrective Repair</label></value>
+            <value><fullName>Inspection</fullName><default>false</default><label>Inspection</label></value>
+            <value><fullName>Telemetry Alert</fullName><default>false</default><label>Telemetry Alert</label></value>
+            <value><fullName>Warranty</fullName><default>false</default><label>Warranty</label></value>
+            <value><fullName>Other</fullName><default>false</default><label>Other</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

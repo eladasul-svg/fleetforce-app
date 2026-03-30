@@ -1,0 +1,58 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" lightningStylesheets="true" docType="html-5.0">
+    <apex:includeLightning/>
+    
+    <style>
+        body {
+            background-color: #f3f3f3;
+            font-family: 'Salesforce Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .portal-container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+        .portal-header {
+            background-color: #0176D3;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .portal-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .flow-wrapper {
+            padding: 30px;
+        }
+    </style>
+
+    <div class="portal-container">
+        <div class="portal-header">
+            <h1>FleetForce Motorpool Portal</h1>
+        </div>
+        <div class="flow-wrapper" id="flowContainer"></div>
+    </div>
+
+    <script>
+        // Note: 'fleetforce' is the namespace. In scratch orgs without one, use 'c:MotorpoolApp'
+        var appName = "c:MotorpoolApp"; 
+        
+        $Lightning.use(appName, function() {
+            $Lightning.createComponent("lightning:flow",
+                {},
+                "flowContainer",
+                function(cmp) {
+                    // Try with namespace first, fallback to no namespace if needed by the org
+                    cmp.startFlow("Motorpool_Reservation_Request");
+                }
+            );
+        });
+    </script>
+</apex:page>

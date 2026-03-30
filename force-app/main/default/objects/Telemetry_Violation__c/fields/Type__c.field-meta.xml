@@ -6,7 +6,14 @@
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+            <value><fullName>Speeding</fullName><default>false</default><label>Speeding</label></value>
+            <value><fullName>Harsh Braking</fullName><default>false</default><label>Harsh Braking</label></value>
+            <value><fullName>Harsh Acceleration</fullName><default>false</default><label>Harsh Acceleration</label></value>
+            <value><fullName>Idling</fullName><default>false</default><label>Idling</label></value>
+            <value><fullName>Geofence Breach</fullName><default>false</default><label>Geofence Breach</label></value>
+            <value><fullName>Diagnostic Fault</fullName><default>false</default><label>Diagnostic Fault</label></value>
+            <value><fullName>Seatbelt</fullName><default>false</default><label>Seatbelt</label></value>
+            <value><fullName>Engine Overtemp</fullName><default>false</default><label>Engine Overtemp</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

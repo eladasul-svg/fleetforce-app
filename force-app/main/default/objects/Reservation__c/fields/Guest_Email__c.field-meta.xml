@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Province__c</fullName>
+    <fullName>Guest_Email__c</fullName>
+    <description>The email address of the unauthenticated guest requesting the vehicle.</description>
     <externalId>false</externalId>
-    <label>Province</label>
-    <length>100</length>
+    <label>Guest Email</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
-    <type>Text</type>
+    <type>Email</type>
     <unique>false</unique>
 </CustomField>

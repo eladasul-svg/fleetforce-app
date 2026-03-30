@@ -4,9 +4,9 @@
     <columns>NAME</columns>
     <columns>License_Plate__c</columns>
     <columns>Fuel_Energy_Level__c</columns>
-    <columns>Color__c</columns>
     <columns>Vendor__c</columns>
     <columns>Branch__c</columns>
+    <columns>Body_Type__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>Is_Active__c</field>

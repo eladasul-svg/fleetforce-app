@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Financial_Model__c</fullName>
+    <label>Financial Model</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Open-End (TRAC)</fullName>
+                <default>false</default>
+                <label>Open-End (TRAC)</label>
+            </value>
+            <value>
+                <fullName>Closed-End (Walk-away)</fullName>
+                <default>false</default>
+                <label>Closed-End (Walk-away)</label>
+            </value>
+            <value>
+                <fullName>Operating Lease (Off-Balance Sheet)</fullName>
+                <default>false</default>
+                <label>Operating Lease (Off-Balance Sheet)</label>
+            </value>
+            <value>
+                <fullName>Capital Lease (On-Balance Sheet)</fullName>
+                <default>false</default>
+                <label>Capital Lease (On-Balance Sheet)</label>
+            </value>
+            <value>
+                <fullName>Retail/Commercial Loan</fullName>
+                <default>false</default>
+                <label>Retail/Commercial Loan</label>
+            </value>
+            <value>
+                <fullName>FAVR (Fixed and Variable Rate)</fullName>
+                <default>false</default>
+                <label>FAVR (Fixed and Variable Rate)</label>
+            </value>
+            <value>
+                <fullName>Direct Cash Purchase</fullName>
+                <default>false</default>
+                <label>Direct Cash Purchase</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

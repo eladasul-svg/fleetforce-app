@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <excludeButtons>OpenSlackRecordChannel</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
         <detailHeading>false</detailHeading>
         <editHeading>true</editHeading>
         <label>Information</label>
+        <layoutColumns/>
+        <layoutColumns/>
+        <style>TwoColumnsTopToBottom</style>
+    </layoutSections>
+    <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>Identity &amp; Real-Time Status</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Required</behavior>
@@ -23,18 +33,6 @@
                 <behavior>Edit</behavior>
                 <field>Registered_State__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Fuel_Energy_Level__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Total_Maintenance_Cost__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Vehicle_Class__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -51,16 +49,20 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Fuel_Energy_Level__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Last_Location__c</field>
             </layoutItems>
         </layoutColumns>
-        <style>TwoColumnsTopToBottom</style>
+        <style>TwoColumnsLeftToRight</style>
     </layoutSections>
     <layoutSections>
         <customLabel>true</customLabel>
         <detailHeading>true</detailHeading>
-        <editHeading>false</editHeading>
-        <label>Fleet Information</label>
+        <editHeading>true</editHeading>
+        <label>Assignment &amp; Operations</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -79,6 +81,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Key_Tag_ID__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Vehicle_Class__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
@@ -99,25 +105,29 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Max_Range__c</field>
+                <field>Transmission__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Battery_Capacity_kWh__c</field>
+                <field>Engine_Type__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Seat_Count__c</field>
-            </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Drive_Type__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Transmission__c</field>
+                <field>Max_Range__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Battery_Capacity_kWh__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Body_Type__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -126,6 +136,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Height__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Seat_Count__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -154,6 +168,14 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Agreement__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Agreement_Line__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Purchase_Date__c</field>
             </layoutItems>
         </layoutColumns>
@@ -165,6 +187,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Residual_Value__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Total_Maintenance_Cost__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -202,57 +228,222 @@
         <layoutColumns/>
         <style>CustomLinks</style>
     </layoutSections>
+    <platformActionList>
+        <actionListContext>Record</actionListContext>
+        <platformActionListItems>
+            <actionName>NewTask</actionName>
+            <actionType>QuickAction</actionType>
+            <sortOrder>0</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>NewEvent</actionName>
+            <actionType>QuickAction</actionType>
+            <sortOrder>1</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Delete</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>2</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Clone</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>3</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>AssignRecordLabel</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>4</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>PrintableView</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>5</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Submit</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>6</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>SendSurveyInvitation</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>7</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>ChangeRecordType</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>8</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Share</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>9</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>RecordShareHierarchy</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>10</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Edit</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>11</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>ChangeOwnerOne</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>12</sortOrder>
+        </platformActionListItems>
+    </platformActionList>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Assigned_Driver__c</fields>
+        <fields>Full_Card_Number__c</fields>
+        <fields>Fuel_Type_Allowed__c</fields>
+        <fields>Expiration_Date__c</fields>
+        <fields>Provider__c</fields>
+        <fields>Status__c</fields>
+        <relatedList>Fuel_Card__c.Assigned_Asset__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Driver__c</fields>
+        <fields>Volume__c</fields>
+        <fields>Product_Type__c</fields>
+        <fields>Total_Cost__c</fields>
+        <fields>Transaction_Date__c</fields>
         <relatedList>Fuel_Log__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Date_Reported__c</fields>
+        <fields>Grand_Total__c</fields>
+        <fields>Status__c</fields>
+        <fields>Scheduled_Start__c</fields>
+        <fields>Scheduled_End__c</fields>
         <relatedList>Service_Ticket__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Reservation__c</fields>
+        <fields>Origin_Branch__c</fields>
+        <fields>Status__c</fields>
+        <fields>Scheduled_Start__c</fields>
+        <fields>Scheduled_End__c</fields>
+        <fields>Driver__c</fields>
         <relatedList>Allocation__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Equipment_Type__c</fields>
+        <fields>Install_Date__c</fields>
+        <fields>Manufacturer__c</fields>
+        <fields>Model__c</fields>
+        <fields>Status__c</fields>
         <relatedList>Telematics_Equipment__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Type__c</fields>
+        <fields>Driver__c</fields>
+        <fields>Equipment__c</fields>
+        <fields>Limit__c</fields>
+        <fields>Value__c</fields>
+        <fields>Severity__c</fields>
+        <fields>Timestamp__c</fields>
         <relatedList>Telemetry_Violation__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Type__c</fields>
+        <fields>Install_Date__c</fields>
+        <fields>Purchase_Price__c</fields>
+        <fields>Serial_Number__c</fields>
+        <fields>Status__c</fields>
+        <fields>Warranty_End__c</fields>
         <relatedList>Asset_Component__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Compliance_State__c</fields>
+        <fields>Days_Until_Expiry__c</fields>
+        <fields>Doc_Type__c</fields>
+        <fields>Issuing_Authority__c</fields>
+        <fields>Jurisdiction_Type__c</fields>
+        <fields>Valid_From__c</fields>
+        <fields>Valid_Until__c</fields>
+        <fields>Status__c</fields>
         <relatedList>Asset_Document__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Cert_Number__c</fields>
+        <fields>Date_Added__c</fields>
+        <fields>Insurance_Policy__c</fields>
+        <fields>Is_Active__c</fields>
         <relatedList>Asset_Insurance_Link__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Asset_Component__c</fields>
+        <fields>CO2_KG__c</fields>
+        <fields>Calc_Method__c</fields>
+        <fields>Emission_Factor__c</fields>
+        <fields>Scope__c</fields>
         <relatedList>Carbon_Log__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Start_Time__c</fields>
+        <fields>End_Time__c</fields>
+        <fields>Reason__c</fields>
+        <fields>Source_ID__c</fields>
         <relatedList>Availability_Blackout__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Driver__c</fields>
+        <fields>Citation_Date__c</fields>
+        <fields>Allocation__c</fields>
+        <fields>Fine_Amount__c</fields>
+        <fields>Issuing_Authority__c</fields>
+        <fields>Court_Date__c</fields>
+        <fields>Status__c</fields>
         <relatedList>Citation__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Driver__c</fields>
+        <fields>Fleet_Branch__c</fields>
+        <fields>Fleet_Schedule__c</fields>
+        <fields>Priority__c</fields>
         <relatedList>Schedule_Assignment__c.Fleet_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Status__c</fields>
+        <fields>Start_Time__c</fields>
+        <fields>End_Time__c</fields>
+        <fields>Approval_Date__c</fields>
+        <fields>Cost_Center__c</fields>
+        <fields>Requestor_Contact__c</fields>
+        <fields>Priority__c</fields>
+        <fields>Origin_Branch__c</fields>
         <relatedList>Reservation__c.Assigned_Asset__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <relatedList>RelatedFileList</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>TASK.SUBJECT</fields>
+        <fields>TASK.WHO_NAME</fields>
+        <fields>ACTIVITY.TASK</fields>
+        <fields>TASK.DUE_DATE</fields>
+        <fields>TASK.STATUS</fields>
+        <fields>TASK.PRIORITY</fields>
+        <fields>CORE.USERS.FULL_NAME</fields>
+        <relatedList>RelatedActivityList</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
@@ -260,7 +451,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00hWl000000DyPv</masterLabel>
+        <masterLabel>00hWm000000XDd2</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

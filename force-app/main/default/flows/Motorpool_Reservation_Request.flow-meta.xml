@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <description>Public-facing form for unauthenticated employees to request a motorpool vehicle.</description>
+    <environments>Default</environments>
+    <interviewLabel>Motorpool Reservation Request {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Motorpool Reservation Request</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+
+    <!-- ═══ SCREENS ═══ -->
+    <screens>
+        <name>Screen_Guest_Info</name>
+        <label>Step 1: Your Information</label>
+        <locationX>176</locationX>
+        <locationY>100</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_Trip_Details</targetReference>
+        </connector>
+        <fields>
+            <name>txtWelcome</name>
+            <fieldText>&lt;p&gt;&lt;strong style="font-size: 18px;"&gt;Request a Motorpool Vehicle&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Please provide your contact information to begin.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>cmpFirstName</name>
+            <dataType>String</dataType>
+            <fieldText>First Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>cmpLastName</name>
+            <dataType>String</dataType>
+            <fieldText>Last Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>cmpEmail</name>
+            <dataType>String</dataType>
+            <fieldText>Email Address</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>cmpPhone</name>
+            <dataType>String</dataType>
+            <fieldText>Phone Number</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+
+    <screens>
+        <name>Screen_Trip_Details</name>
+        <label>Step 2: Trip Details</label>
+        <locationX>176</locationX>
+        <locationY>250</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_Reservation</targetReference>
+        </connector>
+        <fields>
+            <name>txtTripHeader</name>
+            <fieldText>&lt;p&gt;&lt;strong style="font-size: 16px;"&gt;Vehicle Needs&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>cmpStart</name>
+            <dataType>DateTime</dataType>
+            <fieldText>Pickup Date &amp; Time</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>cmpEnd</name>
+            <dataType>DateTime</dataType>
+            <fieldText>Return Date &amp; Time</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>cmpMinSeats</name>
+            <dataType>Number</dataType>
+            <fieldText>Minimum Number of Seats Needed</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+            <scale>0</scale>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+
+    <screens>
+        <name>Screen_Success</name>
+        <label>Success</label>
+        <locationX>176</locationX>
+        <locationY>550</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>txtSuccess</name>
+            <fieldText>&lt;p style="text-align: center;"&gt;&lt;span style="font-size: 24px; color: rgb(35, 126, 32);"&gt;✅&lt;/span&gt;&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;strong style="font-size: 18px;"&gt;Request Submitted!&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: center;"&gt;Your reservation request has been submitted to the fleet operations team. You will receive an email once it is approved and a vehicle is assigned.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+
+    <!-- ═══ RECORD CREATES ═══ -->
+    <recordCreates>
+        <name>Create_Reservation</name>
+        <label>Create Reservation</label>
+        <locationX>176</locationX>
+        <locationY>400</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>fleetforce__Guest_First_Name__c</field>
+            <value><elementReference>cmpFirstName</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Guest_Last_Name__c</field>
+            <value><elementReference>cmpLastName</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Guest_Email__c</field>
+            <value><elementReference>cmpEmail</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Guest_Phone__c</field>
+            <value><elementReference>cmpPhone</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Start_Time__c</field>
+            <value><elementReference>cmpStart</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__End_Time__c</field>
+            <value><elementReference>cmpEnd</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Min_Seats__c</field>
+            <value><elementReference>cmpMinSeats</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Status__c</field>
+            <value><stringValue>Pending</stringValue></value>
+        </inputAssignments>
+        <object>fleetforce__Reservation__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <!-- ═══ START ═══ -->
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Guest_Info</targetReference>
+        </connector>
+    </start>
+    
+    <status>Active</status>
+</Flow>

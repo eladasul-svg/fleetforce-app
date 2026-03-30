@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <label>Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Regular Maintenance</fullName>
+                <default>false</default>
+                <label>Regular Maintenance</label>
+            </value>
+            <value>
+                <fullName>Oil Change</fullName>
+                <default>false</default>
+                <label>Oil Change</label>
+            </value>
+            <value>
+                <fullName>Tire Rotation</fullName>
+                <default>false</default>
+                <label>Tire Rotation</label>
+            </value>
+            <value>
+                <fullName>Battery Health</fullName>
+                <default>false</default>
+                <label>Battery Health</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

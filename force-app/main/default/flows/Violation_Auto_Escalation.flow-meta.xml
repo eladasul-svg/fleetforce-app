@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <description>Automatically creates a Service Ticket when a Telemetry Violation with High or Critical severity is logged. Prevents duplicate tickets and acknowledges the violation.</description>
+    <environments>Default</environments>
+    <interviewLabel>Violation Auto Escalation {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Violation Auto Escalation</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+
+    <!-- ═══ DECISIONS ═══ -->
+    <decisions>
+        <name>decisionSeverityLevel</name>
+        <label>Is Severity High or Critical?</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <defaultConnectorLabel>Below Threshold — Do Nothing</defaultConnectorLabel>
+        <rules>
+            <name>ruleCritical</name>
+            <conditionLogic>1</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.fleetforce__Severity__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><stringValue>Critical</stringValue></rightValue>
+            </conditions>
+            <connector>
+                <targetReference>assignPriorityCritical</targetReference>
+            </connector>
+            <label>Critical</label>
+        </rules>
+        <rules>
+            <name>ruleHigh</name>
+            <conditionLogic>1</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.fleetforce__Severity__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><stringValue>High</stringValue></rightValue>
+            </conditions>
+            <connector>
+                <targetReference>assignPriorityHigh</targetReference>
+            </connector>
+            <label>High</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>decisionExistingTicket</name>
+        <label>Open Ticket Already Exists?</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <defaultConnectorLabel>No Existing Ticket — Create One</defaultConnectorLabel>
+        <defaultConnector>
+            <targetReference>createServiceTicket</targetReference>
+        </defaultConnector>
+        <rules>
+            <name>ruleTicketExists</name>
+            <conditionLogic>1</conditionLogic>
+            <conditions>
+                <leftValueReference>lookupExistingOpenTicket</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue><booleanValue>false</booleanValue></rightValue>
+            </conditions>
+            <label>Ticket Already Open — Skip</label>
+        </rules>
+    </decisions>
+
+    <!-- ═══ VARIABLES ═══ -->
+    <variables>
+        <name>varPriority</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value><stringValue>High</stringValue></value>
+    </variables>
+
+    <variables>
+        <name>varSummary</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>varDescription</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- ═══ ASSIGNMENTS ═══ -->
+    <assignments>
+        <name>assignPriorityCritical</name>
+        <label>Set Priority to Critical</label>
+        <locationX>0</locationX>
+        <locationY>240</locationY>
+        <assignmentItems>
+            <assignToReference>varPriority</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>Critical</stringValue></value>
+        </assignmentItems>
+        <connector>
+            <targetReference>assignSummary</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>assignPriorityHigh</name>
+        <label>Set Priority to High</label>
+        <locationX>352</locationX>
+        <locationY>240</locationY>
+        <assignmentItems>
+            <assignToReference>varPriority</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>High</stringValue></value>
+        </assignmentItems>
+        <connector>
+            <targetReference>assignSummary</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>assignSummary</name>
+        <label>Build Summary and Description</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <assignmentItems>
+            <assignToReference>varSummary</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>formulaSummary</elementReference></value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varDescription</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>formulaDescription</elementReference></value>
+        </assignmentItems>
+        <connector>
+            <targetReference>lookupExistingOpenTicket</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- ═══ FORMULAS ═══ -->
+    <formulas>
+        <name>formulaSummary</name>
+        <dataType>String</dataType>
+        <expression>"Auto VOR: " &amp; TEXT({!$Record.fleetforce__Type__c})</expression>
+    </formulas>
+
+    <formulas>
+        <name>formulaDescription</name>
+        <dataType>String</dataType>
+        <expression>"Triggered by Telemetry Violation [" &amp; TEXT({!$Record.fleetforce__Severity__c}) &amp; "]. Type: " &amp; TEXT({!$Record.fleetforce__Type__c}) &amp; ". Value: " &amp; {!$Record.fleetforce__Value__c} &amp; ". Limit: " &amp; {!$Record.fleetforce__Limit__c} &amp; ". Timestamp: " &amp; TEXT({!$Record.fleetforce__Timestamp__c})</expression>
+    </formulas>
+
+    <!-- ═══ RECORD LOOKUPS ═══ -->
+    <recordLookups>
+        <name>lookupExistingOpenTicket</name>
+        <label>Find Existing Open Telemetry Ticket</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>decisionExistingTicket</targetReference>
+        </connector>
+        <filterLogic>1 AND 2 AND 3</filterLogic>
+        <filters>
+            <field>fleetforce__Fleet_Asset__c</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.fleetforce__Fleet_Asset__c</elementReference></value>
+        </filters>
+        <filters>
+            <field>fleetforce__Category__c</field>
+            <operator>EqualTo</operator>
+            <value><stringValue>Telemetry Alert</stringValue></value>
+        </filters>
+        <filters>
+            <field>fleetforce__Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value><stringValue>Closed</stringValue></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>fleetforce__Service_Ticket__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <!-- ═══ RECORD CREATES ═══ -->
+    <recordCreates>
+        <name>createServiceTicket</name>
+        <label>Create Service Ticket</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <connector>
+            <targetReference>acknowledgeViolation</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>fleetforce__Fleet_Asset__c</field>
+            <value><elementReference>$Record.fleetforce__Fleet_Asset__c</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Category__c</field>
+            <value><stringValue>Telemetry Alert</stringValue></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Priority__c</field>
+            <value><elementReference>varPriority</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Status__c</field>
+            <value><stringValue>New</stringValue></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Summary__c</field>
+            <value><elementReference>varSummary</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Description__c</field>
+            <value><elementReference>varDescription</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>fleetforce__Violation_Source__c</field>
+            <value><elementReference>$Record.Id</elementReference></value>
+        </inputAssignments>
+        <object>fleetforce__Service_Ticket__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <!-- ═══ RECORD UPDATES ═══ -->
+    <recordUpdates>
+        <name>acknowledgeViolation</name>
+        <label>Acknowledge Violation</label>
+        <locationX>176</locationX>
+        <locationY>720</locationY>
+        <inputAssignments>
+            <field>fleetforce__Is_Ack__c</field>
+            <value><booleanValue>true</booleanValue></value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+
+    <!-- ═══ START ═══ -->
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>false</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>fleetforce__Is_Ack__c</field>
+            <operator>EqualTo</operator>
+            <value><booleanValue>false</booleanValue></value>
+        </filters>
+        <filters>
+            <field>fleetforce__Fleet_Asset__c</field>
+            <operator>IsNull</operator>
+            <value><booleanValue>false</booleanValue></value>
+        </filters>
+        <object>fleetforce__Telemetry_Violation__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+        <connector>
+            <targetReference>decisionSeverityLevel</targetReference>
+        </connector>
+    </start>
+
+    <status>Active</status>
+
+</Flow>

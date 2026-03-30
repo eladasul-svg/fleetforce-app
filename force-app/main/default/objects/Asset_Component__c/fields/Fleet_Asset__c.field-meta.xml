@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fleet_Asset__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Fleet Asset</label>
+    <referenceTo>Fleet_Asset__c</referenceTo>
+    <relationshipLabel>Asset Components</relationshipLabel>
+    <relationshipName>Asset_Components</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Asset_CESO</relationshipName>
 </CustomField>

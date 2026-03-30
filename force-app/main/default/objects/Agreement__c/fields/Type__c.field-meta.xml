@@ -2,11 +2,37 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type__c</fullName>
     <label>Agreement Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+            <value>
+                <fullName>Master Lease Agreement (MLA)</fullName>
+                <default>false</default>
+                <label>Master Lease Agreement (MLA)</label>
+            </value>
+            <value>
+                <fullName>Master Purchase Agreement (MPA)</fullName>
+                <default>false</default>
+                <label>Master Purchase Agreement (MPA)</label>
+            </value>
+            <value>
+                <fullName>Managed Services Agreement (MSA)</fullName>
+                <default>false</default>
+                <label>Managed Services Agreement (MSA)</label>
+            </value>
+            <value>
+                <fullName>Rental/Short-Term Agreement</fullName>
+                <default>false</default>
+                <label>Rental/Short-Term Agreement</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -21,6 +21,22 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
+                <componentName>geotabSettingsManager</componentName>
+                <identifier>fleetforce_geotabSettingsManager</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>listViewDeveloperName</name>
+                    <value>Available_Vehicles</value>
+                </componentInstanceProperties>
+                <componentName>fleetListMap</componentName>
+                <identifier>fleetforce_fleetListMap</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentName>home:heroChart</componentName>
                 <identifier>home_heroChart</identifier>
             </componentInstance>

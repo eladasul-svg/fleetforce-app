@@ -6,7 +6,13 @@
     <valueSet>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
+            <value><fullName>Draft</fullName><default>true</default><label>Draft</label></value>
+            <value><fullName>Pending</fullName><default>false</default><label>Pending Approval</label></value>
+            <value><fullName>Approved</fullName><default>false</default><label>Approved</label></value>
+            <value><fullName>Active</fullName><default>false</default><label>Active</label></value>
+            <value><fullName>Completed</fullName><default>false</default><label>Completed</label></value>
+            <value><fullName>Cancelled</fullName><default>false</default><label>Cancelled</label></value>
+            <value><fullName>Rejected</fullName><default>false</default><label>Rejected</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
