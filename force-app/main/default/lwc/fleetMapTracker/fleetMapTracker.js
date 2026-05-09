@@ -9,14 +9,25 @@ export default class FleetMapTracker extends LightningElement {
     wiredLocations({ error, data }) {
         if (data) {
             this.error = undefined;
-            this.mapMarkers = data.map(telemetry => {
+            this.mapMarkers = data.map(asset => {
+                // Build a description showing driver and branch when available.
+                const driverName = asset.fleetforce__Driver__r 
+                    ? asset.fleetforce__Driver__r.Name 
+                    : 'Unassigned';
+                const branchName = asset.fleetforce__Branch__r 
+                    ? asset.fleetforce__Branch__r.Name 
+                    : 'No branch';
+                const status = asset.fleetforce__Availability_Status__c 
+                    || asset.fleetforce__Status__c 
+                    || 'Unknown';
+
                 return {
                     location: {
-                        Latitude: telemetry.fleetforce__Latitude__c,
-                        Longitude: telemetry.fleetforce__Longitude__c
+                        Latitude: asset.fleetforce__Last_Location__Latitude__s,
+                        Longitude: asset.fleetforce__Last_Location__Longitude__s
                     },
-                    title: `Asset ID: ${telemetry.fleetforce__Asset_ID__c}`,
-                    description: `Recorded: ${telemetry.fleetforce__Timestamp__c}`,
+                    title: asset.Name,
+                    description: `Driver: ${driverName} • Branch: ${branchName} • Status: ${status}`,
                     icon: 'standard:resource_capacity'
                 };
             });
