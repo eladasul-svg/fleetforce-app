@@ -1,7 +1,6 @@
 {
   "orgName": "Fleetforce Development",
   "edition": "Partner Developer",
-  "namespace": "fleetforce",
   "features": ["EnableSetPasswordInApi"],
   "settings": {
     "lightningExperienceSettings": {
