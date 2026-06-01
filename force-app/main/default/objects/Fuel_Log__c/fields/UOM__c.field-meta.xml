@@ -4,6 +4,7 @@
     <label>Unit of Measure</label>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value><fullName>Liters</fullName><default>false</default><label>Liters</label></value>

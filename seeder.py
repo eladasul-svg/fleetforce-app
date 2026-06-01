@@ -2,289 +2,264 @@ import random
 import datetime
 from simple_salesforce import Salesforce
 from faker import Faker
+import subprocess
+import json
 
 # ==========================================
 # ⚙️ CONFIGURATION
 # ==========================================
+TARGET_ORG = "fleetforce-dev-3"
+
 COUNTS = {
-    "VENDORS": 6,          
-    "BRANCHES": 5,         
-    "DRIVERS": 30,         
-    "ASSETS": 60,
-    "FUEL_CARDS": 40,      # NEW!
-    "TICKETS": 40,         
-    "RESERVATIONS": 50,    
-    "FUEL_LOGS": 100,      
-    "VIOLATIONS": 25       
+    "VENDORS":      5,
+    "BRANCHES":     5,
+    "DRIVERS":      10,
+    "ASSETS":       10,
+    "FUEL_CARDS":   10,
+    "TICKETS":      10,
+    "RESERVATIONS": 10,
+    "FUEL_LOGS":    10,
+    "VIOLATIONS":   10,
 }
 
 # ==========================================
-# 🔐 AUTHENTICATION (Dynamic - Safe for Git)
+# 🔐 AUTHENTICATION
 # ==========================================
-import subprocess
-import json
-
 try:
-    print("⏳ Fetching Org Credentials via SF CLI...")
+    print(f"⏳ Fetching credentials for {TARGET_ORG}...")
     result = subprocess.run(
-        ["sf", "org", "display", "--json"], 
-        capture_output=True, 
-        text=True, 
-        check=True
+        ["sf", "org", "display", "--target-org", TARGET_ORG, "--json"],
+        capture_output=True, text=True, check=True
     )
     data = json.loads(result.stdout)
     SF_SESSION_ID = data['result']['accessToken']
     SF_INSTANCE_URL = data['result']['instanceUrl']
-    print(f"   Ref: Access Token found for {data['result'].get('alias', 'Org')}")
+    print(f"   ✅ Connected: {SF_INSTANCE_URL}")
 except Exception as e:
-    print("❌ Failed to fetch credentials automatically.")
-    print("   Run 'sf org display' to check your connection.")
+    print(f"❌ Failed to fetch credentials: {e}")
     exit()
-    
-# ⚠️ NAMESPACE HANDLING
-NAMESPACE = "fleetforce__" 
+
+NAMESPACE = "fleetforce__"
 
 def n(api_name):
-    """Helper to prepend namespace if the object is custom (__c)"""
-    if api_name.endswith("__c"):
-        return f"{NAMESPACE}{api_name}"
-    return api_name
+    return f"{NAMESPACE}{api_name}" if api_name.endswith("__c") else api_name
 
 # ==========================================
-# 📦 CONSTANTS
+# 📦 PICKLIST VALUES (matching deployed schema)
 # ==========================================
-ASSET_CLASSES = ["Sedan", "SUV", "Truck", "Van"] 
-FUEL_TYPES = ["Gasoline", "Diesel", "Electric", "Hybrid"]
-COLORS = ["White", "Black", "Silver", "Gray", "Red", "Blue"]
-PRIORITIES = ["Low", "Medium", "High", "Critical"]
-TICKET_STATUS = ["New", "In Progress", "Parts Ordered", "Completed", "Completed"]
-VIOLATION_TYPES = ["Speeding", "Harsh Braking", "Idling", "Geofence Breach"]
+ASSET_STATUSES   = ["Available", "Available", "Available", "Assigned", "Ordered"]
+FUEL_TYPES       = ["Gasoline", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid"]
+COLORS           = ["White", "Black", "Gray", "Silver", "Red", "Blue"]
+BODY_TYPES       = ["Sedan", "SUV", "Pickup", "Van", "Minivan"]
+PRIORITIES       = ["Low", "Medium", "High", "Critical"]
+TICKET_STATUSES  = ["Draft", "In-Shop", "In-Shop", "Completed"]
+BRANCH_TYPES     = ["Hub", "Satellite", "HQ", "Service Center"]
+CARD_STATUSES    = ["Active", "Active", "Active", "Suspended"]
+VIOLATION_TYPES  = ["Speeding", "Harsh Braking", "Idling", "Geofence Breach", "Seatbelt"]
+SEVERITIES       = ["Low", "Medium", "High", "Critical"]
+US_STATES        = ["CA", "TX", "NY", "FL", "IL", "WA", "CO", "GA", "AZ", "OH"]
 
 fake = Faker()
 
-def get_sf_connection():
-    try:
-        sf = Salesforce(session_id=SF_SESSION_ID, instance_url=SF_INSTANCE_URL)
-        print(f"✅ Connected to Salesforce: {SF_INSTANCE_URL}")
-        return sf
-    except Exception as e:
-        print(f"❌ Connection Failed: {e}")
-        exit()
+# ==========================================
+# 🛠️ HELPERS
+# ==========================================
+def get_sf():
+    sf = Salesforce(session_id=SF_SESSION_ID, instance_url=SF_INSTANCE_URL)
+    return sf
 
-# ==========================================
-# 🛠️ HELPER: BATCH CREATE
-# ==========================================
-def batch_create(sf_object, records, object_name="Records"):
+def batch_create(sf_object, records, label):
     ids = []
-    print(f"   ...Inserting {len(records)} {object_name}...")
+    print(f"   Inserting {len(records)} {label}...")
     for rec in records:
         try:
             res = sf_object.create(rec)
             if res['success']:
                 ids.append(res['id'])
             else:
-                print(f"   ⚠️ Failed to create {object_name}: {res['errors']}")
+                print(f"   ⚠️  {label}: {res['errors']}")
         except Exception as e:
-            print(f"   ❌ Error on {object_name}: {e}")
+            print(f"   ❌ {label}: {e}")
+    print(f"   ✅ Created {len(ids)} {label}")
     return ids
 
-def get_existing_ids(sf, object_name):
-    """Fetch existing IDs to prevent massive over-seeding if re-run."""
-    query = f"SELECT Id FROM {n(object_name)} LIMIT 100"
+def existing_ids(sf, object_api, where=""):
+    q = f"SELECT Id FROM {n(object_api)}"
+    if where:
+        q += f" WHERE {where}"
+    q += " LIMIT 200"
     try:
-        results = sf.query(query)
-        return [r['Id'] for r in results['records']]
+        return [r['Id'] for r in sf.query(q)['records']]
     except:
         return []
 
-def create_vendors(sf):
-    existing = get_existing_ids(sf, "Account WHERE Type='Vendor'")
-    if existing: 
-        print(f"   Ref: Found {len(existing)} existing Vendors. Skipping creation.")
-        return existing
-        
-    print(f"🚀 Seeding {COUNTS['VENDORS']} Vendors...")
-    accounts = []
-    for _ in range(COUNTS['VENDORS']):
-        accounts.append({
-            "Name": f"{fake.company()} Auto Parts",
-            "Type": "Vendor",
-            "BillingCity": fake.city(),
-            "BillingState": fake.state_abbr()
-        })
-    ids = batch_create(sf.Account, accounts, "Vendors")
-    print(f"   Ref: Created {len(ids)} Vendors.")
-    return ids
+# ==========================================
+# 🏭 SEED FUNCTIONS
+# ==========================================
+def seed_vendors(sf):
+    ids = existing_ids(sf, "Account", "Type='Vendor'")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Vendors — skipping")
+        return ids
+    print(f"🚀 Seeding Vendors...")
+    recs = [{"Name": f"{fake.company()} Fleet Services", "Type": "Vendor",
+             "BillingCity": fake.city(), "BillingState": random.choice(US_STATES)}
+            for _ in range(COUNTS['VENDORS'])]
+    return batch_create(sf.Account, recs, "Vendors")
 
-def create_branches(sf):
-    existing = get_existing_ids(sf, "Fleet_Branch__c")
-    if existing:
-        print(f"   Ref: Found {len(existing)} existing Branches. Skipping.")
-        return existing
+def seed_branches(sf):
+    ids = existing_ids(sf, "Fleet_Branch__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Branches — skipping")
+        return ids
+    print(f"🚀 Seeding Branches...")
+    recs = [{"Name": f"{fake.city()} {random.choice(BRANCH_TYPES)}",
+             n("City__c"): fake.city(),
+             n("US_State__c"): random.choice(US_STATES),
+             n("Status__c"): "Active",
+             n("Type__c"): random.choice(BRANCH_TYPES),
+             n("Capacity__c"): random.randint(20, 200)}
+            for _ in range(COUNTS['BRANCHES'])]
+    return batch_create(getattr(sf, n("Fleet_Branch__c")), recs, "Branches")
 
-    print(f"🚀 Seeding {COUNTS['BRANCHES']} Branches...")
-    branches = []
-    types = ["Hub", "Satellite", "HQ"]
-    for _ in range(COUNTS['BRANCHES']):
-        branches.append({
-            "Name": f"{fake.city()} {random.choice(types)}",
-            n("City__c"): fake.city(),
-            n("US_State__c"): fake.state_abbr(),
-            n("Status__c"): "Active",
-            n("Type__c"): random.choice(types),
-            n("Capacity__c"): random.randint(50, 500)
-        })
-    ids = batch_create(getattr(sf, n("Fleet_Branch__c")), branches, "Branches")
-    print(f"   Ref: Created {len(ids)} Branches.")
-    return ids
+def seed_drivers(sf):
+    ids = existing_ids(sf, "Contact")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Drivers — skipping")
+        return ids
+    print(f"🚀 Seeding Drivers...")
+    recs = [{"FirstName": fake.first_name(), "LastName": fake.last_name(),
+             "Email": fake.email(), "Phone": fake.phone_number(),
+             "MailingCity": fake.city(), "MailingState": random.choice(US_STATES)}
+            for _ in range(COUNTS['DRIVERS'])]
+    return batch_create(sf.Contact, recs, "Drivers")
 
-def create_drivers(sf):
-    existing = get_existing_ids(sf, "Contact")
-    if existing:
-        print(f"   Ref: Found {len(existing)} existing Drivers. Skipping.")
-        return existing
-
-    print(f"🚀 Seeding {COUNTS['DRIVERS']} Drivers...")
-    contacts = []
-    for _ in range(COUNTS['DRIVERS']):
-        contacts.append({
-            "FirstName": fake.first_name(),
-            "LastName": fake.last_name(),
-            "Email": fake.email(),
-            "Phone": fake.phone_number(),
-            "MailingCity": fake.city()
-        })
-    ids = batch_create(sf.Contact, contacts, "Drivers")
-    print(f"   Ref: Created {len(ids)} Drivers.")
-    return ids
-
-def create_assets(sf, branch_ids, vendor_ids):
-    print(f"🚀 Seeding {COUNTS['ASSETS']} Assets...")
-    assets = []
+def seed_assets(sf, branch_ids, vendor_ids):
+    ids = existing_ids(sf, "Fleet_Asset__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Assets — skipping")
+        return ids
+    print(f"🚀 Seeding Assets...")
+    recs = []
     for _ in range(COUNTS['ASSETS']):
-        year = random.randint(2018, 2025)
-        age = 2025 - year
-        mileage = (age * 12000) + random.randint(500, 5000)
-        status_roll = random.random()
-        status = "Active"
-        if status_roll > 0.80: status = "Maintenance"
-        
-        assets.append({
-            "Name": f"{year} {fake.word().capitalize()} {random.choice(ASSET_CLASSES)}", 
-            n("VIN__c"): fake.bothify(text='1HG#############').upper(),
-            n("License_Plate__c"): fake.bothify(text='???-####').upper(),
-            n("Status__c"): status,
-            n("Asset_Class__c"): random.choice(ASSET_CLASSES),
+        year = random.randint(2019, 2025)
+        recs.append({
+            "Name": f"{year} {fake.word().capitalize()} {random.choice(BODY_TYPES)}",
+            n("VIN__c"): fake.bothify("1HG#############").upper(),
+            n("License_Plate__c"): fake.bothify("???-####").upper(),
+            n("Status__c"): random.choice(ASSET_STATUSES),
             n("Fuel_Type__c"): random.choice(FUEL_TYPES),
+            n("Body_Type__c"): random.choice(BODY_TYPES),
+            n("Color__c"): random.choice(COLORS),
             n("Branch__c"): random.choice(branch_ids),
             n("Vendor__c"): random.choice(vendor_ids),
-            n("Odometer__c"): mileage,
-            n("Purchase_Date__c"): f"{year}-01-15",
-            n("Purchase_Price__c"): random.randint(20000, 60000),
-            n("Color__c"): random.choice(COLORS)
+            n("Odometer__c"): random.randint(5000, 120000),
+            n("Purchase_Date__c"): f"{year}-{random.randint(1,12):02d}-15",
+            n("Purchase_Price__c"): random.randint(22000, 65000),
         })
+    return batch_create(getattr(sf, n("Fleet_Asset__c")), recs, "Assets")
 
-    ids = batch_create(getattr(sf, n("Fleet_Asset__c")), assets, "Assets")
-    print(f"   Ref: Created {len(ids)} Assets.")
-    return ids
+def seed_fuel_cards(sf, asset_ids, driver_ids):
+    ids = existing_ids(sf, "Fuel_Card__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Fuel Cards — skipping")
+        return ids
+    print(f"🚀 Seeding Fuel Cards...")
+    recs = [{"Name": f"FC-{fake.bothify('####')}",
+             n("Assigned_Driver__c"): random.choice(driver_ids),
+             n("Assigned_Asset__c"): random.choice(asset_ids),
+             n("Status__c"): random.choice(CARD_STATUSES),
+             n("Daily_Limit__c"): random.choice([200, 300, 500])}
+            for _ in range(COUNTS['FUEL_CARDS'])]
+    return batch_create(getattr(sf, n("Fuel_Card__c")), recs, "Fuel Cards")
 
-def create_fuel_cards(sf, asset_ids, driver_ids):
-    print(f"🚀 Seeding {COUNTS['FUEL_CARDS']} Fuel Cards...")
-    cards = []
-    for _ in range(COUNTS['FUEL_CARDS']):
-        cards.append({
-            "Name": f"FC-{fake.bothify(text='####')}",
-            n("Full_Card_Number__c"): fake.credit_card_number(card_type="mastercard"),
-            n("Assigned_Driver__c"): random.choice(driver_ids),
-            n("Assigned_Asset__c"): random.choice(asset_ids),
-            n("Status__c"): "Active",
-            n("Daily_Limit__c"): 500
-        })
-    ids = batch_create(getattr(sf, n("Fuel_Card__c")), cards, "Fuel Cards")
-    print(f"   Ref: Created {len(ids)} Fuel Cards.")
-    return ids
+def seed_service_tickets(sf, asset_ids, vendor_ids):
+    ids = existing_ids(sf, "Service_Ticket__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Service Tickets — skipping")
+        return ids
+    print(f"🚀 Seeding Service Tickets...")
+    categories = ["Preventive Maintenance", "Corrective Repair", "Inspection", "Tire Change"]
+    recs = [{"Name": f"ST-{fake.bothify('####')}",
+             n("Fleet_Asset__c"): random.choice(asset_ids),
+             n("Vendor__c"): random.choice(vendor_ids),
+             n("Status__c"): random.choice(TICKET_STATUSES),
+             n("Priority__c"): random.choice(PRIORITIES),
+             n("Category__c"): random.choice(categories),
+             n("Description__c"): fake.sentence(),
+             n("Total_Parts_Cost__c"): random.randint(50, 800),
+             n("Total_Labor_Cost__c"): random.randint(100, 600)}
+            for _ in range(COUNTS['TICKETS'])]
+    return batch_create(getattr(sf, n("Service_Ticket__c")), recs, "Service Tickets")
 
-def create_service_tickets(sf, asset_ids, vendor_ids):
-    print(f"🚀 Seeding {COUNTS['TICKETS']} Service Tickets...")
-    tickets = []
-    for _ in range(COUNTS['TICKETS']):
-        if not asset_ids: break
-        tickets.append({
-            n("Fleet_Asset__c"): random.choice(asset_ids),
-            n("Vendor__c"): random.choice(vendor_ids),
-            n("Status__c"): random.choice(TICKET_STATUS),
-            n("Priority__c"): random.choice(PRIORITIES),
-            n("Category__c"): random.choice(["Preventive Maintenance (PM)", "Corrective Repair", "Tire Change"]),
-            n("Description__c"): fake.sentence(),
-            n("Total_Parts_Cost__c"): random.randint(50, 500),
-            n("Total_Labor_Cost__c"): random.randint(100, 800)
-        })
-    batch_create(getattr(sf, n("Service_Ticket__c")), tickets, "Tickets")
-    print(f"   Ref: Created tickets.")
+def seed_fuel_logs(sf, asset_ids, driver_ids, card_ids):
+    ids = existing_ids(sf, "Fuel_Log__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Fuel Logs — skipping")
+        return ids
+    print(f"🚀 Seeding Fuel Logs...")
+    recs = [{"Name": f"FL-{fake.bothify('####')}",
+             n("Fleet_Asset__c"): random.choice(asset_ids),
+             n("Driver__c"): random.choice(driver_ids),
+             n("Fuel_Card__c"): random.choice(card_ids),
+             n("Total_Cost__c"): round(random.uniform(40, 120), 2),
+             n("Volume__c"): round(random.uniform(10, 30), 1),
+             n("Product_Type__c"): "Petrol",
+             n("Transaction_Date__c"): fake.date_between('-90d', 'today').isoformat()}
+            for _ in range(COUNTS['FUEL_LOGS'])]
+    return batch_create(getattr(sf, n("Fuel_Log__c")), recs, "Fuel Logs")
 
-def create_logs_and_violations(sf, asset_ids, driver_ids, card_ids):
-    print(f"🚀 Seeding Operational Data...")
-    
-    # 1. Fuel Logs (Now with Cards!)
-    logs = []
-    for _ in range(COUNTS['FUEL_LOGS']):
-        if not card_ids: break
-        logs.append({
-            n("Fleet_Asset__c"): random.choice(asset_ids),
-            n("Driver__c"): random.choice(driver_ids),
-            n("Fuel_Card__c"): random.choice(card_ids), # Linked!
-            n("Total_Cost__c"): random.randint(30, 80),
-            n("Volume__c"): random.randint(10, 20),
-            n("Product_Type__c"): "Petrol",
-            n("Transaction_Date__c"): fake.date_this_year().isoformat()
-        })
-    batch_create(getattr(sf, n("Fuel_Log__c")), logs, "Fuel Logs")
+def seed_violations(sf, asset_ids, driver_ids):
+    ids = existing_ids(sf, "Telemetry_Violation__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Violations — skipping")
+        return ids
+    print(f"🚀 Seeding Telemetry Violations...")
+    recs = [{"Name": f"VIO-{fake.bothify('####')}",
+             n("Fleet_Asset__c"): random.choice(asset_ids),
+             n("Driver__c"): random.choice(driver_ids),
+             n("Type__c"): random.choice(VIOLATION_TYPES),
+             n("Severity__c"): random.choice(SEVERITIES),
+             n("Timestamp__c"): fake.date_time_between('-30d', 'now').isoformat(),
+             n("Value__c"): f"{random.randint(75, 120)} MPH"}
+            for _ in range(COUNTS['VIOLATIONS'])]
+    return batch_create(getattr(sf, n("Telemetry_Violation__c")), recs, "Violations")
 
-    # 2. Violations (Driver field fixed via Schema update)
-    violations = []
-    for _ in range(COUNTS['VIOLATIONS']):
-        violations.append({
-            n("Fleet_Asset__c"): random.choice(asset_ids),
-            n("Driver__c"): random.choice(driver_ids), # This will now work!
-            n("Type__c"): random.choice(VIOLATION_TYPES),
-            n("Severity__c"): random.choice(["High", "Critical", "Medium"]),
-            n("Timestamp__c"): fake.date_this_month().isoformat(),
-            n("Value__c"): f"{random.randint(85, 120)} MPH"
-        })
-    batch_create(getattr(sf, n("Telemetry_Violation__c")), violations, "Violations")
-
-    # 3. Reservations
-    reservations = []
+def seed_reservations(sf, asset_ids, driver_ids):
+    ids = existing_ids(sf, "Reservation__c")
+    if ids:
+        print(f"   ↩️  Found {len(ids)} Reservations — skipping")
+        return ids
+    print(f"🚀 Seeding Reservations...")
+    statuses = ["Approved", "Active", "Completed", "Pending"]
+    recs = []
     for _ in range(COUNTS['RESERVATIONS']):
-        is_future = random.choice([True, False])
-        status = "Confirmed" if is_future else "Completed (Returned)"
-        start = datetime.date.today() if is_future else fake.date_this_year()
-        
-        reservations.append({
-            n("Requestor_Contact__c"): random.choice(driver_ids),
-            n("Assigned_Asset__c"): random.choice(asset_ids),
-            n("Status__c"): status,
-            n("Start_Time__c"): start.isoformat(),
-            n("End_Time__c"): (start + datetime.timedelta(days=3)).isoformat(),
-        })
-    batch_create(getattr(sf, n("Reservation__c")), reservations, "Reservations")
+        start = fake.date_between('-30d', '+30d')
+        recs.append({"Name": f"RES-{fake.bothify('####')}",
+                     n("Requestor_Contact__c"): random.choice(driver_ids),
+                     n("Assigned_Asset__c"): random.choice(asset_ids),
+                     n("Status__c"): random.choice(statuses),
+                     n("Start_Time__c"): start.isoformat(),
+                     n("End_Time__c"): (start + datetime.timedelta(days=random.randint(1,5))).isoformat()})
+    return batch_create(getattr(sf, n("Reservation__c")), recs, "Reservations")
 
 # ==========================================
-# 🏁 MAIN EXECUTION FLOW
+# 🏁 MAIN
 # ==========================================
 if __name__ == "__main__":
-    print("--- 🚜 STARTING FLEETFORCE SEEDER V3 ---")
-    sf = get_sf_connection()
-    
-    vendor_ids = create_vendors(sf)
-    driver_ids = create_drivers(sf)
-    branch_ids = create_branches(sf)
-    asset_ids = create_assets(sf, branch_ids, vendor_ids)
-    
-    # NEW: Create Cards before Logs
-    card_ids = create_fuel_cards(sf, asset_ids, driver_ids) 
-    
-    create_service_tickets(sf, asset_ids, vendor_ids)
-    create_logs_and_violations(sf, asset_ids, driver_ids, card_ids)
-    
-    print("--- ✅ SEEDING COMPLETE ---")
+    print("--- 🚜 FLEETFORCE SEEDER ---")
+    sf = get_sf()
+
+    vendor_ids   = seed_vendors(sf)
+    branch_ids   = seed_branches(sf)
+    driver_ids   = seed_drivers(sf)
+    asset_ids    = seed_assets(sf, branch_ids, vendor_ids)
+    card_ids     = seed_fuel_cards(sf, asset_ids, driver_ids)
+
+    seed_service_tickets(sf, asset_ids, vendor_ids)
+    seed_fuel_logs(sf, asset_ids, driver_ids, card_ids)
+    seed_violations(sf, asset_ids, driver_ids)
+    seed_reservations(sf, asset_ids, driver_ids)
+
+    print("\n--- ✅ SEEDING COMPLETE ---")
+    print(f"Run 'sf org open --target-org {TARGET_ORG}' to view the data.")

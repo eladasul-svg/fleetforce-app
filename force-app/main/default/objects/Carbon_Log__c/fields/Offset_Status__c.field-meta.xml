@@ -4,6 +4,7 @@
     <label>Offset Status</label>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value><fullName>Unmitigated</fullName><default>false</default><label>Unmitigated</label></value>

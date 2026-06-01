@@ -6,38 +6,39 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>Eastern</fullName>
-            <default>true</default>
-            <label>Eastern</label>
-        </value>
-        <value>
-            <fullName>Central</fullName>
-            <default>false</default>
-            <label>Central</label>
-        </value>
-        <value>
-            <fullName>Mountain</fullName>
-            <default>false</default>
-            <label>Mountain</label>
-        </value>
-        <value>
-            <fullName>Pacific</fullName>
-            <default>false</default>
-            <label>Pacific</label>
-        </value>
-        <value>
-            <fullName>Alaska</fullName>
-            <default>false</default>
-            <label>Alaska</label>
-        </value>
-        <value>
-            <fullName>Hawaii</fullName>
-            <default>false</default>
-            <label>Hawaii</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Eastern</fullName>
+                <default>true</default>
+                <label>Eastern</label>
+            </value>
+            <value>
+                <fullName>Central</fullName>
+                <default>false</default>
+                <label>Central</label>
+            </value>
+            <value>
+                <fullName>Mountain</fullName>
+                <default>false</default>
+                <label>Mountain</label>
+            </value>
+            <value>
+                <fullName>Pacific</fullName>
+                <default>false</default>
+                <label>Pacific</label>
+            </value>
+            <value>
+                <fullName>Alaska</fullName>
+                <default>false</default>
+                <label>Alaska</label>
+            </value>
+            <value>
+                <fullName>Hawaii</fullName>
+                <default>false</default>
+                <label>Hawaii</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

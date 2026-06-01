@@ -4,6 +4,7 @@
     <label>Calculation Method</label>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value><fullName>Standard EPA</fullName><default>false</default><label>Standard EPA</label></value>

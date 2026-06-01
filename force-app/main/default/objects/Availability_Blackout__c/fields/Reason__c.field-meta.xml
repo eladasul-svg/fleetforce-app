@@ -4,6 +4,7 @@
     <label>Reason</label>
     <type>Picklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value><fullName>Reservation</fullName><default>false</default><label>Reservation</label></value>
