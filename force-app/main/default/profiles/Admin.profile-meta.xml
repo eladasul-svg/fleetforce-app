@@ -1908,6 +1908,9 @@
         <layout>Citation__c-Citation Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
+        <layout>Contact-Driver Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>Fleet_Asset__c-Fleet Asset Layout</layout>
     </layoutAssignments>
     <layoutAssignments>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows callouts to this org's REST API. URL must be updated to match the active scratch org instance URL.</description>
     <disableProtocolSecurity>false</disableProtocolSecurity>
-    <isActive>true</isActive>
-    <url>https://shoyu-basslake-5215-dev-ed.scratch.my.salesforce.com</url>
+    <isActive>false</isActive>
+    <url>https://salesforce.com</url>
 </RemoteSiteSetting>
