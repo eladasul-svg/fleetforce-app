@@ -3,7 +3,7 @@
     <fullName>Fleet_Asset__c</fullName>
     <label>Fleet Asset</label>
     <type>MasterDetail</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Asset_RQAJ</relationshipName>
+    <referenceTo>Fleet_Asset__c</referenceTo>
+    <relationshipName>Carbon_Logs</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

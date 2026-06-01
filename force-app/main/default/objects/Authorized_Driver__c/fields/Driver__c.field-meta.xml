@@ -3,6 +3,6 @@
     <fullName>Driver__c</fullName>
     <label>Driver (Contact)</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_XJFL</relationshipName>
+    <referenceTo>Contact</referenceTo>
+    <relationshipName>Authorized_Drivers</relationshipName>
 </CustomField>

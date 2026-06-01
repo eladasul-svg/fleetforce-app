@@ -3,6 +3,6 @@
     <fullName>Insurance_Policy__c</fullName>
     <label>Insurance Policy</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Insurance_Policy_HWIH</relationshipName>
+    <referenceTo>Insurance_Policy__c</referenceTo>
+    <relationshipName>Asset_Insurance_Links</relationshipName>
 </CustomField>

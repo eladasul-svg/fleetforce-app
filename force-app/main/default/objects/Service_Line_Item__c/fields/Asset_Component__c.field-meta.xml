@@ -3,6 +3,6 @@
     <fullName>Asset_Component__c</fullName>
     <label>Asset Component</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Asset_Component_PTAH</relationshipName>
+    <referenceTo>Asset_Component__c</referenceTo>
+    <relationshipName>Service_Line_Items</relationshipName>
 </CustomField>

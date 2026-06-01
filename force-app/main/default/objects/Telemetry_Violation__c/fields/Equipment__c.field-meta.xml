@@ -3,6 +3,6 @@
     <fullName>Equipment__c</fullName>
     <label>Equipment</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Equipment_BNHR</relationshipName>
+    <referenceTo>Telematics_Equipment__c</referenceTo>
+    <relationshipName>TelematicsEquipment</relationshipName>
 </CustomField>

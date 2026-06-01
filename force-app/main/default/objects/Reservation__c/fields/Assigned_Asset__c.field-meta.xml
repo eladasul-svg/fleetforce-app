@@ -3,6 +3,6 @@
     <fullName>Assigned_Asset__c</fullName>
     <label>Assigned Asset</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Assigned_Asset_JXSQ</relationshipName>
+    <referenceTo>Fleet_Asset__c</referenceTo>
+    <relationshipName>Reservations</relationshipName>
 </CustomField>

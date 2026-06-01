@@ -62,7 +62,6 @@ public with sharing class FleetKpiController {
         return [
             SELECT Id, Name,
                    fleetforce__Status__c,
-                   fleetforce__Availability_Status__c,
                    fleetforce__Last_Location__Latitude__s,
                    fleetforce__Last_Location__Longitude__s,
                    fleetforce__Driver__c,

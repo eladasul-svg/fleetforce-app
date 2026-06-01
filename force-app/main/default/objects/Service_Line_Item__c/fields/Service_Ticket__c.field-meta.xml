@@ -3,7 +3,7 @@
     <fullName>Service_Ticket__c</fullName>
     <label>Service Ticket</label>
     <type>MasterDetail</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Service_Ticket_ZIVH</relationshipName>
+    <referenceTo>Service_Ticket__c</referenceTo>
+    <relationshipName>Service_Line_Items_ST</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

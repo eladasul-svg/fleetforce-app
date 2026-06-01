@@ -3,7 +3,7 @@
     <fullName>Fleet_Asset__c</fullName>
     <label>Fleet Asset</label>
     <type>MasterDetail</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Asset_UQDC</relationshipName>
+    <referenceTo>Fleet_Asset__c</referenceTo>
+    <relationshipName>Asset_Insurance_Links</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

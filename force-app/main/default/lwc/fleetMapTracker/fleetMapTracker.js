@@ -17,9 +17,7 @@ export default class FleetMapTracker extends LightningElement {
                 const branchName = asset.fleetforce__Branch__r 
                     ? asset.fleetforce__Branch__r.Name 
                     : 'No branch';
-                const status = asset.fleetforce__Availability_Status__c 
-                    || asset.fleetforce__Status__c 
-                    || 'Unknown';
+                const status = asset.fleetforce__Status__c || 'Unknown';
 
                 return {
                     location: {

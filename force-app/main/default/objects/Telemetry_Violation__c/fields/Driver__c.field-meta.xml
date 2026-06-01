@@ -3,6 +3,6 @@
     <fullName>Driver__c</fullName>
     <label>Driver</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_XKWE</relationshipName>
+    <referenceTo>Contact</referenceTo>
+    <relationshipName>Telemetry_Violations</relationshipName>
 </CustomField>

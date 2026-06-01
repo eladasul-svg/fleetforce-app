@@ -3,6 +3,6 @@
     <fullName>Fuel_Card__c</fullName>
     <label>Fuel Card</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fuel_Card_CDQL</relationshipName>
+    <referenceTo>Fuel_Card__c</referenceTo>
+    <relationshipName>Fuel_Logs</relationshipName>
 </CustomField>

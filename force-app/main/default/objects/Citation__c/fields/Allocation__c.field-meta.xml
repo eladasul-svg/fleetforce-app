@@ -3,6 +3,6 @@
     <fullName>Allocation__c</fullName>
     <label>Allocation (Trip)</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Allocation_TEVV</relationshipName>
+    <referenceTo>Allocation__c</referenceTo>
+    <relationshipName>Citations</relationshipName>
 </CustomField>

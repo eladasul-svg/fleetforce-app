@@ -3,6 +3,6 @@
     <fullName>Origin_Branch__c</fullName>
     <label>Origin Branch</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Origin_Branch_JIBL</relationshipName>
+    <referenceTo>Fleet_Branch__c</referenceTo>
+    <relationshipName>Origin_Reservations</relationshipName>
 </CustomField>

@@ -3,6 +3,6 @@
     <fullName>Fuel_Log__c</fullName>
     <label>Source Fuel Log</label>
     <type>Lookup</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fuel_Log_BHGM</relationshipName>
+    <referenceTo>Fuel_Log__c</referenceTo>
+    <relationshipName>Carbon_Logs_FL</relationshipName>
 </CustomField>

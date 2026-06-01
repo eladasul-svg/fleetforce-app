@@ -3,7 +3,7 @@
     <fullName>Driver__c</fullName>
     <label>Driver</label>
     <type>MasterDetail</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Driver_BGXO</relationshipName>
+    <referenceTo>Contact</referenceTo>
+    <relationshipName>Driver_Qualifications</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>

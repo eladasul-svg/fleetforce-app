@@ -3,7 +3,7 @@
     <fullName>Fleet_Schedule__c</fullName>
     <label>Fleet Schedule</label>
     <type>MasterDetail</type>
-    <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Fleet_Schedule_IVGN</relationshipName>
+    <referenceTo>Fleet_Schedule__c</referenceTo>
+    <relationshipName>Schedule_Exceptions</relationshipName>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>
