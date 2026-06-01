@@ -5,8 +5,27 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Active</fullName>
+            <default>true</default>
+            <label>Active</label>
+        </value>
+        <value>
+            <fullName>Inactive</fullName>
+            <default>false</default>
+            <label>Inactive</label>
+        </value>
+        <value>
+            <fullName>Faulty</fullName>
+            <default>false</default>
+            <label>Faulty</label>
+        </value>
+        <value>
+            <fullName>Decommissioned</fullName>
+            <default>false</default>
+            <label>Decommissioned</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

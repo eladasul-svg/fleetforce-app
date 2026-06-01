@@ -5,8 +5,27 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Recurring</fullName>
+            <default>true</default>
+            <label>Recurring</label>
+        </value>
+        <value>
+            <fullName>One-Time</fullName>
+            <default>false</default>
+            <label>One-Time</label>
+        </value>
+        <value>
+            <fullName>Seasonal</fullName>
+            <default>false</default>
+            <label>Seasonal</label>
+        </value>
+        <value>
+            <fullName>Event-Based</fullName>
+            <default>false</default>
+            <label>Event-Based</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -5,8 +5,42 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>GPS Tracker</fullName>
+            <default>true</default>
+            <label>GPS Tracker</label>
+        </value>
+        <value>
+            <fullName>OBD-II Device</fullName>
+            <default>false</default>
+            <label>OBD-II Device</label>
+        </value>
+        <value>
+            <fullName>Dashcam</fullName>
+            <default>false</default>
+            <label>Dashcam</label>
+        </value>
+        <value>
+            <fullName>Fuel Sensor</fullName>
+            <default>false</default>
+            <label>Fuel Sensor</label>
+        </value>
+        <value>
+            <fullName>Temperature Sensor</fullName>
+            <default>false</default>
+            <label>Temperature Sensor</label>
+        </value>
+        <value>
+            <fullName>ELD</fullName>
+            <default>false</default>
+            <label>ELD</label>
+        </value>
+        <value>
+            <fullName>Other</fullName>
+            <default>false</default>
+            <label>Other</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

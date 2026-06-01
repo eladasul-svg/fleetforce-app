@@ -5,8 +5,27 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Full Time</fullName>
+            <default>true</default>
+            <label>Full Time</label>
+        </value>
+        <value>
+            <fullName>Part Time</fullName>
+            <default>false</default>
+            <label>Part Time</label>
+        </value>
+        <value>
+            <fullName>Contractor</fullName>
+            <default>false</default>
+            <label>Contractor</label>
+        </value>
+        <value>
+            <fullName>Temporary</fullName>
+            <default>false</default>
+            <label>Temporary</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

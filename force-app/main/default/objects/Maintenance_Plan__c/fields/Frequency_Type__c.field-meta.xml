@@ -5,8 +5,42 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Daily</fullName>
+            <default>true</default>
+            <label>Daily</label>
+        </value>
+        <value>
+            <fullName>Weekly</fullName>
+            <default>false</default>
+            <label>Weekly</label>
+        </value>
+        <value>
+            <fullName>Monthly</fullName>
+            <default>false</default>
+            <label>Monthly</label>
+        </value>
+        <value>
+            <fullName>Quarterly</fullName>
+            <default>false</default>
+            <label>Quarterly</label>
+        </value>
+        <value>
+            <fullName>Semi-Annual</fullName>
+            <default>false</default>
+            <label>Semi-Annual</label>
+        </value>
+        <value>
+            <fullName>Annual</fullName>
+            <default>false</default>
+            <label>Annual</label>
+        </value>
+        <value>
+            <fullName>Mileage-Based</fullName>
+            <default>false</default>
+            <label>Mileage-Based</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

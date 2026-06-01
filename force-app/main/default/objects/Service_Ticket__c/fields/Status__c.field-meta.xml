@@ -5,8 +5,22 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Draft</fullName>
+            <default>true</default>
+            <label>Draft</label>
+        </value>
+        <value>
+            <fullName>In-Shop</fullName>
+            <default>false</default>
+            <label>In-Shop</label>
+        </value>
+        <value>
+            <fullName>Completed</fullName>
+            <default>false</default>
+            <label>Completed</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

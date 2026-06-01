@@ -5,8 +5,42 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Sedan</fullName>
+            <default>true</default>
+            <label>Sedan</label>
+        </value>
+        <value>
+            <fullName>SUV</fullName>
+            <default>false</default>
+            <label>SUV</label>
+        </value>
+        <value>
+            <fullName>Truck</fullName>
+            <default>false</default>
+            <label>Truck</label>
+        </value>
+        <value>
+            <fullName>Van</fullName>
+            <default>false</default>
+            <label>Van</label>
+        </value>
+        <value>
+            <fullName>Electric Vehicle</fullName>
+            <default>false</default>
+            <label>Electric Vehicle</label>
+        </value>
+        <value>
+            <fullName>Heavy Machinery</fullName>
+            <default>false</default>
+            <label>Heavy Machinery</label>
+        </value>
+        <value>
+            <fullName>All</fullName>
+            <default>false</default>
+            <label>All</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

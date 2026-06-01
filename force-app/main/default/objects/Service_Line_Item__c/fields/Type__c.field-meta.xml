@@ -5,8 +5,37 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Parts</fullName>
+            <default>true</default>
+            <label>Parts</label>
+        </value>
+        <value>
+            <fullName>Labor</fullName>
+            <default>false</default>
+            <label>Labor</label>
+        </value>
+        <value>
+            <fullName>Diagnostic Fee</fullName>
+            <default>false</default>
+            <label>Diagnostic Fee</label>
+        </value>
+        <value>
+            <fullName>Sublet</fullName>
+            <default>false</default>
+            <label>Sublet</label>
+        </value>
+        <value>
+            <fullName>Fluid</fullName>
+            <default>false</default>
+            <label>Fluid</label>
+        </value>
+        <value>
+            <fullName>Other</fullName>
+            <default>false</default>
+            <label>Other</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

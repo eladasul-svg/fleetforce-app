@@ -5,8 +5,37 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Maintenance</fullName>
+            <default>true</default>
+            <label>Maintenance</label>
+        </value>
+        <value>
+            <fullName>Fuel</fullName>
+            <default>false</default>
+            <label>Fuel</label>
+        </value>
+        <value>
+            <fullName>Parts Supply</fullName>
+            <default>false</default>
+            <label>Parts Supply</label>
+        </value>
+        <value>
+            <fullName>Rental</fullName>
+            <default>false</default>
+            <label>Rental</label>
+        </value>
+        <value>
+            <fullName>Roadside</fullName>
+            <default>false</default>
+            <label>Roadside</label>
+        </value>
+        <value>
+            <fullName>Other</fullName>
+            <default>false</default>
+            <label>Other</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

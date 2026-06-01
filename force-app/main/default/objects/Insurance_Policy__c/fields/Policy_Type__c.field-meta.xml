@@ -5,8 +5,37 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Liability</fullName>
+            <default>true</default>
+            <label>Liability</label>
+        </value>
+        <value>
+            <fullName>Collision</fullName>
+            <default>false</default>
+            <label>Collision</label>
+        </value>
+        <value>
+            <fullName>Comprehensive</fullName>
+            <default>false</default>
+            <label>Comprehensive</label>
+        </value>
+        <value>
+            <fullName>Gap</fullName>
+            <default>false</default>
+            <label>Gap</label>
+        </value>
+        <value>
+            <fullName>Workers Comp</fullName>
+            <default>false</default>
+            <label>Workers Comp</label>
+        </value>
+        <value>
+            <fullName>Commercial Auto</fullName>
+            <default>false</default>
+            <label>Commercial Auto</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

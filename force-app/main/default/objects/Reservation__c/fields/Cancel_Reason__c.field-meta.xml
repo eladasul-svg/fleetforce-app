@@ -5,8 +5,32 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>No Longer Needed</fullName>
+            <default>true</default>
+            <label>No Longer Needed</label>
+        </value>
+        <value>
+            <fullName>Found Alternative</fullName>
+            <default>false</default>
+            <label>Found Alternative</label>
+        </value>
+        <value>
+            <fullName>Vehicle Unavailable</fullName>
+            <default>false</default>
+            <label>Vehicle Unavailable</label>
+        </value>
+        <value>
+            <fullName>Personal Emergency</fullName>
+            <default>false</default>
+            <label>Personal Emergency</label>
+        </value>
+        <value>
+            <fullName>Other</fullName>
+            <default>false</default>
+            <label>Other</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

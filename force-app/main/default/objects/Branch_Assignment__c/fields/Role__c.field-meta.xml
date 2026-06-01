@@ -5,8 +5,32 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Manager</fullName>
+            <default>true</default>
+            <label>Manager</label>
+        </value>
+        <value>
+            <fullName>Coordinator</fullName>
+            <default>false</default>
+            <label>Coordinator</label>
+        </value>
+        <value>
+            <fullName>Driver</fullName>
+            <default>false</default>
+            <label>Driver</label>
+        </value>
+        <value>
+            <fullName>Mechanic</fullName>
+            <default>false</default>
+            <label>Mechanic</label>
+        </value>
+        <value>
+            <fullName>Admin</fullName>
+            <default>false</default>
+            <label>Admin</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

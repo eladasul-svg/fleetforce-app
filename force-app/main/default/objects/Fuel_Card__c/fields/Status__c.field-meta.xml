@@ -5,8 +5,32 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Active</fullName>
+            <default>true</default>
+            <label>Active</label>
+        </value>
+        <value>
+            <fullName>Suspended</fullName>
+            <default>false</default>
+            <label>Suspended</label>
+        </value>
+        <value>
+            <fullName>Cancelled</fullName>
+            <default>false</default>
+            <label>Cancelled</label>
+        </value>
+        <value>
+            <fullName>Lost/Stolen</fullName>
+            <default>false</default>
+            <label>Lost/Stolen</label>
+        </value>
+        <value>
+            <fullName>Expired</fullName>
+            <default>false</default>
+            <label>Expired</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

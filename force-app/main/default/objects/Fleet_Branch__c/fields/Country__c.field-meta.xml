@@ -7,12 +7,32 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>Default</fullName>
-                <default>false</default>
-                <label>Default</label>
-            </value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>United States</fullName>
+            <default>true</default>
+            <label>United States</label>
+        </value>
+        <value>
+            <fullName>Canada</fullName>
+            <default>false</default>
+            <label>Canada</label>
+        </value>
+        <value>
+            <fullName>Mexico</fullName>
+            <default>false</default>
+            <label>Mexico</label>
+        </value>
+        <value>
+            <fullName>United Kingdom</fullName>
+            <default>false</default>
+            <label>United Kingdom</label>
+        </value>
+        <value>
+            <fullName>Other</fullName>
+            <default>false</default>
+            <label>Other</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>

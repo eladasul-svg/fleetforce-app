@@ -5,8 +5,37 @@
     <type>Picklist</type>
     <valueSet>
         <valueSetDefinition>
-            <sorted>false</sorted>
-            <value><fullName>Default</fullName><default>false</default><label>Default</label></value>
-        </valueSetDefinition>
+        <sorted>false</sorted>
+        <value>
+            <fullName>Northeast</fullName>
+            <default>true</default>
+            <label>Northeast</label>
+        </value>
+        <value>
+            <fullName>Southeast</fullName>
+            <default>false</default>
+            <label>Southeast</label>
+        </value>
+        <value>
+            <fullName>Midwest</fullName>
+            <default>false</default>
+            <label>Midwest</label>
+        </value>
+        <value>
+            <fullName>Southwest</fullName>
+            <default>false</default>
+            <label>Southwest</label>
+        </value>
+        <value>
+            <fullName>West</fullName>
+            <default>false</default>
+            <label>West</label>
+        </value>
+        <value>
+            <fullName>National</fullName>
+            <default>false</default>
+            <label>National</label>
+        </value>
+    </valueSetDefinition>
     </valueSet>
 </CustomField>
