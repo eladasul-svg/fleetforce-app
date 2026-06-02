@@ -212,7 +212,7 @@
         </inputAssignments>
         <inputAssignments>
             <field>fleetforce__Status__c</field>
-            <value><stringValue>New</stringValue></value>
+            <value><stringValue>Draft</stringValue></value>
         </inputAssignments>
         <inputAssignments>
             <field>fleetforce__Summary__c</field>

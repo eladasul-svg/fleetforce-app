@@ -88,5 +88,15 @@ deploy "profiles"       --source-dir force-app/main/default/profiles
 deploy "permissionsets" --source-dir force-app/main/default/permissionsets
 
 echo ""
+
+# ── Stage 7: Assign FleetforceAdmin permission set ────────────────────────────
+# Required so the API user has FLS access to all custom fields.
+# Without this, fields exist in the org but are not accessible via the API
+# (seeder, integrations, etc.) even though they're visible in Setup UI.
+echo "── Stage 7: Assign FleetforceAdmin permission set ──"
+sf org assign permset --name FleetforceAdmin --target-org "$ORG"
+
+echo ""
 echo "✅ Deployment complete → $ORG"
-echo "   Run: sf org open --target-org $ORG"
+echo "   Next: python3 seeder.py  (update TARGET_ORG to $ORG first)"
+echo "   Open: sf org open --target-org $ORG"
