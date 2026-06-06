@@ -3,7 +3,7 @@
         <div class="slds-grid slds-gutters slds-p-horizontal_medium slds-m-bottom_small">
             
             <!-- Total Active Assets -->
-            <div class="slds-col slds-size_1-of-4" onclick={navigateToAssets}>
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToActiveFleet}>
                 <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
                     <p class="slds-text-heading_small slds-text-color_weak">Active Fleet</p>
                     <p class="slds-text-heading_large slds-text-color_success slds-p-top_x-small">
@@ -14,7 +14,7 @@
             </div>
 
             <!-- In Maintenance -->
-            <div class="slds-col slds-size_1-of-4" onclick={navigateToAssets}>
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToInShop}>
                 <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
                     <p class="slds-text-heading_small slds-text-color_weak">In Shop</p>
                     <p class="slds-text-heading_large slds-text-color_error slds-p-top_x-small">
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Open Tickets -->
-            <div class="slds-col slds-size_1-of-4" onclick={navigateToTickets}>
+            <div class="slds-col slds-size_1-of-4" onclick={navigateToOpenTickets}>
                 <div class="slds-box slds-box_small slds-theme_default slds-text-align_center kpi-tile" style="cursor: pointer;">
                     <p class="slds-text-heading_small slds-text-color_weak">Open Tickets</p>
                     <p class="slds-text-heading_large slds-text-color_warning slds-p-top_x-small">

@@ -3,7 +3,7 @@
     <fullName>In_Progress_Status</fullName>
     <active>true</active>
     <description>If Status is &apos;In Progress&apos;, Actual Start Date must be populated.</description>
-    <errorConditionFormula>ISPICKVAL(Status__c, &apos;In Progress&apos;) &amp;&amp;  ISNULL(  Actual_Start__c)</errorConditionFormula>
+    <errorConditionFormula>ISPICKVAL(Status__c, &apos;In-Shop&apos;) &amp;&amp;  ISNULL(  Actual_Start__c)</errorConditionFormula>
     <errorDisplayField>Actual_Start__c</errorDisplayField>
     <errorMessage>Actual Start Date must be populated for &apos;In Progress&apos; status.</errorMessage>
 </ValidationRule>

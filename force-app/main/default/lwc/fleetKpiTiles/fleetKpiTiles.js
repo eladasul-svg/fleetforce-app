@@ -23,7 +23,7 @@ export default class FleetKpiTiles extends NavigationMixin(LightningElement) {
         }
     }
 
-    navigateToAssets() {
+    navigateToActiveFleet() {
         this[NavigationMixin.Navigate]({
             type: 'standard__objectPage',
             attributes: {
@@ -31,7 +31,20 @@ export default class FleetKpiTiles extends NavigationMixin(LightningElement) {
                 actionName: 'list'
             },
             state: {
-                filterName: 'Recent'
+                filterName: 'fleetforce__Active_Fleet'
+            }
+        });
+    }
+
+    navigateToInShop() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName: 'fleetforce__Service_Ticket__c',
+                actionName: 'list'
+            },
+            state: {
+                filterName: 'fleetforce__In_Shop'
             }
         });
     }
@@ -44,12 +57,12 @@ export default class FleetKpiTiles extends NavigationMixin(LightningElement) {
                 actionName: 'list'
             },
             state: {
-                filterName: 'Recent'
+                filterName: 'fleetforce__Critical_Violations'
             }
         });
     }
 
-    navigateToTickets() {
+    navigateToOpenTickets() {
         this[NavigationMixin.Navigate]({
             type: 'standard__objectPage',
             attributes: {
@@ -57,7 +70,7 @@ export default class FleetKpiTiles extends NavigationMixin(LightningElement) {
                 actionName: 'list'
             },
             state: {
-                filterName: 'Recent'
+                filterName: 'fleetforce__Open_Tickets'
             }
         });
     }

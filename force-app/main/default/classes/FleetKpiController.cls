@@ -12,26 +12,24 @@ public with sharing class FleetKpiController {
             WHERE fleetforce__Status__c IN ('Available', 'Assigned')
         ]);
         
-        // 2. In Maintenance — count of distinct vehicles with an open Service Ticket
-        // currently in the shop. We count Service_Ticket rows grouped by asset,
-        // not Fleet_Asset directly, so this reflects actual work-in-progress
-        // rather than a derived availability flag.
-        AggregateResult[] inShopAgg = [
-            SELECT COUNT_DISTINCT(fleetforce__Fleet_Asset__c) assetCount
+        // 2. In Maintenance — count of Service Tickets currently in the shop.
+        // Counts ticket rows (not distinct vehicles) so the tile matches the
+        // list view record count. Motorpool-only demo: Availability_Blackout
+        // grounding is out of scope so we avoid depending on it.
+        kpis.put('inMaintenance', [
+            SELECT count()
             FROM fleetforce__Service_Ticket__c
             WHERE fleetforce__Status__c = 'In-Shop'
-        ];
-        Integer inMaintenanceCount = (inShopAgg.isEmpty() || inShopAgg[0].get('assetCount') == null)
-            ? 0
-            : (Integer) inShopAgg[0].get('assetCount');
-        kpis.put('inMaintenance', inMaintenanceCount);
-        
-        // 3. Critical Violations in the last 30 days.
+        ]);
+
+        // 3. High + Critical Violations in the last 30 days.
+        // Uses CreatedDate (indexed) rather than Timestamp__c to stay under
+        // query limits and match the list-view filter the tile navigates to.
         kpis.put('criticalViolations', [
-            SELECT count() 
-            FROM fleetforce__Telemetry_Violation__c 
-            WHERE fleetforce__Severity__c = 'Critical' 
-              AND fleetforce__Timestamp__c = LAST_N_DAYS:30
+            SELECT count()
+            FROM fleetforce__Telemetry_Violation__c
+            WHERE fleetforce__Severity__c IN ('High', 'Critical')
+              AND CreatedDate = LAST_N_DAYS:30
         ]);
         
         // 4. Open Service Tickets — anything not yet Completed.
