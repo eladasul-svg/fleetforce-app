@@ -3,8 +3,8 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Type__c</columns>
-    <columns>Frequency_Type__c</columns>
-    <columns>Is_Recurring__c</columns>
+    <columns>Is_24_7__c</columns>
+    <columns>Time_Zone__c</columns>
     <filterScope>Everything</filterScope>
-    <label>All Maintenance Plans</label>
+    <label>All Fleet Schedules</label>
 </ListView>

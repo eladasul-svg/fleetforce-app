@@ -2,9 +2,10 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>All</fullName>
     <columns>NAME</columns>
-    <columns>Type__c</columns>
-    <columns>Frequency_Type__c</columns>
-    <columns>Is_Recurring__c</columns>
+    <columns>Provider__c</columns>
+    <columns>Policy_Type__c</columns>
+    <columns>Status__c</columns>
+    <columns>Expiration_Date__c</columns>
     <filterScope>Everything</filterScope>
-    <label>All Maintenance Plans</label>
+    <label>All Insurance Policys</label>
 </ListView>
