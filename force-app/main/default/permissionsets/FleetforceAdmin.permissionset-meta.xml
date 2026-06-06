@@ -1062,11 +1062,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Fuel_Log__c.Total_Cost__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Fuel_Log__c.Transaction_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1188,11 +1183,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Reservation__c.Cost_Center__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Reservation__c.Dest_Branch__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1453,11 +1443,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Service_Ticket__c.Tax_Rate__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Service_Ticket__c.Total_Cost__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

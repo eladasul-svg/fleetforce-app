@@ -716,11 +716,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Fuel_Log__c.Total_Cost__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Service_Line_Item__c.Subtotal__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -782,11 +777,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Citation__c.Allocation__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Service_Ticket__c.Total_Cost__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1454,11 +1444,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Schedule_Exception__c.End_Time__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Reservation__c.Dest_Branch__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
