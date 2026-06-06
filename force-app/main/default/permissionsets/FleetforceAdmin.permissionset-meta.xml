@@ -1442,11 +1442,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Service_Ticket__c.Service_Vendor__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Service_Ticket__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>

@@ -821,11 +821,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Service_Ticket__c.Service_Vendor__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Fleet_Asset__c.Seat_Count__c</field>
         <readable>true</readable>
     </fieldPermissions>
