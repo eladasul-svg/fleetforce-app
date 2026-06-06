@@ -2,17 +2,43 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Category__c</fullName>
     <label>Ticket Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Preventive Maintenance</fullName><default>false</default><label>Preventive Maintenance</label></value>
-            <value><fullName>Corrective Repair</fullName><default>false</default><label>Corrective Repair</label></value>
-            <value><fullName>Inspection</fullName><default>false</default><label>Inspection</label></value>
-            <value><fullName>Telemetry Alert</fullName><default>false</default><label>Telemetry Alert</label></value>
-            <value><fullName>Warranty</fullName><default>false</default><label>Warranty</label></value>
-            <value><fullName>Other</fullName><default>false</default><label>Other</label></value>
+            <value>
+                <fullName>Preventive Maintenance</fullName>
+                <default>false</default>
+                <label>Preventive Maintenance</label>
+            </value>
+            <value>
+                <fullName>Corrective Repair</fullName>
+                <default>false</default>
+                <label>Corrective Repair</label>
+            </value>
+            <value>
+                <fullName>Inspection</fullName>
+                <default>false</default>
+                <label>Inspection</label>
+            </value>
+            <value>
+                <fullName>Telemetry Alert</fullName>
+                <default>false</default>
+                <label>Telemetry Alert</label>
+            </value>
+            <value>
+                <fullName>Warranty</fullName>
+                <default>false</default>
+                <label>Warranty</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

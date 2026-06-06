@@ -2,36 +2,38 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Cancel_Reason__c</fullName>
     <label>Cancellation Reason</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>No Longer Needed</fullName>
-            <default>true</default>
-            <label>No Longer Needed</label>
-        </value>
-        <value>
-            <fullName>Found Alternative</fullName>
-            <default>false</default>
-            <label>Found Alternative</label>
-        </value>
-        <value>
-            <fullName>Vehicle Unavailable</fullName>
-            <default>false</default>
-            <label>Vehicle Unavailable</label>
-        </value>
-        <value>
-            <fullName>Personal Emergency</fullName>
-            <default>false</default>
-            <label>Personal Emergency</label>
-        </value>
-        <value>
-            <fullName>Other</fullName>
-            <default>false</default>
-            <label>Other</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>No Longer Needed</fullName>
+                <default>true</default>
+                <label>No Longer Needed</label>
+            </value>
+            <value>
+                <fullName>Found Alternative</fullName>
+                <default>false</default>
+                <label>Found Alternative</label>
+            </value>
+            <value>
+                <fullName>Vehicle Unavailable</fullName>
+                <default>false</default>
+                <label>Vehicle Unavailable</label>
+            </value>
+            <value>
+                <fullName>Personal Emergency</fullName>
+                <default>false</default>
+                <label>Personal Emergency</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

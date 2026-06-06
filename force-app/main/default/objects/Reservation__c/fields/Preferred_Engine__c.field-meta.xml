@@ -2,36 +2,38 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Preferred_Engine__c</fullName>
     <label>Preferred Engine</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>Gasoline</fullName>
-            <default>true</default>
-            <label>Gasoline</label>
-        </value>
-        <value>
-            <fullName>Diesel</fullName>
-            <default>false</default>
-            <label>Diesel</label>
-        </value>
-        <value>
-            <fullName>Electric</fullName>
-            <default>false</default>
-            <label>Electric</label>
-        </value>
-        <value>
-            <fullName>Hybrid</fullName>
-            <default>false</default>
-            <label>Hybrid</label>
-        </value>
-        <value>
-            <fullName>Any</fullName>
-            <default>false</default>
-            <label>Any</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Gasoline</fullName>
+                <default>true</default>
+                <label>Gasoline</label>
+            </value>
+            <value>
+                <fullName>Diesel</fullName>
+                <default>false</default>
+                <label>Diesel</label>
+            </value>
+            <value>
+                <fullName>Electric</fullName>
+                <default>false</default>
+                <label>Electric</label>
+            </value>
+            <value>
+                <fullName>Hybrid</fullName>
+                <default>false</default>
+                <label>Hybrid</label>
+            </value>
+            <value>
+                <fullName>Any</fullName>
+                <default>false</default>
+                <label>Any</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

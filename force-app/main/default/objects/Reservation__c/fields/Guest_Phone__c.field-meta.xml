@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Guest_Phone__c</fullName>
     <description>The phone number of the unauthenticated guest requesting the vehicle.</description>
-    <externalId>false</externalId>
     <label>Guest Phone</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
