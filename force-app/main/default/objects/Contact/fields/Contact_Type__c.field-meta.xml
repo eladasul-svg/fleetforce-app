@@ -2,36 +2,38 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Contact_Type__c</fullName>
     <label>Contact Type</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>Driver</fullName>
-            <default>true</default>
-            <label>Driver</label>
-        </value>
-        <value>
-            <fullName>Manager</fullName>
-            <default>false</default>
-            <label>Manager</label>
-        </value>
-        <value>
-            <fullName>Mechanic</fullName>
-            <default>false</default>
-            <label>Mechanic</label>
-        </value>
-        <value>
-            <fullName>Admin</fullName>
-            <default>false</default>
-            <label>Admin</label>
-        </value>
-        <value>
-            <fullName>Other</fullName>
-            <default>false</default>
-            <label>Other</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Driver</fullName>
+                <default>true</default>
+                <label>Driver</label>
+            </value>
+            <value>
+                <fullName>Manager</fullName>
+                <default>false</default>
+                <label>Manager</label>
+            </value>
+            <value>
+                <fullName>Mechanic</fullName>
+                <default>false</default>
+                <label>Mechanic</label>
+            </value>
+            <value>
+                <fullName>Admin</fullName>
+                <default>false</default>
+                <label>Admin</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -1,0 +1,42 @@
+.donut-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.donut-chart {
+    width: 100px;
+    height: 100px;
+    transform: rotate(-90deg);
+}
+
+.traffic-light {
+    gap: 0.25rem;
+}
+
+.traffic-dot {
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    margin-inline-end: 0.25rem;
+}
+
+.traffic-dot_green {
+    background-color: #0ca30c;
+}
+
+.traffic-dot_amber {
+    background-color: #ffb75d;
+}
+
+.traffic-dot_red {
+    background-color: #d03b3b;
+}
+
+.count-tile {
+    border-right: 4px solid transparent;
+}
+
+.task-row {
+    background-color: #ffffff;
+}

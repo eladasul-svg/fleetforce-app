@@ -5,7 +5,7 @@
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <type>Picklist</type>
-        <valueSet>
+    <valueSet>
         <restricted>true</restricted>
         <valueSetName>US_States</valueSetName>
     </valueSet>

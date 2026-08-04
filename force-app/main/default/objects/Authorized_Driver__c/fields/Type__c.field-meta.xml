@@ -2,31 +2,33 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type__c</fullName>
     <label>Authorization Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>Primary</fullName>
-            <default>true</default>
-            <label>Primary</label>
-        </value>
-        <value>
-            <fullName>Secondary</fullName>
-            <default>false</default>
-            <label>Secondary</label>
-        </value>
-        <value>
-            <fullName>Occasional</fullName>
-            <default>false</default>
-            <label>Occasional</label>
-        </value>
-        <value>
-            <fullName>Temporary</fullName>
-            <default>false</default>
-            <label>Temporary</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Primary</fullName>
+                <default>true</default>
+                <label>Primary</label>
+            </value>
+            <value>
+                <fullName>Secondary</fullName>
+                <default>false</default>
+                <label>Secondary</label>
+            </value>
+            <value>
+                <fullName>Occasional</fullName>
+                <default>false</default>
+                <label>Occasional</label>
+            </value>
+            <value>
+                <fullName>Temporary</fullName>
+                <default>false</default>
+                <label>Temporary</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

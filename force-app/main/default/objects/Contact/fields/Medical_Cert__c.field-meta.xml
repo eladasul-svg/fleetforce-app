@@ -2,5 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Medical_Cert__c</fullName>
     <label>Medical Cert Date</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <type>Date</type>
 </CustomField>

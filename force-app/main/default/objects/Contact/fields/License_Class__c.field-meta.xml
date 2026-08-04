@@ -2,41 +2,43 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>License_Class__c</fullName>
     <label>License Class</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
-        <sorted>false</sorted>
-        <value>
-            <fullName>Class A CDL</fullName>
-            <default>true</default>
-            <label>Class A CDL</label>
-        </value>
-        <value>
-            <fullName>Class B CDL</fullName>
-            <default>false</default>
-            <label>Class B CDL</label>
-        </value>
-        <value>
-            <fullName>Class C CDL</fullName>
-            <default>false</default>
-            <label>Class C CDL</label>
-        </value>
-        <value>
-            <fullName>Class D</fullName>
-            <default>false</default>
-            <label>Class D</label>
-        </value>
-        <value>
-            <fullName>Motorcycle</fullName>
-            <default>false</default>
-            <label>Motorcycle</label>
-        </value>
-        <value>
-            <fullName>None</fullName>
-            <default>false</default>
-            <label>None</label>
-        </value>
-    </valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Class A CDL</fullName>
+                <default>true</default>
+                <label>Class A CDL</label>
+            </value>
+            <value>
+                <fullName>Class B CDL</fullName>
+                <default>false</default>
+                <label>Class B CDL</label>
+            </value>
+            <value>
+                <fullName>Class C CDL</fullName>
+                <default>false</default>
+                <label>Class C CDL</label>
+            </value>
+            <value>
+                <fullName>Class D</fullName>
+                <default>false</default>
+                <label>Class D</label>
+            </value>
+            <value>
+                <fullName>Motorcycle</fullName>
+                <default>false</default>
+                <label>Motorcycle</label>
+            </value>
+            <value>
+                <fullName>None</fullName>
+                <default>false</default>
+                <label>None</label>
+            </value>
+        </valueSetDefinition>
     </valueSet>
 </CustomField>

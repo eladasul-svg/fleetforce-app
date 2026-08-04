@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Driver_Branch__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <label>Driver Branch</label>
-    <type>Lookup</type>
     <referenceTo>Fleet_Branch__c</referenceTo>
     <relationshipName>Rel_Driver_Branch_TGJV</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
 </CustomField>
