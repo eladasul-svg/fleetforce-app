@@ -10,6 +10,6 @@
     <columns>Summary__c</columns>
     <columns>Scheduled_Start__c</columns>
     <columns>Scheduled_End__c</columns>
-    <filterScope>Mine</filterScope>
+    <filterScope>Everything</filterScope>
     <label>In Shop</label>
 </ListView>
