@@ -5,6 +5,7 @@
     <columns>Fleet_Asset__c</columns>
     <columns>Driver__c</columns>
     <columns>Type__c</columns>
+    <columns>Restriction_Notes__c</columns>
     <filterScope>Everything</filterScope>
     <label>All Authorized Drivers</label>
 </ListView>

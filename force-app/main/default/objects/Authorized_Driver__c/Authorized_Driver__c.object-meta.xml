@@ -155,8 +155,9 @@
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>Authorized Driver</label>
     <nameField>
-        <label>Name</label>
-        <type>Text</type>
+        <displayFormat>AUTH-{0000}</displayFormat>
+        <label>Authorization Number</label>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Authorized Drivers</pluralLabel>
     <searchLayouts></searchLayouts>
