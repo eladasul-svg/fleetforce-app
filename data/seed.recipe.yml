@@ -1,0 +1,760 @@
+# FleetForce Phase 1 Seed Recipe — 9-object motorpool spine
+#
+# Load order:
+#   Account → Fleet_Schedule__c → Contact[managers, no branch] →
+#   Fleet_Branch__c → Contact[update managers] → Contact[drivers] →
+#   Fleet_Asset__c → Authorized_Driver__c → Telemetry_Violation__c →
+#   Service_Ticket__c → Reservation__c
+#
+# Circular dependency: Fleet_Branch__c.Primary_Contact__c → Contact
+#                      Contact.Driver_Branch__c → Fleet_Branch__c
+# Resolution: two-pass
+#   Pass A — create manager Contacts with Driver_Branch__c null
+#   Pass B — create Fleet_Branches referencing those Contacts
+#   Pass C — upsert manager Contacts by Email to set Driver_Branch__c
+#   Pass D — create driver Contacts (branches now exist)
+
+# ── 1. ACCOUNTS (7) ──────────────────────────────────────────────────────────
+- object: Account
+  count: 7
+  fields:
+    Name: ${{ fake.company() }} Fleet Services
+    Type:
+      random_choice:
+        - Technology Partner: 2
+        - Installation Partner: 2
+        - Channel Partner / Reseller: 1
+        - Customer: 1
+        - Vendor: 1
+    Industry:
+      random_choice:
+        - Transportation: 3
+        - Insurance: 2
+        - Technology: 1
+        - Other: 1
+    BillingCity:
+      fake: city
+    BillingState:
+      fake: state_abbr
+    BillingCountry: United States
+    Phone: ${{ fake.numerify("(###) 555-####") }}
+    Website: https://www.${{ fake.domain_name() }}
+
+# ── 2. FLEET SCHEDULES (4 singletons) ────────────────────────────────────────
+- object: fleetforce__Fleet_Schedule__c
+  nickname: sched_eastern
+  fields:
+    Name: Standard Business Hours (Eastern)
+    fleetforce__Type__c: Recurring
+    fleetforce__Time_Zone__c: Eastern
+    fleetforce__Is_24_7__c: false
+    fleetforce__Effective_From__c: 2024-01-01
+    fleetforce__Total_Hours__c: 50
+    fleetforce__Grace_Period_Mins__c: 15
+
+- object: fleetforce__Fleet_Schedule__c
+  nickname: sched_mountain
+  fields:
+    Name: Extended Mountain Field Support
+    fleetforce__Type__c: Recurring
+    fleetforce__Time_Zone__c: Mountain
+    fleetforce__Is_24_7__c: false
+    fleetforce__Effective_From__c: 2025-06-01
+    fleetforce__Total_Hours__c: 70
+    fleetforce__Grace_Period_Mins__c: 15
+
+- object: fleetforce__Fleet_Schedule__c
+  nickname: sched_247
+  fields:
+    Name: 24/7 Continuous Operations
+    fleetforce__Type__c: Recurring
+    fleetforce__Time_Zone__c: Central
+    fleetforce__Is_24_7__c: true
+    fleetforce__Effective_From__c: 2024-01-01
+    fleetforce__Total_Hours__c: 168
+    fleetforce__Grace_Period_Mins__c: 30
+
+- object: fleetforce__Fleet_Schedule__c
+  nickname: sched_pacific
+  fields:
+    Name: Pacific Coast Standard Hours
+    fleetforce__Type__c: Recurring
+    fleetforce__Time_Zone__c: Pacific
+    fleetforce__Is_24_7__c: false
+    fleetforce__Effective_From__c: 2024-06-01
+    fleetforce__Total_Hours__c: 45
+    fleetforce__Grace_Period_Mins__c: 15
+
+# ── 3a. MANAGER CONTACTS — pass A (Driver_Branch__c intentionally null) ──────
+- object: Contact
+  nickname: mgr_atl
+  fields:
+    FirstName: Marcus
+    LastName: Vance
+    Email: marcus.vance@fleetforce-demo.com
+    Title: Branch Manager
+    Department: Branch Administration
+    Phone: (404) 555-0200
+    fleetforce__Contact_Type__c: Manager
+    fleetforce__Driver_Status__c: Active
+    fleetforce__License_Class__c: Class D
+    fleetforce__License_Number__c: GA-1002847
+    fleetforce__License_State__c: GA
+    fleetforce__License_Expiry__c:
+      date_between:
+        start_date: +180d
+        end_date: +730d
+    fleetforce__Medical_Cert__c:
+      date_between:
+        start_date: today
+        end_date: +365d
+    fleetforce__Safety_Score__c: 97
+
+- object: Contact
+  nickname: mgr_den
+  fields:
+    FirstName: Elena
+    LastName: Reyes
+    Email: elena.reyes@fleetforce-demo.com
+    Title: Branch Manager
+    Department: Branch Administration
+    Phone: (303) 555-0200
+    fleetforce__Contact_Type__c: Manager
+    fleetforce__Driver_Status__c: Active
+    fleetforce__License_Class__c: Class D
+    fleetforce__License_Number__c: CO-7291048
+    fleetforce__License_State__c: CO
+    fleetforce__License_Expiry__c:
+      date_between:
+        start_date: +180d
+        end_date: +730d
+    fleetforce__Medical_Cert__c:
+      date_between:
+        start_date: today
+        end_date: +365d
+    fleetforce__Safety_Score__c: 95
+
+- object: Contact
+  nickname: mgr_dal
+  fields:
+    FirstName: David
+    LastName: Holt
+    Email: david.holt@fleetforce-demo.com
+    Title: Regional Branch Director
+    Department: Branch Administration
+    Phone: (214) 555-0200
+    fleetforce__Contact_Type__c: Manager
+    fleetforce__Driver_Status__c: Active
+    fleetforce__License_Class__c: Class D
+    fleetforce__License_Number__c: TX-4820193
+    fleetforce__License_State__c: TX
+    fleetforce__License_Expiry__c:
+      date_between:
+        start_date: +180d
+        end_date: +730d
+    fleetforce__Medical_Cert__c:
+      date_between:
+        start_date: today
+        end_date: +365d
+    fleetforce__Safety_Score__c: 94
+
+- object: Contact
+  nickname: mgr_phx
+  fields:
+    FirstName: Sofia
+    LastName: Nakamura
+    Email: sofia.nakamura@fleetforce-demo.com
+    Title: Branch Manager
+    Department: Branch Administration
+    Phone: (602) 555-0200
+    fleetforce__Contact_Type__c: Manager
+    fleetforce__Driver_Status__c: Active
+    fleetforce__License_Class__c: Class D
+    fleetforce__License_Number__c: AZ-3917284
+    fleetforce__License_State__c: AZ
+    fleetforce__License_Expiry__c:
+      date_between:
+        start_date: +180d
+        end_date: +730d
+    fleetforce__Medical_Cert__c:
+      date_between:
+        start_date: today
+        end_date: +365d
+    fleetforce__Safety_Score__c: 96
+
+# ── 4. FLEET BRANCHES (4 singletons) ─────────────────────────────────────────
+- object: fleetforce__Fleet_Branch__c
+  nickname: branch_atl
+  fields:
+    Name: Atlanta Southeast Hub
+    fleetforce__Branch_ID__c: BR-ATL
+    fleetforce__Type__c: Hub
+    fleetforce__Status__c: Active
+    fleetforce__Is_Active__c: true
+    fleetforce__City__c: Atlanta
+    fleetforce__US_State__c: GA
+    fleetforce__Country__c: United States
+    fleetforce__County_Province__c: Fulton County
+    fleetforce__Street__c: 2450 Logistics Pkwy SE
+    fleetforce__Zip_Code__c: "30315"
+    fleetforce__Phone__c: (404) 555-0100
+    fleetforce__Email__c: atlanta.hub@fleetforce-demo.com
+    fleetforce__Website__c: https://www.fleetforce-demo.com/locations/atlanta-hub
+    fleetforce__Time_Zone__c: Eastern
+    fleetforce__Capacity__c: 50
+    fleetforce__Location__Latitude__s: 33.749
+    fleetforce__Location__Longitude__s: -84.388
+    fleetforce__Primary_Contact__c:
+      reference: mgr_atl
+    fleetforce__Approving_Manager__c:
+      reference: mgr_atl
+    fleetforce__Schedule__c:
+      reference: sched_eastern
+
+- object: fleetforce__Fleet_Branch__c
+  nickname: branch_den
+  fields:
+    Name: Denver Mountain Satellite
+    fleetforce__Branch_ID__c: BR-DEN
+    fleetforce__Type__c: Satellite
+    fleetforce__Status__c: Active
+    fleetforce__Is_Active__c: true
+    fleetforce__City__c: Denver
+    fleetforce__US_State__c: CO
+    fleetforce__Country__c: United States
+    fleetforce__County_Province__c: Denver County
+    fleetforce__Street__c: 8700 E 40th Ave
+    fleetforce__Zip_Code__c: "80238"
+    fleetforce__Phone__c: (303) 555-0100
+    fleetforce__Email__c: denver.satellite@fleetforce-demo.com
+    fleetforce__Website__c: https://www.fleetforce-demo.com/locations/denver-satellite
+    fleetforce__Time_Zone__c: Mountain
+    fleetforce__Capacity__c: 35
+    fleetforce__Location__Latitude__s: 39.7392
+    fleetforce__Location__Longitude__s: -104.9903
+    fleetforce__Primary_Contact__c:
+      reference: mgr_den
+    fleetforce__Approving_Manager__c:
+      reference: mgr_den
+    fleetforce__Schedule__c:
+      reference: sched_mountain
+
+- object: fleetforce__Fleet_Branch__c
+  nickname: branch_dal
+  fields:
+    Name: Dallas Central Regional HQ
+    fleetforce__Branch_ID__c: BR-DAL
+    fleetforce__Type__c: HQ
+    fleetforce__Status__c: Active
+    fleetforce__Is_Active__c: true
+    fleetforce__City__c: Dallas
+    fleetforce__US_State__c: TX
+    fleetforce__Country__c: United States
+    fleetforce__County_Province__c: Dallas County
+    fleetforce__Street__c: 4200 Stemmons Fwy
+    fleetforce__Zip_Code__c: "75207"
+    fleetforce__Phone__c: (214) 555-0100
+    fleetforce__Email__c: dallas.hq@fleetforce-demo.com
+    fleetforce__Website__c: https://www.fleetforce-demo.com/locations/dallas-hq
+    fleetforce__Time_Zone__c: Central
+    fleetforce__Capacity__c: 60
+    fleetforce__Location__Latitude__s: 32.7767
+    fleetforce__Location__Longitude__s: -96.797
+    fleetforce__Primary_Contact__c:
+      reference: mgr_dal
+    fleetforce__Approving_Manager__c:
+      reference: mgr_dal
+    fleetforce__Schedule__c:
+      reference: sched_247
+
+- object: fleetforce__Fleet_Branch__c
+  nickname: branch_phx
+  fields:
+    Name: Phoenix Southwest Depot
+    fleetforce__Branch_ID__c: BR-PHX
+    fleetforce__Type__c: Satellite
+    fleetforce__Status__c: Active
+    fleetforce__Is_Active__c: true
+    fleetforce__City__c: Phoenix
+    fleetforce__US_State__c: AZ
+    fleetforce__Country__c: United States
+    fleetforce__County_Province__c: Maricopa County
+    fleetforce__Street__c: 3250 N 75th Ave
+    fleetforce__Zip_Code__c: "85035"
+    fleetforce__Phone__c: (602) 555-0100
+    fleetforce__Email__c: phoenix.depot@fleetforce-demo.com
+    fleetforce__Website__c: https://www.fleetforce-demo.com/locations/phoenix-depot
+    fleetforce__Time_Zone__c: Mountain
+    fleetforce__Capacity__c: 40
+    fleetforce__Location__Latitude__s: 33.4484
+    fleetforce__Location__Longitude__s: -112.074
+    fleetforce__Primary_Contact__c:
+      reference: mgr_phx
+    fleetforce__Approving_Manager__c:
+      reference: mgr_phx
+    fleetforce__Schedule__c:
+      reference: sched_pacific
+
+# ── 3b. MANAGER CONTACTS — pass C (upsert to set Driver_Branch__c) ────────────
+# update_key causes Snowfakery to upsert on Email rather than insert.
+# Only the listed fields are written; all other Contact fields are untouched.
+- object: Contact
+  update_key: Email
+  fields:
+    Email: marcus.vance@fleetforce-demo.com
+    fleetforce__Driver_Branch__c:
+      reference: branch_atl
+
+- object: Contact
+  update_key: Email
+  fields:
+    Email: elena.reyes@fleetforce-demo.com
+    fleetforce__Driver_Branch__c:
+      reference: branch_den
+
+- object: Contact
+  update_key: Email
+  fields:
+    Email: david.holt@fleetforce-demo.com
+    fleetforce__Driver_Branch__c:
+      reference: branch_dal
+
+- object: Contact
+  update_key: Email
+  fields:
+    Email: sofia.nakamura@fleetforce-demo.com
+    fleetforce__Driver_Branch__c:
+      reference: branch_phx
+
+# ── 3c. DRIVER CONTACTS — pass D (20 drivers, branches now exist) ─────────────
+- object: Contact
+  count: 20
+  fields:
+    FirstName:
+      fake: first_name
+    LastName:
+      fake: last_name
+    Email: ${{ fake.user_name() }}${{ id }}@fleetforce-demo.com
+    Title:
+      random_choice:
+        - Route Delivery Specialist: 5
+        - Express Delivery Driver: 5
+        - Commercial Driver: 4
+        - Fleet Driver: 4
+        - Field Service Driver: 2
+    Department:
+      random_choice:
+        - Express Transport: 6
+        - Route Delivery: 6
+        - Field Services: 4
+        - Logistics: 4
+    Phone: ${{ fake.numerify("(###) 555-####") }}
+    MobilePhone: ${{ fake.numerify("(###) 555-####") }}
+    fleetforce__Contact_Type__c: Driver
+    fleetforce__Driver_Status__c:
+      random_choice:
+        - Active: 16
+        - Inactive: 2
+        - Suspended: 2
+    fleetforce__License_Class__c:
+      random_choice:
+        - Class D: 10
+        - Class B: 5
+        - Class A: 3
+        - CDL-A: 2
+    fleetforce__License_State__c:
+      random_choice:
+        - GA: 5
+        - CO: 5
+        - TX: 5
+        - AZ: 5
+    fleetforce__License_Number__c: ${{ fake.bothify("??-#######") }}
+    fleetforce__License_Expiry__c:
+      date_between:
+        start_date: +30d
+        end_date: +730d
+    fleetforce__Medical_Cert__c:
+      date_between:
+        start_date: -90d
+        end_date: +365d
+    fleetforce__Safety_Score__c:
+      random_number:
+        min: 65
+        max: 99
+    fleetforce__Driver_Branch__c:
+      random_choice:
+        - reference: branch_atl
+        - reference: branch_den
+        - reference: branch_dal
+        - reference: branch_phx
+
+# ── 5. FLEET ASSETS (35) ─────────────────────────────────────────────────────
+- object: fleetforce__Fleet_Asset__c
+  count: 35
+  fields:
+    Name: >-
+      ${{ ["2022","2023","2024","2025"] | random }}
+      ${{ ["Ford","Ram","Chevrolet","Isuzu","Mercedes"] | random }}
+      ${{ ["Transit-250","F-150 XL","ProMaster","NPR-HD","Sprinter 2500"] | random }}
+    fleetforce__Asset_ID__c: FA-${{ "%04d" % (id + 100) }}
+    fleetforce__VIN__c: ${{ fake.bothify("1FT????##?K######") }}
+    fleetforce__Serial__c: SN-${{ fake.year() }}-${{ "%04d" % (id + 100) }}-${{ fake.numerify("####") }}
+    fleetforce__Key_Tag_ID__c: KT-${{ "%03d" % (id + 100) }}
+    fleetforce__Body_Type__c:
+      random_choice:
+        - Van: 12
+        - Pickup: 8
+        - Truck: 8
+        - SUV: 4
+        - Sedan: 3
+    fleetforce__Engine_Type__c:
+      random_choice:
+        - ICE: 15
+        - Diesel: 10
+        - Hybrid: 6
+        - Electric: 4
+    fleetforce__Fuel_Type__c:
+      random_choice:
+        - Gasoline: 15
+        - Diesel: 10
+        - Hybrid: 6
+        - Electric: 4
+    fleetforce__Drive_Type__c:
+      random_choice:
+        - RWD: 14
+        - FWD: 8
+        - AWD: 8
+        - 4WD: 5
+    fleetforce__Status__c:
+      random_choice:
+        - Assigned: 20
+        - Available: 8
+        - In Maintenance: 5
+        - Ordered: 2
+    fleetforce__Is_Active__c:
+      random_choice:
+        - true: 33
+        - false: 2
+    fleetforce__Ownership__c:
+      random_choice:
+        - Owned: 22
+        - Leased: 10
+        - Financed: 3
+    fleetforce__Vehicle_Class__c: Commercial
+    fleetforce__Transmission__c: Automatic
+    fleetforce__Color__c:
+      random_choice:
+        - White: 12
+        - Black: 6
+        - Silver: 8
+        - Gray: 5
+        - Blue: 4
+    fleetforce__Seat_Count__c:
+      random_choice:
+        - 2: 10
+        - 3: 10
+        - 5: 10
+        - 7: 5
+    fleetforce__Odometer__c:
+      random_number:
+        min: 0
+        max: 120000
+    fleetforce__Purchase_Date__c:
+      date_between:
+        start_date: -1460d
+        end_date: -30d
+    fleetforce__Purchase_Price__c:
+      random_number:
+        min: 28000
+        max: 85000
+    fleetforce__Fuel_Capacity__c:
+      random_choice:
+        - 16: 10
+        - 20: 10
+        - 24: 10
+        - 30: 5
+    fleetforce__Fuel_Energy_Level__c:
+      random_number:
+        min: 10
+        max: 100
+    fleetforce__Max_Range__c:
+      random_number:
+        min: 200
+        max: 600
+    fleetforce__Gross_Weight__c:
+      random_number:
+        min: 5500
+        max: 19500
+    fleetforce__License_Plate__c: ${{ fake.bothify("??-###??") }}
+    fleetforce__Registered_State__c:
+      random_choice:
+        - GA: 9
+        - CO: 9
+        - TX: 9
+        - AZ: 8
+    fleetforce__Battery_Capacity_kWh__c:
+      random_number:
+        min: 1
+        max: 150
+    fleetforce__Branch__c:
+      random_choice:
+        - reference: branch_atl
+        - reference: branch_den
+        - reference: branch_dal
+        - reference: branch_phx
+    fleetforce__Driver__c:
+      random_reference: Contact
+    fleetforce__Vendor__c:
+      random_reference: Account
+
+# ── 6. AUTHORIZED DRIVERS (45) ───────────────────────────────────────────────
+- object: fleetforce__Authorized_Driver__c
+  count: 45
+  fields:
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Driver__c:
+      random_reference: Contact
+    fleetforce__Type__c:
+      random_choice:
+        - Primary: 20
+        - Occasional: 15
+        - Backup: 10
+    fleetforce__Is_Active__c:
+      random_choice:
+        - true: 38
+        - false: 7
+    fleetforce__Has_Key__c:
+      random_choice:
+        - true: 30
+        - false: 15
+    fleetforce__Start_Date__c:
+      date_between:
+        start_date: -365d
+        end_date: -30d
+    fleetforce__End_Date__c:
+      date_between:
+        start_date: +30d
+        end_date: +365d
+    fleetforce__Restriction_Notes__c:
+      random_choice:
+        - Corrective lenses required (glasses/contacts): 8
+        - Automatic transmission only (no manual clutch): 6
+        - No highway driving above 65 mph: 4
+        - Daylight hours only (no overnight operation): 4
+        - "": 23
+
+# ── 7. TELEMETRY VIOLATIONS (20) ─────────────────────────────────────────────
+- object: fleetforce__Telemetry_Violation__c
+  count: 20
+  fields:
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Driver__c:
+      random_reference: Contact
+    fleetforce__Type__c:
+      random_choice:
+        - Speeding: 8
+        - Harsh Braking: 5
+        - Harsh Acceleration: 4
+        - Excessive Idle: 2
+        - After Hours: 1
+    fleetforce__Severity__c:
+      random_choice:
+        - Low: 5
+        - Medium: 8
+        - High: 5
+        - Critical: 2
+    fleetforce__Is_Ack__c:
+      random_choice:
+        - true: 10
+        - false: 10
+    fleetforce__Timestamp__c:
+      date_between:
+        start_date: -90d
+        end_date: -1d
+    fleetforce__Value__c:
+      random_choice:
+        - "74 mph (Speed Limit: 60 mph)"
+        - "82 mph (Speed Limit: 70 mph)"
+        - "-11.8 mph/s Deceleration"
+        - "+8.9 mph/s Acceleration"
+        - "22 min idle — exceeds 5 min policy limit"
+        - "Route deviation: 4.2 mi off approved corridor"
+
+# ── 8. SERVICE TICKETS (35) ──────────────────────────────────────────────────
+- object: fleetforce__Service_Ticket__c
+  count: 35
+  fields:
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Reported_By__c:
+      random_reference: Contact
+    fleetforce__Vendor__c:
+      random_reference: Account
+    fleetforce__Category__c:
+      random_choice:
+        - Preventive Maintenance: 12
+        - Telemetry Alert: 8
+        - Customer Report: 6
+        - Routine Inspection: 5
+        - Warranty Claim: 4
+    fleetforce__Priority__c:
+      random_choice:
+        - Low: 5
+        - Medium: 15
+        - High: 10
+        - Critical: 5
+    fleetforce__Status__c:
+      random_choice:
+        - Open: 8
+        - In Progress: 7
+        - Completed: 15
+        - On Hold: 5
+    fleetforce__Summary__c:
+      random_choice:
+        - Oil Change & Mileage Inspection
+        - Transmission Fluid Flush & Service
+        - Brake Pad Replacement
+        - Tire Rotation & Alignment Check
+        - Battery Replacement
+        - Engine Diagnostic & Fault Clearance
+        - Coolant System Flush
+        - AC Service & Refrigerant Recharge
+        - Spark Plug & Ignition Coil Replacement
+        - Fuel Injector Cleaning
+    fleetforce__Description__c: Maintenance performed per OEM schedule and fleet policy.
+    fleetforce__Date_Reported__c:
+      date_between:
+        start_date: -180d
+        end_date: -1d
+    fleetforce__Scheduled_Start__c:
+      date_between:
+        start_date: -60d
+        end_date: +7d
+    fleetforce__Scheduled_End__c:
+      date_between:
+        start_date: today
+        end_date: +14d
+    fleetforce__Actual_Start__c:
+      date_between:
+        start_date: -60d
+        end_date: today
+    fleetforce__Actual_End__c:
+      date_between:
+        start_date: -30d
+        end_date: today
+    fleetforce__Due_Date__c:
+      date_between:
+        start_date: -7d
+        end_date: +30d
+    fleetforce__Odometer__c:
+      random_number:
+        min: 5000
+        max: 120000
+    fleetforce__Tax_Rate__c:
+      random_choice:
+        - 7: 10
+        - 7.5: 8
+        - 8: 10
+        - 8.25: 7
+    fleetforce__Total_Labor_Cost__c:
+      random_number:
+        min: 80
+        max: 600
+    fleetforce__Total_Parts_Cost__c:
+      random_number:
+        min: 20
+        max: 500
+    fleetforce__Fixed_Cost__c: 0
+    fleetforce__Misc_Fees__c:
+      random_number:
+        min: 0
+        max: 50
+    fleetforce__Is_Labor_Taxable__c:
+      random_choice:
+        - true: 15
+        - false: 20
+    # Violation_Source__c: set only for ~25% of tickets (Telemetry Alert category)
+    fleetforce__Violation_Source__c:
+      random_choice:
+        - random_reference: fleetforce__Telemetry_Violation__c
+        - "": 3
+    fleetforce__Approval_Status__c:
+      random_choice:
+        - Approved: 20
+        - Pending Approval: 10
+        - Rejected: 5
+    # Approved_By__c intentionally null — User lookup; no seeded User records
+    # Reviewed_On__c intentionally null for same reason
+
+# ── 9. RESERVATIONS (30) ─────────────────────────────────────────────────────
+- object: fleetforce__Reservation__c
+  count: 30
+  fields:
+    fleetforce__Assigned_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Requestor_Contact__c:
+      random_reference: Contact
+    fleetforce__Origin_Branch__c:
+      random_choice:
+        - reference: branch_atl
+        - reference: branch_den
+        - reference: branch_dal
+        - reference: branch_phx
+    fleetforce__Destination_Branch__c:
+      random_choice:
+        - reference: branch_atl
+        - reference: branch_den
+        - reference: branch_dal
+        - reference: branch_phx
+    fleetforce__Status__c:
+      random_choice:
+        - Approved: 10
+        - Pending: 8
+        - Completed: 7
+        - Rejected: 3
+        - Cancelled: 2
+    fleetforce__Priority__c:
+      random_choice:
+        - Low: 5
+        - Medium: 12
+        - High: 8
+        - Critical: 5
+    fleetforce__Start_Time__c:
+      date_between:
+        start_date: -30d
+        end_date: +60d
+    fleetforce__End_Time__c:
+      date_between:
+        start_date: +1d
+        end_date: +90d
+    fleetforce__Approval_Date__c:
+      date_between:
+        start_date: -14d
+        end_date: today
+    fleetforce__Cost_Center__c: ${{ fake.bothify("CC-???-###") }}
+    fleetforce__Min_Seats__c:
+      random_choice:
+        - 2: 8
+        - 5: 14
+        - 7: 8
+    fleetforce__Preferred_Body__c:
+      random_choice:
+        - Van: 10
+        - Pickup: 8
+        - SUV: 7
+        - Sedan: 5
+    fleetforce__Preferred_Engine__c:
+      random_choice:
+        - Gasoline: 14
+        - Diesel: 7
+        - Hybrid: 5
+        - Electric: 4
+    fleetforce__Guest_First_Name__c:
+      fake: first_name
+    fleetforce__Guest_Last_Name__c:
+      fake: last_name
+    fleetforce__Guest_Email__c: ${{ fake.user_name() }}@${{ fake.domain_name() }}
+    fleetforce__Guest_Phone__c: ${{ fake.numerify("(###) 555-####") }}
+    # Requestor_User__c intentionally null — User lookup; no seeded User records
