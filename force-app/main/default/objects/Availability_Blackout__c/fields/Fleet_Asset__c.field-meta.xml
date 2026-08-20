@@ -2,8 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Fleet_Asset__c</fullName>
     <label>Fleet Asset</label>
-    <type>MasterDetail</type>
     <referenceTo>Fleet_Asset__c</referenceTo>
     <relationshipName>Availability_Blackouts</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
 </CustomField>
