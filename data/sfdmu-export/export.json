@@ -1,0 +1,159 @@
+{
+    "objects": [
+        {
+            "query": "SELECT Id, Name, Type, BillingCity, BillingState, BillingCountry, Phone, Website, Industry FROM Account",
+            "operation": "Readonly",
+            "externalId": "Id"
+        },
+        {
+            "query": "SELECT Id, AccountId, LastName, FirstName, Phone, MobilePhone, Email, Title, Department, fleetforce__Contact_Type__c, fleetforce__Driver_Branch__c, fleetforce__Driver_Status__c, fleetforce__License_Class__c, fleetforce__License_Expiry__c, fleetforce__License_Number__c, fleetforce__License_State__c, fleetforce__Medical_Cert__c, fleetforce__Related_User__c, fleetforce__Safety_Score__c FROM Contact",
+            "operation": "Readonly",
+            "externalId": "Email"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Effective_From__c, fleetforce__Effective_Until__c, fleetforce__Grace_Period_Mins__c, fleetforce__Is_24_7__c, fleetforce__Time_Zone__c, fleetforce__Total_Hours__c, fleetforce__Type__c FROM fleetforce__Fleet_Schedule__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Asset_Type__c, fleetforce__Frequency_Type__c, fleetforce__Interval_Value__c, fleetforce__Is_Recurring__c, fleetforce__Type__c, fleetforce__Warning_Miles__c FROM fleetforce__Maintenance_Plan__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Effective_Date__c, fleetforce__Expiration_Date__c, fleetforce__Negotiated_Rate__c, fleetforce__Region__c, fleetforce__Service_Type__c, fleetforce__Vendor__c FROM fleetforce__Vendor_Rate_Card__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Coverage_Limit__c, fleetforce__Deductible__c, fleetforce__Effective_Date__c, fleetforce__Expiration_Date__c, fleetforce__Policy_Doc_URL__c, fleetforce__Policy_Type__c, fleetforce__Provider__c, fleetforce__Status__c, fleetforce__Support_Phone__c FROM fleetforce__Insurance_Policy__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Approving_Manager__c, fleetforce__Branch_ID__c, fleetforce__Capacity__c, fleetforce__City__c, fleetforce__Country__c, fleetforce__County_Province__c, fleetforce__Email__c, fleetforce__Is_Active__c, fleetforce__Location__Latitude__s, fleetforce__Location__Longitude__s, fleetforce__Phone__c, fleetforce__Primary_Contact__c, fleetforce__Schedule__c, fleetforce__Status__c, fleetforce__Street__c, fleetforce__Time_Zone__c, fleetforce__Type__c, fleetforce__US_State__c, fleetforce__Website__c, fleetforce__Zip_Code__c FROM fleetforce__Fleet_Branch__c",
+            "operation": "Readonly",
+            "externalId": "fleetforce__Branch_ID__c"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, LastActivityDate, fleetforce__Agreement_Line__c, fleetforce__Agreement__c, fleetforce__Asset_ID__c, fleetforce__Battery_Capacity_kWh__c, fleetforce__Body_Type__c, fleetforce__Branch__c, fleetforce__Color__c, fleetforce__Drive_Type__c, fleetforce__Driver__c, fleetforce__Engine_Type__c, fleetforce__Fuel_Capacity__c, fleetforce__Fuel_Energy_Level__c, fleetforce__Fuel_Type__c, fleetforce__Gross_Weight__c, fleetforce__Height__c, fleetforce__Is_Active__c, fleetforce__Key_Tag_ID__c, fleetforce__Last_Location__Latitude__s, fleetforce__Last_Location__Longitude__s, fleetforce__License_Plate__c, fleetforce__Max_Range__c, fleetforce__Odometer__c, fleetforce__Ownership__c, fleetforce__Paint_Name__c, fleetforce__Purchase_Date__c, fleetforce__Purchase_Price__c, fleetforce__Registered_State__c, fleetforce__Residual_Value__c, fleetforce__Seat_Count__c, fleetforce__Serial__c, fleetforce__Status__c, fleetforce__Transmission__c, fleetforce__VIN__c, fleetforce__Vehicle_Class__c, fleetforce__Vendor__c, fleetforce__Total_Maintenance_Cost__c FROM fleetforce__Fleet_Asset__c",
+            "operation": "Readonly",
+            "externalId": "fleetforce__Asset_ID__c"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Day_OfWeek__c, fleetforce__Duration__c, fleetforce__End_Time__c, fleetforce__Fleet_Schedule__c, fleetforce__Start_Time__c, fleetforce__Type__c FROM fleetforce__Schedule_Window__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__End_Time__c, fleetforce__Exception_Date__c, fleetforce__Fleet_Schedule__c, fleetforce__Is_Closed__c, fleetforce__Start_Time__c FROM fleetforce__Schedule_Exception__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Can_Approve__c, fleetforce__Contact__c, fleetforce__Fleet_Branch__c, fleetforce__Is_Primary__c, fleetforce__Role__c, fleetforce__Status__c, fleetforce__Type__c, fleetforce__User__c FROM fleetforce__Branch_Assignment__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Fleet_Asset__c, fleetforce__Driver__c, fleetforce__Has_Key__c, fleetforce__Is_Active__c, fleetforce__Type__c, fleetforce__End_Date__c, fleetforce__Restriction_Notes__c, fleetforce__Start_Date__c FROM fleetforce__Authorized_Driver__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Authority__c, fleetforce__Cert_ID__c, fleetforce__Does_Expire__c, fleetforce__Driver__c, fleetforce__Is_Mandatory__c, fleetforce__Proficiency__c, fleetforce__Status__c, fleetforce__Type__c, fleetforce__Valid_From__c, fleetforce__Valid_Until__c, fleetforce__Verification_URL__c FROM fleetforce__Driver_Qualification__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Approval_Date__c, fleetforce__Assigned_Asset__c, fleetforce__Cancel_Reason__c, fleetforce__Cost_Center__c, fleetforce__Destination_Branch__c, fleetforce__End_Time__c, fleetforce__Guest_Email__c, fleetforce__Guest_First_Name__c, fleetforce__Guest_Last_Name__c, fleetforce__Guest_Phone__c, fleetforce__Min_Seats__c, fleetforce__Origin_Branch__c, fleetforce__Preferred_Body__c, fleetforce__Preferred_Engine__c, fleetforce__Priority__c, fleetforce__Rejection_Reason__c, fleetforce__Requestor_Contact__c, fleetforce__Requestor_User__c, fleetforce__Start_Time__c, fleetforce__Status__c FROM fleetforce__Reservation__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Agreement_Doc__c, fleetforce__Committed_Units__c, fleetforce__Current_Unit_Count__c, fleetforce__End_Date__c, fleetforce__Financial_Model__c, fleetforce__Manufacturer__c, fleetforce__Rebate_Amount__c, fleetforce__Rebate_Percent__c, fleetforce__Rebate_Type__c, fleetforce__Start_Date__c, fleetforce__Status__c, fleetforce__Type__c, fleetforce__Vendor__c FROM fleetforce__Agreement__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Fleet_Asset__c, fleetforce__Install_Date__c, fleetforce__Monthly_Cost__c, fleetforce__Ownership_Type__c, fleetforce__Parent_Component__c, fleetforce__Purchase_Price__c, fleetforce__Serial_Number__c, fleetforce__Status__c, fleetforce__Subscription_End__c, fleetforce__Subscription_Start__c, fleetforce__Type__c, fleetforce__Uninstall_Date__c, fleetforce__Vendor__c, fleetforce__Warranty_End__c FROM fleetforce__Asset_Component__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Fleet_Asset__c, fleetforce__Annual_Renewal__c, fleetforce__Compliance_State__c, fleetforce__Doc_Link__c, fleetforce__Doc_Number__c, fleetforce__Doc_Type__c, fleetforce__File_Type__c, fleetforce__Is_Required__c, fleetforce__Issuing_Authority__c, fleetforce__Jurisdiction_Type__c, fleetforce__Status__c, fleetforce__Valid_From__c, fleetforce__Valid_Until__c, fleetforce__Days_Until_Expiry__c FROM fleetforce__Asset_Document__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Cert_Number__c, fleetforce__Date_Added__c, fleetforce__Fleet_Asset__c, fleetforce__Insurance_Policy__c, fleetforce__Is_Active__c FROM fleetforce__Asset_Insurance_Link__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Equipment_Type__c, fleetforce__Firmware_Ver__c, fleetforce__Fleet_Asset__c, fleetforce__Geotab_Id__c, fleetforce__IMEI__c, fleetforce__Install_Date__c, fleetforce__Last_Ping__c, fleetforce__Manufacturer__c, fleetforce__Model__c, fleetforce__Status__c, fleetforce__Warranty_End__c FROM fleetforce__Telematics_Equipment__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Assigned_Asset__c, fleetforce__Assigned_Driver__c, fleetforce__Daily_Limit__c, fleetforce__Expiration_Date__c, fleetforce__External_ID__c, fleetforce__Fuel_Type_Allowed__c, fleetforce__Full_Card_Number__c, fleetforce__PIN_Required__c, fleetforce__Provider__c, fleetforce__Status__c FROM fleetforce__Fuel_Card__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__End_Time__c, fleetforce__Fleet_Asset__c, fleetforce__Reason__c, fleetforce__Source_ID__c, fleetforce__Start_Time__c FROM fleetforce__Availability_Blackout__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Driver__c, fleetforce__Fleet_Asset__c, fleetforce__Fleet_Branch__c, fleetforce__Fleet_Schedule__c, fleetforce__Priority__c FROM fleetforce__Schedule_Assignment__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Fleet_Asset__c, fleetforce__Actual_Check_In__c, fleetforce__Actual_Check_Out__c, fleetforce__Condition_In__c, fleetforce__Condition_Out__c, fleetforce__Distance_Driven__c, fleetforce__Driver__c, fleetforce__Fuel_Level_In__c, fleetforce__Fuel_Level_Out__c, fleetforce__Has_New_Damage__c, fleetforce__Odometer_End__c, fleetforce__Odometer_Start__c, fleetforce__Origin_Branch__c, fleetforce__Reservation__c, fleetforce__Return_Branch__c, fleetforce__Same_Branch_Return__c, fleetforce__Scheduled_End__c, fleetforce__Scheduled_Start__c, fleetforce__Status__c FROM fleetforce__Allocation__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Fleet_Asset__c, fleetforce__Actual_End__c, fleetforce__Actual_Start__c, fleetforce__Category__c, fleetforce__Date_Reported__c, fleetforce__Description__c, fleetforce__Due_Date__c, fleetforce__Fixed_Cost__c, fleetforce__Is_Labor_Taxable__c, fleetforce__Misc_Fees__c, fleetforce__Odometer__c, fleetforce__Priority__c, fleetforce__Reported_By__c, fleetforce__Scheduled_End__c, fleetforce__Scheduled_Start__c, fleetforce__Status__c, fleetforce__Summary__c, fleetforce__Tax_Rate__c, fleetforce__Total_Labor_Cost__c, fleetforce__Total_Parts_Cost__c, fleetforce__Vendor__c, fleetforce__Violation_Source__c, fleetforce__Grand_Total__c, fleetforce__In_Shop__c, fleetforce__Approval_Status__c, fleetforce__Approved_By__c, fleetforce__Approval_Notes__c, fleetforce__Reviewed_On__c FROM fleetforce__Service_Ticket__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Admin_Fee__c, fleetforce__Allocation__c, fleetforce__Citation_Date__c, fleetforce__Court_Date__c, fleetforce__Deduct_From_Payroll__c, fleetforce__Driver__c, fleetforce__Fine_Amount__c, fleetforce__Fleet_Asset__c, fleetforce__Issuing_Authority__c, fleetforce__Liability_Status__c, fleetforce__Points__c, fleetforce__Status__c, fleetforce__Ticket_Number__c, fleetforce__Total_Amount__c, fleetforce__US_State__c, fleetforce__Violation_Type__c FROM fleetforce__Citation__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Anomaly_Detected__c, fleetforce__Driver__c, fleetforce__External_ID__c, fleetforce__Fleet_Asset__c, fleetforce__Fuel_Card__c, fleetforce__Fuel_Economy__c, fleetforce__Full_Tank__c, fleetforce__Odometer__c, fleetforce__Product_Type__c, fleetforce__Receipt_URL__c, fleetforce__Station_Geo__Latitude__s, fleetforce__Station_Geo__Longitude__s, fleetforce__Tax_Amount__c, fleetforce__Transaction_Date__c, fleetforce__Trip_Distance__c, fleetforce__UOM__c, fleetforce__Unit_Cost__c, fleetforce__Vendor_Name__c, fleetforce__Volume__c FROM fleetforce__Fuel_Log__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Asset_ID__c, fleetforce__DTC_Codes__c, fleetforce__EV_Battery__c, fleetforce__Fuel_Level__c, fleetforce__Heading__c, fleetforce__Ignition__c, fleetforce__Latitude__c, fleetforce__Longitude__c, fleetforce__Odometer__c, fleetforce__Speed__c, fleetforce__Timestamp__c FROM fleetforce__Telemetry_Raw__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Asset_Component__c, fleetforce__CO2_KG__c, fleetforce__Calc_Method__c, fleetforce__Date__c, fleetforce__Emission_Factor__c, fleetforce__Fleet_Asset__c, fleetforce__Offset_Status__c, fleetforce__Scope__c, fleetforce__Source_Fuel_Log__c FROM fleetforce__Carbon_Log__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, OwnerId, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Driver__c, fleetforce__Equipment__c, fleetforce__Fleet_Asset__c, fleetforce__Is_Ack__c, fleetforce__Limit__c, fleetforce__Location__Latitude__s, fleetforce__Location__Longitude__s, fleetforce__Notes__c, fleetforce__Severity__c, fleetforce__Timestamp__c, fleetforce__Type__c, fleetforce__Value__c FROM fleetforce__Telemetry_Violation__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Asset_Component__c, fleetforce__Description__c, fleetforce__Quantity__c, fleetforce__Service_Ticket__c, fleetforce__Subtotal__c, fleetforce__Type__c, fleetforce__Unit_Price__c FROM fleetforce__Service_Line_Item__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        },
+        {
+            "query": "SELECT Id, Name, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, fleetforce__Acquisition_Cost__c, fleetforce__Agreement__c, fleetforce__Excess_Mileage_Rate__c, fleetforce__Included_Mileage__c, fleetforce__Model_Reference__c, fleetforce__Monthly_Base_Fee__c, fleetforce__Monthly_Depreciation__c, fleetforce__Residual_Value_Percent__c, fleetforce__Term_Months__c FROM fleetforce__Agreement_Line__c",
+            "operation": "Readonly",
+            "externalId": "Name"
+        }
+    ]
+}
