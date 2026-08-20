@@ -1,0 +1,8 @@
+project:
+  name: fleetforce
+  package:
+    name: FleetForce
+    namespace: fleetforce
+    api_version: "64.0"
+  git:
+    default_branch: main

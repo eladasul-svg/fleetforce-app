@@ -10,3 +10,8 @@ package.xml
 
 # LWC Jest
 **/__tests__/**
+
+# LightningExperienceTheme references a BrandingSet (LEXTHEMINGFleetforce) that
+# is org-specific data — it does not exist on fresh org spins. Theme is activated
+# manually post-deploy; exclude from push/pull until BrandingSet metadata is captured.
+**/lightningExperienceThemes/Fleetforce.lightningExperienceTheme-meta.xml

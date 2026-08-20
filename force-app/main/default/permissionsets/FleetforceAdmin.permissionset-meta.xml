@@ -507,11 +507,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Carbon_Log__c.Fuel_Log__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Carbon_Log__c.Offset_Status__c</field>
         <readable>true</readable>
     </fieldPermissions>

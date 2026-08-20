@@ -40,27 +40,23 @@ private class FleetKpiControllerTest {
         // Service Tickets: 2 In-Shop, 1 Draft, 1 Completed (Completed should not count in openTickets)
         List<fleetforce__Service_Ticket__c> tickets = new List<fleetforce__Service_Ticket__c>{
             new fleetforce__Service_Ticket__c(
-                Name = 'Ticket-InShop-1',
                 fleetforce__Fleet_Asset__c = assets[0].Id,
                 fleetforce__Status__c = 'In-Shop',
                 fleetforce__Priority__c = 'High',
                 fleetforce__Actual_Start__c = Date.today()
             ),
             new fleetforce__Service_Ticket__c(
-                Name = 'Ticket-InShop-2',
                 fleetforce__Fleet_Asset__c = assets[1].Id,
                 fleetforce__Status__c = 'In-Shop',
                 fleetforce__Priority__c = 'Critical',
                 fleetforce__Actual_Start__c = Date.today()
             ),
             new fleetforce__Service_Ticket__c(
-                Name = 'Ticket-Draft-1',
                 fleetforce__Fleet_Asset__c = assets[2].Id,
                 fleetforce__Status__c = 'Draft',
                 fleetforce__Priority__c = 'Medium'
             ),
             new fleetforce__Service_Ticket__c(
-                Name = 'Ticket-Completed',
                 fleetforce__Fleet_Asset__c = assets[3].Id,
                 fleetforce__Status__c = 'Completed',
                 fleetforce__Priority__c = 'Low',

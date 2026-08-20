@@ -1,18 +1,23 @@
 # FleetForce Phase 1 Seed Recipe — 9-object motorpool spine
 #
 # Load order:
-#   Account → Fleet_Schedule__c → Contact[managers, no branch] →
-#   Fleet_Branch__c → Contact[update managers] → Contact[drivers] →
+#   Account → Fleet_Schedule__c → Contact[managers, no Driver_Branch] →
+#   Fleet_Branch__c → Contact[drivers, with Driver_Branch] →
 #   Fleet_Asset__c → Authorized_Driver__c → Telemetry_Violation__c →
 #   Service_Ticket__c → Reservation__c
 #
-# Circular dependency: Fleet_Branch__c.Primary_Contact__c → Contact
-#                      Contact.Driver_Branch__c → Fleet_Branch__c
-# Resolution: two-pass
-#   Pass A — create manager Contacts with Driver_Branch__c null
-#   Pass B — create Fleet_Branches referencing those Contacts
-#   Pass C — upsert manager Contacts by Email to set Driver_Branch__c
-#   Pass D — create driver Contacts (branches now exist)
+# Circular dependency note:
+#   Fleet_Branch.Primary_Contact → Contact (manager must exist first)
+#   Contact.Driver_Branch → Fleet_Branch (branch must exist first for drivers)
+# Resolution: manager contacts are created before branches, WITHOUT Driver_Branch.
+#   Managers are associated with their branch via Fleet_Branch.Primary_Contact__c.
+#   Only driver contacts carry Driver_Branch__c (set after branches exist).
+#
+# Snowfakery 3.6 quirks addressed:
+#   - random_choice weighted syntax: use choice/pick/probability
+#   - boolean fields: use fake.boolean()
+#   - numeric random_choice: use ${{ [n1,n2,...] | random }}
+#   - Violation_Source gated on Category == Telemetry Alert via if/choice/when block
 
 # ── 1. ACCOUNTS (7) ──────────────────────────────────────────────────────────
 - object: Account
@@ -21,17 +26,35 @@
     Name: ${{ fake.company() }} Fleet Services
     Type:
       random_choice:
-        - Technology Partner: 2
-        - Installation Partner: 2
-        - Channel Partner / Reseller: 1
-        - Customer: 1
-        - Vendor: 1
+        - choice:
+            pick: Technology Partner
+            probability: 2
+        - choice:
+            pick: Installation Partner
+            probability: 2
+        - choice:
+            pick: Channel Partner / Reseller
+            probability: 1
+        - choice:
+            pick: Customer
+            probability: 1
+        - choice:
+            pick: Vendor
+            probability: 1
     Industry:
       random_choice:
-        - Transportation: 3
-        - Insurance: 2
-        - Technology: 1
-        - Other: 1
+        - choice:
+            pick: Transportation
+            probability: 3
+        - choice:
+            pick: Insurance
+            probability: 2
+        - choice:
+            pick: Technology
+            probability: 1
+        - choice:
+            pick: Other
+            probability: 1
     BillingCity:
       fake: city
     BillingState:
@@ -295,79 +318,26 @@
     fleetforce__Schedule__c:
       reference: sched_pacific
 
-# ── 3b. MANAGER CONTACTS — pass C (upsert to set Driver_Branch__c) ────────────
-# update_key causes Snowfakery to upsert on Email rather than insert.
-# Only the listed fields are written; all other Contact fields are untouched.
-- object: Contact
-  update_key: Email
-  fields:
-    Email: marcus.vance@fleetforce-demo.com
-    fleetforce__Driver_Branch__c:
-      reference: branch_atl
-
-- object: Contact
-  update_key: Email
-  fields:
-    Email: elena.reyes@fleetforce-demo.com
-    fleetforce__Driver_Branch__c:
-      reference: branch_den
-
-- object: Contact
-  update_key: Email
-  fields:
-    Email: david.holt@fleetforce-demo.com
-    fleetforce__Driver_Branch__c:
-      reference: branch_dal
-
-- object: Contact
-  update_key: Email
-  fields:
-    Email: sofia.nakamura@fleetforce-demo.com
-    fleetforce__Driver_Branch__c:
-      reference: branch_phx
-
-# ── 3c. DRIVER CONTACTS — pass D (20 drivers, branches now exist) ─────────────
-- object: Contact
-  count: 20
+# ── 3c. DRIVER CONTACTS (20 drivers, branches now exist) ─────────────────────
+# 20 individual Contact blocks with static nicknames drv01–drv20 so that
+# driver-specific lookup fields in later objects can use an explicit 20-way
+# random_choice over this exact set, excluding the 4 manager contacts.
+- macro: driver_fields
   fields:
     FirstName:
       fake: first_name
     LastName:
       fake: last_name
-    Email: ${{ fake.user_name() }}${{ id }}@fleetforce-demo.com
-    Title:
-      random_choice:
-        - Route Delivery Specialist: 5
-        - Express Delivery Driver: 5
-        - Commercial Driver: 4
-        - Fleet Driver: 4
-        - Field Service Driver: 2
-    Department:
-      random_choice:
-        - Express Transport: 6
-        - Route Delivery: 6
-        - Field Services: 4
-        - Logistics: 4
+    Email:
+      fake: email
+    Title: ${{ ["Route Delivery Specialist", "Express Delivery Driver", "Commercial Driver", "Fleet Driver", "Field Service Driver"] | random }}
+    Department: ${{ ["Express Transport", "Route Delivery", "Field Services", "Logistics"] | random }}
     Phone: ${{ fake.numerify("(###) 555-####") }}
     MobilePhone: ${{ fake.numerify("(###) 555-####") }}
     fleetforce__Contact_Type__c: Driver
-    fleetforce__Driver_Status__c:
-      random_choice:
-        - Active: 16
-        - Inactive: 2
-        - Suspended: 2
-    fleetforce__License_Class__c:
-      random_choice:
-        - Class D: 10
-        - Class B: 5
-        - Class A: 3
-        - CDL-A: 2
-    fleetforce__License_State__c:
-      random_choice:
-        - GA: 5
-        - CO: 5
-        - TX: 5
-        - AZ: 5
+    fleetforce__Driver_Status__c: ${{ (["Active"] * 16 + ["Inactive"] * 2 + ["Suspended"] * 2) | random }}
+    fleetforce__License_Class__c: ${{ (["Class D"] * 10 + ["Class B CDL"] * 5 + ["Class A CDL"] * 5) | random }}
+    fleetforce__License_State__c: ${{ ["GA", "CO", "TX", "AZ"] | random }}
     fleetforce__License_Number__c: ${{ fake.bothify("??-#######") }}
     fleetforce__License_Expiry__c:
       date_between:
@@ -388,73 +358,87 @@
         - reference: branch_dal
         - reference: branch_phx
 
+- object: Contact
+  nickname: drv01
+  include: driver_fields
+- object: Contact
+  nickname: drv02
+  include: driver_fields
+- object: Contact
+  nickname: drv03
+  include: driver_fields
+- object: Contact
+  nickname: drv04
+  include: driver_fields
+- object: Contact
+  nickname: drv05
+  include: driver_fields
+- object: Contact
+  nickname: drv06
+  include: driver_fields
+- object: Contact
+  nickname: drv07
+  include: driver_fields
+- object: Contact
+  nickname: drv08
+  include: driver_fields
+- object: Contact
+  nickname: drv09
+  include: driver_fields
+- object: Contact
+  nickname: drv10
+  include: driver_fields
+- object: Contact
+  nickname: drv11
+  include: driver_fields
+- object: Contact
+  nickname: drv12
+  include: driver_fields
+- object: Contact
+  nickname: drv13
+  include: driver_fields
+- object: Contact
+  nickname: drv14
+  include: driver_fields
+- object: Contact
+  nickname: drv15
+  include: driver_fields
+- object: Contact
+  nickname: drv16
+  include: driver_fields
+- object: Contact
+  nickname: drv17
+  include: driver_fields
+- object: Contact
+  nickname: drv18
+  include: driver_fields
+- object: Contact
+  nickname: drv19
+  include: driver_fields
+- object: Contact
+  nickname: drv20
+  include: driver_fields
+
 # ── 5. FLEET ASSETS (35) ─────────────────────────────────────────────────────
 - object: fleetforce__Fleet_Asset__c
   count: 35
   fields:
-    Name: >-
-      ${{ ["2022","2023","2024","2025"] | random }}
-      ${{ ["Ford","Ram","Chevrolet","Isuzu","Mercedes"] | random }}
-      ${{ ["Transit-250","F-150 XL","ProMaster","NPR-HD","Sprinter 2500"] | random }}
+    Name: ${{ ["2022","2023","2024","2025"] | random }} ${{ ["Ford","Ram","Chevrolet","Isuzu","Mercedes"] | random }} ${{ ["Transit-250","F-150 XL","ProMaster","NPR-HD","Sprinter 2500"] | random }}
     fleetforce__Asset_ID__c: FA-${{ "%04d" % (id + 100) }}
     fleetforce__VIN__c: ${{ fake.bothify("1FT????##?K######") }}
     fleetforce__Serial__c: SN-${{ fake.year() }}-${{ "%04d" % (id + 100) }}-${{ fake.numerify("####") }}
     fleetforce__Key_Tag_ID__c: KT-${{ "%03d" % (id + 100) }}
-    fleetforce__Body_Type__c:
-      random_choice:
-        - Van: 12
-        - Pickup: 8
-        - Truck: 8
-        - SUV: 4
-        - Sedan: 3
-    fleetforce__Engine_Type__c:
-      random_choice:
-        - ICE: 15
-        - Diesel: 10
-        - Hybrid: 6
-        - Electric: 4
-    fleetforce__Fuel_Type__c:
-      random_choice:
-        - Gasoline: 15
-        - Diesel: 10
-        - Hybrid: 6
-        - Electric: 4
-    fleetforce__Drive_Type__c:
-      random_choice:
-        - RWD: 14
-        - FWD: 8
-        - AWD: 8
-        - 4WD: 5
-    fleetforce__Status__c:
-      random_choice:
-        - Assigned: 20
-        - Available: 8
-        - In Maintenance: 5
-        - Ordered: 2
-    fleetforce__Is_Active__c:
-      random_choice:
-        - true: 33
-        - false: 2
-    fleetforce__Ownership__c:
-      random_choice:
-        - Owned: 22
-        - Leased: 10
-        - Financed: 3
+    fleetforce__Body_Type__c: ${{ (["Minivan"] * 12 + ["Pickup"] * 8 + ["Truck"] * 8 + ["SUV"] * 4 + ["Sedan"] * 3) | random }}
+    fleetforce__Engine_Type__c: ${{ (["ICE"] * 15 + ["Diesel"] * 10 + ["Hybrid"] * 6 + ["Electric"] * 4) | random }}
+    fleetforce__Fuel_Type__c: ${{ (["Gasoline"] * 15 + ["Diesel"] * 10 + ["Hybrid"] * 6 + ["Electric"] * 4) | random }}
+    fleetforce__Drive_Type__c: ${{ (["RWD"] * 14 + ["FWD"] * 8 + ["AWD"] * 8 + ["4WD"] * 5) | random }}
+    fleetforce__Status__c: ${{ (["Assigned"] * 20 + ["Available"] * 8 + ["Decommissioned"] * 5 + ["Ordered"] * 2) | random }}
+    fleetforce__Is_Active__c: ${{ fake.boolean(chance_of_getting_true=94) }}
+    fleetforce__Ownership__c: ${{ (["Owned"] * 22 + ["Leased"] * 10 + ["Financed"] * 3) | random }}
     fleetforce__Vehicle_Class__c: Commercial
     fleetforce__Transmission__c: Automatic
-    fleetforce__Color__c:
-      random_choice:
-        - White: 12
-        - Black: 6
-        - Silver: 8
-        - Gray: 5
-        - Blue: 4
-    fleetforce__Seat_Count__c:
-      random_choice:
-        - 2: 10
-        - 3: 10
-        - 5: 10
-        - 7: 5
+    fleetforce__Color__c: ${{ (["White"] * 12 + ["Black"] * 6 + ["Silver"] * 8 + ["Gray"] * 5 + ["Blue"] * 4) | random }}
+    fleetforce__Seat_Count__c: ${{ [2, 2, 3, 3, 5, 5, 7] | random }}
     fleetforce__Odometer__c:
       random_number:
         min: 0
@@ -467,12 +451,7 @@
       random_number:
         min: 28000
         max: 85000
-    fleetforce__Fuel_Capacity__c:
-      random_choice:
-        - 16: 10
-        - 20: 10
-        - 24: 10
-        - 30: 5
+    fleetforce__Fuel_Capacity__c: ${{ [16, 16, 20, 20, 24, 24, 30] | random }}
     fleetforce__Fuel_Energy_Level__c:
       random_number:
         min: 10
@@ -486,12 +465,7 @@
         min: 5500
         max: 19500
     fleetforce__License_Plate__c: ${{ fake.bothify("??-###??") }}
-    fleetforce__Registered_State__c:
-      random_choice:
-        - GA: 9
-        - CO: 9
-        - TX: 9
-        - AZ: 8
+    fleetforce__Registered_State__c: ${{ ["GA", "GA", "GA", "CO", "CO", "CO", "TX", "TX", "TX", "AZ", "AZ", "AZ"] | random }}
     fleetforce__Battery_Capacity_kWh__c:
       random_number:
         min: 1
@@ -503,7 +477,27 @@
         - reference: branch_dal
         - reference: branch_phx
     fleetforce__Driver__c:
-      random_reference: Contact
+      random_choice:
+        - reference: drv01
+        - reference: drv02
+        - reference: drv03
+        - reference: drv04
+        - reference: drv05
+        - reference: drv06
+        - reference: drv07
+        - reference: drv08
+        - reference: drv09
+        - reference: drv10
+        - reference: drv11
+        - reference: drv12
+        - reference: drv13
+        - reference: drv14
+        - reference: drv15
+        - reference: drv16
+        - reference: drv17
+        - reference: drv18
+        - reference: drv19
+        - reference: drv20
     fleetforce__Vendor__c:
       random_reference: Account
 
@@ -514,20 +508,30 @@
     fleetforce__Fleet_Asset__c:
       random_reference: fleetforce__Fleet_Asset__c
     fleetforce__Driver__c:
-      random_reference: Contact
-    fleetforce__Type__c:
       random_choice:
-        - Primary: 20
-        - Occasional: 15
-        - Backup: 10
-    fleetforce__Is_Active__c:
-      random_choice:
-        - true: 38
-        - false: 7
-    fleetforce__Has_Key__c:
-      random_choice:
-        - true: 30
-        - false: 15
+        - reference: drv01
+        - reference: drv02
+        - reference: drv03
+        - reference: drv04
+        - reference: drv05
+        - reference: drv06
+        - reference: drv07
+        - reference: drv08
+        - reference: drv09
+        - reference: drv10
+        - reference: drv11
+        - reference: drv12
+        - reference: drv13
+        - reference: drv14
+        - reference: drv15
+        - reference: drv16
+        - reference: drv17
+        - reference: drv18
+        - reference: drv19
+        - reference: drv20
+    fleetforce__Type__c: ${{ (["Primary"] * 20 + ["Occasional"] * 15 + ["Temporary"] * 10) | random }}
+    fleetforce__Is_Active__c: ${{ fake.boolean(chance_of_getting_true=84) }}
+    fleetforce__Has_Key__c: ${{ fake.boolean(chance_of_getting_true=67) }}
     fleetforce__Start_Date__c:
       date_between:
         start_date: -365d
@@ -538,11 +542,21 @@
         end_date: +365d
     fleetforce__Restriction_Notes__c:
       random_choice:
-        - Corrective lenses required (glasses/contacts): 8
-        - Automatic transmission only (no manual clutch): 6
-        - No highway driving above 65 mph: 4
-        - Daylight hours only (no overnight operation): 4
-        - "": 23
+        - choice:
+            pick: Corrective lenses required (glasses/contacts)
+            probability: 8
+        - choice:
+            pick: Automatic transmission only (no manual clutch)
+            probability: 6
+        - choice:
+            pick: No highway driving above 65 mph
+            probability: 4
+        - choice:
+            pick: Daylight hours only (no overnight operation)
+            probability: 4
+        - choice:
+            pick: ""
+            probability: 23
 
 # ── 7. TELEMETRY VIOLATIONS (20) ─────────────────────────────────────────────
 - object: fleetforce__Telemetry_Violation__c
@@ -551,36 +565,54 @@
     fleetforce__Fleet_Asset__c:
       random_reference: fleetforce__Fleet_Asset__c
     fleetforce__Driver__c:
-      random_reference: Contact
-    fleetforce__Type__c:
       random_choice:
-        - Speeding: 8
-        - Harsh Braking: 5
-        - Harsh Acceleration: 4
-        - Excessive Idle: 2
-        - After Hours: 1
-    fleetforce__Severity__c:
-      random_choice:
-        - Low: 5
-        - Medium: 8
-        - High: 5
-        - Critical: 2
-    fleetforce__Is_Ack__c:
-      random_choice:
-        - true: 10
-        - false: 10
+        - reference: drv01
+        - reference: drv02
+        - reference: drv03
+        - reference: drv04
+        - reference: drv05
+        - reference: drv06
+        - reference: drv07
+        - reference: drv08
+        - reference: drv09
+        - reference: drv10
+        - reference: drv11
+        - reference: drv12
+        - reference: drv13
+        - reference: drv14
+        - reference: drv15
+        - reference: drv16
+        - reference: drv17
+        - reference: drv18
+        - reference: drv19
+        - reference: drv20
+    fleetforce__Type__c: ${{ (["Speeding"] * 8 + ["Harsh Braking"] * 5 + ["Harsh Acceleration"] * 4 + ["Idling"] * 2 + ["Geofence Breach"] * 1) | random }}
+    fleetforce__Severity__c: ${{ (["Low"] * 5 + ["Medium"] * 8 + ["High"] * 5 + ["Critical"] * 2) | random }}
+    fleetforce__Is_Ack__c: ${{ fake.boolean(chance_of_getting_true=50) }}
     fleetforce__Timestamp__c:
       date_between:
         start_date: -90d
         end_date: -1d
     fleetforce__Value__c:
       random_choice:
-        - "74 mph (Speed Limit: 60 mph)"
-        - "82 mph (Speed Limit: 70 mph)"
-        - "-11.8 mph/s Deceleration"
-        - "+8.9 mph/s Acceleration"
-        - "22 min idle — exceeds 5 min policy limit"
-        - "Route deviation: 4.2 mi off approved corridor"
+        - choice:
+            pick: "74 mph (Speed Limit: 60 mph)"
+            probability: 1
+        - choice:
+            pick: "82 mph (Speed Limit: 70 mph)"
+            probability: 1
+        - choice:
+            pick: "-11.8 mph/s Deceleration"
+            probability: 1
+        - choice:
+            pick: "+8.9 mph/s Acceleration"
+            probability: 1
+        - choice:
+            pick: "22 min idle — exceeds 5 min policy limit"
+            probability: 1
+        - choice:
+            pick: "Route deviation: 4.2 mi off approved corridor"
+            probability: 1
 
 # ── 8. SERVICE TICKETS (35) ──────────────────────────────────────────────────
 - object: fleetforce__Service_Ticket__c
@@ -594,35 +626,55 @@
       random_reference: Account
     fleetforce__Category__c:
       random_choice:
-        - Preventive Maintenance: 12
-        - Telemetry Alert: 8
-        - Customer Report: 6
-        - Routine Inspection: 5
-        - Warranty Claim: 4
-    fleetforce__Priority__c:
-      random_choice:
-        - Low: 5
-        - Medium: 15
-        - High: 10
-        - Critical: 5
-    fleetforce__Status__c:
-      random_choice:
-        - Open: 8
-        - In Progress: 7
-        - Completed: 15
-        - On Hold: 5
+        - choice:
+            pick: Preventive Maintenance
+            probability: 12
+        - choice:
+            pick: Telemetry Alert
+            probability: 8
+        - choice:
+            pick: Other
+            probability: 6
+        - choice:
+            pick: Inspection
+            probability: 5
+        - choice:
+            pick: Warranty
+            probability: 4
+    fleetforce__Priority__c: ${{ (["Low"] * 5 + ["Medium"] * 15 + ["High"] * 10 + ["Critical"] * 5) | random }}
+    fleetforce__Status__c: ${{ (["Draft"] * 8 + ["In-Shop"] * 7 + ["Completed"] * 20) | random }}
     fleetforce__Summary__c:
       random_choice:
-        - Oil Change & Mileage Inspection
-        - Transmission Fluid Flush & Service
-        - Brake Pad Replacement
-        - Tire Rotation & Alignment Check
-        - Battery Replacement
-        - Engine Diagnostic & Fault Clearance
-        - Coolant System Flush
-        - AC Service & Refrigerant Recharge
-        - Spark Plug & Ignition Coil Replacement
-        - Fuel Injector Cleaning
+        - choice:
+            pick: Oil Change & Mileage Inspection
+            probability: 1
+        - choice:
+            pick: Transmission Fluid Flush & Service
+            probability: 1
+        - choice:
+            pick: Brake Pad Replacement
+            probability: 1
+        - choice:
+            pick: Tire Rotation & Alignment Check
+            probability: 1
+        - choice:
+            pick: Battery Replacement
+            probability: 1
+        - choice:
+            pick: Engine Diagnostic & Fault Clearance
+            probability: 1
+        - choice:
+            pick: Coolant System Flush
+            probability: 1
+        - choice:
+            pick: AC Service & Refrigerant Recharge
+            probability: 1
+        - choice:
+            pick: Spark Plug & Ignition Coil Replacement
+            probability: 1
+        - choice:
+            pick: Fuel Injector Cleaning
+            probability: 1
     fleetforce__Description__c: Maintenance performed per OEM schedule and fleet policy.
     fleetforce__Date_Reported__c:
       date_between:
@@ -652,12 +704,7 @@
       random_number:
         min: 5000
         max: 120000
-    fleetforce__Tax_Rate__c:
-      random_choice:
-        - 7: 10
-        - 7.5: 8
-        - 8: 10
-        - 8.25: 7
+    fleetforce__Tax_Rate__c: ${{ [7, 7.5, 8, 8.25] | random }}
     fleetforce__Total_Labor_Cost__c:
       random_number:
         min: 80
@@ -671,22 +718,18 @@
       random_number:
         min: 0
         max: 50
-    fleetforce__Is_Labor_Taxable__c:
-      random_choice:
-        - true: 15
-        - false: 20
-    # Violation_Source__c: set only for ~25% of tickets (Telemetry Alert category)
+    fleetforce__Is_Labor_Taxable__c: ${{ fake.boolean(chance_of_getting_true=43) }}
+    # Gated: Violation_Source only populated for Telemetry Alert tickets
     fleetforce__Violation_Source__c:
-      random_choice:
-        - random_reference: fleetforce__Telemetry_Violation__c
-        - "": 3
-    fleetforce__Approval_Status__c:
-      random_choice:
-        - Approved: 20
-        - Pending Approval: 10
-        - Rejected: 5
+      if:
+        - choice:
+            when: ${{ this.fleetforce__Category__c == 'Telemetry Alert' }}
+            pick:
+              random_reference: fleetforce__Telemetry_Violation__c
+        - choice:
+            pick: null
+    fleetforce__Approval_Status__c: ${{ (["Approved"] * 20 + ["Pending Approval"] * 10 + ["Rejected"] * 5) | random }}
     # Approved_By__c intentionally null — User lookup; no seeded User records
-    # Reviewed_On__c intentionally null for same reason
 
 # ── 9. RESERVATIONS (30) ─────────────────────────────────────────────────────
 - object: fleetforce__Reservation__c
@@ -708,19 +751,8 @@
         - reference: branch_den
         - reference: branch_dal
         - reference: branch_phx
-    fleetforce__Status__c:
-      random_choice:
-        - Approved: 10
-        - Pending: 8
-        - Completed: 7
-        - Rejected: 3
-        - Cancelled: 2
-    fleetforce__Priority__c:
-      random_choice:
-        - Low: 5
-        - Medium: 12
-        - High: 8
-        - Critical: 5
+    fleetforce__Status__c: ${{ (["Approved"] * 8 + ["Pending"] * 7 + ["Active"] * 6 + ["Completed"] * 6 + ["Rejected"] * 2 + ["Cancelled"] * 1) | random }}
+    fleetforce__Priority__c: ${{ (["Low"] * 5 + ["Medium"] * 12 + ["High"] * 8 + ["Critical"] * 5) | random }}
     fleetforce__Start_Time__c:
       date_between:
         start_date: -30d
@@ -734,27 +766,14 @@
         start_date: -14d
         end_date: today
     fleetforce__Cost_Center__c: ${{ fake.bothify("CC-???-###") }}
-    fleetforce__Min_Seats__c:
-      random_choice:
-        - 2: 8
-        - 5: 14
-        - 7: 8
-    fleetforce__Preferred_Body__c:
-      random_choice:
-        - Van: 10
-        - Pickup: 8
-        - SUV: 7
-        - Sedan: 5
-    fleetforce__Preferred_Engine__c:
-      random_choice:
-        - Gasoline: 14
-        - Diesel: 7
-        - Hybrid: 5
-        - Electric: 4
+    fleetforce__Min_Seats__c: ${{ [2, 5, 5, 5, 7] | random }}
+    fleetforce__Preferred_Body__c: ${{ (["Van"] * 10 + ["Pickup"] * 8 + ["SUV"] * 7 + ["Sedan"] * 5) | random }}
+    fleetforce__Preferred_Engine__c: ${{ (["Gasoline"] * 14 + ["Diesel"] * 7 + ["Hybrid"] * 5 + ["Electric"] * 4) | random }}
     fleetforce__Guest_First_Name__c:
       fake: first_name
     fleetforce__Guest_Last_Name__c:
       fake: last_name
-    fleetforce__Guest_Email__c: ${{ fake.user_name() }}@${{ fake.domain_name() }}
+    fleetforce__Guest_Email__c:
+      fake: email
     fleetforce__Guest_Phone__c: ${{ fake.numerify("(###) 555-####") }}
     # Requestor_User__c intentionally null — User lookup; no seeded User records
