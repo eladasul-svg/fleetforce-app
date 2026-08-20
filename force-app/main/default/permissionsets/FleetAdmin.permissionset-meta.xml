@@ -786,7 +786,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Carbon_Log__c.Fuel_Log__c</field>
+        <field>Carbon_Log__c.Asset_Component__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Carbon_Log__c.Source_Fuel_Log__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
