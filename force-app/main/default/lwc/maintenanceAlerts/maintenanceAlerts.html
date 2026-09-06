@@ -4,7 +4,7 @@
             <template if:true={hasAlerts}>
                 <ul class="slds-has-dividers_bottom-space">
                     <template for:each={alerts} for:item="alert">
-                        <li class="slds-item" key={alert.Id}>
+                        <li class="slds-item" key={alert.Id} data-id={alert.Id} onclick={handleAlertClick} style="cursor: pointer;">
                             <lightning-tile label={alert.fleetforce__Fleet_Asset__r.Name}>
                                 <dl class="slds-dl_horizontal">
                                     <dt class="slds-dl_horizontal__label">
@@ -27,7 +27,7 @@
             </template>
             <template if:false={hasAlerts}>
                 <div class="slds-text-align_center slds-p-around_medium slds-text-color_success">
-                    <lightning-icon icon-name="utility:success" size="medium" variant="success" class="slds-m-bottom_small"></lightning-icon>
+                    <lightning-icon icon-name="utility:success" size="medium" variant="success" alternative-text="All clear" class="slds-m-bottom_small"></lightning-icon>
                     <p>No critical maintenance alerts at this time.</p>
                 </div>
             </template>

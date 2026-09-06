@@ -2,19 +2,11 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>60.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Fleet List Map Explorer</masterLabel>
-    <description>Dynamic map driven by a List View with custom center and zoom.</description>
+    <masterLabel>Fleet Map Explorer</masterLabel>
+    <description>Fleet asset map with built-in All / Available / In Shop / Critical filters.</description>
     <targets>
         <target>lightning__HomePage</target>
         <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightning__HomePage,lightning__AppPage,lightning__RecordPage">
-            <property name="listViewDeveloperName" type="String" label="List View Developer Name" default="All" description="The API Name of the Fleet Asset list view to display." />
-            <property name="centerLatitude" type="String" label="Default Center Latitude" description="Latitude to center the map on." />
-            <property name="centerLongitude" type="String" label="Default Center Longitude" description="Longitude to center the map on." />
-            <property name="zoomLevel" type="Integer" label="Default Zoom Level" default="10" description="The zoom level of the map (1-20)." />
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

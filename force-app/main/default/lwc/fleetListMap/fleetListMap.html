@@ -1,22 +1,39 @@
 <template>
-    <lightning-card title={cardTitle} icon-name="standard:location">
+    <lightning-card title="Fleet Map Explorer" icon-name="standard:location">
+
+        <div slot="actions" class="slds-p-right_small">
+            <lightning-button-group>
+                <template for:each={filters} for:item="f">
+                    <lightning-button
+                        key={f.value}
+                        label={f.label}
+                        variant={f.variant}
+                        data-filter={f.value}
+                        onclick={handleFilterChange}>
+                    </lightning-button>
+                </template>
+            </lightning-button-group>
+        </div>
+
         <div class="slds-grid slds-wrap map-container slds-border_top">
-            <!-- SIDEBAR: Custom scrollable list -->
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-grow-none slds-border_right slds-theme_shade" 
+
+            <!-- SIDEBAR -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-grow-none slds-border_right slds-theme_shade"
                  style="height: 100%;">
-                
+
                 <div class="slds-p-around_small slds-border_bottom slds-theme_default">
                     <h2 class="slds-text-heading_small">Vehicles ({vehicleCount})</h2>
                 </div>
 
                 <div class="scroll-container slds-scrollable_y">
                     <template for:each={rawRecords} for:item="rec">
-                        <div key={rec.Id} 
+                        <div key={rec.Id}
                              data-id={rec.Id}
                              onmouseenter={handleVehicleHover}
                              onclick={handleVehicleClick}
-                             class="slds-p-around_small slds-border_bottom vehicle-row slds-theme_default">
-                            
+                             class="slds-p-around_small slds-border_bottom vehicle-row slds-theme_default"
+                             style="cursor: pointer;">
+
                             <div class="slds-grid slds-grid_vertical-align-center">
                                 <div class="slds-col slds-grow">
                                     <p class="slds-text-weight_bold slds-truncate" title={rec.Name}>
@@ -24,22 +41,26 @@
                                     </p>
                                     <div class="slds-grid slds-wrap slds-m-top_xx-small slds-text-body_small">
                                         <div class="slds-col slds-size_1-of-1 slds-truncate">
-                                            <span class="slds-text-color_weak">License:</span> {rec.License_Plate__c}
+                                            <span class="slds-text-color_weak">License:</span> {rec.licensePlate}
                                         </div>
                                         <div class="slds-col slds-size_1-of-2 slds-m-top_xx-small">
-                                            <lightning-icon icon-name="custom:custom6" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
-                                            {rec.Fuel_Energy_Level__c}%
+                                            <lightning-icon icon-name={rec.energyIcon} size="xx-small"
+                                                alternative-text={rec.energyLabel}
+                                                class="slds-m-right_xx-small">
+                                            </lightning-icon>
+                                            {rec.energyLevel}%
                                         </div>
                                         <div class="slds-col slds-size_1-of-2 slds-m-top_xx-small">
-                                            <lightning-icon icon-name="custom:custom80" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
-                                            {rec.Odometer__c} mi
+                                            <lightning-icon icon-name="custom:custom80" size="xx-small"
+                                                alternative-text="Odometer"
+                                                class="slds-m-right_xx-small">
+                                            </lightning-icon>
+                                            {rec.formattedOdometer} mi
                                         </div>
                                     </div>
                                 </div>
                                 <div class="slds-col slds-grow-none slds-m-left_small">
-                                    <span class={rec.badgeClass}>
-                                        {rec.statusText}
-                                    </span>
+                                    <span class={rec.badgeClass}>{rec.statusText}</span>
                                 </div>
                             </div>
                         </div>
@@ -47,13 +68,11 @@
                 </div>
             </div>
 
-            <!-- MAP: Visual Explorer -->
+            <!-- MAP -->
             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" style="height: 100%;">
-                <lightning-map 
-                    map-markers={mapMarkers} 
+                <lightning-map
+                    map-markers={mapMarkers}
                     selected-marker-value={selectedMarkerValue}
-                    center={mapCenter}
-                    zoom-level={zoomLevel}
                     list-view="hidden"
                     onmarkerselect={handleMarkerSelect}>
                 </lightning-map>
@@ -61,9 +80,7 @@
         </div>
 
         <template lwc:if={error}>
-            <div class="slds-p-around_medium slds-text-color_error">
-                {error}
-            </div>
+            <div class="slds-p-around_medium slds-text-color_error">{error}</div>
         </template>
     </lightning-card>
 </template>

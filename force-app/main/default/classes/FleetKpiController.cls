@@ -86,7 +86,7 @@ public with sharing class FleetKpiController {
             FROM fleetforce__Service_Ticket__c
             WHERE fleetforce__Status__c IN ('Draft', 'In-Shop')
               AND fleetforce__Priority__c IN ('High', 'Critical')
-            ORDER BY CreatedDate DESC
+            ORDER BY fleetforce__Priority__c ASC, fleetforce__Date_Reported__c ASC NULLS LAST
             LIMIT 10
         ];
     }

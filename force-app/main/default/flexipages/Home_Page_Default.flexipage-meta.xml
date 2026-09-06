@@ -27,10 +27,6 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentInstanceProperties>
-                    <name>listViewDeveloperName</name>
-                    <value>Available_Vehicles</value>
-                </componentInstanceProperties>
                 <componentName>fleetListMap</componentName>
                 <identifier>fleetforce_fleetListMap</identifier>
             </componentInstance>

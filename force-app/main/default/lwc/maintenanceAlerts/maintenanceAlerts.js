@@ -1,7 +1,8 @@
 import { LightningElement, wire } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import getMaintenanceAlerts from '@salesforce/apex/FleetKpiController.getMaintenanceAlerts';
 
-export default class MaintenanceAlerts extends LightningElement {
+export default class MaintenanceAlerts extends NavigationMixin(LightningElement) {
     alerts = [];
     error;
 
@@ -19,5 +20,16 @@ export default class MaintenanceAlerts extends LightningElement {
 
     get hasAlerts() {
         return this.alerts && this.alerts.length > 0;
+    }
+
+    handleAlertClick(event) {
+        const recordId = event.currentTarget.dataset.id;
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: recordId,
+                actionName: 'view'
+            }
+        });
     }
 }
