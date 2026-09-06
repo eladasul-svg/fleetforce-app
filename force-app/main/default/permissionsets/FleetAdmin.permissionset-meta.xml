@@ -3,7 +3,7 @@
     <label>Fleet Admin</label>
     <hasActivationRequired>false</hasActivationRequired>
     <applicationVisibilities>
-        <application>Fleetforce</application>
+        <application>FleetOps</application>
         <visible>true</visible>
     </applicationVisibilities>
     <tabSettings>

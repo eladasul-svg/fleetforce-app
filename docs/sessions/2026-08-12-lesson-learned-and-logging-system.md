@@ -87,5 +87,3 @@ Ran the housekeeping work order. Results:
 
 **Open after this session:** stash drop decision, demo data generator
 script (critical path — nothing else is blocking a seeded TSO now).
-
-Update Aug 26 - Repo cloned to Windows PC as weel now working on this repo from 2 desktop stations

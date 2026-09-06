@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Profile xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
-        <application>Fleetforce</application>
+        <application>FleetOps</application>
         <default>false</default>
         <visible>false</visible>
     </applicationVisibilities>
@@ -1963,10 +1963,6 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>MyProfilePage</apexPage>
-        <enabled>false</enabled>
-    </pageAccesses>
-    <pageAccesses>
-        <apexPage>SessionIdGenerator</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>

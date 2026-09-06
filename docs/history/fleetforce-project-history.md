@@ -6,76 +6,99 @@
 > **At the start of every session:** read the "Queued Work Orders" section
 > below first — it's the source of truth for what's actually done vs. just
 > planned. Update it before wrapping any session.
+>
+> **Editing discipline (added 2026-09-06):** log entries below the Queued
+> Work Orders section are append-only — once written, don't edit them again,
+> only add new entries above. Only the Queued Work Orders section itself
+> should be edited in place. This file previously suffered header corruption
+> from repeated in-place edits to old entries (fixed in this revision) —
+> don't repeat that pattern.
 
 ---
 
 ## 🔧 Queued Work Orders (check/update this every session)
 
-Status as of 2026-08-18:
+Status as of 2026-09-06:
 
-- [x] Housekeeping backlog (push, stash, CLI, PATH) — fully closed 2026-08-12.
-- [x] **Fresh schema manifest pulled** — 246 fields across the 9-object spine, confirmed against live `fleetforce-dev-9`. Surfaced and fixed a source-tracking corruption + missing FLS assignment along the way (see 2026-08-18 session).
-- [x] **Table design locked** — all 9 sheets designed field-by-field, picklist drift resolved, scope decisions made (Account.Type skipped, Vendor_ID__c dropped, 3 new Authorized_Driver__c fields added).
-- [x] **3 new `Authorized_Driver__c` fields deployed** — `Start_Date__c`, `End_Date__c`, `Restriction_Notes__c`. Live and FLS-granted in `fleetforce-dev-9`.
-- [x] **FLS consolidation complete** — all 7 previously in-org-only grants (3 Authorized_Driver__c + 4 Service_Ticket__c approval fields) added to `permissionsets/FleetAdmin.permissionset-meta.xml`. Diff confirmed clean: no orphan grants from earlier sessions either. Redeployed 0 errors. Commit `6abebc1`. **Permission set is now fully reproducible from source — this failure mode is closed.**
-- [x] **4 new Service_Ticket__c approval fields populated** — done via Antigravity during the original data population run, no separate top-up needed.
-- [ ] **Antigravity data population** — plan doc handed off (`antigravity-demo-data-plan.md`), not yet run. 9-object spine, direct org write, 20–50 records per object depending on object, deliberate reservation conflicts required.
-- [x] Page layouts pulled + committed — Authorized Driver, Service Ticket, Reservation. Commit `f0114ed`.
-- [x] Name field → Auto Number, 3 objects — `Authorized_Driver__c` (`AUTH-{0000}`, "Authorization Number"), `Service_Ticket__c` (`ST-{0000}`, "Service Ticket Number"), `Telemetry_Violation__c` (`VIO-{0000}`, "Violation Number"). **Import template implication: `Name` is system-generated/read-only on these 3 objects — omit from master CSV.**
-- [ ] **Export + reusable-template runner — now the only real open item.** Master CSVs (9 files + `_field-types.csv` companion) not yet exported. Once exported, still need: schema-sync instructions doc, and the load-order/ref-resolution/date-offset import runner script.
-- [ ] **Full 20-object expansion — deliberately deferred, not forgotten.** Org actually has 29 custom objects total; scope is intentionally locked to the 9-object motorpool spine for now (2 of the remaining objects, `Availability_Blackout__c` and `Service_Line_Item__c`, are known-broken from the June 6 audit and shouldn't be touched without a dedicated fix session).
-- [ ] Two low-priority notes from the deploy: 6 `GlobalValueSet`s exist implicitly in-org but aren't separately tracked in source (fine to leave); `caseTaskStatusPanel` LWC had a source-tracking poll timeout on deploy (known 2.146.3 platform bug, component itself deployed fine).
+- [x] **Phase 2 (Snowfakery recipe) — validated, working, committed.** Corrections applied: `random_reference` scoped to drivers-only via a `Contact_Type__c = 'Driver'` macro for driver-specific fields; `Service_Ticket__c.Violation_Source__c` gated on `Category__c == 'Telemetry Alert'`. **Fresh-org validation succeeded: 204 records, 0 errors** (commit `27648bc`, ~Aug 21). The 9-object motorpool spine now has a working "click of a button" seed mechanism: `sf snowfakery run data/seed.recipe.yml --target-org <any-fresh-org>`.
+- [x] **Full-system relationship audit closed out** — all 8 originally-flagged (May 9) broken `referenceTo` lookups confirmed fixed, not just the spine's share: `Reservation__c` (fixed June 6) plus `Availability_Blackout__c.Fleet_Asset__c`, `Service_Line_Item__c.Service_Ticket__c`, `Service_Line_Item__c.Asset_Component__c`, `Fuel_Log__c.Fuel_Card__c`, `Asset_Insurance_Link__c.Insurance_Policy__c`, `Schedule_Exception__c.Fleet_Schedule__c`, `Schedule_Assignment__c.Fleet_Schedule__c` (user-confirmed visually, ~Aug 20). `Reservation__c.Priority__c` "Urget"→"Urgent" typo also fixed.
+- [x] **17-object layout batch + 5 Name→AutoNumber conversions retrieved and committed** — commits `7eb711f`, `e15cc11`, `03f925f`. Auto-number formats: `ABO-{0000}`, `BAN-{0000}`, `ASN-{0000}`, `EXN-{0000}`, `SWN-{0000}`. Along the way, caught and fixed stale/missing FLS entries on 3 previously-undiscovered `Carbon_Log__c` fields plus a proper `destructiveChangesPost.xml` for the deleted duplicate `Carbon_Log__c.Fuel_Log__c` field.
+- [x] **Branding fixed, activated, and retrieved into source** — root cause was editing the base Cosmos theme instead of a clone. Cloned to "Fleetforce Theme" (`0S1Wm00000003VlKAI`), activated, retrieved as 7 files (theme definition + 3 real ContentAsset images), commit `5d1e01e`.
+- [ ] **⚠️ Theme activation is NOT capturable in metadata — permanent manual step on every fresh org spin.** After every future scratch org deploy: Setup → Themes and Branding → select "Fleetforce" → Activate. Needs folding into a formal spin-up runbook once one exists.
+- [ ] **Open aesthetic question, undecided:** the Lightning App nav name "Fleetforce" now reads as redundant next to the new logo/wordmark. Discussed renaming to something functional (e.g. "Fleetforce Ops") to leave room for a future second app. No decision made.
+- [x] **Full-scope SFDMU export complete** — decided to capture all 28 custom objects (not just the 9-object spine) since Antigravity had already populated everything and the data was reviewed-good. Pre-flight verified 3 previously-untracked objects (`Allocation__c`, `Asset_Component__c`, `Asset_Document__c`) plus discovered a 4th, `Maintenance_Plan__c`. Export: 32 CSVs, 867 records across 31 objects, cross-references resolved to human-readable columns. Commit `cebf987`.
+- [x] **CumulusCI entered the toolchain** — `cumulusci.yml` committed (~Aug 23), pairs naturally with Snowfakery. Not yet discussed in depth — worth understanding its specific role next time it comes up.
+- [x] **Org drift check clean after a 2-week gap** (checked 2026-09-06) — Apex (19/19) and object counts matched exactly between `fleetforce-dev-9` and source. First gap in this project's history that needed no rescue.
+- [ ] **⚠️ 3 commits were unpushed as of 2026-09-06:** `7f5c6ea`, `1d6bf70`, `27648bc`. **Confirm these are now pushed.**
+- [ ] **`fleetforce-dev-9` expiry** — had ~5 days left as of 2026-09-06 (~2026-09-11). Confirm status; decide whether a replacement org is needed.
+- [ ] **Next real decision point, undecided:** extend the Snowfakery recipe to cover the remaining ~19 non-spine objects, or shift focus to packaging/TSO now that the 9-object spine has a proven seed mechanism.
+- [ ] Two low-priority notes from an earlier deploy, still true: 6 `GlobalValueSet`s exist implicitly in-org but aren't separately tracked in source (fine to leave); a `caseTaskStatusPanel` LWC source-tracking poll timeout is a known 2.146.3 platform bug, component itself deploys fine.
+- [ ] Test classes: 6 Apex classes originally lacked coverage; 75% threshold is the packaging gate. `FleetKpiControllerTest` was added ~Aug 21 — worth checking current coverage %.
+- [ ] Named Credential migration — required before AppExchange security review, not before demos. Untouched.
+- [ ] Draft flow cleanup — three `Fleetforce_*` draft flows with logic discrepancies vs. active counterparts. Untouched.
+- [ ] KPI component v2 (Custom-Metadata-Type-driven configurable redesign) — deferred to v2. Untouched.
 
 ---
 
+## 2026-09-06 — Post-vacation status check + history file repair
+
+Picked back up after a ~2-week gap, using `fleetforce-dev-9`'s 5-remaining-days as the forcing function for a status check. Good news: both previously-requested Snowfakery recipe corrections were confirmed already applied, and the fresh-org validation run had actually happened and succeeded (204 records, 0 errors, ~Aug 21). Org/source drift check came back completely clean for the first time in this project's history. Found 3 commits still unpushed.
+
+Separately: the working copy of this master history file had been lost when the sandbox holding it reset over the gap, and got reconstructed from chat scrollback — which turned out to be lossy compared to the user's actual current repo file. Comparing versions surfaced real header corruption from earlier in-place edits (two entries had lost their own `##` headers). **Decision: this file's log entries are now strictly append-only — only the Queued Work Orders checklist gets edited going forward.** Also decided: at the start of any future session, especially after a gap, ask for the current repo file directly rather than trust chat-memory reconstruction.
+
+While reviewing the user's actual local session files against this reconstruction, found the same corruption pattern one layer down: the `2026-08-12-lesson-learned-and-logging-system.md` session file (meant to be write-once) had picked up a stray one-line append dated Aug 26 ("Repo cloned to Windows PC..."), tacked onto an already-closed session file instead of getting its own entry. Fixed by stripping it back to its original content. On investigation, the underlying Aug 26 event turned out to be a non-issue: a Windows machine was cloned in anticipation of working remotely during a 2-week trip, but no actual work happened on it — the user returned to working on the Mac exclusively. No multi-machine drift occurred; no action needed beyond the file cleanup itself.
+
+## 2026-08-19/21/23 — Full-system relationship fixes, layouts, branding, SFDMU export, and Snowfakery build+validation
+
+*(Dates approximate — reconstructed from commit metadata and screenshot timestamps.)*
+
+Following the Aug 18 table design and Antigravity handoff (below): Antigravity completed the full data population and was reviewed as good. User discovered the org's actual custom object count (29, not 9) and proposed broadening scope; held the 9-object spine as the *recipe* validation target while agreeing to capture the already-populated full org via export.
+
+User visually confirmed all 7 remaining broken `referenceTo` relationships from the May audit were fixed, plus the `Reservation__c.Priority__c` typo — closing an 8-item bug list open since May 9. Retrieved this plus a 17-object layout batch and 5 Name→AutoNumber conversions, catching incidental FLS drift on 3 `Carbon_Log__c` fields along the way.
+
+Found and fixed a branding bug: the logo update had been made on the base Cosmos theme instead of a clone. Cloned to "Fleetforce Theme," activated, confirmed rendering, retrieved into source. Confirmed activation state isn't capturable in metadata. Briefly discussed (undecided) renaming the redundant-looking app nav label.
+
+Decided to capture the full org as data rather than just the spine, since Antigravity's population was done and reviewed-good. Verified 3 previously-untracked objects plus discovered a 4th (`Maintenance_Plan__c`). Ran a full SFDMU export: 32 CSVs, 867 records, 31 objects.
+
+Corrected a flawed first-draft Snowfakery plan from Code (wrong object list missing `Reservation__c`; load order violating 2 real FK dependencies). Locked the corrected 9-object scope, confirmed `Requestor_User__c`/`Approved_By__c` were scratch-org-admin artifacts (nulled in recipe). Recipe built (`fc64184`), tightened (driver-only reference scoping, violation-source category-gating), and validated end-to-end: 204 records, 0 errors.
+
 ## 2026-08-18 — Schema manifest, table design, and Antigravity handoff
 
-Shifted from housekeeping to actual demo-data planning. Had Code pull a fresh, authoritative schema manifest for the 9-object motorpool spine directly from `fleetforce-dev-9` — 246 fields. Along the way Code caught and fixed a real bug: a source-tracking corruption from an earlier rolled-back deploy had silently caused most custom fields to appear missing on describe, compounded by the admin user not having the `FleetAdmin` permission set assigned. Both fixed. Cross-checked the old `_schema-reconcile.md`'s 21 flagged issues against the live schema: 5 resolved by earlier work, 12 were just picklist value drift (xlsx authored against stale values), and 4 fields were genuinely missing. Decided to create 3 of those 4 (`Authorized_Driver__c.Start_Date__c`/`End_Date__c`/`Restriction_Notes__c`) and drop the 4th (`Account.Vendor_ID__c`) as out of scope. Also resolved a real modeling gap: live `Account.Type` no longer has vendor/insurer-style values (it's a generic sales-pipeline picklist now) — decided to leave it blank and lean on `Industry` instead, rather than force a schema change onto a standard object.
+Pulled a fresh, authoritative schema manifest for the 9-object spine (246 fields). Caught and fixed a source-tracking corruption plus a missing FLS permission-set assignment along the way. Cross-checked the old 21-issue schema-reconcile doc: 5 resolved, 12 were picklist drift, 4 fields genuinely missing — created 3 (`Authorized_Driver__c.Start_Date__c`/`End_Date__c`/`Restriction_Notes__c`), dropped 1 (`Account.Vendor_ID__c`). Resolved a modeling gap on `Account.Type` (no longer has vendor/insurer values — decided to leave blank, lean on `Industry`).
 
-User discovered the live org actually has 29 custom objects, not 9 — raised whether to broaden scope for the Antigravity data-population pass. Discussed and explicitly decided **against** broadening: motorpool-MVP scope lock stands, 2 of the other objects are already known-broken and undebugged, and broader scope works against the "shortest path to security review" goal rather than helping it.
+Discovered the org has 29 custom objects, not 9 — discussed broadening scope, decided against it at the time (motorpool-MVP lock, 2 objects known-broken, broader scope works against the security-review goal). Revisited later once relationship bugs were fixed (see entry above).
 
-Designed the full 9-sheet table structure field-by-field (documented in full above/in chat — not duplicated here, see the master table design). Landed on a workflow shift for populating data: instead of hand-filling an Excel workbook, delegate to an Antigravity agent that writes **directly into the org**, letting Salesforce's own validation catch errors live; export to CSV afterward becomes the canonical dataset, which a separate deterministic script re-imports on every future org spin-up.
+Designed the full 9-sheet table structure. Landed on the workflow: Antigravity writes directly into the org (letting Salesforce validation catch errors live), export to CSV becomes canonical afterward. Deployed 3 new `Authorized_Driver__c` fields, granted FLS in-org only (fixed properly later same day — see below). Wrote and handed off `antigravity-demo-data-plan.md`.
 
-Deployed the 3 new `Authorized_Driver__c` fields (0 errors) and granted FLS — but the FLS grant was done directly in-org on the `FleetAdmin` permission set, not via metadata, so it won't survive a future org rebuild until it's added to source.
+**FLS consolidation (same date):** found and fixed all 7 fields with in-org-only FLS grants never captured in source. Diff confirmed clean otherwise. Redeployed 0 errors, commit `6abebc1` — closed a failure mode that had recurred 3 times.
+→ [full session notes](sessions/2026-08-18-schema-manifest-and-table-design.md)
 
-Wrote and handed off `antigravity-demo-data-plan.md` — a complete field-by-field population plan for the Antigravity agent, covering load order, realism constraints (synthetic VINs, no real personal data), and the deliberate double-booking conflicts needed to demo the reservation rules engine. Not yet run.
+## 2026-08-12 — Lesson-learned recap, status check, and full housekeeping
 
-**Next session:** run the Antigravity agent against the plan, then build the export + reusable-template runner once real data exists to export.
-→ [full session notes: pending — write once Antigravity run completes]
+*(Consolidated from several same-day log fragments during the 2026-09-06 cleanup.)*
 
-Closed out the last two housekeeping items. Dropped the May 10 stash (confirmed superseded, now empty). Fixed the shell PATH issue by pointing `~/.zshrc` at the `~/.local/share/sf/client/current` symlink rather than the version-pinned path — better than originally asked, since it self-updates on future `sf update` calls instead of needing a repo edit each time. Confirmed `sf --version` reports 2.146.3. **Housekeeping backlog is now fully closed.** Only remaining item before real dev work resumes: the demo data generator script.
+Reconnected after a ~2-month gap. Diagnosed why the Drive-based session log (set up 2026-05-10) had stalled after one entry, and why several June 6 work orders went unconfirmed. Found `PROJECT_MEMORY.md` stale and conflicting, flagged a leftover embedded instruction in it (not acted on). Agreed on this git-synced `docs/history/` system.
+
+Ran a status check: 3 of 4 open June 6 items turned out done already (map controller repoint, Bucket 2 layouts, list view standardization) — just never checked off. Real gap: the demo data generator, never built. Also surfaced 25 unpushed commits, an obsolete stash, and an unlogged Aug 4 commit (reconstructed separately below).
+
+Ran housekeeping end to end: pushed 25 commits, committed `PROJECT_MEMORY.md` deletion, updated CLI, spun up `fleetforce-dev-9` (clean 722/722 after patching 5 unrelated pre-existing issues), dropped the confirmed-obsolete stash, fixed shell PATH via a self-maintaining symlink. Housekeeping backlog fully closed by end of session.
 → [full session notes](sessions/2026-08-12-lesson-learned-and-logging-system.md)
 
 ## 2026-08-04 — Pre-break sweep (reconstructed 2026-08-12)
 
-Reconstructed after the fact from commit `c1f1e62` — this session had no log entry at the time. A large "flush everything before the break" commit (203 files, ~17.5k lines) covering three unrelated things: (1) bulk-added ~130 missing standard Salesforce layout files (Account, Case, Contact, Opportunity, etc.) into source tracking — these unblock clean deploys to fresh scratch orgs, since Salesforce won't deploy custom layouts referencing standard objects that themselves lack tracked layouts; (2) committed the demo dataset foundation — `FleetForce_Demo_Dataset.xlsx`, `data/_schema-reconcile.md` (21 issues flagged across 9 objects vs. `fleetforce-dev-8`), and the generator work order spec; (3) final Bucket 2 polish on Authorized_Driver, Fleet_Schedule, and Contact metadata, plus the `caseTaskStatusPanel` LWC. No decisions or open questions recorded — this reads as a checkpoint commit, not exploratory work.
-
-## 2026-08-12 — Housekeeping via Claude Code
-
-Ran the housekeeping work order end to end. Pushed all 25 backlogged commits to `origin/main` (nothing had been pushed since before June). Committed the `PROJECT_MEMORY.md` deletion. Updated the CLI (2.121.7 → 2.146.3 — note: shell `PATH` still resolves to an old binary, needs a profile fix). Spun up a fresh scratch org, `fleetforce-dev-9` (expires ~2026-09-11); first deploy failed on 5 pre-existing metadata issues unrelated to FleetForce (disabled Solutions feature referenced in 4 standard Case layouts, one invalid list view `filterScope`) — patched and redeployed clean, 722/722 components. Sanity-checked list views, KPI-relevant object queryability, and Bucket 2 fields — all good; KPIs read zero as expected since no demo data is loaded yet. Assessed the May 10 stash: every file in it is superseded by June/August commits, safe to drop — held for explicit confirmation before discarding. Also reconstructed the Aug 4 "mystery commit" (see entry above) by reading its diff, closing the gap in this log.
-
-**Remaining before real dev work resumes:** demo data generator script (still not built — this is now the critical path item), and a decision on the May 10 stash.
-→ [full session notes](sessions/2026-08-12-lesson-learned-and-logging-system.md)
-
-Ran a read-only status check through Claude Code to reconcile the queued work orders against reality. Good news: three of four open items from June 6 turned out to be done (map controller repoint, Bucket 2 layouts, list view standardization) — they just were never checked off. The real remaining item is the demo data generator: `seeder.py` and a schema-reconcile pass exist, but the spec'd xlsx → `sf data import tree` generator was never built. Also surfaced: no active scratch org (`fleetforce-dev-2` is gone), 25 commits sitting unpushed to `origin/main`, one likely-obsolete stash from May 10, and — most notably — a commit from **2026-08-04** ("Last commit before summer break") that isn't accounted for in any session record. That's a real gap in the log we just built: a session happened that neither the old Drive log nor conversation history captured. Need to reconstruct what it covered.
-→ [full session notes](sessions/2026-08-12-lesson-learned-and-logging-system.md)
-
-## 2026-08-12 — Lesson-learned recap + session-log system
-
-Reconnected after a ~2-month gap since the last working session (June 6). Reviewed conversation history to reconstruct where things stood, since no running log existed to check directly — confirmed the Drive-based session log set up on 2026-05-10 only ever got one entry before stalling, likely because it lived one hop away (Drive) from where work actually happens (git repo + Claude Code). Diagnosed a second failure mode: several work orders from the June 6 session were written and handed off but never confirmed done, with nothing tracking "planned" vs. "executed." Found `PROJECT_MEMORY.md` in project knowledge to be stale (Feb 3) and actively conflicting with `current-state.md` on namespace handling; it also contains a leftover embedded instruction, flagged and not acted on. Agreed on a git-synced `docs/history/` system: this master file (short entries, pinned queued-work-orders section) plus a `sessions/` folder for full detail. Next step is confirming actual scratch org and repo state before planning further work.
-→ [full session notes](sessions/2026-08-12-lesson-learned-and-logging-system.md)
+Reconstructed from commit `c1f1e62` — no log entry existed at the time. One large "flush before the break" commit (203 files): standard SFDC layout backfill (~130 files, unblocks clean deploys), demo dataset foundation files, and final Bucket 2 metadata polish. Reads as a checkpoint, not exploratory work.
 
 ## 2026-06-06 — TSO foundation cleanup + demo data architecture
 
-Major session. Triaged the May data-model docs against the live org and found the org already ahead of documentation (Reservation lookups already correct — item reduced to deleting one duplicate field, `Dest_Branch__c`). Locked demo scope to **motorpool-only MVP**, deferring maintenance-path fixes. Fixed `FleetKpiController` SOQL and locked KPI tile definitions (Active Fleet, In Shop, Critical Violations, Open Tickets). Completed a full layout pass on Bucket 1 objects (Fleet Asset, Fleet Branch, Service Ticket, Telemetry Violation, Reservation) and wrote a Bucket 2 work order. Wrote a list view standardization work order (28 objects, uniform "All" view + 4 named views for dashboard navigation). Designed and built the demo data architecture: one master `.xlsx` with per-object sheets, tree-import plan with `ref`/`*__ref` columns for relationship resolution, offset-date logic so time-sensitive tiles stay perpetually current, spine of 9 objects in topological load order, all 17 cross-reference relationships validated. Corrected the vehicle map data source to `Fleet_Asset.Last_Location__c` (flagged map controller repoint as a follow-on task). Wrote a generator script work order for Code.
+Triaged May docs against the live org (already ahead of docs). Locked demo scope to motorpool-only MVP. Fixed `FleetKpiController` SOQL, locked KPI tile definitions. Full Bucket 1 layout pass, Bucket 2 work order written. List view standardization work order written. Designed the original demo data architecture (master `.xlsx`, `ref`/offset conventions, 9-object load order — precursor to the eventual SFDMU+Snowfakery approach). Corrected vehicle map source to `Fleet_Asset.Last_Location__c`.
 → [full session notes](sessions/2026-06-06-tso-foundation-and-demo-data.md)
 
 ## 2026-06-01 — Re-orientation after 23-day gap
 
-Status check after a gap. Confirmed scratch org `fleetforce-dev-2` likely expired (last synced 2026-05-08). Catalogued current assets (30 custom objects, 20 Apex classes, 6 LWCs, 8 flows, Geotab sync). Identified two blocking bugs: 8 broken `referenceTo` lookups pointing to `Account` instead of correct targets, and dead dashboard KPIs from `FleetKpiController` querying non-existent picklist values. Secondary issues noted: plain-text Geotab password, 6 Apex classes without test coverage, possible duplicate-flow double-firing. Agreed next three actions: confirm/recreate scratch org + fix lookups, fix dashboard SOQL, spec (not build) the motorpool LWC.
+Status check after a gap. Confirmed `fleetforce-dev-2` likely expired. Catalogued assets, identified 8 broken `referenceTo` lookups and dead dashboard KPIs as blocking. Agreed next actions: fix lookups, fix dashboard SOQL, spec the motorpool LWC.
 → [full session notes](sessions/2026-06-01-reorientation-23-day-gap.md)
 
 ## 2026-05-10 — Claude workflow setup + foundation cleanup
 
-First working session in the new Claude project structure. Set up three claude.ai projects (Product & Engineering, Go-to-Market, Legal & Partnership), established Drive as canonical for living docs (mirrored to `docs/decisions/` in the sfdx repo), and created the original `fleetforce-session-log.md` (this file supersedes it). Locked product strategy: platform + curated flagship LWCs + add-on marketplace model, pricing target $15–30/vehicle/month, direct-sales-first distribution. Claude Code retrieved and audited full org metadata, surfacing 8 broken Account-pointing lookups, non-functional dashboard SOQL, invalid flow picklist values, plain-text Geotab credentials, and 6 untested Apex classes. Manually fixed 7 of 8 broken lookups, picklist issues, and validation rules in the org UI; Claude fixed `FleetKpiController` SOQL and `fleetMapTracker.js` in chat, deployed via Claude Code. Session ended with a git stash incident (untracked files swept by `-u` flag) — diagnosed and recovered.
+First working session. Set up claude.ai projects, established Drive as canonical (later superseded by this file). Locked product strategy ($15–30/vehicle/month, direct-sales-first). Full metadata audit surfaced 8 broken lookups, dead dashboard SOQL, invalid flow picklists, plaintext Geotab credentials, 6 untested Apex classes. Manual + Claude Code fixes applied. Git stash incident at session end — diagnosed and recovered.
 → [full session notes](sessions/2026-05-10-setup-and-foundation-cleanup.md)
