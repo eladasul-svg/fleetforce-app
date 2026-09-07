@@ -17,6 +17,9 @@ global class GeotabSyncBatch implements Database.Batchable<SObject>, Database.Al
         ]);
     }
 
+    // Allows tests to inject a pre-configured GeotabService, bypassing the CMT query.
+    @TestVisible private static GeotabService testService;
+
     global void execute(Database.BatchableContext bc, List<fleetforce__Telematics_Equipment__c> scope) {
         // Collect all Geotab Device IDs in this batch
         List<String> geotabIds = new List<String>();
@@ -30,7 +33,7 @@ global class GeotabSyncBatch implements Database.Batchable<SObject>, Database.Al
         if (geotabIds.isEmpty()) return;
 
         try {
-            GeotabService svc = new GeotabService();
+            GeotabService svc = testService != null ? testService : new GeotabService();
             svc.authenticate();
 
             // ── GPS Position ──────────────────────────────────────────────────────

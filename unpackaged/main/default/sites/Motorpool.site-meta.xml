@@ -8,24 +8,24 @@
     <allowStandardLookups>false</allowStandardLookups>
     <allowStandardPortalPages>true</allowStandardPortalPages>
     <allowStandardSearch>false</allowStandardSearch>
-    <authorizationRequiredPage>Unauthorized</authorizationRequiredPage>
-    <bandwidthExceededPage>BandwidthExceeded</bandwidthExceededPage>
+    <authorizationRequiredPage>fleetforce__Unauthorized</authorizationRequiredPage>
+    <bandwidthExceededPage>fleetforce__BandwidthExceeded</bandwidthExceededPage>
     <browserXssProtection>true</browserXssProtection>
     <cachePublicVisualforcePagesInProxyServers>true</cachePublicVisualforcePagesInProxyServers>
     <clickjackProtectionLevel>SameOriginOnly</clickjackProtectionLevel>
     <contentSniffingProtection>true</contentSniffingProtection>
     <enableAuraRequests>true</enableAuraRequests>
-    <fileNotFoundPage>FileNotFound</fileNotFoundPage>
-    <genericErrorPage>Exception</genericErrorPage>
-    <inMaintenancePage>InMaintenance</inMaintenancePage>
-    <inactiveIndexPage>InMaintenance</inactiveIndexPage>
-    <indexPage>MotorpoolPortal</indexPage>
+    <fileNotFoundPage>fleetforce__FileNotFound</fileNotFoundPage>
+    <genericErrorPage>fleetforce__Exception</genericErrorPage>
+    <inMaintenancePage>fleetforce__InMaintenance</inMaintenancePage>
+    <inactiveIndexPage>fleetforce__InMaintenance</inactiveIndexPage>
+    <indexPage>fleetforce__InMaintenance</indexPage>
     <masterLabel>Motorpool</masterLabel>
     <redirectToCustomDomain>true</redirectToCustomDomain>
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
-    <siteAdmin>test-8krhiycuuqa1@example.com</siteAdmin>
-    <siteGuestRecordDefaultOwner>test-8krhiycuuqa1@example.com</siteGuestRecordDefaultOwner>
-    <siteTemplate>SiteTemplate</siteTemplate>
+    <siteAdmin>test-iwb7vzamqqql@example.com</siteAdmin>
+    <siteGuestRecordDefaultOwner>test-iwb7vzamqqql@example.com</siteGuestRecordDefaultOwner>
+    <siteTemplate>fleetforce__SiteTemplate</siteTemplate>
     <siteType>Visualforce</siteType>
     <urlPathPrefix>motorpool</urlPathPrefix>
 </CustomSite>

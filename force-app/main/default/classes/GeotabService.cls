@@ -9,20 +9,46 @@ public with sharing class GeotabService {
     private String database;
     private String username;
     private String sessionId;
+    private String injectedPassword; // set by injectConfig() in tests to bypass CMT query
+
+    /**
+     * Injects credentials for test use, bypassing the CMT query in authenticate().
+     * CMT records cannot be created programmatically in tests, so tests that exercise
+     * the authenticated code paths must call this before authenticate().
+     */
+    @TestVisible
+    private void injectConfig(String svr, String db, String usr, String pwd) {
+        this.server   = svr;
+        this.database = db;
+        this.username = usr;
+        this.injectedPassword = pwd;
+    }
 
     /**
      * Authenticates with Geotab and stores the session credentials.
      * Geotab uses a multi-step auth: first call may return a redirect server.
      */
     public void authenticate() {
-        Geotab_Setting__mdt cfg = [
-            SELECT Server__c, Database__c, Username__c, Password__c
-            FROM Geotab_Setting__mdt LIMIT 1
-        ];
-
-        this.server = cfg.Server__c;
-        this.database = cfg.Database__c;
-        this.username = cfg.Username__c;
+        String password;
+        if (this.injectedPassword != null) {
+            // Test injection path: credentials were set via injectConfig(), skip CMT query.
+            password = this.injectedPassword;
+        } else {
+            List<Geotab_Setting__mdt> cfgs = [
+                SELECT Server__c, Database__c, Username__c, Password__c
+                FROM Geotab_Setting__mdt LIMIT 1
+            ];
+            if (cfgs.isEmpty()) {
+                throw new AuraHandledException(
+                    'Geotab credentials are not configured. Please add them in the Geotab Settings tab before syncing.'
+                );
+            }
+            Geotab_Setting__mdt cfg = cfgs[0];
+            this.server   = cfg.Server__c;
+            this.database = cfg.Database__c;
+            this.username = cfg.Username__c;
+            password = cfg.Password__c;
+        }
 
         // Step 1: Authenticate
         Map<String, Object> authPayload = new Map<String, Object>{
@@ -31,7 +57,7 @@ public with sharing class GeotabService {
             'params' => new Map<String, Object>{
                 'database' => this.database,
                 'userName' => this.username,
-                'password' => cfg.Password__c
+                'password' => password
             },
             'id' => 1
         };

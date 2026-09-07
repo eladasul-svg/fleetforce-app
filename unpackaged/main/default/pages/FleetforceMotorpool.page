@@ -1,4 +1,4 @@
-<apex:page controller="MotorpoolPortalController" showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0">
+<apex:page controller="FleetforceMotorpoolController" showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0">
 <html>
 <head>
 <meta charset="utf-8"/>
@@ -163,6 +163,10 @@ function submitForm(){
     var btn=document.getElementById('submitBtn');
     btn.disabled=true;btn.textContent='Submitting…';
     document.getElementById('globalErr').classList.remove('show');
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST','/services/apexrest/fleetforce/motorpoolReservation',false);
+    xhr.setRequestHeader('Content-Type','application/json');
+    // Fall back to custom REST endpoint. If unavailable, show config error.
     try {
         submitViaRemoting(btn,seats);
     } catch(e) {
@@ -181,7 +185,7 @@ function submitViaRemoting(btn,seats){
         return;
     }
     Visualforce.remoting.Manager.invokeAction(
-        'fleetforce.MotorpoolPortalController.submitReservation',
+        'fleetforce.FleetforceMotorpoolController.submitReservation',
         val('firstName'),val('lastName'),val('email'),val('phone'),
         isoToApex(val('startTime')),isoToApex(val('endTime')),seats,
         function(result,event){

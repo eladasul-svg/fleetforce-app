@@ -1,0 +1,7 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false">
+<html><head><title>Motorpool Site</title></head>
+<body style="font-family:Arial,sans-serif;text-align:center;padding:60px;color:#444">
+<h2>FileNotFound</h2>
+<p>Please contact the site administrator or try again later.</p>
+</body></html>
+</apex:page>

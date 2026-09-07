@@ -1,6 +1,19 @@
 @IsTest
 private class GeotabSyncBatchTest {
 
+    // Pre-configures a GeotabService with fake credentials so authenticate()
+    // skips the CMT query. CMT records cannot be created in Apex tests.
+    private static GeotabService makeService() {
+        GeotabService svc = new GeotabService();
+        svc.injectConfig(
+            'test-fake-server-000.geotab.com',
+            'test-fake-db-000',
+            'test-fake-user-000@example.com',
+            'test-fake-password-000'
+        );
+        return svc;
+    }
+
     // Stateful mock: returns auth, then GPS, then odometer, then fuel responses in order.
     private class GeotabBatchMock implements HttpCalloutMock {
         Integer callCount = 0;
@@ -51,10 +64,13 @@ private class GeotabSyncBatchTest {
     @IsTest
     static void testBatch_updatesAssetFromGeotab() {
         Test.setMock(HttpCalloutMock.class, new GeotabBatchMock());
+        GeotabSyncBatch.testService = makeService();
 
         Test.startTest();
         Database.executeBatch(new GeotabSyncBatch(), 50);
         Test.stopTest();
+
+        GeotabSyncBatch.testService = null;
 
         fleetforce__Fleet_Asset__c updated = [
             SELECT Id, fleetforce__Odometer__c, fleetforce__Fuel_Energy_Level__c,

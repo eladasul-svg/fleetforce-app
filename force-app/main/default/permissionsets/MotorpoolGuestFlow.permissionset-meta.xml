@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Grants guest users access to the Motorpool Reservation Request flow.</description>
+    <flowAccesses>
+        <enabled>true</enabled>
+        <flow>Motorpool_Reservation_Request</flow>
+    </flowAccesses>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Motorpool Guest Flow Access</label>
+</PermissionSet>

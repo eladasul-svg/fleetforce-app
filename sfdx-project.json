@@ -19,6 +19,11 @@
   "sourceApiVersion": "64.0",
   "packageAliases": {
     "FleetForce Platform": "0Hohd00000000HlCAI",
-    "FleetForce Platform@1.0.0-1": "04thd0000000pH3AAI"
+    "FleetForce Platform@1.0.0-1": "04thd0000000pH3AAI",
+    "FleetForce Platform@1.0.0-2": "04thd0000000pKHAAY",
+    "FleetForce Platform@1.0.0-3": "04thd0000000pLtAAI",
+    "FleetForce Platform@1.0.0-4": "04thd0000000pXBAAY",
+    "FleetForce Platform@1.0.0-5": "04thd0000000pYnAAI",
+    "FleetForce Platform@1.0.0-6": "04thd0000000paPAAQ"
   }
 }
