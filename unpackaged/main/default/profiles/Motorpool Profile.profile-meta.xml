@@ -676,11 +676,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Contact.FirstNameLocal</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Contact.GenderIdentity</field>
         <readable>false</readable>
     </fieldPermissions>
@@ -703,11 +698,6 @@
         <editable>true</editable>
         <field>Contact.Jigsaw</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Contact.LastNameLocal</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>

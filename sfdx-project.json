@@ -1,12 +1,24 @@
 {
   "packageDirectories": [
     {
+      "versionName": "ver 1.0",
+      "versionNumber": "1.0.0.NEXT",
       "path": "force-app",
-      "default": true
+      "default": true,
+      "package": "FleetForce Platform",
+      "versionDescription": "FleetForce motorpool management application"
+    },
+    {
+      "path": "unpackaged",
+      "default": false
     }
   ],
   "name": "fleetforce-app",
   "namespace": "fleetforce",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "64.0"
+  "sourceApiVersion": "64.0",
+  "packageAliases": {
+    "FleetForce Platform": "0Hohd00000000HlCAI",
+    "FleetForce Platform@1.0.0-1": "04thd0000000pH3AAI"
+  }
 }
