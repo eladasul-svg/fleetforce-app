@@ -1,4 +1,4 @@
-<apex:page showHeader="false" sidebar="false" standardStylesheets="false" lightningStylesheets="true" docType="html-5.0">
+<apex:page controller="MotorpoolPortalController" showHeader="false" sidebar="false" standardStylesheets="false" lightningStylesheets="true" docType="html-5.0">
     <apex:includeLightning/>
     
     <style>
@@ -41,16 +41,12 @@
     </div>
 
     <script>
-        // Note: 'fleetforce' is the namespace. In scratch orgs without one, use 'c:MotorpoolApp'
-        var appName = "c:MotorpoolApp"; 
-        
-        $Lightning.use(appName, function() {
+        $Lightning.use("fleetforce:MotorpoolApp", function() {
             $Lightning.createComponent("lightning:flow",
                 {},
                 "flowContainer",
                 function(cmp) {
-                    // Try with namespace first, fallback to no namespace if needed by the org
-                    cmp.startFlow("Motorpool_Reservation_Request");
+                    cmp.startFlow("{!flowApiName}");
                 }
             );
         });
