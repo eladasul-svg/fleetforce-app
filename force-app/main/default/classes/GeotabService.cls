@@ -94,9 +94,7 @@ public with sharing class GeotabService {
         if (result.containsKey('error')) {
             throw new AuraHandledException('Geotab Get Error: ' + JSON.serialize(result.get('error')));
         }
-        return (List<Map<String, Object>>) JSON.deserializeUntyped(
-            JSON.serialize(result.get('result'))
-        );
+        return castToTypedList(result.get('result'));
     }
 
     /**
@@ -135,14 +133,21 @@ public with sharing class GeotabService {
         if (result.containsKey('error')) {
             throw new AuraHandledException('Geotab Get Error: ' + JSON.serialize(result.get('error')));
         }
-        return (List<Map<String, Object>>) JSON.deserializeUntyped(
-            JSON.serialize(result.get('result'))
-        );
+        return castToTypedList(result.get('result'));
     }
 
     // --------------------------------------------------------------------------
     // Private Helpers
     // --------------------------------------------------------------------------
+
+    private List<Map<String, Object>> castToTypedList(Object rawValue) {
+        List<Object> rawList = (List<Object>) JSON.deserializeUntyped(JSON.serialize(rawValue));
+        List<Map<String, Object>> typed = new List<Map<String, Object>>();
+        for (Object item : rawList) {
+            typed.add((Map<String, Object>) item);
+        }
+        return typed;
+    }
 
     private Map<String, Object> getCredentials() {
         return new Map<String, Object>{
