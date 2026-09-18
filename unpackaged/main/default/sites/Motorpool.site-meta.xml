@@ -23,8 +23,8 @@
     <masterLabel>Motorpool</masterLabel>
     <redirectToCustomDomain>true</redirectToCustomDomain>
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
-    <siteAdmin>test-iwb7vzamqqql@example.com</siteAdmin>
-    <siteGuestRecordDefaultOwner>test-iwb7vzamqqql@example.com</siteGuestRecordDefaultOwner>
+    <siteAdmin>test-xnjjq01jfxan@example.com</siteAdmin>
+    <siteGuestRecordDefaultOwner>test-xnjjq01jfxan@example.com</siteGuestRecordDefaultOwner>
     <siteTemplate>fleetforce__SiteTemplate</siteTemplate>
     <siteType>Visualforce</siteType>
     <urlPathPrefix>motorpool</urlPathPrefix>

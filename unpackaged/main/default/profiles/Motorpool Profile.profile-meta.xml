@@ -6,6 +6,14 @@
         <visible>false</visible>
     </applicationVisibilities>
     <classAccesses>
+        <apexClass>MotorpoolPortalController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>fleetforce__MotorpoolPortalController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>ChangePasswordController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -1844,6 +1852,10 @@
         <field>Vendor_Rate_Card__c.Vendor__c</field>
         <readable>false</readable>
     </fieldPermissions>
+    <flowAccesses>
+        <enabled>true</enabled>
+        <flow>Motorpool_Reservation_Request</flow>
+    </flowAccesses>
     <layoutAssignments>
         <layout>Agreement__c-Agreement Layout</layout>
     </layoutAssignments>
