@@ -1,0 +1,188 @@
+<template>
+    <div class="assistant">
+
+        <template lwc:if={isLoading}>
+            <div class="center">
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template lwc:if={isConnectView}>
+            <div class="connect">
+                <div class="connect-header">
+                    <lightning-icon icon-name="utility:einstein" size="small"></lightning-icon>
+                    <h2>Connect the FleetForce Assistant</h2>
+                </div>
+                <p class="muted">The assistant talks to Claude through the Anthropic API. Choose how you connect.</p>
+
+                <template lwc:if={error}>
+                    <div class="error-box">{error}</div>
+                </template>
+                <template lwc:if={keyNotice}>
+                    <div class="notice-box">{keyNotice}</div>
+                </template>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>Organization connection</span>
+                        <lightning-badge label={orgBadge} class={orgBadgeClass}></lightning-badge>
+                    </div>
+                    <p class="muted">One key, set by an administrator, shared by everyone with the FleetForce Assistant permission set. Usage is billed to the organization's Anthropic account.</p>
+                    <template lwc:if={canManageOrg}>
+                        <lightning-input type="password" label="Organization API key" value={orgKey} onchange={handleOrgKey} placeholder="sk-ant-…"></lightning-input>
+                        <lightning-button class="save-btn" variant="brand" label={orgSaveLabel} onclick={handleSaveOrgKey} disabled={savingKey}></lightning-button>
+                    </template>
+                    <template lwc:else>
+                        <p class="muted small">Ask a Salesforce administrator to set the organization key.</p>
+                    </template>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>Personal key</span>
+                        <lightning-badge label={userBadge} class={userBadgeClass}></lightning-badge>
+                    </div>
+                    <p class="muted">A key from your own Anthropic Console account, or one your company issued to you. Only you can use it, and it takes precedence over the organization connection.</p>
+                    <lightning-input type="password" label="Your API key" value={userKey} onchange={handleUserKey} placeholder="sk-ant-…"></lightning-input>
+                    <div class="key-actions">
+                        <lightning-button variant="brand" label={userSaveLabel} onclick={handleSaveUserKey} disabled={savingKey}></lightning-button>
+                        <template lwc:if={userConfigured}>
+                            <lightning-button label="Remove my key" onclick={handleClearUserKey} disabled={savingKey}></lightning-button>
+                        </template>
+                    </div>
+                </div>
+
+                <p class="muted small">The organization key lives in Salesforce's encrypted credential store; personal keys live in a protected setting that only the assistant can read. Neither is ever shown again. The assistant can only read and change what you can already see and edit.</p>
+
+                <template lwc:if={connected}>
+                    <lightning-button variant="brand" label="Open the assistant" onclick={handleBackToChat}></lightning-button>
+                </template>
+            </div>
+        </template>
+
+        <template lwc:if={isChatView}>
+            <div class="chat">
+                <div class="header">
+                    <div class="header-title">
+                        <lightning-icon icon-name="utility:einstein" size="x-small"></lightning-icon>
+                        <span class="title" title={headerTitle}>{headerTitle}</span>
+                    </div>
+                    <div class="header-actions">
+                        <template lwc:if={hasSessions}>
+                            <lightning-button-menu alternative-text="Recent conversations" icon-name="utility:chat" menu-alignment="right" variant="border-filled" onselect={handleSessionSelect}>
+                                <template for:each={sessionMenuItems} for:item="s">
+                                    <lightning-menu-item key={s.value} value={s.value} label={s.label}></lightning-menu-item>
+                                </template>
+                            </lightning-button-menu>
+                        </template>
+                        <lightning-button-icon icon-name="utility:new" alternative-text="New conversation" title="New conversation" variant="border-filled" onclick={handleNewChat}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:settings" alternative-text="Connection settings" title="Connection settings" variant="border-filled" onclick={handleOpenConnection}></lightning-button-icon>
+                    </div>
+                </div>
+                <template lwc:if={contextLabel}>
+                    <div class="context-pill">
+                        <lightning-icon icon-name="utility:record" size="xx-small"></lightning-icon>
+                        <span>{contextLabel}</span>
+                    </div>
+                </template>
+
+                <div class="messages">
+                    <template lwc:if={showSuggestions}>
+                        <div class="welcome">
+                            <p class="welcome-title">Hi {firstName}, what would you like to know?</p>
+                            <p class="muted">I can look up, summarize and — with your approval — change the data you have access to.</p>
+                            <div class="suggestions">
+                                <template for:each={suggestions} for:item="s">
+                                    <button key={s.key} class="suggestion" data-text={s.text} onclick={handleSuggestion}>{s.text}</button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template for:each={renderedMessages} for:item="m">
+                        <div key={m.key} class={m.rowClass}>
+                            <template lwc:if={m.isUser}>
+                                <div class="bubble user">{m.text}</div>
+                            </template>
+                            <template lwc:if={m.isAssistant}>
+                                <div class="bubble assistant">
+                                    <lightning-formatted-rich-text value={m.html}></lightning-formatted-rich-text>
+                                </div>
+                            </template>
+                            <template lwc:if={m.isSteps}>
+                                <ul class="steps">
+                                    <template for:each={m.steps} for:item="st">
+                                        <li key={st.key}>
+                                            <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                                            <span>{st.text}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template lwc:if={m.isProposal}>
+                                <div class="proposal">
+                                    <div class="proposal-title">
+                                        <lightning-icon icon-name="utility:edit_form" size="x-small"></lightning-icon>
+                                        <span>{m.proposal.title}</span>
+                                    </div>
+                                    <template lwc:if={m.proposal.reason}>
+                                        <p class="muted">{m.proposal.reason}</p>
+                                    </template>
+                                    <table class="changes">
+                                        <thead>
+                                            <tr>
+                                                <th>Field</th>
+                                                <template lwc:if={m.proposal.isUpdate}><th>Current</th></template>
+                                                <th>Proposed</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={m.proposal.changes} for:item="c">
+                                                <tr key={c.key}>
+                                                    <td>{c.label}</td>
+                                                    <template lwc:if={m.proposal.isUpdate}><td class="muted">{c.current}</td></template>
+                                                    <td><strong>{c.proposed}</strong></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                    <template lwc:if={m.proposal.decided}>
+                                        <p class="decided">{m.proposal.decisionLabel}</p>
+                                    </template>
+                                    <template lwc:else>
+                                        <div class="proposal-actions">
+                                            <lightning-button variant="brand" label="Approve" data-decision="approve" data-key={m.key} onclick={handleDecision} disabled={busy}></lightning-button>
+                                            <lightning-button label="Decline" data-decision="decline" data-key={m.key} onclick={handleDecision} disabled={busy}></lightning-button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:if={m.isOutcome}>
+                                <div class="outcome">
+                                    <lightning-icon icon-name="utility:success" size="x-small"></lightning-icon>
+                                    <a href={m.url}>{m.text}</a>
+                                </div>
+                            </template>
+                            <template lwc:if={m.isError}>
+                                <div class="error-box">{m.text}</div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template lwc:if={busy}>
+                        <div class="status">
+                            <lightning-spinner alternative-text="Working" size="x-small" variant="brand"></lightning-spinner>
+                            <span>{statusText}</span>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="composer">
+                    <textarea class="input" placeholder="Ask about your fleet data…" rows="2" value={draft} oninput={handleDraft} onkeydown={handleKeyDown} disabled={busy}></textarea>
+                    <lightning-button-icon icon-name="utility:send" variant="brand" alternative-text="Send" title="Send" onclick={send} disabled={sendDisabled}></lightning-button-icon>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</template>

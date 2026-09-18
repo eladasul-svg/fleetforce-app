@@ -162,6 +162,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>fleetforceAssistant</componentName>
+                <identifier>fleetforce_fleetforceAssistant</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>label</name>
                     <value>Tabs</value>

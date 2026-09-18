@@ -47,6 +47,7 @@
     <tabs>Telemetry_Violation__c</tabs>
     <tabs>Vendor_Rate_Card__c</tabs>
     <uiType>Lightning</uiType>
+    <utilityBar>FleetOps_UtilityBar</utilityBar>
     <workspaceConfig>
         <mappings>
             <tab>Agreement_Line__c</tab>

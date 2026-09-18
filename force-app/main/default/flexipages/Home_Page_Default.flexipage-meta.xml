@@ -78,6 +78,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>fleetforceAssistant</componentName>
+                <identifier>fleetforce_fleetforceAssistant</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentName>home:assistant</componentName>
                 <identifier>home_assistant</identifier>
             </componentInstance>

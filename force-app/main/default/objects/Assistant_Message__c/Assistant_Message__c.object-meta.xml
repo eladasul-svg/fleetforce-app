@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>One turn of an Assistant Session, stored in the Claude Messages API content-block format.</description>
+    <label>Assistant Message</label>
+    <pluralLabel>Assistant Messages</pluralLabel>
+    <nameField>
+        <displayFormat>MSG-{000000}</displayFormat>
+        <label>Message Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

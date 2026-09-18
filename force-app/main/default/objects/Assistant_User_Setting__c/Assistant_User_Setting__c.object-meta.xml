@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Per-user Anthropic API key for the FleetForce Assistant. Protected: only the package's Apex can read it.</description>
+    <enableFeeds>false</enableFeeds>
+    <label>Assistant User Setting</label>
+    <visibility>Protected</visibility>
+</CustomObject>
