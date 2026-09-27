@@ -164,7 +164,7 @@ function submitForm(){
     btn.disabled=true;btn.textContent='Submitting…';
     document.getElementById('globalErr').classList.remove('show');
     try {
-        submitViaRemoting(btn,seats);
+        submitViaRest(btn,seats);
     } catch(e) {
         btn.disabled=false;btn.textContent='Submit Request';
         var err=document.getElementById('globalErr');
@@ -172,24 +172,29 @@ function submitForm(){
         err.classList.add('show');
     }
 }
-function submitViaRemoting(btn,seats){
-    if(typeof Visualforce === 'undefined' || !Visualforce.remoting){
+function submitViaRest(btn,seats){
+    fetch('/services/apexrest/fleetforce/motorpoolReservation',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            firstName:val('firstName'),lastName:val('lastName'),email:val('email'),phone:val('phone'),
+            startTime:isoToApex(val('startTime')),endTime:isoToApex(val('endTime')),minSeats:seats
+        })
+    })
+    .then(function(response){
+        return response.json().then(function(data){return {ok:response.ok,data:data};});
+    })
+    .then(function(result){
         btn.disabled=false;btn.textContent='Submit Request';
-        var err=document.getElementById('globalErr');
-        err.textContent='The form service is not available. Please contact the site administrator.';
-        err.classList.add('show');
-        return;
-    }
-    Visualforce.remoting.Manager.invokeAction(
-        'fleetforce.MotorpoolPortalController.submitReservation',
-        val('firstName'),val('lastName'),val('email'),val('phone'),
-        isoToApex(val('startTime')),isoToApex(val('endTime')),seats,
-        function(result,event){
-            btn.disabled=false;btn.textContent='Submit Request';
-            if(event.status&&result){show('stepSuccess');document.querySelector('.step-indicator').style.display='none';}
-            else{var e=document.getElementById('globalErr');e.textContent=(event.message||'An error occurred. Please try again.');e.classList.add('show');}
-        },{escape:false}
-    );
+        if(result.ok&&result.data&&result.data.id){show('stepSuccess');document.querySelector('.step-indicator').style.display='none';}
+        else{var e=document.getElementById('globalErr');e.textContent=(result.data&&result.data.error)||'An error occurred. Please try again.';e.classList.add('show');}
+    })
+    .catch(function(){
+        btn.disabled=false;btn.textContent='Submit Request';
+        var e=document.getElementById('globalErr');
+        e.textContent='An error occurred. Please try again.';
+        e.classList.add('show');
+    });
 }
 function resetForm(){
     ['firstName','lastName','email','phone','startTime','endTime','minSeats'].forEach(function(id){document.getElementById(id).value='';clearErr(id);});

@@ -258,29 +258,43 @@ function submitForm() {
     btn.textContent = 'Submitting…';
     document.getElementById('globalErr').classList.remove('show');
 
-    Visualforce.remoting.Manager.invokeAction(
-        '{!$RemoteAction.MotorpoolPortalController.submitReservation}',
-        val('firstName'),
-        val('lastName'),
-        val('email'),
-        val('phone'),
-        isoToApex(val('startTime')),
-        isoToApex(val('endTime')),
-        seats,
-        function(result, event) {
-            btn.disabled = false;
-            btn.textContent = 'Submit Request';
-            if (event.status && result) {
-                show('stepSuccess');
-                document.querySelector('.step-indicator').style.display = 'none';
-            } else {
-                var errEl = document.getElementById('globalErr');
-                errEl.textContent = (event.message || 'An error occurred. Please try again.');
-                errEl.classList.add('show');
-            }
-        },
-        { escape: false }
-    );
+    fetch('/services/apexrest/fleetforce/motorpoolReservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            firstName: val('firstName'),
+            lastName: val('lastName'),
+            email: val('email'),
+            phone: val('phone'),
+            startTime: isoToApex(val('startTime')),
+            endTime: isoToApex(val('endTime')),
+            minSeats: seats
+        })
+    })
+    .then(function(response) {
+        return response.json().then(function(data) {
+            return { ok: response.ok, data: data };
+        });
+    })
+    .then(function(result) {
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+        if (result.ok && result.data && result.data.id) {
+            show('stepSuccess');
+            document.querySelector('.step-indicator').style.display = 'none';
+        } else {
+            var errEl = document.getElementById('globalErr');
+            errEl.textContent = (result.data && result.data.error) || 'An error occurred. Please try again.';
+            errEl.classList.add('show');
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+        var errEl = document.getElementById('globalErr');
+        errEl.textContent = 'An error occurred. Please try again.';
+        errEl.classList.add('show');
+    });
 }
 
 function resetForm() {
