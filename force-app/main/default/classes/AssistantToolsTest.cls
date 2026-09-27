@@ -12,6 +12,21 @@ private class AssistantToolsTest {
             fleetforce__Status__c = 'Available',
             fleetforce__Vendor__c = vendor.Id
         );
+
+        // FleetAdmin grants FLS on Fleet_Asset__c's custom fields (Status__c, Vendor__c); the running
+        // user has no profile-level access to custom fields without it. USER_MODE tool queries need
+        // the SUT call itself to run inside a fresh System.runAs(self) block - see asSelfUser() below.
+        Id userId = UserInfo.getUserId();
+        PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'FleetAdmin' LIMIT 1];
+        if ([SELECT COUNT() FROM PermissionSetAssignment WHERE AssigneeId = :userId AND PermissionSetId = :ps.Id] == 0) {
+            System.runAs(new User(Id = userId)) {
+                insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = ps.Id);
+            }
+        }
+    }
+
+    private static User asSelfUser() {
+        return new User(Id = UserInfo.getUserId());
     }
 
     private static Map<String, Object> parse(AssistantTools.ToolResult r) {
@@ -65,7 +80,10 @@ private class AssistantToolsTest {
 
     @IsTest
     static void describeObjectReturnsFieldsAndRejectsUnknown() {
-        AssistantTools.ToolResult r = AssistantTools.execute('describe_object', input('objectApiName', ASSET_OBJECT));
+        AssistantTools.ToolResult r;
+        System.runAs(asSelfUser()) {
+            r = AssistantTools.execute('describe_object', input('objectApiName', ASSET_OBJECT));
+        }
         System.assert(!r.isError, r.content);
         Map<String, Object> d = parse(r);
         System.assertEquals(ASSET_OBJECT, d.get('apiName'));
@@ -94,8 +112,11 @@ private class AssistantToolsTest {
 
     @IsTest
     static void queryRecordsRunsSelectAndRejectsOtherStatements() {
-        AssistantTools.ToolResult r = AssistantTools.execute('query_records',
-            input('soql', 'SELECT Id, Name, fleetforce__Vendor__r.Name FROM ' + ASSET_OBJECT + ' WHERE Name = \'TOOL-ASSET-001\''));
+        AssistantTools.ToolResult r;
+        System.runAs(asSelfUser()) {
+            r = AssistantTools.execute('query_records',
+                input('soql', 'SELECT Id, Name, fleetforce__Vendor__r.Name FROM ' + ASSET_OBJECT + ' WHERE Name = \'TOOL-ASSET-001\''));
+        }
         System.assert(!r.isError, r.content);
         Map<String, Object> d = parse(r);
         System.assertEquals(1, d.get('count'));

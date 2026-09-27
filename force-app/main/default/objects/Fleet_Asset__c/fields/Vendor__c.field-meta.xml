@@ -4,7 +4,7 @@
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Vendor/FMC</label>
     <referenceTo>Account</referenceTo>
-    <relationshipName>Rel_Vendor_XGNF</relationshipName>
+    <relationshipName>Vendor</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>

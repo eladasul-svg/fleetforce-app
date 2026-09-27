@@ -70,7 +70,9 @@ public class AssistantServiceTest {
     }
 
     // The session objects are only reachable in USER_MODE through the FleetForce Assistant permission
-    // set. runAs isolates the setup-object DML from the data DML that follows (avoids MIXED_DML).
+    // set. A permission set assigned in @TestSetup is not picked up by USER_MODE checks later in the
+    // same test unless the SUT call itself runs inside a fresh System.runAs(self) block - re-entering
+    // as the same user forces Salesforce to rebuild the permission context. See asSelf() below.
     public static void grantAssistantAccess() {
         Id userId = UserInfo.getUserId();
         PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'FleetforceAssistantUser' LIMIT 1];
@@ -79,6 +81,10 @@ public class AssistantServiceTest {
                 insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = ps.Id);
             }
         }
+    }
+
+    private static User asSelfUser() {
+        return new User(Id = UserInfo.getUserId());
     }
 
     private static Assistant_Session__c newSession() {
@@ -105,8 +111,11 @@ public class AssistantServiceTest {
         ClaudeMock mock = new ClaudeMock(textResponse('You have **3** assets.'));
         Test.setMock(HttpCalloutMock.class, mock);
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'How many assets do I have?');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'How many assets do I have?');
+        }
         Test.stopTest();
 
         System.assertEquals('text', r.kind);
@@ -142,7 +151,9 @@ public class AssistantServiceTest {
         Test.setMock(HttpCalloutMock.class, mock);
 
         Test.startTest();
-        AssistantService.sendMessage(s.Id, 'Hello');
+        System.runAs(asSelfUser()) {
+            AssistantService.sendMessage(s.Id, 'Hello');
+        }
         Test.stopTest();
 
         System.assertEquals(AssistantClaudeClient.DIRECT_ENDPOINT, mock.lastEndpoint);
@@ -156,8 +167,11 @@ public class AssistantServiceTest {
         Test.setMock(HttpCalloutMock.class, new ClaudeMock(toolUseResponse('query_records',
             new Map<String, Object>{ 'soql' => 'SELECT Id, Name FROM Account' })));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'List accounts');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'List accounts');
+        }
         Test.stopTest();
 
         System.assertEquals('tool_step', r.kind);
@@ -181,8 +195,11 @@ public class AssistantServiceTest {
         Test.setMock(HttpCalloutMock.class, new ClaudeMock(toolUseResponse('query_records',
             new Map<String, Object>{ 'soql' => 'DELETE FROM Account' })));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'Delete everything');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'Delete everything');
+        }
         Test.stopTest();
 
         System.assertEquals('tool_step', r.kind);
@@ -206,8 +223,11 @@ public class AssistantServiceTest {
         ClaudeMock mock = new ClaudeMock(textResponse('There is one account.'));
         Test.setMock(HttpCalloutMock.class, mock);
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.continueTurn(s.Id);
+        System.runAs(asSelfUser()) {
+            r = AssistantService.continueTurn(s.Id);
+        }
         Test.stopTest();
 
         System.assertEquals('text', r.kind);
@@ -220,10 +240,12 @@ public class AssistantServiceTest {
     static void continueTurnRejectsBadStates() {
         Assistant_Session__c empty = newSession();
         Boolean threw = false;
-        try {
-            AssistantService.continueTurn(empty.Id);
-        } catch (AssistantService.AssistantException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantService.continueTurn(empty.Id);
+            } catch (AssistantService.AssistantException e) {
+                threw = true;
+            }
         }
         System.assert(threw, 'nothing to continue should throw');
 
@@ -231,10 +253,12 @@ public class AssistantServiceTest {
         pending.Pending_Proposal__c = '{"toolUseId":"x"}';
         update pending;
         threw = false;
-        try {
-            AssistantService.continueTurn(pending.Id);
-        } catch (AssistantService.AssistantException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantService.continueTurn(pending.Id);
+            } catch (AssistantService.AssistantException e) {
+                threw = true;
+            }
         }
         System.assert(threw, 'pending proposal should block continue');
     }
@@ -247,8 +271,11 @@ public class AssistantServiceTest {
             'recordId' => a.Id, 'fields' => new Map<String, Object>{ 'Name' => 'Approved Vendor' }, 'reason' => 'You asked to rename it.'
         })));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'Rename the vendor');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'Rename the vendor');
+        }
         Test.stopTest();
 
         System.assertEquals('proposal', r.kind);
@@ -258,7 +285,10 @@ public class AssistantServiceTest {
         System.assert(String.isNotBlank([SELECT Pending_Proposal__c FROM Assistant_Session__c WHERE Id = :s.Id].Pending_Proposal__c));
         System.assertEquals(2, messagesOf(s.Id).size(), 'no tool_result yet');
 
-        AssistantService.TurnResult decided = AssistantService.resolveProposal(s.Id, true, null);
+        AssistantService.TurnResult decided;
+        System.runAs(asSelfUser()) {
+            decided = AssistantService.resolveProposal(s.Id, true, null);
+        }
         System.assertEquals('tool_step', decided.kind);
         System.assertEquals(true, decided.outcome.get('success'));
         System.assertEquals('Updated Account', decided.steps[0]);
@@ -284,20 +314,27 @@ public class AssistantServiceTest {
         })));
 
         Test.startTest();
-        AssistantService.sendMessage(s.Id, 'Rename the vendor');
+        System.runAs(asSelfUser()) {
+            AssistantService.sendMessage(s.Id, 'Rename the vendor');
+        }
         Test.stopTest();
 
-        AssistantService.TurnResult decided = AssistantService.resolveProposal(s.Id, false, 'keep the old name');
+        AssistantService.TurnResult decided;
+        System.runAs(asSelfUser()) {
+            decided = AssistantService.resolveProposal(s.Id, false, 'keep the old name');
+        }
         System.assertEquals(false, decided.outcome.get('approved'));
         System.assert(decided.steps[0].startsWith('Declined'));
         System.assertEquals('Service Vendor', [SELECT Name FROM Account WHERE Id = :a.Id].Name);
         System.assert(messagesOf(s.Id)[2].Content__c.contains('keep the old name'));
 
         Boolean threw = false;
-        try {
-            AssistantService.resolveProposal(s.Id, true, null);
-        } catch (AssistantService.AssistantException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantService.resolveProposal(s.Id, true, null);
+            } catch (AssistantService.AssistantException e) {
+                threw = true;
+            }
         }
         System.assert(threw, 'second resolve should fail');
     }
@@ -319,8 +356,11 @@ public class AssistantServiceTest {
         update s;
         Test.setMock(HttpCalloutMock.class, new ClaudeMock(textResponse('Okay, moving on.')));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'Actually, never mind');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'Actually, never mind');
+        }
         Test.stopTest();
 
         System.assertEquals('text', r.kind);
@@ -339,8 +379,11 @@ public class AssistantServiceTest {
         Assistant_Session__c s = newSession();
         Test.setMock(HttpCalloutMock.class, new ClaudeMock(response(new List<Object>(), 'refusal')));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'Something');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'Something');
+        }
         Test.stopTest();
 
         System.assertEquals('text', r.kind);
@@ -352,8 +395,11 @@ public class AssistantServiceTest {
         Assistant_Session__c s = newSession();
         Test.setMock(HttpCalloutMock.class, new ClaudeMock(response(new List<Object>{ textBlock('Long answer') }, 'max_tokens')));
 
+        AssistantService.TurnResult r;
         Test.startTest();
-        AssistantService.TurnResult r = AssistantService.sendMessage(s.Id, 'Something long');
+        System.runAs(asSelfUser()) {
+            r = AssistantService.sendMessage(s.Id, 'Something long');
+        }
         Test.stopTest();
 
         System.assertEquals(true, r.truncated);
@@ -369,10 +415,12 @@ public class AssistantServiceTest {
 
         Test.startTest();
         String message;
-        try {
-            AssistantService.sendMessage(s.Id, 'Hello');
-        } catch (AssistantClaudeClient.ClaudeException e) {
-            message = e.getMessage();
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantService.sendMessage(s.Id, 'Hello');
+            } catch (AssistantClaudeClient.ClaudeException e) {
+                message = e.getMessage();
+            }
         }
         Test.stopTest();
 
@@ -390,10 +438,12 @@ public class AssistantServiceTest {
     static void blankMessageIsRejected() {
         Assistant_Session__c s = newSession();
         Boolean threw = false;
-        try {
-            AssistantService.sendMessage(s.Id, '   ');
-        } catch (AssistantService.AssistantException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantService.sendMessage(s.Id, '   ');
+            } catch (AssistantService.AssistantException e) {
+                threw = true;
+            }
         }
         System.assert(threw);
     }

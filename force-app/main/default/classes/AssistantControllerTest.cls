@@ -19,13 +19,22 @@ private class AssistantControllerTest {
         AssistantServiceTest.grantAssistantAccess();
     }
 
+    // A permission set assigned in @TestSetup is not picked up by USER_MODE checks later in the same
+    // test unless the SUT call runs inside a fresh System.runAs(self) block. See AssistantServiceTest.
+    private static User asSelfUser() {
+        return new User(Id = UserInfo.getUserId());
+    }
+
     @IsTest
     static void contextReportsConnectionAndSessions() {
         Assistant_Session__c titled = new Assistant_Session__c(Title__c = 'Earlier chat', Last_Activity__c = System.now());
         insert titled;
         insert new Assistant_Session__c(Last_Activity__c = System.now());
 
-        AssistantController.Context c = AssistantController.getContext();
+        AssistantController.Context c;
+        System.runAs(asSelfUser()) {
+            c = AssistantController.getContext();
+        }
         System.assertNotEquals(null, c.orgConfigured);
         System.assertNotEquals(null, c.userConfigured);
         System.assertEquals(true, c.canManageOrg, 'test user is an admin');
@@ -39,12 +48,15 @@ private class AssistantControllerTest {
     static void sessionLifecycle() {
         Account a = new Account(Name = 'Ctx');
         insert a;
-        Id sessionId = AssistantController.startSession(a.Id, 'Account');
+        Id sessionId;
+        AssistantController.SessionDetail empty;
+        System.runAs(asSelfUser()) {
+            sessionId = AssistantController.startSession(a.Id, 'Account');
+            empty = AssistantController.getSession(sessionId);
+        }
         Assistant_Session__c s = [SELECT Record_Id__c, Record_Object__c FROM Assistant_Session__c WHERE Id = :sessionId];
         System.assertEquals(String.valueOf(a.Id), s.Record_Id__c);
         System.assertEquals('Account', s.Record_Object__c);
-
-        AssistantController.SessionDetail empty = AssistantController.getSession(sessionId);
         System.assertEquals(0, empty.messages.size());
         System.assertEquals(false, empty.awaitingContinue);
 
@@ -56,7 +68,10 @@ private class AssistantControllerTest {
             new Assistant_Message__c(Session__c = sessionId, Role__c = 'user', Sequence__c = 3,
                 Content__c = '[{"type":"tool_result","tool_use_id":"t1","content":"{}"}]')
         };
-        AssistantController.SessionDetail d = AssistantController.getSession(sessionId);
+        AssistantController.SessionDetail d;
+        System.runAs(asSelfUser()) {
+            d = AssistantController.getSession(sessionId);
+        }
         System.assertEquals(2, d.messages.size(), 'tool-only messages are not shown');
         System.assertEquals('Hi', d.messages[0].text);
         System.assertEquals('Hello', d.messages[1].text);
@@ -64,54 +79,69 @@ private class AssistantControllerTest {
 
         s.Pending_Proposal__c = '{"toolUseId":"t1","action":"create","objectLabel":"Account","changes":[]}';
         update s;
-        d = AssistantController.getSession(sessionId);
+        System.runAs(asSelfUser()) {
+            d = AssistantController.getSession(sessionId);
+        }
         System.assertNotEquals(null, d.proposal);
         System.assertEquals(false, d.awaitingContinue);
 
-        AssistantController.deleteSession(sessionId);
-        System.assertEquals(0, [SELECT COUNT() FROM Assistant_Session__c WHERE Id = :sessionId]);
-
         Boolean threw = false;
-        try {
-            AssistantController.getSession(sessionId);
-        } catch (AuraHandledException e) {
-            threw = true;
-            System.assert(e.getMessage().contains('no longer exists'), e.getMessage());
+        System.runAs(asSelfUser()) {
+            AssistantController.deleteSession(sessionId);
+            try {
+                AssistantController.getSession(sessionId);
+            } catch (AuraHandledException e) {
+                threw = true;
+                System.assert(e.getMessage().contains('no longer exists'), e.getMessage());
+            }
         }
+        System.assertEquals(0, [SELECT COUNT() FROM Assistant_Session__c WHERE Id = :sessionId]);
         System.assert(threw);
     }
 
     @IsTest
     static void turnMethodsDelegateToService() {
-        Id sessionId = AssistantController.startSession(null, null);
+        Id sessionId;
+        System.runAs(asSelfUser()) {
+            sessionId = AssistantController.startSession(null, null);
+        }
         Test.setMock(HttpCalloutMock.class, new TextMock());
+        AssistantService.TurnResult r;
+        Boolean threw = false;
 
         Test.startTest();
-        AssistantService.TurnResult r = AssistantController.sendMessage(sessionId, 'Hi');
+        System.runAs(asSelfUser()) {
+            r = AssistantController.sendMessage(sessionId, 'Hi');
+        }
         Test.stopTest();
         System.assertEquals('Hello from Claude', r.text);
 
-        Boolean threw = false;
-        try {
-            AssistantController.continueTurn(sessionId);
-        } catch (AuraHandledException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantController.continueTurn(sessionId);
+            } catch (AuraHandledException e) {
+                threw = true;
+            }
         }
         System.assert(threw, 'continue after a finished turn should fail');
 
         threw = false;
-        try {
-            AssistantController.resolveProposal(sessionId, true, null);
-        } catch (AuraHandledException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantController.resolveProposal(sessionId, true, null);
+            } catch (AuraHandledException e) {
+                threw = true;
+            }
         }
         System.assert(threw, 'resolve without a proposal should fail');
 
         threw = false;
-        try {
-            AssistantController.sendMessage(sessionId, ' ');
-        } catch (AuraHandledException e) {
-            threw = true;
+        System.runAs(asSelfUser()) {
+            try {
+                AssistantController.sendMessage(sessionId, ' ');
+            } catch (AuraHandledException e) {
+                threw = true;
+            }
         }
         System.assert(threw);
     }
@@ -129,14 +159,21 @@ private class AssistantControllerTest {
 
         AssistantController.saveApiKey('user', 'sk-ant-test-0000000000000000000000');
         System.assertEquals('sk-ant-test-0000000000000000000000', Assistant_User_Setting__c.getValues(UserInfo.getUserId()).Api_Key__c);
-        System.assertEquals(true, AssistantController.getContext().userConfigured);
+        Boolean userConfigured;
+        System.runAs(asSelfUser()) {
+            userConfigured = AssistantController.getContext().userConfigured;
+        }
+        System.assertEquals(true, userConfigured);
 
         AssistantController.saveApiKey('user', 'sk-ant-test-1111111111111111111111');
         System.assertEquals('sk-ant-test-1111111111111111111111', Assistant_User_Setting__c.getValues(UserInfo.getUserId()).Api_Key__c);
 
         AssistantController.clearUserKey();
         System.assertEquals(null, Assistant_User_Setting__c.getValues(UserInfo.getUserId()));
-        System.assertEquals(false, AssistantController.getContext().userConfigured);
+        System.runAs(asSelfUser()) {
+            userConfigured = AssistantController.getContext().userConfigured;
+        }
+        System.assertEquals(false, userConfigured);
         AssistantController.clearUserKey(); // idempotent
 
         // ConnectApi credential calls are not available in test context; the org path must surface a
