@@ -17,6 +17,21 @@ a persistent org (not re-spun like a scratch org), these are done once.
    captures the theme definition but not which theme is active.
    (Discovered 2026-08-20.)
 
+1b. **Activate "Home Page Default" as the Home tab's default page** — open
+   the FleetOps app, go to the Home tab, Setup gear → Edit Page (Lightning
+   App Builder) on `Home_Page_Default`, then Activation → assign as Org
+   Default (or App Default for FleetOps, and per relevant profile). Without
+   this, the Home tab falls back to the standard Salesforce Home layout and
+   none of the FleetForce dashboard components (KPI tiles, map, Assistant,
+   Geotab settings) render at all. Confirmed on `fleetforce-master-tso`
+   2026-09-27: retrieving `FleetOps.app-meta.xml` from `fleetforce-dev-10`
+   (which DOES show the correct custom Home page live) is byte-identical to
+   the packaged source — no `actionOverride` for Home exists in metadata on
+   either org. This is the same category of gap as the theme above: a
+   Lightning App Builder "Activation" assignment that Metadata API cannot
+   capture or deploy. Needs doing by hand on every new org, including any
+   future TSO/Trialforce Template clone. (Discovered 2026-09-27.)
+
 ~~2. **Enable "Let site guest users run flows"**~~ — **No longer applicable.**
    The Motorpool guest portal was rebuilt as a native Visualforce form with
    a `@RemoteAction` Apex controller (`MotorpoolPortalController`), bypassing
