@@ -65,6 +65,11 @@ public with sharing class FleetVehicleController {
         }
     }
 
+    /** The reference-data record for a vehicle (matched by name, ignoring model year and any trailing parenthetical). */
+    public static fleetforce__Vehicle_Model__mdt modelFor(String assetName) {
+        return modelsByKey().get(modelKey(assetName));
+    }
+
     @TestVisible
     private static String modelKey(String assetName) {
         if (String.isBlank(assetName)) {

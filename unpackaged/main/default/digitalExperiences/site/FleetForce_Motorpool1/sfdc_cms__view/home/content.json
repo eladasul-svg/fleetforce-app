@@ -1,0 +1,78 @@
+{
+  "type": "sfdc_cms__view",
+  "title": "Motorpool Booking",
+  "contentBody": {
+    "component": {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": {
+                "backgroundImageConfig": "",
+                "backgroundImageOverlay": "rgba(0,0,0,0)",
+                "componentSpacerSize": "",
+                "layoutDirectionDesktop": "row",
+                "layoutDirectionMobile": "column",
+                "layoutDirectionTablet": "column",
+                "maxContentWidth": "100%",
+                "sectionColumnGutterWidth": "",
+                "sectionConfig": "{\"UUID\":\"66f1c461-f0cf-497d-b60b-92d2de264199\",\"columns\":[{\"UUID\":\"91db5b74-9fd2-40c8-af7c-13efbbf4bcdf\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+                "sectionMinHeight": "",
+                "sectionVerticalAlign": "flex-start"
+              },
+              "children": [
+                {
+                  "children": [
+                    {
+                      "attributes": {},
+                      "definition": "fleetforce:motorpoolBooking",
+                      "id": "7dc61fe8-6e56-4732-a092-f59d6293992b",
+                      "type": "component"
+                    }
+                  ],
+                  "id": "91db5b74-9fd2-40c8-af7c-13efbbf4bcdf",
+                  "name": "col1",
+                  "title": "Column 1",
+                  "type": "region"
+                }
+              ],
+              "definition": "community_layout:section",
+              "id": "66f1c461-f0cf-497d-b60b-92d2de264199",
+              "type": "component"
+            }
+          ],
+          "id": "7a176c87-f85f-4189-8549-c50f3095911d",
+          "name": "content",
+          "title": "Content",
+          "type": "region"
+        },
+        {
+          "children": [
+            {
+              "attributes": {
+                "customHeadTags": "",
+                "description": "",
+                "pageTitle": "Home",
+                "recordId": "{!recordId}"
+              },
+              "definition": "community_builder:seoAssistant",
+              "id": "1211907d-5c8a-4706-9a54-734638001566",
+              "type": "component"
+            }
+          ],
+          "id": "bab15f16-3f83-448d-8648-5d280e11b425",
+          "name": "sfdcHiddenRegion",
+          "title": "sfdcHiddenRegion",
+          "type": "region"
+        }
+      ],
+      "definition": "community_layout:sldsFlexibleLayout",
+      "id": "201243e2-fe25-4445-84e8-53521a4d0a95",
+      "type": "component"
+    },
+    "dataProviders": [],
+    "themeLayoutType": "Inner",
+    "viewType": "home"
+  },
+  "urlName": "home"
+}
