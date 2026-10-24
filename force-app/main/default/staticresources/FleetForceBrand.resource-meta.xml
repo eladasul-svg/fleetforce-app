@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>FleetForce Waypoint brand assets: wordmarks, favicons and symbol vectors. Source: the brand design kit export. The README there defines the palette: Ink #0F1E33, Sky #2F8FD8, Sky light #8CC8F2, Green #22A77C, Green on dark #3FC795.</description>
+</StaticResource>

@@ -1,4 +1,5 @@
 import { LightningElement } from 'lwc';
+import BRAND from '@salesforce/resourceUrl/FleetForceBrand';
 import search from '@salesforce/apex/MotorpoolBookingController.search';
 import book from '@salesforce/apex/MotorpoolBookingController.book';
 
@@ -36,6 +37,10 @@ export default class MotorpoolBooking extends LightningElement {
     selected;
     form = { firstName: '', lastName: '', email: '', phone: '' };
     confirmation;
+
+    get wordmarkUrl() {
+        return `${BRAND}/wordmark-on-dark.png`;
+    }
 
     // ---------- search form ----------
     get typeChips() {
