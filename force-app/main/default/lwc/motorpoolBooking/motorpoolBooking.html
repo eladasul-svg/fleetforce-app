@@ -24,14 +24,14 @@
                 <div class="search">
                     <div class="search__row">
                         <label class="field">
-                            <span class="field__label">Pick-up</span>
-                            <input type="datetime-local" class="field__input" value={pickup} data-field="pickup"
-                                   onchange={handleField}/>
+                            <span class="field__label">Pick-up date</span>
+                            <input type="date" class="field__input" value={pickupDate} min={minPickupDate}
+                                   data-field="pickupDate" onchange={handlePickupDate}/>
                         </label>
                         <label class="field">
-                            <span class="field__label">Return</span>
-                            <input type="datetime-local" class="field__input" value={dropoff} data-field="dropoff"
-                                   onchange={handleField}/>
+                            <span class="field__label">Return date</span>
+                            <input type="date" class="field__input" value={returnDate} min={minReturnDate}
+                                   data-field="returnDate" onchange={handleField}/>
                         </label>
                         <div class="field field--seats">
                             <span class="field__label">Seats needed</span>
@@ -43,6 +43,27 @@
                                         aria-label="More seats">+</button>
                             </div>
                         </div>
+                    </div>
+                    <div class="times">
+                        <label class="check">
+                            <input type="checkbox" checked={showTimes} onchange={handleToggleTimes}/>
+                            <span>Set pick-up and return times</span>
+                        </label>
+                        <template lwc:if={showTimes}>
+                            <label class="field field--time">
+                                <span class="field__label">Pick-up time</span>
+                                <input type="time" class="field__input" value={pickupTime} step="900"
+                                       data-field="pickupTime" onchange={handleField}/>
+                            </label>
+                            <label class="field field--time">
+                                <span class="field__label">Return time</span>
+                                <input type="time" class="field__input" value={returnTime} step="900"
+                                       data-field="returnTime" onchange={handleField}/>
+                            </label>
+                        </template>
+                        <template lwc:else>
+                            <span class="times__hint">{defaultTimesHint}</span>
+                        </template>
                     </div>
                     <div class="search__row search__row--chips">
                         <span class="field__label">Vehicle type</span>

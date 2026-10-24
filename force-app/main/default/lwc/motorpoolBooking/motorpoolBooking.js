@@ -7,26 +7,29 @@ const TYPES = ['Any', 'Sedan', 'SUV', 'Pickup', 'Van', 'Electric or hybrid'];
 const TYPE_LABELS = { Any: 'Any type', 'Electric or hybrid': 'Electric / hybrid' };
 
 const pad = (n) => String(n).padStart(2, '0');
-const toLocalInput = (d) =>
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dayTime = (iso) =>
     new Intl.DateTimeFormat('en-GB', {
         weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
     }).format(new Date(iso));
 
-function defaultWindow() {
+const toDateInput = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const DEFAULT_PICKUP_TIME = '09:00';
+const DEFAULT_RETURN_TIME = '17:00';
+
+function defaultDates() {
     const start = new Date();
     start.setDate(start.getDate() + 3);
-    start.setHours(9, 0, 0, 0);
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
-    end.setHours(17, 0, 0, 0);
-    return { start: toLocalInput(start), end: toLocalInput(end) };
+    return { pickupDate: toDateInput(start), returnDate: toDateInput(end) };
 }
 
 export default class MotorpoolBooking extends LightningElement {
-    pickup = defaultWindow().start;
-    dropoff = defaultWindow().end;
+    pickupDate = defaultDates().pickupDate;
+    returnDate = defaultDates().returnDate;
+    pickupTime = DEFAULT_PICKUP_TIME;
+    returnTime = DEFAULT_RETURN_TIME;
+    showTimes = false;
     seats = 2;
     vehicleType = 'Any';
 
@@ -43,6 +46,23 @@ export default class MotorpoolBooking extends LightningElement {
     }
 
     // ---------- search form ----------
+    /** Local date-time strings ("YYYY-MM-DDTHH:mm") built from the date fields and the (default or chosen) times. */
+    get pickup() {
+        return `${this.pickupDate}T${this.pickupTime || DEFAULT_PICKUP_TIME}`;
+    }
+
+    get dropoff() {
+        return `${this.returnDate}T${this.returnTime || DEFAULT_RETURN_TIME}`;
+    }
+
+    get minPickupDate() {
+        return toDateInput(new Date());
+    }
+
+    get minReturnDate() {
+        return this.pickupDate || this.minPickupDate;
+    }
+
     get typeChips() {
         return TYPES.map((t) => ({
             value: t,
@@ -58,6 +78,45 @@ export default class MotorpoolBooking extends LightningElement {
         this.error = undefined;
     }
 
+    /** After a pick-up date is chosen, make sure the return is not before it and move straight to the return date. */
+    handlePickupDate(event) {
+        this.pickupDate = event.target.value;
+        this.error = undefined;
+        if (!this.pickupDate) {
+            return;
+        }
+        if (!this.returnDate || this.returnDate < this.pickupDate) {
+            const next = new Date(`${this.pickupDate}T12:00`);
+            next.setDate(next.getDate() + 1);
+            this.returnDate = toDateInput(next);
+        }
+        // Let the new value render, then open the return date picker (falls back to plain focus).
+        Promise.resolve().then(() => {
+            const ret = this.template.querySelector('input[data-field="returnDate"]');
+            if (!ret) {
+                return;
+            }
+            ret.focus();
+            try {
+                ret.showPicker();
+            } catch (e) {
+                // showPicker needs a user gesture in some browsers; focus is enough.
+            }
+        });
+    }
+
+    handleToggleTimes(event) {
+        this.showTimes = event.target.checked;
+        if (!this.showTimes) {
+            this.pickupTime = DEFAULT_PICKUP_TIME;
+            this.returnTime = DEFAULT_RETURN_TIME;
+        }
+    }
+
+    get defaultTimesHint() {
+        return `Otherwise ${DEFAULT_PICKUP_TIME} pick-up, ${DEFAULT_RETURN_TIME} return.`;
+    }
+
     handleSeats(event) {
         const delta = Number(event.currentTarget.dataset.delta);
         this.seats = Math.max(1, Math.min(9, this.seats + delta));
@@ -68,8 +127,8 @@ export default class MotorpoolBooking extends LightningElement {
     }
 
     async handleSearch() {
-        if (!this.pickup || !this.dropoff) {
-            this.error = 'Please choose pick-up and return times.';
+        if (!this.pickupDate || !this.returnDate) {
+            this.error = 'Please choose a pick-up and a return date.';
             return;
         }
         const start = new Date(this.pickup);
@@ -236,9 +295,12 @@ export default class MotorpoolBooking extends LightningElement {
     }
 
     handleReset() {
-        const w = defaultWindow();
-        this.pickup = w.start;
-        this.dropoff = w.end;
+        const w = defaultDates();
+        this.pickupDate = w.pickupDate;
+        this.returnDate = w.returnDate;
+        this.pickupTime = DEFAULT_PICKUP_TIME;
+        this.returnTime = DEFAULT_RETURN_TIME;
+        this.showTimes = false;
         this.seats = 2;
         this.vehicleType = 'Any';
         this.form = { firstName: '', lastName: '', email: '', phone: '' };
