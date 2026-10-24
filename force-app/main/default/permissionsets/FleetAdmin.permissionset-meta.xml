@@ -130,6 +130,10 @@
         <tab>Branch_Assignment__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
+    <tabSettings>
+        <tab>Fleet_Map_Explorer</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <objectPermissions>
         <object>Agreement__c</object>
         <allowCreate>true</allowCreate>

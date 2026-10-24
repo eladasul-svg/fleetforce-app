@@ -31,6 +31,7 @@
     <tabs>Driver_Qualification__c</tabs>
     <tabs>Fleet_Asset__c</tabs>
     <tabs>Fleet_Branch__c</tabs>
+    <tabs>Fleet_Map_Explorer</tabs>
     <tabs>Fleet_Schedule__c</tabs>
     <tabs>Fuel_Card__c</tabs>
     <tabs>Fuel_Log__c</tabs>
@@ -90,6 +91,9 @@
         </mappings>
         <mappings>
             <tab>Fleet_Branch__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Fleet_Map_Explorer</tab>
         </mappings>
         <mappings>
             <tab>Fleet_Schedule__c</tab>

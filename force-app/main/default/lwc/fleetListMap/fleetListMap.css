@@ -1,32 +1,58 @@
+.vehicle-row {
+    background: #fff;
+    cursor: pointer;
+}
+
 .vehicle-row:hover {
-    background: #eef1f6 !important;
+    background: #eef1f6;
+}
+
+.vehicle-row--selected,
+.vehicle-row--selected:hover {
+    background: #e6f0fb;
+    box-shadow: inset 3px 0 0 #0070d2;
+}
+
+.map-wrap {
+    position: relative;
+}
+
+.map-card {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 2.25rem;
+    width: min(360px, calc(100% - 1.5rem));
+    padding: 0.6rem 0.75rem;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 2;
 }
 
 .map-container {
-    height: 500px;
+    align-items: flex-start;
+}
+
+/* lightning-map draws itself at 16:9 of its own width and ignores any height set on it, so leave its height alone
+   and size the list column to match it (syncListHeight in the JS). */
+lightning-map {
+    display: block;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+}
+
+.sidebar__header {
+    flex: 0 0 auto;
 }
 
 .scroll-container {
+    overflow-x: hidden;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
-    height: calc(100% - 40px);
 }
 
-.badge-red {
-    background-color: #C23934 !important;
-    color: white !important;
-}
-
-.badge-green {
-    background-color: #04844B !important;
-    color: white !important;
-}
-
-.badge-gray {
-    background-color: #706E6B !important;
-    color: white !important;
-}
-
-.badge-amber {
-    background-color: #E07A12 !important;
-    color: white !important;
-}

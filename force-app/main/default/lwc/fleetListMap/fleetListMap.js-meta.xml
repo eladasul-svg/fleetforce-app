@@ -9,4 +9,10 @@
         <target>lightning__AppPage</target>
         <target>lightning__RecordPage</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage">
+            <property name="fullPage" type="Boolean" default="false" label="Full-page layout"
+                description="Hides the 'open large map' button. Turn on when the map is the only thing on the page."/>
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>

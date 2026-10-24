@@ -1,0 +1,69 @@
+<template>
+    <template lwc:if={isHero}>
+        <article class="card slds-card">
+            <div class="card__art">
+                <svg viewBox={viewBox} role="img" aria-label={iconTitle} class="art">
+                    <ellipse cx="100" cy={shadowY} rx="86" ry="4" class="shadow"></ellipse>
+                    <path d={underPath} class="under"></path>
+                    <path d={bodyPath} fill={paint} class={bodyClass}></path>
+                    <path d={glassPath} class="glass"></path>
+                    <template for:each={details} for:item="d">
+                        <path key={d.key} d={d.d} class={d.cls}></path>
+                    </template>
+                    <template for:each={wheelParts} for:item="w">
+                        <circle key={w.key} cx={w.cx} cy={w.cy} r={w.r} class={w.cls}></circle>
+                    </template>
+                </svg>
+                <template lwc:if={badge}>
+                    <span class="badge" style={badge.style}>{badge.label}</span>
+                </template>
+            </div>
+            <div class="card__info">
+                <template lwc:if={hasCard}>
+                    <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                        <h3 class="title slds-truncate" title={card.name}>{card.name}</h3>
+                        <template lwc:if={card.licensePlate}>
+                            <span class="plate">{card.licensePlate}</span>
+                        </template>
+                    </div>
+                    <template lwc:if={mpgHeadline}>
+                        <div class="mpg">
+                            <span class="mpg__value">{mpgHeadline.value}</span>
+                            <span class="mpg__unit">{mpgHeadline.unit}</span>
+                            <span class="mpg__detail">{mpgHeadline.detail}</span>
+                        </div>
+                    </template>
+                    <dl class="facts">
+                        <template for:each={facts} for:item="f">
+                            <div key={f.key} class="facts__item">
+                                <dt>{f.label}</dt>
+                                <dd>{f.value}</dd>
+                            </div>
+                        </template>
+                    </dl>
+                </template>
+                <template lwc:elseif={error}>
+                    <p class="slds-text-color_weak">Vehicle details are unavailable.</p>
+                </template>
+            </div>
+        </article>
+    </template>
+    <template lwc:else>
+        <span class="icon" style={iconWidthStyle} title={iconTitle}>
+            <svg viewBox={viewBox} role="img" aria-label={iconTitle}>
+                <path d={underPath} class="under"></path>
+                <path d={bodyPath} fill={paint} class={bodyClass}></path>
+                <path d={glassPath} class="glass"></path>
+                <template for:each={details} for:item="d">
+                    <path key={d.key} d={d.d} class={d.cls}></path>
+                </template>
+                <template for:each={wheelParts} for:item="w">
+                    <circle key={w.key} cx={w.cx} cy={w.cy} r={w.r} class={w.cls}></circle>
+                </template>
+            </svg>
+            <template lwc:if={badge}>
+                <span class="icon__dot" style={badge.style}></span>
+            </template>
+        </span>
+    </template>
+</template>

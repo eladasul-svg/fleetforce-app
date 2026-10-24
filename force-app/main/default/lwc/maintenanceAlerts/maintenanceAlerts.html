@@ -4,23 +4,18 @@
             <template if:true={hasAlerts}>
                 <ul class="slds-has-dividers_bottom-space">
                     <template for:each={alerts} for:item="alert">
-                        <li class="slds-item" key={alert.Id} data-id={alert.Id} onclick={handleAlertClick} style="cursor: pointer;">
-                            <lightning-tile label={alert.fleetforce__Fleet_Asset__r.Name}>
-                                <dl class="slds-dl_horizontal">
-                                    <dt class="slds-dl_horizontal__label">
-                                        <p class="slds-truncate" title="Priority">Priority:</p>
-                                    </dt>
-                                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
-                                        <p class="slds-truncate slds-text-color_error" title={alert.fleetforce__Priority__c}>{alert.fleetforce__Priority__c}</p>
-                                    </dd>
-                                    <dt class="slds-dl_horizontal__label">
-                                        <p class="slds-truncate" title="Description">Issue:</p>
-                                    </dt>
-                                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
-                                        <p class="slds-truncate" title={alert.fleetforce__Description__c}>{alert.fleetforce__Description__c}</p>
-                                    </dd>
-                                </dl>
-                            </lightning-tile>
+                        <li class="slds-item slds-p-vertical_small" key={alert.Id} data-id={alert.Id} onclick={handleAlertClick} style="cursor: pointer;">
+                            <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small">
+                                <c-fleet-vehicle-image variant="icon" size="44" class="slds-m-right_small"
+                                    body-type={alert.fleetforce__Fleet_Asset__r.fleetforce__Body_Type__c}
+                                    color={alert.fleetforce__Fleet_Asset__r.fleetforce__Color__c}
+                                    fuel-type={alert.fleetforce__Fleet_Asset__r.fleetforce__Fuel_Type__c}>
+                                </c-fleet-vehicle-image>
+                                <a class="slds-text-heading_small slds-truncate" title={alert.fleetforce__Fleet_Asset__r.Name}>{alert.fleetforce__Fleet_Asset__r.Name}</a>
+                                <span class={alert.badgeClass}>{alert.fleetforce__Priority__c}</span>
+                            </div>
+                            <p class="slds-text-title slds-m-bottom_xx-small">{alert.fleetforce__Summary__c}</p>
+                            <p class="slds-text-body_regular slds-text-color_weak description">{alert.fleetforce__Description__c}</p>
                         </li>
                     </template>
                 </ul>

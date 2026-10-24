@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vehicle_Icon_Style__c</fullName>
+    <defaultValue>&quot;silhouette&quot;</defaultValue>
+    <description>Which silhouette set the vehicle card and icons use: silhouette, flat, classic, modern or futuristic. Anything else is treated as silhouette.</description>
+    <externalId>false</externalId>
+    <label>Vehicle Icon Style</label>
+    <length>20</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Ford F-150 Lariat 4WD</label>
+    <protected>false</protected>
+    <values>
+        <field>Model_Key__c</field>
+        <value xsi:type="xsd:string">Ford F-150 Lariat 4WD</value>
+    </values>
+    <values>
+        <field>MPG_City__c</field>
+        <value xsi:type="xsd:double">17</value>
+    </values>
+    <values>
+        <field>MPG_Highway__c</field>
+        <value xsi:type="xsd:double">23</value>
+    </values>
+    <values>
+        <field>MPG_Combined__c</field>
+        <value xsi:type="xsd:double">20</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">EPA fueleconomy.gov: 2023 Ford F150 Pickup 4WD, vehicle id 46169</value>
+    </values>
+</CustomMetadata>

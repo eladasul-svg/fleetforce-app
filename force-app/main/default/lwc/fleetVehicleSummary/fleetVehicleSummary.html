@@ -1,0 +1,31 @@
+<template>
+    <div class="row" if:true={rec}>
+        <c-fleet-vehicle-image class="row__icon" variant="icon" size={iconSize}
+            body-type={rec.bodyType} color={rec.paintColor} fuel-type={rec.fuelType}>
+        </c-fleet-vehicle-image>
+        <div class="row__body">
+            <p class="slds-text-weight_bold slds-truncate" title={rec.Name}>{rec.Name}</p>
+            <p class="slds-text-body_small slds-truncate">
+                <span class="slds-text-color_weak">License:</span> {rec.licensePlate}
+            </p>
+            <div class="row__meta slds-text-body_small">
+                <span class={rec.badgeClass}>{rec.statusText}</span>
+                <span class="meta">
+                    <lightning-icon icon-name={rec.energyIcon} size="xx-small" alternative-text={rec.energyLabel}
+                        class="slds-m-right_xx-small"></lightning-icon>{rec.energyLevel}%
+                </span>
+                <span class="meta">
+                    <lightning-icon icon-name="custom:custom80" size="xx-small" alternative-text="Odometer"
+                        class="slds-m-right_xx-small"></lightning-icon>{rec.formattedOdometer} mi
+                </span>
+            </div>
+        </div>
+        <div class="row__actions" if:true={hasActions}>
+            <lightning-button-icon if:true={showOpen} icon-name="utility:chevronright" variant="border-filled"
+                size="small" alternative-text="Open vehicle record" title="Open vehicle record"
+                onclick={handleOpen}></lightning-button-icon>
+            <lightning-button-icon if:true={showClose} icon-name="utility:close" variant="bare" size="small"
+                alternative-text="Close" title="Close" onclick={handleClose}></lightning-button-icon>
+        </div>
+    </div>
+</template>

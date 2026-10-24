@@ -1,7 +1,12 @@
 <template>
     <lightning-card title="Fleet Map Explorer" icon-name="standard:location">
 
-        <div slot="actions" class="slds-p-right_small">
+        <div slot="actions" class="slds-p-right_small slds-grid slds-grid_vertical-align-center">
+            <template lwc:if={showOpenLarge}>
+                <lightning-button-icon icon-name="utility:new_window" variant="border-filled"
+                    alternative-text="Open large map" title="Open large map" class="slds-m-right_x-small"
+                    onclick={handleOpenLarge}></lightning-button-icon>
+            </template>
             <lightning-button-group>
                 <template for:each={filters} for:item="f">
                     <lightning-button
@@ -18,64 +23,42 @@
         <div class="slds-grid slds-wrap map-container slds-border_top">
 
             <!-- SIDEBAR -->
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-grow-none slds-border_right slds-theme_shade"
-                 style="height: 100%;">
+            <div class="sidebar slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-grow-none slds-border_right slds-theme_shade">
 
-                <div class="slds-p-around_small slds-border_bottom slds-theme_default">
+                <div class="sidebar__header slds-p-around_small slds-border_bottom slds-theme_default">
                     <h2 class="slds-text-heading_small">Vehicles ({vehicleCount})</h2>
                 </div>
 
-                <div class="scroll-container slds-scrollable_y">
-                    <template for:each={rawRecords} for:item="rec">
+                <div class="scroll-container">
+                    <template for:each={rows} for:item="rec">
                         <div key={rec.Id}
                              data-id={rec.Id}
-                             onmouseenter={handleVehicleHover}
                              onclick={handleVehicleClick}
-                             class="slds-p-around_small slds-border_bottom vehicle-row slds-theme_default"
-                             style="cursor: pointer;">
-
-                            <div class="slds-grid slds-grid_vertical-align-center">
-                                <div class="slds-col slds-grow">
-                                    <p class="slds-text-weight_bold slds-truncate" title={rec.Name}>
-                                        {rec.Name}
-                                    </p>
-                                    <div class="slds-grid slds-wrap slds-m-top_xx-small slds-text-body_small">
-                                        <div class="slds-col slds-size_1-of-1 slds-truncate">
-                                            <span class="slds-text-color_weak">License:</span> {rec.licensePlate}
-                                        </div>
-                                        <div class="slds-col slds-size_1-of-2 slds-m-top_xx-small">
-                                            <lightning-icon icon-name={rec.energyIcon} size="xx-small"
-                                                alternative-text={rec.energyLabel}
-                                                class="slds-m-right_xx-small">
-                                            </lightning-icon>
-                                            {rec.energyLevel}%
-                                        </div>
-                                        <div class="slds-col slds-size_1-of-2 slds-m-top_xx-small">
-                                            <lightning-icon icon-name="custom:custom80" size="xx-small"
-                                                alternative-text="Odometer"
-                                                class="slds-m-right_xx-small">
-                                            </lightning-icon>
-                                            {rec.formattedOdometer} mi
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="slds-col slds-grow-none slds-m-left_small">
-                                    <span class={rec.badgeClass}>{rec.statusText}</span>
-                                </div>
-                            </div>
+                             class={rec.rowClass}>
+                            <c-fleet-vehicle-summary rec={rec}></c-fleet-vehicle-summary>
                         </div>
                     </template>
                 </div>
             </div>
 
             <!-- MAP -->
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3" style="height: 100%;">
-                <lightning-map
-                    map-markers={mapMarkers}
-                    selected-marker-value={selectedMarkerValue}
-                    list-view="hidden"
-                    onmarkerselect={handleMarkerSelect}>
-                </lightning-map>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                <div class="map-wrap">
+                    <lightning-map
+                        map-markers={mapMarkers}
+                        center={mapCenter}
+                        zoom-level={zoomLevel}
+                        list-view="hidden"
+                        onmarkerselect={handleMarkerSelect}>
+                    </lightning-map>
+                    <template lwc:if={selectedRec}>
+                        <div class="map-card">
+                            <c-fleet-vehicle-summary rec={selectedRec} show-open show-close
+                                onopen={handleOpenRecord} onclose={handleCloseCard}>
+                            </c-fleet-vehicle-summary>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 

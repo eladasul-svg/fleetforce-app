@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Model_Key__c</fullName>
+    <description>Vehicle name without the model year and any trailing parenthetical, e.g. "Ford F-150 Lariat 4WD". Matched to Fleet Asset Name.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Model Key</label>
+    <length>100</length>
+    <required>true</required>
+    <unique>false</unique>
+    <type>Text</type>
+</CustomField>

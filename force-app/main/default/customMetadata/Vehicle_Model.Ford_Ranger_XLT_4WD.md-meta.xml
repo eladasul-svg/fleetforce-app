@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Ford Ranger XLT 4WD</label>
+    <protected>false</protected>
+    <values>
+        <field>Model_Key__c</field>
+        <value xsi:type="xsd:string">Ford Ranger XLT 4WD</value>
+    </values>
+    <values>
+        <field>MPG_City__c</field>
+        <value xsi:type="xsd:double">20</value>
+    </values>
+    <values>
+        <field>MPG_Highway__c</field>
+        <value xsi:type="xsd:double">24</value>
+    </values>
+    <values>
+        <field>MPG_Combined__c</field>
+        <value xsi:type="xsd:double">22</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">EPA fueleconomy.gov: 2024 Ford Ranger 4WD, vehicle id 47370</value>
+    </values>
+</CustomMetadata>

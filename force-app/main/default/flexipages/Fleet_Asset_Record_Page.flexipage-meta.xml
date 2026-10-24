@@ -105,6 +105,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>fleetVehicleImage</componentName>
+                <componentInstanceProperties>
+                    <name>variant</name>
+                    <value>hero</value>
+                </componentInstanceProperties>
+                <identifier>fleetforce_fleetVehicleImage</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>label</name>
                     <value>Tabs</value>

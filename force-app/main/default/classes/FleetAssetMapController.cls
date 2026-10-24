@@ -9,6 +9,8 @@ public with sharing class FleetAssetMapController {
                        fleetforce__License_Plate__c,
                        fleetforce__Fuel_Energy_Level__c,
                        fleetforce__Fuel_Type__c,
+                       fleetforce__Body_Type__c,
+                       fleetforce__Color__c,
                        fleetforce__Odometer__c,
                        fleetforce__Last_Location__Latitude__s,
                        fleetforce__Last_Location__Longitude__s
@@ -24,6 +26,8 @@ public with sharing class FleetAssetMapController {
                        fleetforce__License_Plate__c,
                        fleetforce__Fuel_Energy_Level__c,
                        fleetforce__Fuel_Type__c,
+                       fleetforce__Body_Type__c,
+                       fleetforce__Color__c,
                        fleetforce__Odometer__c,
                        fleetforce__Last_Location__Latitude__s,
                        fleetforce__Last_Location__Longitude__s
@@ -43,6 +47,8 @@ public with sharing class FleetAssetMapController {
                        fleetforce__License_Plate__c,
                        fleetforce__Fuel_Energy_Level__c,
                        fleetforce__Fuel_Type__c,
+                       fleetforce__Body_Type__c,
+                       fleetforce__Color__c,
                        fleetforce__Odometer__c,
                        fleetforce__Last_Location__Latitude__s,
                        fleetforce__Last_Location__Longitude__s
@@ -63,6 +69,8 @@ public with sharing class FleetAssetMapController {
                        fleetforce__License_Plate__c,
                        fleetforce__Fuel_Energy_Level__c,
                        fleetforce__Fuel_Type__c,
+                       fleetforce__Body_Type__c,
+                       fleetforce__Color__c,
                        fleetforce__Odometer__c,
                        fleetforce__Last_Location__Latitude__s,
                        fleetforce__Last_Location__Longitude__s

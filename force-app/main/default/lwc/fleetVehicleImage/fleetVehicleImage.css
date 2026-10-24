@@ -1,0 +1,55 @@
+:host { display: block; }
+
+.card { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 1.25rem; }
+.card__art { position: relative; flex: 0 0 240px; max-width: 45%; }
+.art { width: 100%; height: auto; display: block; }
+.shadow { fill: rgba(15, 23, 42, 0.12); }
+.body { stroke: #334155; stroke-width: 1.5; stroke-linejoin: round; }
+.glass { fill: #dbeafe; stroke: #334155; stroke-width: 1; stroke-linejoin: round; opacity: 0.95; }
+.tire { fill: #1f2937; }
+.hub { fill: #cbd5e1; }
+.under { fill: #dbeafe; }
+.body--traced { fill-rule: evenodd; stroke-width: 0.6; }
+.rim { fill: #e5e7eb; }
+.hubdark { fill: #374151; }
+.whitewall { fill: #f8fafc; }
+.alloy { fill: #9ca3af; }
+.disc { fill: #0f172a; stroke: #22d3ee; stroke-width: 1.2; }
+.glow { fill: #22d3ee; }
+.detail--light { fill: #fde68a; stroke: #92400e; stroke-width: 0.6; }
+.detail--tail { fill: #ef4444; stroke: #7f1d1d; stroke-width: 0.5; }
+.detail--chrome { fill: #e5e7eb; stroke: #6b7280; stroke-width: 0.8; }
+.detail--trim { fill: none; stroke: #334155; stroke-width: 0.9; }
+.detail--cyan { fill: #22d3ee; stroke: none; }
+
+.badge {
+    position: absolute; top: 0; right: 0; color: #fff; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 999px;
+}
+
+.card__info { flex: 1 1 auto; min-width: 0; }
+.title { margin: 0 0.75rem 0 0; font-size: 1.15rem; font-weight: 600; color: #0f172a; }
+.plate {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.08em; padding: 0.1rem 0.5rem; border: 1.5px solid #334155; border-radius: 4px; color: #0f172a;
+}
+
+.mpg { margin-top: 0.6rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.4rem; }
+.mpg__value { font-size: 2rem; font-weight: 700; line-height: 1; color: #0f766e; }
+.mpg__unit { font-size: 0.8rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
+.mpg__detail { font-size: 0.85rem; color: #64748b; margin-left: 0.4rem; }
+
+.facts { margin: 0.75rem 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
+.facts__item dt { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+.facts__item dd { margin: 0; font-size: 0.95rem; font-weight: 600; color: #0f172a; }
+
+.icon { position: relative; display: inline-block; vertical-align: middle; line-height: 0; }
+.icon svg { width: 100%; height: auto; }
+.icon .body { stroke-width: 3; }
+.icon .glass { stroke-width: 2; }
+.icon__dot { position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; }
+
+@media (max-width: 520px) {
+    .card { flex-direction: column; align-items: stretch; }
+    .card__art { max-width: 100%; flex-basis: auto; }
+}

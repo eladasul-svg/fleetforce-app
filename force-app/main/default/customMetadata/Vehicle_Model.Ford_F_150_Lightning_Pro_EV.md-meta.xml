@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Ford F-150 Lightning Pro EV</label>
+    <protected>false</protected>
+    <values>
+        <field>Model_Key__c</field>
+        <value xsi:type="xsd:string">Ford F-150 Lightning Pro EV</value>
+    </values>
+    <values>
+        <field>MPG_City__c</field>
+        <value xsi:type="xsd:double">78</value>
+    </values>
+    <values>
+        <field>MPG_Highway__c</field>
+        <value xsi:type="xsd:double">63</value>
+    </values>
+    <values>
+        <field>MPG_Combined__c</field>
+        <value xsi:type="xsd:double">70</value>
+    </values>
+    <values>
+        <field>EV_Range_Miles__c</field>
+        <value xsi:type="xsd:double">320</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">EPA fueleconomy.gov: 2024 Ford F-150 Lightning PRO 4WD Extended Range, vehicle id 47820</value>
+    </values>
+</CustomMetadata>

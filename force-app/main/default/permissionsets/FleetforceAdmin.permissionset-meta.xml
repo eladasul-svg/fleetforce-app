@@ -4,12 +4,20 @@
     <description>Full access to all Fleetforce objects, fields, and tabs</description>
     <hasActivationRequired>false</hasActivationRequired>
     <license>Salesforce</license>
+    <applicationVisibilities>
+        <application>FleetForce_Admin</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <classAccesses>
         <apexClass>ChangePasswordController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>FleetKpiController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>FleetVehicleController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -50,6 +58,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>VinDecoderAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>FleetDisplaySettingsController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <flowAccesses>
@@ -1655,6 +1667,11 @@
         <field>Vendor_Rate_Card__c.Vendor__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Vehicle_Icon_Style__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>true</allowDelete>
@@ -1934,6 +1951,15 @@
         <object>Vendor_Rate_Card__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Fleet_Display_Setting__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
     <tabSettings>
         <tab>Agreement_Line__c</tab>
         <visibility>Visible</visibility>
@@ -2048,6 +2074,14 @@
     </tabSettings>
     <tabSettings>
         <tab>Vendor_Rate_Card__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_Settings</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleet_Map_Explorer</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

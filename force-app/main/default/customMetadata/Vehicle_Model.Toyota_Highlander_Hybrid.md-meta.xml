@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Toyota Highlander Hybrid</label>
+    <protected>false</protected>
+    <values>
+        <field>Model_Key__c</field>
+        <value xsi:type="xsd:string">Toyota Highlander Hybrid</value>
+    </values>
+    <values>
+        <field>MPG_City__c</field>
+        <value xsi:type="xsd:double">36</value>
+    </values>
+    <values>
+        <field>MPG_Highway__c</field>
+        <value xsi:type="xsd:double">35</value>
+    </values>
+    <values>
+        <field>MPG_Combined__c</field>
+        <value xsi:type="xsd:double">36</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">EPA fueleconomy.gov: 2023 Toyota Highlander Hybrid, vehicle id 46145</value>
+    </values>
+</CustomMetadata>

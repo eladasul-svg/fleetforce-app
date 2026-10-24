@@ -1,0 +1,43 @@
+<template>
+    <lightning-card title="FleetForce Settings" icon-name="standard:settings">
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+            <h2 class="slds-text-heading_small">Vehicle icon style</h2>
+            <p class="slds-text-color_weak slds-m-bottom_small">
+                Choose how vehicles are drawn on cards, lists and alerts. This applies to everyone in the org.
+            </p>
+
+            <div class="tiles" role="radiogroup" aria-label="Vehicle icon style">
+                <template for:each={options} for:item="o">
+                    <div key={o.value} class={o.tileClass} role="radio" tabindex="0" aria-checked={o.ariaChecked}
+                         data-value={o.value} onclick={handleSelect} onkeydown={handleKey}>
+                        <div class="tile__head">
+                            <span class="tile__name">{o.label}</span>
+                            <template lwc:if={o.isSelected}>
+                                <lightning-icon icon-name="utility:check" size="x-small" variant="success"
+                                    alternative-text="Selected"></lightning-icon>
+                            </template>
+                        </div>
+                        <p class="tile__blurb">{o.blurb}</p>
+                        <div class="tile__samples">
+                            <template for:each={o.samples} for:item="s">
+                                <c-fleet-vehicle-image key={s.key} variant="icon" size="96" icon-style={o.value}
+                                    body-type={s.bodyType} color={s.color} fuel-type={s.fuelType}>
+                                </c-fleet-vehicle-image>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <template lwc:if={error}>
+                <p class="slds-text-color_error slds-m-top_small">{error}</p>
+            </template>
+
+            <div class="slds-m-top_medium slds-grid slds-grid_align-end">
+                <lightning-button label="Cancel" class="slds-m-right_x-small" onclick={handleCancel}
+                    disabled={saveDisabled}></lightning-button>
+                <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={saveDisabled}></lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>

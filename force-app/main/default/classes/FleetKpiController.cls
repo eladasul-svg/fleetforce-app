@@ -80,7 +80,11 @@ public with sharing class FleetKpiController {
         return [
             SELECT Id, Name, 
                    fleetforce__Fleet_Asset__r.Name, 
+                   fleetforce__Fleet_Asset__r.fleetforce__Body_Type__c,
+                   fleetforce__Fleet_Asset__r.fleetforce__Color__c,
+                   fleetforce__Fleet_Asset__r.fleetforce__Fuel_Type__c,
                    fleetforce__Priority__c, 
+                   fleetforce__Summary__c,
                    fleetforce__Description__c, 
                    fleetforce__Status__c
             FROM fleetforce__Service_Ticket__c
