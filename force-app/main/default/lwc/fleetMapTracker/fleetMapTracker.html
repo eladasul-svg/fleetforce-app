@@ -54,8 +54,16 @@
                     </div>
                 </div>
                 <div class="mapcol">
-                    <lightning-map map-markers={mapMarkers} center={mapCenter} zoom-level={zoomLevel}
-                        list-view="hidden" onmarkerselect={handleMarkerSelect}></lightning-map>
+                    <div class="mapstack">
+                        <lightning-map class={mapAClass} map-markers={markersA} center={mapCenter} zoom-level={zoomLevel}
+                            options={mapOptions} list-view="hidden" onmarkerselect={handleMarkerSelect}></lightning-map>
+                        <lightning-map class={mapBClass} map-markers={markersB} center={mapCenter} zoom-level={zoomLevel}
+                            options={mapOptions} list-view="hidden" onmarkerselect={handleMarkerSelect}></lightning-map>
+                        <div class="zoom">
+                            <button type="button" class="zoom__btn" onclick={handleZoomIn} aria-label="Zoom in">+</button>
+                            <button type="button" class="zoom__btn" onclick={handleZoomOut} aria-label="Zoom out">−</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </template>

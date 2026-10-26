@@ -15,6 +15,7 @@ const TICK_MS = 2000;      // how often the simulation advances
 const TIME_SCALE = 8;      // simulated seconds per real second, so movement is visible at city zoom
 const SIM_COUNT = 8;
 const FOCUS_ZOOM = 15;
+const HIDDEN_DRAW_MS = 950; // how long the hidden map gets to finish drawing (and dropping) its pins before it is faded in
 const MOVING_COLOR = '#22A77C';
 const IDLE_COLOR = '#E07A12';
 const SELECTED_COLOR = '#0070D2';
@@ -84,8 +85,13 @@ export default class FleetMapTracker extends LightningElement {
     zoomLevel;
     error;
     started = false;
+    markersA = [];
+    markersB = [];
+    front = 'a';   // which of the two stacked maps is visible
+    framed = false;
 
     _tickTimer;
+    _fadeTimer;
     _clockTimer;
     _resizeObserver;
 
@@ -120,6 +126,7 @@ export default class FleetMapTracker extends LightningElement {
     disconnectedCallback() {
         clearInterval(this._tickTimer);
         clearInterval(this._clockTimer);
+        clearTimeout(this._fadeTimer);
         if (this._resizeObserver) {
             this._resizeObserver.disconnect();
             this._resizeObserver = undefined;
@@ -168,6 +175,7 @@ export default class FleetMapTracker extends LightningElement {
             return v;
         });
         this.started = true;
+        this.pushFrame(true);
         this._tickTimer = setInterval(() => this.tick(), TICK_MS);
         this._clockTimer = setInterval(() => {
             this.now = Date.now();
@@ -229,6 +237,7 @@ export default class FleetMapTracker extends LightningElement {
                 this.mapCenter = { location: { Latitude: sel.lat, Longitude: sel.lon } };
             }
         }
+        this.pushFrame();
     }
 
     // ---------- derived view data ----------
@@ -275,7 +284,7 @@ export default class FleetMapTracker extends LightningElement {
      * Top-down car glyph (nose up, 24 x 24 box, windscreen and rear window cut out), rotated to the direction of travel.
      * Moving cars are green, idle ones amber, the followed one blue and larger.
      */
-    get mapMarkers() {
+    buildMarkers() {
         return this.sims.map((v) => {
             const selected = v.id === this.selectedId;
             return {
@@ -293,6 +302,62 @@ export default class FleetMapTracker extends LightningElement {
                 }
             };
         });
+    }
+
+    /**
+     * lightning-map redraws every marker (with a "drop" animation) whenever the marker list changes, which looks jumpy
+     * every couple of seconds. So two maps are stacked: the new frame is drawn on the hidden one, and only once its
+     * pins have settled is it faded in over the other. The viewer only ever sees a cross-fade between settled frames.
+     */
+    pushFrame(immediate = false) {
+        const markers = this.buildMarkers();
+        if (!this.framed || immediate) {
+            this.markersA = markers;
+            this.markersB = markers;
+            this.framed = true;
+            return;
+        }
+        const back = this.front === 'a' ? 'b' : 'a';
+        if (back === 'a') {
+            this.markersA = markers;
+        } else {
+            this.markersB = markers;
+        }
+        clearTimeout(this._fadeTimer);
+        this._fadeTimer = setTimeout(() => {
+            this.front = back;
+        }, HIDDEN_DRAW_MS);
+    }
+
+    get mapAClass() {
+        return `layer layer--a ${this.front === 'a' ? 'layer--front' : 'layer--back'}`;
+    }
+
+    get mapBClass() {
+        return `layer layer--b ${this.front === 'b' ? 'layer--front' : 'layer--back'}`;
+    }
+
+    /** The two stacked maps cannot mirror each other's manual panning, so the view is driven from here instead. */
+    get mapOptions() {
+        return {
+            draggable: false,
+            scrollwheel: false,
+            disableDoubleClickZoom: true,
+            gestureHandling: 'none',
+            keyboardShortcuts: false,
+            zoomControl: false,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false
+        };
+    }
+
+    handleZoomIn() {
+        this.zoomLevel = Math.min(19, (this.zoomLevel || 12) + 1);
+    }
+
+    handleZoomOut() {
+        this.zoomLevel = Math.max(3, (this.zoomLevel || 12) - 1);
     }
 
     get followingName() {
@@ -315,6 +380,7 @@ export default class FleetMapTracker extends LightningElement {
         } else {
             this.fitAll();
         }
+        this.pushFrame();
     }
 
     handleMarkerSelect(event) {
@@ -326,12 +392,14 @@ export default class FleetMapTracker extends LightningElement {
                 this.mapCenter = { location: { Latitude: v.lat, Longitude: v.lon } };
                 this.zoomLevel = FOCUS_ZOOM;
             }
+            this.pushFrame();
         }
     }
 
     handleShowAll() {
         this.selectedId = undefined;
         this.fitAll();
+        this.pushFrame();
     }
 
     // ---------- layout ----------
