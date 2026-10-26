@@ -18,6 +18,10 @@ const FOCUS_ZOOM = 15;
 const MOVING_COLOR = '#22A77C';
 const IDLE_COLOR = '#E07A12';
 const SELECTED_COLOR = '#0070D2';
+// outer body (clockwise), then the windscreen and rear window (counter-clockwise) so they show as holes
+const CAR_PATH = 'M12 1 C15.2 1 16.8 3.2 16.8 6.5 L16.8 17.5 C16.8 20.6 14.8 23 12 23 C9.2 23 7.2 20.6 7.2 17.5 L7.2 6.5 C7.2 3.2 8.8 1 12 1 Z '
+    + 'M9.1 6.6 L9.7 10 L14.3 10 L14.9 6.6 C13.9 5.9 10.1 5.9 9.1 6.6 Z '
+    + 'M9.5 16.2 L9.2 18.4 L14.8 18.4 L14.5 16.2 Z';
 const COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
 // ---------- geometry ----------
@@ -267,6 +271,10 @@ export default class FleetMapTracker extends LightningElement {
         });
     }
 
+    /**
+     * Top-down car glyph (nose up, 24 x 24 box, windscreen and rear window cut out), rotated to the direction of travel.
+     * Moving cars are green, idle ones amber, the followed one blue and larger.
+     */
     get mapMarkers() {
         return this.sims.map((v) => {
             const selected = v.id === this.selectedId;
@@ -274,13 +282,14 @@ export default class FleetMapTracker extends LightningElement {
                 location: { Latitude: v.lat, Longitude: v.lon },
                 value: v.id,
                 mapIcon: {
-                    path: 'M 12,2 C 8.134,2 5,5.134 5,9 c 0,5.25 7,13 7,13 0,0 7,-7.75 7,-13 0,-3.866,-3.134,-7,-7 z',
+                    path: CAR_PATH,
                     fillColor: selected ? SELECTED_COLOR : v.state === 'moving' ? MOVING_COLOR : IDLE_COLOR,
                     fillOpacity: 1,
-                    strokeColor: selected ? '#FFFFFF' : '#000000',
-                    strokeWeight: selected ? 2 : 1,
-                    scale: selected ? 2.2 : 1.5,
-                    anchor: { x: 12, y: 22 }
+                    strokeColor: '#FFFFFF',
+                    strokeWeight: 1.5,
+                    scale: selected ? 1.9 : 1.45,
+                    rotation: Math.round(v.heading),
+                    anchor: { x: 12, y: 12 }
                 }
             };
         });
