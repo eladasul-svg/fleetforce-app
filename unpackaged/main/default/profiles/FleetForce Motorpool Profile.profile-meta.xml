@@ -10,6 +10,10 @@
         <apexClass>FleetDisplaySettingsController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>DriverAppController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <custom>false</custom>
     <userLicense>Guest User License</userLicense>
 </Profile>

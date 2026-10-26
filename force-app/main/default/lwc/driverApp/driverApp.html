@@ -1,0 +1,363 @@
+<template>
+    <div class="app">
+        <!-- top bar -->
+        <header class="top">
+            <div class="brand">
+                <svg class="brand__symbol" viewBox="10 10 46 46" aria-hidden="true">
+                    <circle cx="18" cy="46" r="6" fill="none" stroke="#8CC8F2" stroke-width="4"></circle>
+                    <path d="M23 42 C40 40 24 22 40 21" fill="none" stroke="#8CC8F2" stroke-width="5" stroke-linecap="round"></path>
+                    <circle cx="46" cy="19" r="7.5" fill="#3FC795"></circle>
+                </svg>
+                <img class="brand__word" src={wordmarkUrl} alt="fleetforce"/>
+                <span class="brand__sub">Driver</span>
+            </div>
+            <button type="button" class="bell" onclick={handleBell} aria-label="Notifications">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0"></path>
+                </svg>
+                <template lwc:if={hasNotices}><span class="bell__badge">{noticeBadge}</span></template>
+            </button>
+        </header>
+
+        <div class="demo">
+            <span class="demo__label">Demo · viewing as</span>
+            <select class="demo__select" onchange={handleDriver} aria-label="Choose a driver">
+                <template for:each={driverOptions} for:item="d">
+                    <option key={d.value} value={d.value} selected={d.selected}>{d.label}</option>
+                </template>
+            </select>
+        </div>
+
+        <main class="body">
+            <template lwc:if={loading}>
+                <div class="state"><div class="spinner"></div><p>Loading your day…</p></div>
+            </template>
+            <template lwc:elseif={error}>
+                <div class="state"><p class="error">{error}</p></div>
+            </template>
+            <template lwc:elseif={ready}>
+
+                <!-- ================= HOME ================= -->
+                <template lwc:if={isHome}>
+                    <h1 class="hello">{greeting}</h1>
+
+                    <template lwc:if={onTrip}>
+                        <div class="trip">
+                            <span class="trip__dot"></span>
+                            <div><p class="trip__title">{tripBanner.title}</p><p class="trip__sub">{tripBanner.detail}</p></div>
+                        </div>
+                    </template>
+
+                    <template lwc:if={hasVehicle}>
+                        <section class="card vcard">
+                            <div class="vcard__art">
+                                <c-fleet-vehicle-image variant="icon" size="250" body-type={vehicle.bodyType}
+                                    color={vehicle.color} fuel-type={vehicle.fuelType}></c-fleet-vehicle-image>
+                            </div>
+                            <div class="vcard__head">
+                                <h2 class="vcard__name">{vehicle.name}</h2>
+                                <span class="plate">{vehicle.plate}</span>
+                            </div>
+                            <ul class="chips">
+                                <template for:each={vehicleChips} for:item="c"><li key={c.key} class="chip">{c.text}</li></template>
+                            </ul>
+                            <div class="stats">
+                                <div class="stat stat--wide">
+                                    <span class="stat__label">{vehicle.energyLabel}</span>
+                                    <div class="bar"><div class={vehicle.energyCls} style={vehicle.energyBar}></div></div>
+                                    <span class="stat__value">{vehicle.energyText}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat__label">Odometer</span>
+                                    <span class="stat__value">{vehicle.odometerText} <small>mi</small></span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="actions">
+                            <template for:each={quickActions} for:item="a">
+                                <button key={a.key} type="button" class={a.cls} data-key={a.key} onclick={handleAction}>
+                                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d={a.icon}></path></svg>
+                                    <span class="action__label">{a.label}</span>
+                                    <span class="action__hint">{a.hint}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <section class="card empty">
+                            <h2>No vehicle assigned</h2>
+                            <p>You can book one from the motorpool.</p>
+                            <button type="button" class="btn btn--primary" onclick={handleBook}>Book a vehicle</button>
+                        </section>
+                    </template>
+
+                    <template lwc:if={hasNotices}>
+                        <div class="section__head"><h3>Needs your attention</h3>
+                            <button type="button" class="link" onclick={handleBell}>See all ({noticeCount})</button></div>
+                        <template for:each={topNotices} for:item="n">
+                            <div key={n.key} class={n.cls}>
+                                <p class="notice__title">{n.title}</p>
+                                <p class="notice__detail">{n.detail}</p>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template lwc:if={nextBooking}>
+                        <div class="section__head"><h3>Next booking</h3></div>
+                        <div class="card row">
+                            <div class="row__main"><p class="row__title">{nextBooking.vehicle}</p>
+                                <p class="row__sub">{nextBooking.when} → {nextBooking.until}</p></div>
+                            <span class="chip chip--ok">{nextBooking.status}</span>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ================= VEHICLE ================= -->
+                <template lwc:if={isVehicle}>
+                    <template lwc:if={hasVehicle}>
+                        <h2 class="page">Where is my car</h2>
+                        <section class="card mapcard">
+                            <template lwc:if={hasLocation}>
+                                <div class="map">
+                                    <lightning-map map-markers={mapMarkers} center={mapCenter} zoom-level="15" list-view="hidden"></lightning-map>
+                                </div>
+                                <div class="mapcard__foot">
+                                    <div><p class="row__title">{vehicle.name}</p><p class="row__sub">{locationText}</p></div>
+                                    <a class="btn btn--primary btn--small" href={navigateUrl} target="_blank" rel="noopener">Navigate</a>
+                                </div>
+                                <p class="hint">{navigateLabel} opens turn-by-turn directions to the vehicle.</p>
+                            </template>
+                            <template lwc:else>
+                                <p class="hint">This vehicle has not reported a location yet.</p>
+                            </template>
+                        </section>
+
+                        <div class="section__head"><h3>Glovebox documents</h3></div>
+                        <template lwc:if={documents.length}>
+                            <template for:each={documents} for:item="d">
+                                <div key={d.id} class="card row">
+                                    <div class="row__main"><p class="row__title">{d.docType}</p><p class="row__sub">{d.sub}</p></div>
+                                    <span class={d.chipCls}>{d.chipText}</span>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else><p class="hint">No documents on file for this vehicle.</p></template>
+
+                        <div class="section__head"><h3>Service and maintenance</h3>
+                            <button type="button" class="link" data-key="issue" onclick={handleAction}>Report an issue</button></div>
+                        <template lwc:if={tickets.length}>
+                            <template for:each={tickets} for:item="t">
+                                <div key={t.id} class="card row">
+                                    <div class="row__main"><p class="row__title">{t.title}</p><p class="row__sub">{t.sub}</p></div>
+                                    <span class={t.chipCls}>{t.priority}</span>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else><p class="hint">Nothing open for this vehicle.</p></template>
+
+                        <div class="section__head"><h3>Vehicles I can drive</h3></div>
+                        <template for:each={authorized} for:item="a">
+                            <div key={a.key} class="card row">
+                                <div class="row__main"><p class="row__title">{a.name}</p><p class="row__sub">{a.sub} {a.until}</p></div>
+                                <template lwc:if={a.isCurrent}><span class="chip chip--ok">Current</span></template>
+                                <template lwc:elseif={a.keyText}><span class="chip">{a.keyText}</span></template>
+                            </div>
+                        </template>
+                    </template>
+                    <template lwc:else>
+                        <section class="card empty"><h2>No vehicle assigned</h2><p>Nothing to show here yet.</p></section>
+                    </template>
+                </template>
+
+                <!-- ================= TRIPS ================= -->
+                <template lwc:if={isTrips}>
+                    <h2 class="page">Bookings</h2>
+                    <button type="button" class="btn btn--primary btn--wide" onclick={handleBook}>Book a vehicle</button>
+                    <template lwc:if={hasReservations}>
+                        <template for:each={reservations} for:item="r">
+                            <div key={r.id} class="card row">
+                                <div class="row__main"><p class="row__title">{r.vehicle}</p>
+                                    <p class="row__sub">{r.when} → {r.until}</p><p class="row__sub">{r.branch}</p></div>
+                                <span class={r.chipCls}>{r.status}</span>
+                            </div>
+                        </template>
+                    </template>
+                    <template lwc:else><p class="hint">No upcoming bookings.</p></template>
+
+                    <div class="section__head"><h3>Recent trips</h3></div>
+                    <template lwc:if={hasTrips}>
+                        <template for:each={recentTrips} for:item="t">
+                            <div key={t.id} class="card row">
+                                <div class="row__main"><p class="row__title">{t.vehicle}</p><p class="row__sub">{t.when} {t.damageText}</p></div>
+                                <span class="row__right">{t.distanceText}</span>
+                            </div>
+                        </template>
+                    </template>
+                    <template lwc:else><p class="hint">Your completed trips will appear here.</p></template>
+                </template>
+
+                <!-- ================= ME ================= -->
+                <template lwc:if={isMe}>
+                    <section class="card profile">
+                        <div class="ring" aria-label="Safety score">
+                            <svg viewBox="0 0 80 80" width="92" height="92">
+                                <circle cx="40" cy="40" r="34" class="ring__track"></circle>
+                                <circle cx="40" cy="40" r="34" class={driver.ringCls} style={driver.ringStyle} transform="rotate(-90 40 40)"></circle>
+                            </svg>
+                            <span class="ring__num">{driver.score}</span>
+                        </div>
+                        <div class="profile__main">
+                            <h2 class="profile__name">{driver.name}</h2>
+                            <p class="row__sub">{driver.status} · {driver.branch}</p>
+                            <p class="row__sub">Safety score</p>
+                        </div>
+                    </section>
+
+                    <div class="section__head"><h3>My credentials</h3></div>
+                    <div class="card row"><div class="row__main"><p class="row__title">Driver license</p><p class="row__sub">{driver.licenseSub}</p></div>
+                        <span class={driver.licenseCls}>{driver.licenseChip}</span></div>
+                    <div class="card row"><div class="row__main"><p class="row__title">Medical certificate</p><p class="row__sub">{driver.medicalSub}</p></div>
+                        <span class={driver.medicalCls}>{driver.medicalChip}</span></div>
+                    <template for:each={qualifications} for:item="q">
+                        <div key={q.id} class="card row"><div class="row__main"><p class="row__title">{q.title}</p><p class="row__sub">{q.sub}</p></div>
+                            <span class={q.chipCls}>{q.chipText}</span></div>
+                    </template>
+
+                    <div class="section__head"><h3>Driving feedback</h3></div>
+                    <template lwc:if={hasViolations}>
+                        <template for:each={violations} for:item="v">
+                            <div key={v.id} class="card row"><div class="row__main"><p class="row__title">{v.violationType}</p><p class="row__sub">{v.sub}</p></div>
+                                <span class={v.chipCls}>{v.severity}</span></div>
+                        </template>
+                    </template>
+                    <template lwc:else><p class="hint">No telemetry alerts. Keep it up!</p></template>
+
+                    <div class="section__head"><h3>Citations</h3></div>
+                    <template lwc:if={hasCitations}>
+                        <template for:each={citations} for:item="c">
+                            <div key={c.id} class="card row"><div class="row__main"><p class="row__title">{c.title} <span class="amount">{c.amountText}</span></p><p class="row__sub">{c.sub}</p></div>
+                                <span class={c.chipCls}>{c.status}</span></div>
+                        </template>
+                    </template>
+                    <template lwc:else><p class="hint">No citations on record.</p></template>
+
+                    <template lwc:if={fuelCard}>
+                        <div class="section__head"><h3>Fuel card</h3></div>
+                        <div class="card row"><div class="row__main"><p class="row__title">{fuelCard.provider} {fuelCard.number}</p>
+                            <p class="row__sub">{fuelCard.limitText} {fuelCard.expiryText}</p></div>
+                            <span class="chip chip--ok">{fuelCard.status}</span></div>
+                    </template>
+                </template>
+            </template>
+        </main>
+
+        <nav class="nav" aria-label="Main">
+            <template for:each={navItems} for:item="n">
+                <button key={n.key} type="button" class={n.cls} data-view={n.key} aria-current={n.current} onclick={handleNav}>
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d={n.icon}></path></svg>
+                    <span>{n.label}</span>
+                </button>
+            </template>
+        </nav>
+
+        <!-- bottom sheet -->
+        <template lwc:if={sheetOpen}>
+            <div class="scrim" onclick={closeSheet}></div>
+            <section class="sheet" role="dialog" aria-modal="true" aria-label={sheetTitle}>
+                <div class="sheet__head">
+                    <h2>{sheetTitle}</h2>
+                    <button type="button" class="sheet__close" onclick={closeSheet} aria-label="Close">×</button>
+                </div>
+                <div class="sheet__body">
+
+                    <template lwc:if={isNotices}>
+                        <template lwc:if={hasNotices}>
+                            <template for:each={notices} for:item="n">
+                                <div key={n.key} class={n.cls}><p class="notice__title">{n.title}</p><p class="notice__detail">{n.detail}</p></div>
+                            </template>
+                        </template>
+                        <template lwc:else><p class="hint">You are all caught up.</p></template>
+                    </template>
+
+                    <template lwc:if={isTripSheet}>
+                        <template lwc:if={isPretrip}>
+                            <p class="hint">Walk around the vehicle and tick anything that is not right.</p>
+                            <template for:each={checkRows} for:item="c">
+                                <div key={c.key} class="check">
+                                    <span>{c.label}</span>
+                                    <div class="seg">
+                                        <button type="button" class={c.okCls} data-key={c.key} data-ok="true" onclick={handleCheck}>OK</button>
+                                        <button type="button" class={c.issueCls} data-key={c.key} data-ok="false" onclick={handleCheck}>Issue</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                        <label class="field"><span>Odometer (mi)</span>
+                            <input type="number" inputmode="numeric" value={odometer} data-field="odometer" oninput={handleInput}/></label>
+                        <label class="field"><span>{energyLabel}: {energyValueText}</span>
+                            <input type="range" min="0" max="100" step="5" value={energy} oninput={handleEnergy}/></label>
+                        <label class="field field--row"><input type="checkbox" checked={damage} data-field="damage" onchange={handleCheckbox}/>
+                            <span>I found new damage</span></label>
+                        <label class="field"><span>{notesLabel}</span>
+                            <textarea rows="3" data-field="notes" oninput={handleInput} placeholder="What did you find?"></textarea></label>
+                        <template lwc:if={isPretrip}><p class="hint">{issueSummary}</p></template>
+                    </template>
+
+                    <template lwc:if={isIssue}>
+                        <div class="field"><span>What kind of problem?</span>
+                            <div class="pills">
+                                <template for:each={categoryOptions} for:item="c">
+                                    <button key={c.value} type="button" class={c.cls} data-value={c.value} onclick={handleCategory}>{c.label}</button>
+                                </template>
+                            </div></div>
+                        <div class="field"><span>How urgent?</span>
+                            <div class="pills">
+                                <template for:each={priorityOptions} for:item="p">
+                                    <button key={p.value} type="button" class={p.cls} data-value={p.value} onclick={handlePriority}>{p.value}</button>
+                                </template>
+                            </div></div>
+                        <label class="field"><span>Describe the issue</span>
+                            <textarea rows="4" data-field="notes" oninput={handleInput} placeholder="e.g. Warning light on the dashboard, noise when braking"></textarea></label>
+                    </template>
+
+                    <template lwc:if={isFuel}>
+                        <label class="field"><span>Amount ({fuelUnitLabel})</span>
+                            <input type="number" inputmode="decimal" step="0.1" value={fuelVolume} data-field="fuelVolume" oninput={handleInput}/></label>
+                        <label class="field"><span>Total cost ($)</span>
+                            <input type="number" inputmode="decimal" step="0.01" value={fuelCost} data-field="fuelCost" oninput={handleInput}/></label>
+                        <label class="field"><span>Odometer (mi)</span>
+                            <input type="number" inputmode="numeric" value={odometer} data-field="odometer" oninput={handleInput}/></label>
+                        <label class="field"><span>Station</span>
+                            <input type="text" value={fuelStation} data-field="fuelStation" oninput={handleInput}/></label>
+                        <label class="field field--row"><input type="checkbox" checked={fuelFull} data-field="fuelFull" onchange={handleCheckbox}/>
+                            <span>Filled up / fully charged</span></label>
+                    </template>
+
+                    <template lwc:if={isPhotoSheet}>
+                        <div class="photos">
+                            <template for:each={photos} for:item="p">
+                                <div key={p.key} class="photo"><img src={p.dataUrl} alt="Attached"/>
+                                    <button type="button" class="photo__x" data-key={p.key} onclick={handleRemovePhoto} aria-label="Remove photo">×</button></div>
+                            </template>
+                            <template lwc:if={canAddPhoto}>
+                                <label class="photo photo--add"><span>+ Photo</span>
+                                    <input type="file" accept="image/*" capture="environment" onchange={handlePhoto}/></label>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template lwc:if={sheetError}><p class="error" role="alert">{sheetError}</p></template>
+                </div>
+                <template lwc:if={isNotices}></template>
+                <template lwc:else>
+                    <div class="sheet__foot">
+                        <button type="button" class="btn btn--primary btn--wide" onclick={submit} disabled={busy}>{submitLabel}</button>
+                    </div>
+                </template>
+            </section>
+        </template>
+
+        <template lwc:if={toast}><div class="toast" role="status">{toast}</div></template>
+    </div>
+</template>

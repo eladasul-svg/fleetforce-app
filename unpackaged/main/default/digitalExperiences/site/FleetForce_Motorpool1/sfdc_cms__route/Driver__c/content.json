@@ -1,0 +1,12 @@
+{
+  "type": "sfdc_cms__route",
+  "title": "Driver",
+  "contentBody": {
+    "activeViewId": "driver",
+    "configurationTags": [],
+    "pageAccess": "UseParent",
+    "routeType": "custom-driver",
+    "urlPrefix": "driver"
+  },
+  "urlName": "driver"
+}

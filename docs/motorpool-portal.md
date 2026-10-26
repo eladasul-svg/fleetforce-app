@@ -37,3 +37,27 @@ The public URL is `https://<org domain>.my.site.com/motorpool/`.
 - `book()` takes simple parameters on purpose: a custom-class parameter failed with a generic server error for the
   guest user on the LWR runtime.
 - The component is referenced in the site as `fleetforce:motorpoolBooking` (namespaced).
+
+## Driver app (`/driver`)
+
+A mobile-first driver app on the same site: **my vehicle** (silhouette, plate, fuel / charge, odometer), a **pre-trip
+check** (six-point checklist, odometer, fuel level, notes, up to three photos; flagged items or new damage raise a
+service ticket) and **end trip**, **report an issue** (category, urgency, photos -> service ticket reported by the
+driver), **log fuel / charging**, **where is my car** (map and a "Navigate" deep link into Google or Apple Maps),
+**glovebox documents** with expiry warnings, **service and maintenance** for the vehicle, the **vehicles I am
+authorized to drive**, **bookings** (with a link to the booking page), **trips**, a **personal area** (license, medical
+certificate, qualifications, safety score, fuel card), driving feedback (telemetry violations) and **citations**, and a
+**notification centre** derived from the data (expiring license / documents, new citations, recent violations,
+upcoming bookings, vehicle in the workshop).
+
+- Backend: `DriverAppController` (simple parameters only; runs without sharing) and the `driverApp` LWC, both in
+  `force-app`. The route and view live in the site bundle under `unpackaged/`.
+- **Demo build, no login:** a driver picker at the top selects who you are viewing as, and the featured drivers
+  (Chloe Bennett, Hannah Lindqvist, Carlos Gomez) lead the list. A real deployment must resolve the driver from the
+  logged-in user; `DriverAppController` trusts the driver id it is given.
+- Demo data: `sf apex run --file scripts/apex/seed_driver_app.apex` (run after the main seed and
+  `seed_motorpool_bookings.apex`; idempotent, dates relative to today). Chloe is on a trip with a license expiring
+  and a new citation, Hannah is ready for a pre-trip check, Carlos's vehicle is in the workshop.
+- No push notifications yet (the in-app notification centre stands in): real push needs Salesforce Mobile Publisher,
+  or an installable web app with web push, which has not been verified on LWR.
+- Photos are resized on the device (long edge 1280 px) and stored as files on the trip or ticket.

@@ -1,0 +1,78 @@
+{
+  "type": "sfdc_cms__view",
+  "title": "Driver App",
+  "contentBody": {
+    "component": {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": {
+                "backgroundImageConfig": "",
+                "backgroundImageOverlay": "rgba(0,0,0,0)",
+                "componentSpacerSize": "",
+                "layoutDirectionDesktop": "row",
+                "layoutDirectionMobile": "column",
+                "layoutDirectionTablet": "column",
+                "maxContentWidth": "100%",
+                "sectionColumnGutterWidth": "",
+                "sectionConfig": "{\"UUID\":\"66f1c461-f0cf-497d-b60b-92d2de264199\",\"columns\":[{\"UUID\":\"91db5b74-9fd2-40c8-af7c-13efbbf4bcdf\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+                "sectionMinHeight": "",
+                "sectionVerticalAlign": "flex-start"
+              },
+              "children": [
+                {
+                  "children": [
+                    {
+                      "attributes": {},
+                      "definition": "fleetforce:driverApp",
+                      "id": "7f2ee0f7-acec-4b5b-9725-fa38597303bd",
+                      "type": "component"
+                    }
+                  ],
+                  "id": "cd8b7cc3-c9fe-4e50-a461-94a105410b73",
+                  "name": "col1",
+                  "title": "Column 1",
+                  "type": "region"
+                }
+              ],
+              "definition": "community_layout:section",
+              "id": "7c24f883-3c61-48ea-ae1b-d6d845fb08a5",
+              "type": "component"
+            }
+          ],
+          "id": "697cf7b0-0111-451f-a29b-6a93cf516b58",
+          "name": "content",
+          "title": "Content",
+          "type": "region"
+        },
+        {
+          "children": [
+            {
+              "attributes": {
+                "customHeadTags": "",
+                "description": "",
+                "pageTitle": "FleetForce Driver",
+                "recordId": "{!recordId}"
+              },
+              "definition": "community_builder:seoAssistant",
+              "id": "897e9a5e-805d-4fe1-aaf1-00d5edeb3f59",
+              "type": "component"
+            }
+          ],
+          "id": "4c61f334-963c-40c5-b13f-c78302040366",
+          "name": "sfdcHiddenRegion",
+          "title": "sfdcHiddenRegion",
+          "type": "region"
+        }
+      ],
+      "definition": "community_layout:sldsFlexibleLayout",
+      "id": "21bde23c-11f7-4319-b390-51b71d6a28c8",
+      "type": "component"
+    },
+    "dataProviders": [],
+    "themeLayoutType": "Inner",
+    "viewType": "custom-driver"
+  },
+  "urlName": "home"
+}
