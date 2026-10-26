@@ -2,8 +2,8 @@
 //   Chloe Bennett    - on a trip right now, license expiring soon, a new citation, a scheduled service, two upcoming bookings
 //   Hannah Lindqvist - vehicle ready for a pre-trip check, medical certificate expiring, one booking
 //   Carlos Gomez     - vehicle in the workshop, a recent high-severity telemetry violation, registration expiring
-// Idempotent: records it creates are marked (Cost_Center__c / Name / Summary / Notes starting with DEMO) and are
-// deleted and re-created on every run. Run after the main seed and seed_motorpool_bookings.apex.
+// Idempotent: records it creates are marked in fields the app never shows (Cost_Center__c, Name, Limit__c,
+// Approval_Notes__c = 'DEMO-DRIVER') and are deleted and re-created on every run. Run after the main seed and seed_motorpool_bookings.apex.
 //
 // Usage:  sf apex run --file scripts/apex/seed_driver_app.apex --target-org <alias>
 
@@ -17,9 +17,9 @@ Set<Id> driverIds = new Map<Id, Contact>(drivers.values()).keySet();
 // clean up earlier demo records
 delete [SELECT Id FROM fleetforce__Reservation__c WHERE fleetforce__Cost_Center__c = 'DEMO-DRIVER'];
 delete [SELECT Id FROM fleetforce__Allocation__c WHERE Name LIKE 'TRIP-DEMO%'];
-delete [SELECT Id FROM fleetforce__Citation__c WHERE fleetforce__Ticket_Number__c LIKE 'DEMO-%'];
+delete [SELECT Id FROM fleetforce__Citation__c WHERE Name = 'DEMO citation' OR fleetforce__Ticket_Number__c LIKE 'DEMO-%'];
 delete [SELECT Id FROM fleetforce__Telemetry_Violation__c WHERE fleetforce__Limit__c = 'DEMO-DRIVER'];
-delete [SELECT Id FROM fleetforce__Service_Ticket__c WHERE fleetforce__Summary__c LIKE 'DEMO:%'];
+delete [SELECT Id FROM fleetforce__Service_Ticket__c WHERE fleetforce__Approval_Notes__c = 'DEMO-DRIVER' OR fleetforce__Summary__c LIKE 'DEMO:%'];
 
 // every demo driver needs a current vehicle: keep the one already assigned, else take their first authorized one
 Map<Id, fleetforce__Fleet_Asset__c> carOf = new Map<Id, fleetforce__Fleet_Asset__c>();
@@ -83,13 +83,13 @@ if (chloe != null && carOf.containsKey(chloe.Id)) {
     tickets.add(new fleetforce__Service_Ticket__c(fleetforce__Fleet_Asset__c = car.Id, fleetforce__Reported_By__c = chloe.Id,
         fleetforce__Status__c = 'Draft', fleetforce__Scheduled_Start__c = today.addDays(6), fleetforce__Scheduled_End__c = today.addDays(6),
         fleetforce__Category__c = 'Preventive Maintenance', fleetforce__Priority__c = 'Low', fleetforce__Date_Reported__c = Datetime.now().addDays(-3),
-        fleetforce__Summary__c = 'DEMO: Scheduled service - oil change and tire rotation',
+        fleetforce__Summary__c = 'Scheduled service: oil change and tire rotation', fleetforce__Approval_Notes__c = 'DEMO-DRIVER',
         fleetforce__Description__c = 'Routine 15,000 mile service booked at the branch workshop.'));
     trips.add(new fleetforce__Allocation__c(Name = 'TRIP-DEMO-1', fleetforce__Driver__c = chloe.Id, fleetforce__Fleet_Asset__c = car.Id,
         fleetforce__Status__c = 'Active', fleetforce__Actual_Check_Out__c = Datetime.now().addHours(-3),
         fleetforce__Odometer_Start__c = car.fleetforce__Odometer__c, fleetforce__Fuel_Level_Out__c = 82,
         fleetforce__Condition_Out__c = 'All good at pick-up.'));
-    citations.add(new fleetforce__Citation__c(Name = 'DEMO citation', fleetforce__Ticket_Number__c = 'DEMO-4471', fleetforce__Fleet_Asset__c = car.Id,
+    citations.add(new fleetforce__Citation__c(Name = 'DEMO citation', fleetforce__Ticket_Number__c = 'CIT-2026-4471', fleetforce__Fleet_Asset__c = car.Id,
         fleetforce__Driver__c = chloe.Id, fleetforce__Violation_Type__c = 'Parking', fleetforce__Status__c = 'New',
         fleetforce__Fine_Amount__c = 65, fleetforce__Total_Amount__c = 65, fleetforce__Citation_Date__c = Datetime.now().addDays(-2),
         fleetforce__Court_Date__c = today.addDays(21)));
@@ -124,7 +124,7 @@ if (carlos != null && carOf.containsKey(carlos.Id)) {
     tickets.add(new fleetforce__Service_Ticket__c(fleetforce__Fleet_Asset__c = car.Id, fleetforce__Reported_By__c = carlos.Id,
         fleetforce__Status__c = 'In-Shop', fleetforce__Actual_Start__c = today, fleetforce__Scheduled_Start__c = today,
         fleetforce__Scheduled_End__c = today.addDays(2), fleetforce__Category__c = 'Corrective Repair', fleetforce__Priority__c = 'High',
-        fleetforce__Date_Reported__c = Datetime.now().addDays(-1), fleetforce__Summary__c = 'DEMO: Brake pads and rotor replacement',
+        fleetforce__Date_Reported__c = Datetime.now().addDays(-1), fleetforce__Summary__c = 'Brake pads and rotor replacement', fleetforce__Approval_Notes__c = 'DEMO-DRIVER',
         fleetforce__Description__c = 'Driver reported grinding when braking. Pads and rotors being replaced.'));
     violations.add(new fleetforce__Telemetry_Violation__c(fleetforce__Fleet_Asset__c = car.Id, fleetforce__Driver__c = carlos.Id,
         fleetforce__Type__c = 'Speeding', fleetforce__Severity__c = 'High', fleetforce__Timestamp__c = Datetime.now().addDays(-1),
