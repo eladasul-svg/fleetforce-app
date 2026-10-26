@@ -1,17 +1,70 @@
 <template>
-    <lightning-card title="Real-Time Asset Tracker" icon-name="standard:location">
-        <div class="slds-m-around_medium map-container">
-            <template if:true={mapMarkers.length}>
-                <lightning-map
-                    map-markers={mapMarkers}
-                ></lightning-map>
-            </template>
-            <template if:false={mapMarkers.length}>
-                <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
-                    <lightning-icon icon-name="utility:check" size="large" alternative-text="No data" class="slds-m-bottom_small" variant="success"></lightning-icon>
-                    <p>No active location telemetry available right now.</p>
-                </div>
-            </template>
+    <lightning-card icon-name="standard:location">
+        <div slot="title" class="title">
+            <span>Real-Time Asset Tracker</span>
+            <span class="live" title="Positions update every few seconds"><i class="live__dot"></i>LIVE</span>
+            <span class="sim" title="No telemetry feed is connected: vehicles are simulated on real Lisbon routes">Demo simulation</span>
         </div>
+
+        <template lwc:if={hasData}>
+            <div class="counters">
+                <div class="counter counter--moving">
+                    <span class="counter__num">{movingCount}</span>
+                    <span class="counter__label"><i class="dot dot--moving"></i>Moving</span>
+                </div>
+                <div class="counter counter--idle">
+                    <span class="counter__num">{idleCount}</span>
+                    <span class="counter__label"><i class="dot dot--idle"></i>Idle, engine on</span>
+                </div>
+                <div class="counter counter--offline">
+                    <span class="counter__num">{offlineCount}</span>
+                    <span class="counter__label"><i class="dot dot--offline"></i>Not reporting</span>
+                </div>
+                <template lwc:if={isFollowing}>
+                    <button type="button" class="following" onclick={handleShowAll}>
+                        Following {followingName} <span class="following__x">Show all</span>
+                    </button>
+                </template>
+            </div>
+
+            <div class="body slds-border_top">
+                <div class="side slds-theme_shade">
+                    <div class="side__head">Active now ({rows.length})</div>
+                    <div class="side__list">
+                        <template for:each={rows} for:item="r">
+                            <div key={r.id} class={r.rowCls} data-id={r.id} onclick={handleRowClick}>
+                                <c-fleet-vehicle-image class="row__icon" variant="icon" size="46" body-type={r.bodyType}
+                                    color={r.color} fuel-type={r.fuelType}></c-fleet-vehicle-image>
+                                <div class="row__main">
+                                    <p class="row__name slds-truncate" title={r.name}>{r.name}</p>
+                                    <p class="row__sub slds-truncate">{r.plate} <span class="row__to">→ {r.destination}</span></p>
+                                    <p class="row__ago"><i class="ping"></i>Updated {r.updated}</p>
+                                </div>
+                                <div class="row__right">
+                                    <span class={r.pillCls}>{r.statusText}</span>
+                                    <span class="speed"><b>{r.speedText}</b> km/h</span>
+                                    <span class="heading">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" style={r.arrowStyle} aria-hidden="true">
+                                            <path d="M12 3 L19 20 L12 16 L5 20 Z" fill="currentColor"></path>
+                                        </svg>{r.compass}
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="mapcol">
+                    <lightning-map map-markers={mapMarkers} center={mapCenter} zoom-level={zoomLevel}
+                        list-view="hidden" onmarkerselect={handleMarkerSelect}></lightning-map>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <div class="slds-text-align_center slds-p-around_large slds-text-color_weak">
+                <lightning-icon icon-name="utility:check" size="large" alternative-text="No data"
+                    class="slds-m-bottom_small" variant="success"></lightning-icon>
+                <p>No vehicles with a known location right now.</p>
+            </div>
+        </template>
     </lightning-card>
 </template>

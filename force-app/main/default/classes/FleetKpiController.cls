@@ -65,7 +65,11 @@ public with sharing class FleetKpiController {
                    fleetforce__Driver__c,
                    fleetforce__Driver__r.Name,
                    fleetforce__Branch__c,
-                   fleetforce__Branch__r.Name
+                   fleetforce__Branch__r.Name,
+                   fleetforce__Body_Type__c,
+                   fleetforce__Color__c,
+                   fleetforce__Fuel_Type__c,
+                   fleetforce__License_Plate__c
             FROM fleetforce__Fleet_Asset__c
             WHERE fleetforce__Last_Location__Latitude__s != null
               AND fleetforce__Is_Active__c = true
