@@ -7,7 +7,7 @@ sf apex run --file scripts/apex/data_trust_seed.apex  --target-org <alias>   # r
 sf apex run --file scripts/apex/data_trust_reset.apex --target-org <alias>   # remove all sample records
 ```
 
-The seed **starts with a reset**, so running it twice gives the same result. It uses the existing demo fleet (active vehicles in name order) and creates no new vehicles. All dates are offsets from the moment it runs. It prints a summary (counts, notice matches and the reference vehicle ids and scores) to the debug log under `DATA TRUST SEED`.
+The seed **starts with a reset**, so running it twice gives the same result. It uses the existing demo fleet (every vehicle, in name order) and creates no new vehicles. All dates are offsets from the moment it runs. It prints a summary (counts, notice matches and the reference vehicle ids and scores) to the debug log under `DATA TRUST SEED`.
 
 The repo had no reset command before this work. `data_trust_reset.apex` is the new one, and it removes only data trust sample records.
 
@@ -17,7 +17,7 @@ The repo had no reset command before this work. `data_trust_reset.apex` is the n
 | --- | --- |
 | Sources | Telematics vendor (sample), 1 h; FMC maintenance file (sample), 168 h; Fuel card feed (sample), 24 h |
 | Profiles | **Standard**: default, priority 100, 8 signals. **EV batch**: Fuel Type = Electric, priority 10, 14 signals |
-| Streams | Every active vehicle. Most are healthy. 8 have stale telematics (3 to 9 days; REF-3 is one of them). 5 are missing a required stream (3 without a maintenance plan, REF-3 included, and 2 without a fuel feed) |
+| Streams | Every vehicle. Among active vehicles most are healthy, 8 have stale telematics (3 to 9 days; REF-3 is one of them) and 5 are missing a required stream (3 without a maintenance plan, REF-3 included, and 2 without a fuel feed). Inactive vehicles (on order, retired, decommissioned) get healthy streams so their record pages show data; they stay out of notice matching, the Fleet Exposure KPIs and the nightly run, so their score holds at the seeded value |
 | Data gaps | 2 vehicles get a High *consistency* gap: "Maintenance plan active in FMC file, missing on fleet record" (key `DGC:`, not auto-resolved) |
 | Notices | `SAMPLE-RCL-001` (High) and `SAMPLE-RCL-002` (Critical). Their make / model / year criteria are picked from the fleet so they match as close to **9** and **4** vehicles as the fleet allows; the run summary shows the actual counts. `SAMPLE-REG-LEZ`: diesel, `PT;ES;FR`, effective in 45 days. `SAMPLE-REG-DOC`: commercial category, `PT;ES;IT`, effective in 90 days. All are Active and Reviewed |
 | Vehicle fields | Make, Model, Model Year are parsed from the name ("2023 Ford F-150 Lariat 4WD" → Ford / F-150 / 2023). Country is set to PT, with every 5th vehicle ES and every 7th GB. Fields are filled **only where blank**, and reset leaves them in place |

@@ -5,7 +5,8 @@
  *
  *   Sources    Telematics vendor (sample), FMC maintenance file (sample), Fuel card feed (sample)
  *   Profiles   Standard (8 signals, default) and EV batch (14 signals, Fuel Type = Electric)
- *   Streams    most vehicles healthy; 8 with stale telematics (3 to 9 days, REF-3 included); 5 missing a required stream
+ *   Streams    most vehicles healthy; 8 with stale telematics (3 to 9 days, REF-3 included); 5 missing a required stream.
+ *              Inactive vehicles (on order, retired) get healthy streams too, so every record page has data to show
  *   Data gaps  2 vehicles where the FMC file shows an active maintenance plan the fleet record does not have
  *   Notices    SAMPLE-RCL-001 / 002 (criteria picked from the fleet to match about 9 and 4 vehicles) and two
  *              regulations with future effective dates and three-country jurisdictions
@@ -22,6 +23,7 @@ public with sharing class DataTrustSampleData {
     /** What the seed did, for the script output and the tests. */
     public class Summary {
         public Integer vehicles = 0;
+        public Integer inactiveVehicles = 0;
         public Integer electric = 0;
         public Integer streams = 0;
         public Integer staleTelematics = 0;
@@ -85,11 +87,21 @@ public with sharing class DataTrustSampleData {
         Boolean nm = NoticeMatchingService.running;
         DataHealthService.running = true;
         NoticeMatchingService.running = true;
-        List<Fleet_Asset__c> fleet;
+        List<Fleet_Asset__c> allAssets;
+        List<Fleet_Asset__c> fleet = new List<Fleet_Asset__c>();
+        List<Fleet_Asset__c> inactive = new List<Fleet_Asset__c>();
         Map<String, External_Notice__c> notices;
         try {
-            fleet = prepareFleet();
+            allAssets = prepareFleet();
+            for (Fleet_Asset__c a : allAssets) {
+                if (a.Is_Active__c) {
+                    fleet.add(a);
+                } else {
+                    inactive.add(a);
+                }
+            }
             sum.vehicles = fleet.size();
+            sum.inactiveVehicles = inactive.size();
 
             // sources
             Data_Source__c tele = source(TELEMATICS, 'Sample Telematics Co.', 'Telematics', 'https://telematics.example.com', 1, nowTs.addMinutes(-20));
@@ -211,6 +223,16 @@ public with sharing class DataTrustSampleData {
                 streams.addAll(evStreams(a, tele, fmc, nowTs, 1 + Math.mod(i, 4)));
                 i++;
             }
+            // inactive vehicles sit outside the scenario above: all healthy, so the counts and references stay put
+            for (Fleet_Asset__c a : inactive) {
+                if (a.Fuel_Type__c == 'Electric') {
+                    streams.addAll(evStreams(a, tele, fmc, nowTs, 1 + Math.mod(i, 4)));
+                } else {
+                    streams.addAll(standardStreams(a, tele, fmc, fuel, nowTs, 1 + Math.mod(i, 5), 6 + Math.mod(i, 12),
+                        24 * (1 + Math.mod(i, 20)), true, 2, true));
+                }
+                i++;
+            }
             insert streams;
             sum.streams = streams.size();
             for (Data_Stream__c s : streams) {
@@ -228,7 +250,7 @@ public with sharing class DataTrustSampleData {
         }
 
         // score every vehicle and match the notices, the same way the nightly job does
-        Map<Id, DataHealthService.Result> results = DataHealthService.evaluate(new Map<Id, Fleet_Asset__c>(fleet).keySet());
+        Map<Id, DataHealthService.Result> results = DataHealthService.evaluate(new Map<Id, Fleet_Asset__c>(allAssets).keySet());
         NoticeMatchingService.match(new Map<Id, External_Notice__c>(notices.values()).keySet());
         for (External_Notice__c n : [SELECT External_Id__c, Affected_Count__c FROM External_Notice__c WHERE Is_Sample__c = true]) {
             sum.noticeMatches.put(n.External_Id__c, n.Affected_Count__c == null ? 0 : n.Affected_Count__c.intValue());
@@ -241,13 +263,12 @@ public with sharing class DataTrustSampleData {
 
     // --------------------------------------------------------------------------------------------------- fleet
 
-    /** Active vehicles in name order, with make, model, year and country filled in from the name where blank. */
+    /** Every vehicle in name order, with make, model, year and country filled in from the name where blank. */
     @TestVisible
     private static List<Fleet_Asset__c> prepareFleet() {
         List<Fleet_Asset__c> fleet = [
-            SELECT Id, Name, Make__c, Model__c, Model_Year__c, Country__c, Fuel_Type__c, Vehicle_Class__c
+            SELECT Id, Name, Is_Active__c, Make__c, Model__c, Model_Year__c, Country__c, Fuel_Type__c, Vehicle_Class__c
             FROM Fleet_Asset__c
-            WHERE Is_Active__c = true
             ORDER BY Name, Id
             LIMIT 500
         ];
@@ -277,7 +298,9 @@ public with sharing class DataTrustSampleData {
                 changed.add(new Fleet_Asset__c(Id = a.Id, Make__c = a.Make__c, Model__c = a.Model__c,
                     Model_Year__c = a.Model_Year__c, Country__c = a.Country__c));
             }
-            i++;
+            if (a.Is_Active__c) { // the country rotation counts active vehicles only, as before inactive ones were seeded
+                i++;
+            }
         }
         update changed;
         return fleet;

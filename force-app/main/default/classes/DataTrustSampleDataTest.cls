@@ -47,6 +47,7 @@ private class DataTrustSampleDataTest {
         Test.stopTest();
 
         Assert.areEqual(40, s.vehicles);
+        Assert.areEqual(1, s.inactiveVehicles);
         Assert.areEqual(6, s.electric);
         Assert.areEqual(8, s.staleTelematics);
         Assert.areEqual(5, s.missingStream);
@@ -83,13 +84,17 @@ private class DataTrustSampleDataTest {
             Assert.areEqual('EV batch', ev.Resolved_Stream_Profile__r.Name);
             Assert.areEqual(100, ev.Data_Health_Score__c.intValue());
         }
-        // make, model, year and country were filled in from the names; the inactive vehicle was left alone
+        // make, model, year and country were filled in from the names, inactive vehicles included
         Fleet_Asset__c parsed = [SELECT Make__c, Model__c, Model_Year__c, Country__c FROM Fleet_Asset__c WHERE Name = '2023 Mercedes-Benz Sprinter 2500 #0'];
         Assert.areEqual('Mercedes-Benz', parsed.Make__c);
         Assert.areEqual('Sprinter', parsed.Model__c);
         Assert.areEqual(2023, parsed.Model_Year__c.intValue());
         Assert.isNotNull(parsed.Country__c);
-        Assert.isNull([SELECT Make__c FROM Fleet_Asset__c WHERE Is_Active__c = false].Make__c);
+        // the inactive vehicle is seeded and scored too, so its record page has data, but recalls skip it
+        Fleet_Asset__c parked = [SELECT Id, Make__c, Data_Health_Score__c FROM Fleet_Asset__c WHERE Is_Active__c = false];
+        Assert.areEqual('Chevrolet', parked.Make__c);
+        Assert.areEqual(100, parked.Data_Health_Score__c.intValue());
+        Assert.areEqual(0, [SELECT COUNT() FROM Asset_Alert__c WHERE Fleet_Asset__c = :parked.Id AND Alert_Type__c != 'Data gap']);
         // the two regulations have future effective dates and three-country jurisdictions
         for (External_Notice__c n : [SELECT Effective_On__c, Jurisdiction__c FROM External_Notice__c WHERE Notice_Type__c = 'Regulation']) {
             Assert.isTrue(n.Effective_On__c > System.today());
