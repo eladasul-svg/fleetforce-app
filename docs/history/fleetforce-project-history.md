@@ -42,6 +42,11 @@ Status as of 2026-09-27, fourth pass — **FleetForce Platform 1.0.0.8 is Releas
 
 ---
 
+## 2026-10-27 — Conference demo prep on `fleetforce-dev-11`
+
+Prepared the org as a running demo for the 27-28 Oct conference: re-runnable task/event/Lisbon/booking/driver seed scripts, cleaned Home page, vehicle silhouettes and icon styles with an org-wide setting, Fleet Map Explorer, an LWR booking portal and a mobile Driver app (`/driver`), the live tracker with car markers and cross-fade, Waypoint branding on both apps (org-theme override), and a trimmed App Launcher (`scripts/hide_standard_apps.sh`). Also a walkthrough video. Everything committed through `d7c5793`; package version deliberately not cut.
+→ [full session notes](sessions/2026-10-26-conference-demo-prep.md)
+
 ## 2026-09-27, part 4 — Release 1.0.0.8, install onto `fleetforce-master-tso`, and the real gaps that surfaced along the way
 
 Follow-up work order: decide a version to ship, validate it, cut and promote it, install onto `fleetforce-master-tso`, run the per-org manual steps, and verify live. `1.0.0.6` predated both the Sept 18 Assistant commit and the Sept 27 portal fix, so releasing it as-is was out — the whole point was to ship a version with a *working* portal.

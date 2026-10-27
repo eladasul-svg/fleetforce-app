@@ -57,6 +57,15 @@ metadata portability, not relevant to a persistent org with real users.
    new org's actual admin after each fresh spin, or the site falls back 
    to the "InMaintenance" page.
    (Discovered 2026-09-07.)
+2. **Trim the App Launcher** — run `scripts/hide_standard_apps.sh <org-alias>`
+   to leave only Fleet Ops and FleetForce Admin for the System
+   Administrator profile. (2026-10-27)
+3. **Seed demo activity** — `scripts/apex/seed_tasks.apex`,
+   `seed_events.apex`, `seed_lisbon_locations.apex`,
+   `seed_motorpool_bookings.apex`, `seed_driver_app.apex` via
+   `sf apex run --file ... --target-org <alias>` (all re-runnable).
+   Deploy the LWR site from `unpackaged/` and publish it with
+   `sf community publish`. (2026-10-27)
 
 ---
 
