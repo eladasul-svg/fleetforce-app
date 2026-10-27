@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Open_Recall_Alerts</fullName>
+    <columns>NAME</columns>
+    <columns>Fleet_Asset__c</columns>
+    <columns>External_Notice__c</columns>
+    <columns>Severity__c</columns>
+    <columns>Status__c</columns>
+    <columns>Title__c</columns>
+    <columns>Due_Date__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Alert_Type__c</field>
+        <operation>equals</operation>
+        <value>Recall</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>New,Acknowledged,In progress</value>
+    </filters>
+    <label>Open recall alerts</label>
+</ListView>

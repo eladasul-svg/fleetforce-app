@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Data_Health_At_Risk</fullName>
+    <columns>NAME</columns>
+    <columns>License_Plate__c</columns>
+    <columns>Data_Health_Score__c</columns>
+    <columns>Data_Health_Status__c</columns>
+    <columns>Freshness_Score__c</columns>
+    <columns>Completeness_Score__c</columns>
+    <columns>Consistency_Score__c</columns>
+    <columns>Open_Alert_Count__c</columns>
+    <columns>Country__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Data_Health_Status__c</field>
+        <operation>equals</operation>
+        <value>At risk</value>
+    </filters>
+    <filters>
+        <field>Is_Active__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Data health: at risk</label>
+</ListView>

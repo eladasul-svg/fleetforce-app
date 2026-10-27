@@ -4,6 +4,19 @@ import getSummary from "@salesforce/apex/FleetExposureController.getSummary";
 import getNotices from "@salesforce/apex/FleetExposureController.getNotices";
 import getAffectedVehicles from "@salesforce/apex/FleetExposureController.getAffectedVehicles";
 import getSourceHealth from "@salesforce/apex/FleetExposureController.getSourceHealth";
+
+const mockNavigate = jest.fn();
+jest.mock("lightning/navigation", () => {
+  const Navigate = Symbol("Navigate");
+  const NavigationMixin = (Base) =>
+    class extends Base {
+      [Navigate](pageRef) {
+        mockNavigate(pageRef);
+      }
+    };
+  NavigationMixin.Navigate = Navigate;
+  return { NavigationMixin };
+});
 const ShowToastEventName = "lightning__showtoast";
 
 jest.mock(
@@ -38,7 +51,15 @@ const SUMMARY = {
   newNotices7d: 2,
   averageHealth: 86,
   scoredVehicles: 60,
-  isSample: true
+  isSample: true,
+  lists: {
+    gap: { objectApiName: "Asset_Alert__c", listViewId: "00B000000000001" },
+    rcl: { objectApiName: "Asset_Alert__c", listViewId: "00B000000000002" },
+    reg: { objectApiName: "Asset_Alert__c", listViewId: "00B000000000003" },
+    risk: { objectApiName: "Fleet_Asset__c", listViewId: "00B000000000004" },
+    new: { objectApiName: "External_Notice__c", listViewId: "00B000000000005" },
+    avg: { objectApiName: "Fleet_Asset__c", listViewId: "00B000000000006" }
+  }
 };
 
 const NOTICES = [
@@ -160,8 +181,32 @@ describe("c-fleet-exposure", () => {
       "60 vehicles scored"
     );
     expect(el.shadowRoot.querySelector(".sample-banner").textContent).toContain(
-      "sample data"
+      "Sample data set"
     );
+  });
+
+  it("opens the list view behind a tile when it is clicked", async () => {
+    mockAll();
+    const el = await mount();
+
+    const tiles = el.shadowRoot.querySelectorAll("button.tile_link");
+    expect(tiles.length).toBe(6);
+    el.shadowRoot.querySelector('button.tile_link[data-key="reg"]').click();
+    expect(mockNavigate).toHaveBeenCalledWith({
+      type: "standard__objectPage",
+      attributes: { objectApiName: "Asset_Alert__c", actionName: "list" },
+      state: { filterName: "00B000000000003" }
+    });
+  });
+
+  it("keeps tiles as plain text when no list view is available", async () => {
+    getSummary.mockResolvedValue({ ...SUMMARY, lists: {} });
+    getNotices.mockResolvedValue(NOTICES);
+    getSourceHealth.mockResolvedValue(SOURCES);
+    const el = await mount();
+
+    expect(el.shadowRoot.querySelectorAll("button.tile_link").length).toBe(0);
+    expect(el.shadowRoot.querySelectorAll(".tile").length).toBe(6);
   });
 
   it("lists every notice and filters by type, jurisdiction and status", async () => {
@@ -220,13 +265,11 @@ describe("c-fleet-exposure", () => {
     mockAll();
     const el = await mount();
 
-    el.shadowRoot
-      .querySelector("lightning-datatable")
-      .dispatchEvent(
-        new CustomEvent("rowaction", {
-          detail: { action: { name: "drill" }, row: NOTICES[0] }
-        })
-      );
+    el.shadowRoot.querySelector("lightning-datatable").dispatchEvent(
+      new CustomEvent("rowaction", {
+        detail: { action: { name: "drill" }, row: NOTICES[0] }
+      })
+    );
     await flush();
 
     expect(getAffectedVehicles).toHaveBeenCalledWith({ noticeId: "n1" });
@@ -254,13 +297,11 @@ describe("c-fleet-exposure", () => {
     mockAll();
     getAffectedVehicles.mockResolvedValue([]);
     const el = await mount();
-    el.shadowRoot
-      .querySelector("lightning-datatable")
-      .dispatchEvent(
-        new CustomEvent("rowaction", {
-          detail: { action: { name: "drill" }, row: NOTICES[2] }
-        })
-      );
+    el.shadowRoot.querySelector("lightning-datatable").dispatchEvent(
+      new CustomEvent("rowaction", {
+        detail: { action: { name: "drill" }, row: NOTICES[2] }
+      })
+    );
     await flush();
     expect(el.shadowRoot.querySelector(".possible")).toBeNull();
     expect(el.shadowRoot.querySelector(".drill").textContent).toContain(
@@ -322,13 +363,11 @@ describe("c-fleet-exposure", () => {
   it("reloads on refresh and keeps the open drill-down", async () => {
     mockAll();
     const el = await mount();
-    el.shadowRoot
-      .querySelector("lightning-datatable")
-      .dispatchEvent(
-        new CustomEvent("rowaction", {
-          detail: { action: { name: "drill" }, row: NOTICES[0] }
-        })
-      );
+    el.shadowRoot.querySelector("lightning-datatable").dispatchEvent(
+      new CustomEvent("rowaction", {
+        detail: { action: { name: "drill" }, row: NOTICES[0] }
+      })
+    );
     await flush();
     el.shadowRoot.querySelector("lightning-button-icon").click();
     await flush();

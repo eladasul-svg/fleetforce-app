@@ -17,8 +17,9 @@
               alternative-text="Information"
             ></lightning-icon>
             <span
-              ><strong>Preview on sample data.</strong> Recalls, regulations and
-              sources here are fictional. Live feeds come later.</span
+              ><strong>Sample data set.</strong> Every notice, alert and stream
+              here is a FleetForce record you can open. They were loaded from a
+              sample set, not a live feed; live feeds come later.</span
             >
           </div>
         </template>
@@ -50,19 +51,45 @@
         <template lwc:if={ready}>
           <ul class="tiles">
             <template for:each={tiles} for:item="t">
-              <li key={t.key} class="tile">
-                <lightning-icon
-                  icon-name={t.icon}
-                  size="small"
-                  alternative-text=""
-                ></lightning-icon>
-                <div>
-                  <p class="tile-value">{t.value}</p>
-                  <p class="tile-label">{t.label}</p>
-                  <template lwc:if={t.sub}
-                    ><p class="tile-sub">{t.sub}</p></template
+              <li key={t.key}>
+                <template lwc:if={t.linked}>
+                  <button
+                    type="button"
+                    class="tile tile_link"
+                    data-key={t.key}
+                    title={t.linkTitle}
+                    onclick={handleTileClick}
                   >
-                </div>
+                    <lightning-icon
+                      icon-name={t.icon}
+                      size="small"
+                      alternative-text=""
+                    ></lightning-icon>
+                    <div>
+                      <p class="tile-value">{t.value}</p>
+                      <p class="tile-label">{t.label}</p>
+                      <template lwc:if={t.sub}
+                        ><p class="tile-sub">{t.sub}</p></template
+                      >
+                    </div>
+                  </button>
+                </template>
+                <template lwc:else>
+                  <div class="tile">
+                    <lightning-icon
+                      icon-name={t.icon}
+                      size="small"
+                      alternative-text=""
+                    ></lightning-icon>
+                    <div>
+                      <p class="tile-value">{t.value}</p>
+                      <p class="tile-label">{t.label}</p>
+                      <template lwc:if={t.sub}
+                        ><p class="tile-sub">{t.sub}</p></template
+                      >
+                    </div>
+                  </div>
+                </template>
               </li>
             </template>
           </ul>

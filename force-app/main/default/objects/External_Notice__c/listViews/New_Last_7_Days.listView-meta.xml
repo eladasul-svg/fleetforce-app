@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>New_Last_7_Days</fullName>
+    <booleanFilter>1 AND (2 OR (3 AND 4))</booleanFilter>
+    <columns>NAME</columns>
+    <columns>Notice_Type__c</columns>
+    <columns>Source__c</columns>
+    <columns>Jurisdiction__c</columns>
+    <columns>Published_On__c</columns>
+    <columns>Effective_On__c</columns>
+    <columns>Status__c</columns>
+    <columns>Reviewed__c</columns>
+    <columns>Affected_Count__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>notEqual</operation>
+        <value>Withdrawn</value>
+    </filters>
+    <filters>
+        <field>Published_On__c</field>
+        <operation>greaterOrEqual</operation>
+        <value>LAST_N_DAYS:7</value>
+    </filters>
+    <filters>
+        <field>Published_On__c</field>
+        <operation>equals</operation>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>LAST_N_DAYS:7</value>
+    </filters>
+    <label>New notices, last 7 days</label>
+</ListView>

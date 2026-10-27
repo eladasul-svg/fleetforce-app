@@ -15,7 +15,7 @@ const NOTICE_COLUMNS = [
     fieldName: "title",
     type: "button",
     wrapText: true,
-    initialWidth: 300,
+    initialWidth: 280,
     typeAttributes: {
       label: { fieldName: "title" },
       name: "drill",
@@ -24,7 +24,7 @@ const NOTICE_COLUMNS = [
     }
   },
   { label: "Type", fieldName: "noticeType", initialWidth: 110 },
-  { label: "Source", fieldName: "source", wrapText: true },
+  { label: "Source", fieldName: "source", wrapText: true, initialWidth: 190 },
   { label: "Jurisdiction", fieldName: "jurisdictionText", initialWidth: 120 },
   {
     label: "Effective",
@@ -139,6 +139,18 @@ export default class FleetExposure extends NavigationMixin(LightningElement) {
     this.load();
   }
 
+  handleTileClick(event) {
+    const link = (this.summary.lists || {})[event.currentTarget.dataset.key];
+    if (!link) {
+      return;
+    }
+    this[NavigationMixin.Navigate]({
+      type: "standard__objectPage",
+      attributes: { objectApiName: link.objectApiName, actionName: "list" },
+      state: { filterName: link.listViewId }
+    });
+  }
+
   async loadVehicles(noticeId) {
     this.loadingVehicles = true;
     try {
@@ -204,6 +216,7 @@ export default class FleetExposure extends NavigationMixin(LightningElement) {
     const byType = Object.fromEntries(
       (s.openByType || []).map((t) => [t.alertType, t.count])
     );
+    const lists = s.lists || {};
     return [
       {
         key: "gap",
@@ -245,7 +258,11 @@ export default class FleetExposure extends NavigationMixin(LightningElement) {
         sub: `${s.scoredVehicles || 0} vehicles scored`,
         icon: "utility:shield"
       }
-    ];
+    ].map((t) => ({
+      ...t,
+      linked: !!lists[t.key],
+      linkTitle: `Open the records behind "${t.label}"`
+    }));
   }
 
   get typeOptions() {

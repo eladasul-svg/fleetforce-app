@@ -2,7 +2,7 @@
 
 Every vehicle shows where its data comes from, whether that data is complete and current, and which recalls or regulations affect it. One central view covers the whole fleet. The P0 build is a **preview on seeded sample data**, labelled as such in the UI. Nothing in it claims a live connection.
 
-Spec: *FleetForce data trust layer: object model and Claude-assisted integration* (28 Oct 2026). Sample data and the reference vehicles: [seed-README.md](seed-README.md).
+Spec: _FleetForce data trust layer: object model and Claude-assisted integration_ (28 Oct 2026). Sample data and the reference vehicles: [seed-README.md](seed-README.md).
 
 ## Setup
 
@@ -20,13 +20,13 @@ Run the Jest tests with `npm run test:unit -- --testPathPattern 'assetDataHealth
 
 ## What is built
 
-| Area | Pieces |
-| --- | --- |
-| Objects | `Data_Source__c`, `Data_Stream__c` (master-detail to Fleet Asset), `Stream_Profile__c`, `Stream_Profile_Line__c`, `External_Notice__c`, `Asset_Alert__c` (master-detail to Fleet Asset). Every object has an `Is_Sample__c` flag. `Sync_Log__c` is P1 and not built |
-| Fleet Asset fields | Data Health Score / Status, Freshness / Completeness / Consistency Score, Data Health Calculated, Open Alerts, Stream Profile Override, Stream Profile Used (set by the service). **Added because they did not exist:** Make, Model, Model Year, Country (ISO 2). Existing fields are reused: Fuel Type, and **Vehicle Class** for "vehicle category" |
+| Area                      | Pieces                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Objects                   | `Data_Source__c`, `Data_Stream__c` (master-detail to Fleet Asset), `Stream_Profile__c`, `Stream_Profile_Line__c`, `External_Notice__c`, `Asset_Alert__c` (master-detail to Fleet Asset). Every object has an `Is_Sample__c` flag. `Sync_Log__c` is P1 and not built                                                                                           |
+| Fleet Asset fields        | Data Health Score / Status, Freshness / Completeness / Consistency Score, Data Health Calculated, Open Alerts, Stream Profile Override, Stream Profile Used (set by the service). **Added because they did not exist:** Make, Model, Model Year, Country (ISO 2). Existing fields are reused: Fuel Type, and **Vehicle Class** for "vehicle category"         |
 | Apex (all `with sharing`) | `DataHealthService` (evaluation and score), `NoticeMatchingService`, `AssetAlertService` (the single alert query both screens use, open-alert counts), `DataTrustJobs` (queueables, nightly schedulable batch), `DataTrustTriggerHandler` plus three triggers, `AssetDataHealthController`, `FleetExposureController`, `DataTrustSampleData` (seed and reset) |
-| LWC | `assetDataHealth` (on both Fleet Asset record pages, under the vehicle image), `fleetExposure` (app page **Fleet Exposure**, a tab in Fleet Ops), `dataTrustFormat` (shared icons and labels) |
-| Access | Permission set `FleetforceDataTrust` (objects, field-level security, classes, tabs). The Fleet Asset layout has a Data Health section and related lists for streams and alerts |
+| LWC                       | `assetDataHealth` (on both Fleet Asset record pages, under the vehicle image), `fleetExposure` (app page **Fleet Exposure**, a tab in Fleet Ops), `dataTrustFormat` (shared icons and labels)                                                                                                                                                                 |
+| Access                    | Permission set `FleetforceDataTrust` (objects, field-level security, classes, tabs). The Fleet Asset layout has a Data Health section and related lists for streams and alerts                                                                                                                                                                                |
 
 ### Rules as implemented
 
@@ -39,7 +39,7 @@ Run the Jest tests with `npm run test:unit -- --testPathPattern 'assetDataHealth
 
 ## Demo script (about 3 minutes)
 
-1. **Fleet Ops → Fleet Exposure.** KPI tiles show open data gaps, recall alerts and regulation alerts, vehicles at risk, new notices in the last 7 days, and average fleet health. Below them is the notice table, which filters by type, jurisdiction and status.
+1. **Fleet Ops → Fleet Exposure.** KPI tiles show open data gaps, recall alerts and regulation alerts, vehicles at risk, new notices in the last 7 days, and average fleet health. Below them is the notice table, which filters by type, jurisdiction and status. Each tile opens a list view of the records it counts (for example **Open regulation alerts** on Asset Alert, each linked to its vehicle and its regulation notice), and the list always matches the number on the tile.
 2. Click a recall title. The drill-down lists the affected vehicles with their health and alert status. The amber note says these are **possible matches to confirm by VIN**.
 3. Open REF-3, the At risk vehicle (its id is in the seed summary, and it is in the `SAMPLE-RCL-001` drill-down). The record page shows the gauge (45) with Freshness 25, Completeness 75 and Consistency 25, stale telematics streams, a missing maintenance plan gap and the recall alert.
 4. Click the ↗ icon on a stream. The source's system of reference opens in a new tab (an `example.com` placeholder in the preview).
