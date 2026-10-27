@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Open_Alert_Count__c</fullName>
+    <inlineHelpText>Open data gap, recall and regulation alerts. Maintained by the data health services.</inlineHelpText>
+    <label>Open Alerts</label>
+    <precision>5</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+</CustomField>

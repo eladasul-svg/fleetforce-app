@@ -15,6 +15,7 @@
     <label>Fleet Ops</label>
     <navType>Console</navType>
     <tabs>standard-home</tabs>
+    <tabs>Fleet_Exposure</tabs>
     <tabs>standard-Account</tabs>
     <tabs>standard-Contact</tabs>
     <tabs>Agreement_Line__c</tabs>
@@ -47,6 +48,10 @@
     <tabs>Telemetry_Raw__c</tabs>
     <tabs>Telemetry_Violation__c</tabs>
     <tabs>Vendor_Rate_Card__c</tabs>
+    <tabs>Asset_Alert__c</tabs>
+    <tabs>External_Notice__c</tabs>
+    <tabs>Data_Source__c</tabs>
+    <tabs>Stream_Profile__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>FleetOps_UtilityBar</utilityBar>
     <workspaceConfig>
@@ -148,6 +153,21 @@
         </mappings>
         <mappings>
             <tab>standard-home</tab>
+        </mappings>
+        <mappings>
+            <tab>Asset_Alert__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Data_Source__c</tab>
+        </mappings>
+        <mappings>
+            <tab>External_Notice__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Fleet_Exposure</tab>
+        </mappings>
+        <mappings>
+            <tab>Stream_Profile__c</tab>
         </mappings>
     </workspaceConfig>
 </CustomApplication>

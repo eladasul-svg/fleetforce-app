@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Sample__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Fictional demo record created by the sample-data seed. The reset script deletes every record with this flag.</inlineHelpText>
+    <label>Sample Data</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

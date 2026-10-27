@@ -1,0 +1,244 @@
+<template>
+  <lightning-card title="Data health" icon-name="utility:shield">
+    <lightning-button-icon
+      slot="actions"
+      icon-name="utility:refresh"
+      alternative-text="Recalculate data health"
+      title="Recalculate data health"
+      onclick={handleRefresh}
+      disabled={busy}
+    ></lightning-button-icon>
+
+    <div class="slds-p-horizontal_medium slds-is-relative">
+      <template lwc:if={isSample}>
+        <div class="sample-banner slds-m-bottom_small" role="note">
+          <lightning-icon
+            icon-name="utility:info"
+            size="x-small"
+            alternative-text="Information"
+          ></lightning-icon>
+          <span
+            ><strong>Sample data.</strong> A preview on fictional data; no live
+            connection.</span
+          >
+        </div>
+      </template>
+
+      <template lwc:if={loading}>
+        <lightning-spinner
+          alternative-text="Loading data health"
+          size="small"
+        ></lightning-spinner>
+        <div class="placeholder"></div>
+      </template>
+
+      <template lwc:if={error}>
+        <div class="state state_error" role="alert">
+          <lightning-icon
+            icon-name="utility:error"
+            variant="error"
+            size="small"
+            alternative-text="Error"
+          ></lightning-icon>
+          <p>Data health could not be loaded. {error}</p>
+          <lightning-button label="Try again" onclick={load}></lightning-button>
+        </div>
+      </template>
+
+      <template lwc:if={isEmpty}>
+        <div class="state">
+          <lightning-icon
+            icon-name="utility:link"
+            size="small"
+            alternative-text=""
+          ></lightning-icon>
+          <p class="slds-text-heading_small">No data sources linked yet</p>
+          <p class="slds-text-color_weak">
+            Link a telematics, FMC or file source to this vehicle to see its
+            data health.
+          </p>
+        </div>
+      </template>
+
+      <template lwc:if={showBody}>
+        <template lwc:if={busy}>
+          <lightning-spinner
+            alternative-text="Working"
+            size="small"
+          ></lightning-spinner>
+        </template>
+
+        <!-- score -->
+        <div class="score">
+          <div
+            class="gauge"
+            style={gaugeStyle}
+            role="img"
+            aria-label={gaugeLabel}
+          >
+            <div class="gauge-inner">
+              <span class="gauge-value">{scoreText}</span>
+              <span class="gauge-max">/ 100</span>
+            </div>
+          </div>
+          <div class="score-side">
+            <div class="band">
+              <lightning-icon
+                icon-name={band.icon}
+                variant={band.variant}
+                size="x-small"
+                alternative-text=""
+              ></lightning-icon>
+              <span class="band-label">{statusLabel}</span>
+            </div>
+            <ul class="parts">
+              <template for:each={parts} for:item="p">
+                <li key={p.key} class="part">
+                  <span class="part-label"
+                    >{p.label}
+                    <span class="slds-text-color_weak">({p.weight})</span></span
+                  >
+                  <span class="part-bar" aria-hidden="true"
+                    ><span class="part-fill" style={p.barStyle}></span
+                  ></span>
+                  <span class="part-value">{p.text}</span>
+                </li>
+              </template>
+            </ul>
+            <p class="slds-text-body_small slds-text-color_weak">
+              <template lwc:if={health.profileName}
+                >Profile: {health.profileName}.
+              </template>
+              <template lwc:if={health.calculatedOn}>
+                Calculated
+                <lightning-relative-date-time
+                  value={health.calculatedOn}
+                ></lightning-relative-date-time
+                >.
+              </template>
+              <template lwc:else>Not calculated yet.</template>
+            </p>
+          </div>
+        </div>
+
+        <!-- streams -->
+        <h3 class="section-title">Data streams</h3>
+        <template lwc:if={hasStreams}>
+          <ul class="rows">
+            <template for:each={streams} for:item="s">
+              <li key={s.id} class="row">
+                <div class="row-main">
+                  <span class="row-title">{s.dataType}</span>
+                  <span class="slds-text-color_weak row-sub"
+                    >{s.sourceName}</span
+                  >
+                </div>
+                <div class="row-meta">
+                  <span class="slds-text-color_weak">
+                    <template lwc:if={s.lastUpdate}>
+                      <lightning-relative-date-time
+                        value={s.lastUpdate}
+                      ></lightning-relative-date-time>
+                    </template>
+                    <template lwc:else>never</template>
+                  </span>
+                  <span class={s.chipClass}>
+                    <lightning-icon
+                      icon-name={s.statusIcon}
+                      variant={s.statusVariant}
+                      size="xx-small"
+                      alternative-text=""
+                    ></lightning-icon>
+                    {s.statusText}
+                  </span>
+                  <template lwc:if={s.hasUrl}>
+                    <a
+                      href={s.referenceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={s.linkLabel}
+                      aria-label={s.linkLabel}
+                      class="source-link"
+                    >
+                      <lightning-icon
+                        icon-name="utility:new_window"
+                        size="x-small"
+                        alternative-text=""
+                      ></lightning-icon>
+                    </a>
+                  </template>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </template>
+        <template lwc:else>
+          <p class="slds-text-color_weak slds-m-bottom_small">
+            No streams linked to this vehicle.
+          </p>
+        </template>
+
+        <!-- alerts -->
+        <h3 class="section-title">{alertCountLabel}</h3>
+        <template lwc:if={hasAlerts}>
+          <ul class="rows">
+            <template for:each={alerts} for:item="a">
+              <li
+                key={a.id}
+                class="row row_click"
+                data-id={a.id}
+                onclick={handleOpenAlert}
+                onkeydown={handleAlertKey}
+                tabindex="0"
+                role="link"
+              >
+                <div class="row-main">
+                  <span class="row-title">
+                    <lightning-icon
+                      icon-name={a.typeIcon}
+                      size="x-small"
+                      alternative-text={a.alertType}
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    {a.title}
+                  </span>
+                  <span class="row-sub">
+                    <span class={a.sevClass}>{a.severity}</span>
+                    <span class="slds-text-color_weak"> · {a.alertType}</span>
+                    <template lwc:if={a.dueDate}>
+                      <span class="slds-text-color_weak">
+                        · due
+                        <lightning-formatted-date-time
+                          value={a.dueDate}
+                          year="numeric"
+                          month="short"
+                          day="numeric"
+                          time-zone="UTC"
+                        ></lightning-formatted-date-time>
+                      </span>
+                    </template>
+                  </span>
+                </div>
+                <div class="row-meta">
+                  <span class="chip">{a.status}</span>
+                  <template lwc:if={a.canAcknowledge}>
+                    <lightning-button
+                      label="Acknowledge"
+                      data-id={a.id}
+                      data-status="Acknowledged"
+                      onclick={handleAlertAction}
+                      disabled={busy}
+                    ></lightning-button>
+                  </template>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </template>
+        <template lwc:else>
+          <p class="slds-text-color_weak">No open alerts.</p>
+        </template>
+      </template>
+    </div>
+  </lightning-card>
+</template>

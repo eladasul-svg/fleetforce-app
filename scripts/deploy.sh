@@ -33,16 +33,17 @@ OBJECTS=(
   # Tier 0 — no fleetforce deps
   Fleet_Schedule__c Agreement__c Insurance_Policy__c
   Maintenance_Plan__c Vendor_Rate_Card__c Telemetry_Raw__c Driver_Qualification__c
+  Data_Source__c Stream_Profile__c External_Notice__c
   # Tier 1 — depends on Tier 0
-  Fleet_Branch__c Agreement_Line__c Schedule_Exception__c Schedule_Window__c
+  Fleet_Branch__c Agreement_Line__c Schedule_Exception__c Schedule_Window__c Stream_Profile_Line__c
   # Tier 2 (Total_Maintenance_Cost__c rollup deployed separately after Service_Ticket__c)
   Fleet_Asset__c
   # Tier 3 — depends on Fleet_Asset__c / Fleet_Branch__c
   Fuel_Card__c Service_Ticket__c Asset_Component__c Asset_Document__c
   Authorized_Driver__c Availability_Blackout__c Branch_Assignment__c
-  Telematics_Equipment__c Reservation__c Schedule_Assignment__c
+  Telematics_Equipment__c Reservation__c Schedule_Assignment__c Data_Stream__c
   # Tier 4
-  Fuel_Log__c Asset_Insurance_Link__c Telemetry_Violation__c Allocation__c
+  Fuel_Log__c Asset_Insurance_Link__c Telemetry_Violation__c Allocation__c Asset_Alert__c
   # Tier 5
   Carbon_Log__c Citation__c Service_Line_Item__c
 )
@@ -68,6 +69,7 @@ sleep 3
 # ── Stage 3: Apex + LWC (needed before FlexiPages) ───────────────────────────
 echo "── Stage 3: Apex + LWC ──"
 deploy "classes"    --source-dir force-app/main/default/classes
+deploy "triggers"   --source-dir force-app/main/default/triggers
 deploy "lwc"        --source-dir force-app/main/default/lwc
 deploy "aura"       --source-dir force-app/main/default/aura
 deploy "components" --source-dir force-app/main/default/components

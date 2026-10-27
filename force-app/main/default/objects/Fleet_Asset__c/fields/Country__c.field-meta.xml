@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Country__c</fullName>
+    <inlineHelpText>ISO 3166 two-letter country where the vehicle is registered or operated, e.g. PT. Used to match regulations by jurisdiction.</inlineHelpText>
+    <label>Country</label>
+    <length>2</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+</CustomField>

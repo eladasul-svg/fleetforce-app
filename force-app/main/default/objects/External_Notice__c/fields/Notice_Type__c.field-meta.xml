@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Notice_Type__c</fullName>
+    <label>Notice Type</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Recall</fullName>
+                <default>false</default>
+                <label>Recall</label>
+            </value>
+            <value>
+                <fullName>Regulation</fullName>
+                <default>false</default>
+                <label>Regulation</label>
+            </value>
+            <value>
+                <fullName>Service bulletin</fullName>
+                <default>false</default>
+                <label>Service bulletin</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

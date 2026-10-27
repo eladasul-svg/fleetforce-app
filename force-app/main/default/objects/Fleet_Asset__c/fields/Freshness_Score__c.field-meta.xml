@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Freshness_Score__c</fullName>
+    <inlineHelpText>Average over the required profile lines: 100 within max age, falling to 0 at three times max age; missing = 0.</inlineHelpText>
+    <label>Freshness Score</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+</CustomField>

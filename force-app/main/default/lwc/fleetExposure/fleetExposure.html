@@ -1,0 +1,248 @@
+<template>
+  <div class="page">
+    <lightning-card title="Fleet exposure" icon-name="utility:shield">
+      <lightning-button-icon
+        slot="actions"
+        icon-name="utility:refresh"
+        alternative-text="Refresh"
+        title="Refresh"
+        onclick={handleRefresh}
+      ></lightning-button-icon>
+      <div class="slds-p-horizontal_medium">
+        <template lwc:if={isSample}>
+          <div class="sample-banner slds-m-bottom_small" role="note">
+            <lightning-icon
+              icon-name="utility:info"
+              size="x-small"
+              alternative-text="Information"
+            ></lightning-icon>
+            <span
+              ><strong>Preview on sample data.</strong> Recalls, regulations and
+              sources here are fictional. Live feeds come later.</span
+            >
+          </div>
+        </template>
+
+        <template lwc:if={loading}>
+          <lightning-spinner
+            alternative-text="Loading fleet exposure"
+            size="small"
+          ></lightning-spinner>
+          <div class="placeholder"></div>
+        </template>
+
+        <template lwc:if={error}>
+          <div class="state" role="alert">
+            <lightning-icon
+              icon-name="utility:error"
+              variant="error"
+              size="small"
+              alternative-text="Error"
+            ></lightning-icon>
+            <p>Fleet exposure could not be loaded. {error}</p>
+            <lightning-button
+              label="Try again"
+              onclick={handleRefresh}
+            ></lightning-button>
+          </div>
+        </template>
+
+        <template lwc:if={ready}>
+          <ul class="tiles">
+            <template for:each={tiles} for:item="t">
+              <li key={t.key} class="tile">
+                <lightning-icon
+                  icon-name={t.icon}
+                  size="small"
+                  alternative-text=""
+                ></lightning-icon>
+                <div>
+                  <p class="tile-value">{t.value}</p>
+                  <p class="tile-label">{t.label}</p>
+                  <template lwc:if={t.sub}
+                    ><p class="tile-sub">{t.sub}</p></template
+                  >
+                </div>
+              </li>
+            </template>
+          </ul>
+        </template>
+      </div>
+    </lightning-card>
+
+    <template lwc:if={ready}>
+      <div class="panels">
+        <lightning-card
+          title="Notices"
+          icon-name="utility:knowledge_base"
+          class="panel panel_wide"
+        >
+          <div class="slds-p-horizontal_medium">
+            <div class="filters">
+              <lightning-combobox
+                name="typeFilter"
+                label="Type"
+                value={typeFilter}
+                options={typeOptions}
+                onchange={handleFilter}
+              ></lightning-combobox>
+              <lightning-combobox
+                name="jurisdictionFilter"
+                label="Jurisdiction"
+                value={jurisdictionFilter}
+                options={jurisdictionOptions}
+                onchange={handleFilter}
+              ></lightning-combobox>
+              <lightning-combobox
+                name="statusFilter"
+                label="Status"
+                value={statusFilter}
+                options={statusOptions}
+                onchange={handleFilter}
+              ></lightning-combobox>
+              <lightning-button
+                label="Clear"
+                variant="base"
+                onclick={handleClearFilters}
+                class="filters-clear"
+              ></lightning-button>
+            </div>
+            <p
+              class="slds-text-body_small slds-text-color_weak slds-m-vertical_x-small"
+            >
+              {noticeCountLabel}. Select a title to see its vehicles.
+            </p>
+            <template lwc:if={hasNotices}>
+              <div class="table">
+                <lightning-datatable
+                  key-field="id"
+                  data={filteredNotices}
+                  columns={noticeColumns}
+                  hide-checkbox-column
+                  onrowaction={handleNoticeAction}
+                ></lightning-datatable>
+              </div>
+            </template>
+            <template lwc:else>
+              <div class="state">
+                <p class="slds-text-heading_small">No notices</p>
+                <p class="slds-text-color_weak">
+                  Nothing matches these filters yet.
+                </p>
+              </div>
+            </template>
+          </div>
+        </lightning-card>
+
+        <template lwc:if={selectedNotice}>
+          <lightning-card
+            title={drillTitle}
+            icon-name="utility:car"
+            class="panel panel_wide drill"
+          >
+            <lightning-button-group slot="actions">
+              <lightning-button
+                label="Open notice"
+                onclick={handleOpenNotice}
+              ></lightning-button>
+              <lightning-button
+                label="Close"
+                onclick={handleCloseDrill}
+              ></lightning-button>
+            </lightning-button-group>
+            <div class="slds-p-horizontal_medium">
+              <template lwc:if={isRecall}>
+                <div class="possible slds-m-bottom_small" role="note">
+                  <lightning-icon
+                    icon-name="utility:warning"
+                    variant="warning"
+                    size="x-small"
+                    alternative-text="Note"
+                  ></lightning-icon>
+                  <span
+                    >Possible matches by make, model and year. Confirm each
+                    vehicle by VIN with the manufacturer.</span
+                  >
+                </div>
+              </template>
+              <template lwc:if={loadingVehicles}>
+                <lightning-spinner
+                  alternative-text="Loading vehicles"
+                  size="small"
+                ></lightning-spinner>
+                <div class="placeholder"></div>
+              </template>
+              <template lwc:elseif={hasVehicles}>
+                <div class="table">
+                  <lightning-datatable
+                    key-field="alertId"
+                    data={vehicleRows}
+                    columns={vehicleColumns}
+                    hide-checkbox-column
+                  ></lightning-datatable>
+                </div>
+              </template>
+              <template lwc:else>
+                <p class="slds-text-color_weak slds-p-vertical_small">
+                  No vehicles match this notice. Notices are matched only when
+                  Active and Reviewed.
+                </p>
+              </template>
+            </div>
+          </lightning-card>
+        </template>
+
+        <lightning-card
+          title="Data health by source"
+          icon-name="utility:data_mapping"
+          class="panel"
+        >
+          <div class="slds-p-horizontal_medium">
+            <template lwc:if={hasSources}>
+              <ul>
+                <template for:each={sourceRows} for:item="s">
+                  <li key={s.id} class="source">
+                    <div class="source-head">
+                      <span class="source-name">
+                        <template lwc:if={s.referenceUrl}>
+                          <a
+                            href={s.referenceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >{s.name}</a
+                          >
+                        </template>
+                        <template lwc:else>{s.name}</template>
+                      </span>
+                      <span class="chip">
+                        <lightning-icon
+                          icon-name={s.flagIcon}
+                          size="xx-small"
+                          alternative-text=""
+                        ></lightning-icon>
+                        {s.flagText}
+                      </span>
+                    </div>
+                    <lightning-progress-bar
+                      value={s.staleShare}
+                      size="small"
+                      aria-label={s.staleLabel}
+                    ></lightning-progress-bar>
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      {s.staleLabel}
+                    </p>
+                  </li>
+                </template>
+              </ul>
+            </template>
+            <template lwc:else>
+              <p class="slds-text-color_weak slds-p-vertical_small">
+                No data sources linked yet.
+              </p>
+            </template>
+          </div>
+        </lightning-card>
+      </div>
+    </template>
+  </div>
+</template>
