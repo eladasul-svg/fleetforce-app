@@ -188,7 +188,7 @@ public with sharing class DataHealthService {
             Integer completeness = (expected == null || expected <= 0) ? 0 : round(Math.min((Decimal) 100, signals * 100 / expected));
 
             // reconcile owned alerts: create or refresh the wanted ones, auto-resolve the rest
-            Integer penalty = 0;
+            Integer gapPenalty = 0;
             for (Asset_Alert__c w : wanted.values()) {
                 w.Is_Sample__c = sample;
                 Asset_Alert__c existing = ownedByKey.get(w.Unique_Key__c);
@@ -196,14 +196,14 @@ public with sharing class DataHealthService {
                     w.Status__c = 'New';
                     w.Resolved_On__c = null;
                     alertUpserts.put(w.Unique_Key__c, w);
-                    penalty += PENALTY.get(w.Severity__c);
+                    gapPenalty += PENALTY.get(w.Severity__c);
                 } else {
                     if (existing.Severity__c != w.Severity__c || existing.Title__c != w.Title__c ||
                         existing.Detail__c != w.Detail__c || existing.Data_Stream__c != w.Data_Stream__c) {
                         alertUpserts.put(w.Unique_Key__c, w);
                     }
                     if (AssetAlertService.OPEN_STATUSES.contains(existing.Status__c)) {
-                        penalty += PENALTY.get(w.Severity__c);
+                        gapPenalty += PENALTY.get(w.Severity__c);
                     }
                 }
             }
@@ -217,10 +217,10 @@ public with sharing class DataHealthService {
             }
             if (otherOpenGaps.containsKey(asset.Id)) {
                 for (Asset_Alert__c a : otherOpenGaps.get(asset.Id)) {
-                    penalty += PENALTY.containsKey(a.Severity__c) ? PENALTY.get(a.Severity__c) : 0;
+                    gapPenalty += PENALTY.containsKey(a.Severity__c) ? PENALTY.get(a.Severity__c) : 0;
                 }
             }
-            Integer consistency = Math.max(0, 100 - penalty);
+            Integer consistency = Math.max(0, 100 - gapPenalty);
 
             Result r = new Result();
             r.assetId = asset.Id;

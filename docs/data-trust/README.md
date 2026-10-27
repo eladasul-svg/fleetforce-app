@@ -48,6 +48,6 @@ Run the Jest tests with `npm run test:unit -- --testPathPattern 'assetDataHealth
 
 ## Not done here / needs the org
 
-- **Not yet deployed or run in an org.** The build environment had no Salesforce CLI or org. All Apex was syntax-checked with the Apex parser only. The Apex tests (including the 200-vehicle bulk test), coverage, both screens at 1024×768 and the demo screenshots all have to be checked in the scratch org.
+- **Deployed to `fleetforce-dev-11` on 27 Oct 2026.** The five Apex test classes pass (34 tests, 93–100% coverage on every data trust class) and the seed gives the reference scores 100 / 80 / 45. Two fixes were needed on first deploy: a local `penalty` variable in `DataHealthService` shadowed the `PENALTY` map (Apex names are case-insensitive), and `FleetforceDataTrust` needed Read and View All on Fleet Asset for its master-detail children. Both screens at 1024×768 and the demo screenshots still have to be checked by hand.
 - No hardcoded namespace in the new code. The existing classes still use the `fleetforce__` prefix; that is unchanged.
 - P1 and P2 are not started: live US recall pull, the CSV mapping assistant, bulk actions, Sync Log, regulation intake, OEM notices and connectors.
