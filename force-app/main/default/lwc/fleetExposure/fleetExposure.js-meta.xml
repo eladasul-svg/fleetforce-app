@@ -7,5 +7,6 @@
   >Central view of recalls, regulations and data gaps across the fleet.</description>
     <targets>
         <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
     </targets>
 </LightningComponentBundle>
