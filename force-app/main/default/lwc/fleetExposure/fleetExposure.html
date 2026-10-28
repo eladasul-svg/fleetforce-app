@@ -9,17 +9,6 @@
         onclick={handleRefresh}
       ></lightning-button-icon>
       <div class="slds-p-horizontal_medium">
-        <template lwc:if={isSample}>
-          <div class="sample-banner slds-m-bottom_small" role="note">
-            <lightning-icon
-              icon-name="utility:info"
-              size="x-small"
-              alternative-text="Information"
-            ></lightning-icon>
-            <span><strong>Sample data set</strong></span>
-          </div>
-        </template>
-
         <template lwc:if={loading}>
           <lightning-spinner
             alternative-text="Loading fleet exposure"

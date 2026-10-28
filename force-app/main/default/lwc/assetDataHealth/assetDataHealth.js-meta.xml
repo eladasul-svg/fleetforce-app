@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Asset Data Health</masterLabel>
-    <description>For the Fleet Asset record page: data health score with its three parts, the vehicle's data streams and its open alerts.</description>
+    <description
+  >For the Fleet Asset record page: data health score with its three parts, the vehicle's data streams and its open alerts.</description>
     <targets>
         <target>lightning__RecordPage</target>
     </targets>

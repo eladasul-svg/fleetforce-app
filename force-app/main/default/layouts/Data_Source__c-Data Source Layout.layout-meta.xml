@@ -16,6 +16,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Vendor_Account__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Source_Type__c</field>
             </layoutItems>
             <layoutItems>

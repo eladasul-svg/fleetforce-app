@@ -1,6 +1,7 @@
 import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import { encodeDefaultFieldValues } from "lightning/pageReferenceUtils";
 import getHealth from "@salesforce/apex/AssetDataHealthController.getHealth";
 import refreshHealth from "@salesforce/apex/AssetDataHealthController.refreshHealth";
 import setAlertStatus from "@salesforce/apex/AssetDataHealthController.setAlertStatus";
@@ -8,7 +9,8 @@ import {
   healthStyle,
   streamStyle,
   alertTypeIcon,
-  severityRank,
+  alertStatusStyle,
+  toTimestamp,
   severityClass,
   reduceError
 } from "c/dataTrustFormat";
@@ -68,6 +70,35 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
     }
   }
 
+  handleCreateTask(event) {
+    event.stopPropagation();
+    const alert = this.health.alerts.find(
+      (a) => a.id === event.currentTarget.dataset.id
+    );
+    this[NavigationMixin.Navigate]({
+      type: "standard__objectPage",
+      attributes: { objectApiName: "Task", actionName: "new" },
+      state: {
+        defaultFieldValues: encodeDefaultFieldValues({
+          WhatId: alert.id,
+          Subject: `Follow up: ${alert.title}`.slice(0, 255)
+        }),
+        navigationLocation: "RELATED_LIST"
+      }
+    });
+  }
+
+  handleOpenVendor(event) {
+    event.preventDefault();
+    this[NavigationMixin.Navigate]({
+      type: "standard__recordPage",
+      attributes: {
+        recordId: event.currentTarget.dataset.id,
+        actionName: "view"
+      }
+    });
+  }
+
   handleOpenAlert(event) {
     this[NavigationMixin.Navigate]({
       type: "standard__recordPage",
@@ -110,10 +141,6 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
     return this.hasHealth && !this.isEmpty;
   }
 
-  get isSample() {
-    return !!this.health && this.health.isSample;
-  }
-
   get hasScore() {
     return (
       this.health &&
@@ -147,6 +174,10 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
       : "Data health score not calculated yet";
   }
 
+  get calculatedOn() {
+    return toTimestamp(this.health && this.health.calculatedOn);
+  }
+
   get parts() {
     const h = this.health || {};
     return [
@@ -169,6 +200,9 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
         statusIcon: st.icon,
         statusVariant: st.variant,
         chipClass: st.css,
+        lastUpdateTs: toTimestamp(s.lastUpdate),
+        vendorHref: s.vendorAccountId ? `/${s.vendorAccountId}` : null,
+        vendorLabel: `Open the ${s.vendorName} account`,
         hasUrl: !!s.referenceUrl,
         linkLabel: `Open ${s.sourceName || "source"} (${s.dataType}) in a new tab`
       };
@@ -179,15 +213,23 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
     return this.streams.length > 0;
   }
 
+  // the server sends open alerts first (most severe first), then closed ones
   get alerts() {
-    const list = this.health ? [...this.health.alerts] : [];
-    list.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-    return list.map((a) => ({
-      ...a,
-      typeIcon: alertTypeIcon(a.alertType),
-      sevClass: severityClass(a.severity),
-      canAcknowledge: a.status === "New"
-    }));
+    return (this.health ? this.health.alerts : []).map((a) => {
+      const st = alertStatusStyle(a.status);
+      return {
+        ...a,
+        typeIcon: alertTypeIcon(a.alertType),
+        sevClass: severityClass(a.severity),
+        rowClass: a.isOpen ? "row row_click" : "row row_click row_closed",
+        statusIcon: st.icon,
+        statusVariant: st.variant,
+        statusClass: st.css,
+        resolvedTs: toTimestamp(a.resolvedOn),
+        canAcknowledge: a.status === "New",
+        canCreateTask: !!a.isOpen
+      };
+    });
   }
 
   get hasAlerts() {
@@ -196,6 +238,7 @@ export default class AssetDataHealth extends NavigationMixin(LightningElement) {
 
   get alertCountLabel() {
     const n = this.alerts.length;
-    return `${n} open alert${n === 1 ? "" : "s"}`;
+    const open = this.alerts.filter((a) => a.isOpen).length;
+    return `${n} alert${n === 1 ? "" : "s"}, ${open} open`;
   }
 }

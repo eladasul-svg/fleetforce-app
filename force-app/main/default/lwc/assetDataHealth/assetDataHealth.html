@@ -10,17 +10,6 @@
     ></lightning-button-icon>
 
     <div class="slds-p-horizontal_medium slds-is-relative">
-      <template lwc:if={isSample}>
-        <div class="sample-banner slds-m-bottom_small" role="note">
-          <lightning-icon
-            icon-name="utility:info"
-            size="x-small"
-            alternative-text="Information"
-          ></lightning-icon>
-          <span><strong>Sample data set</strong></span>
-        </div>
-      </template>
-
       <template lwc:if={loading}>
         <lightning-spinner
           alternative-text="Loading data health"
@@ -106,10 +95,10 @@
               <template lwc:if={health.profileName}
                 >Profile: {health.profileName}.
               </template>
-              <template lwc:if={health.calculatedOn}>
+              <template lwc:if={calculatedOn}>
                 Calculated
                 <lightning-relative-date-time
-                  value={health.calculatedOn}
+                  value={calculatedOn}
                 ></lightning-relative-date-time
                 >.
               </template>
@@ -126,15 +115,25 @@
               <li key={s.id} class="row">
                 <div class="row-main">
                   <span class="row-title">{s.dataType}</span>
-                  <span class="slds-text-color_weak row-sub"
-                    >{s.sourceName}</span
-                  >
+                  <span class="slds-text-color_weak row-sub">
+                    <template lwc:if={s.vendorHref}>
+                      <a
+                        href={s.vendorHref}
+                        data-id={s.vendorAccountId}
+                        onclick={handleOpenVendor}
+                        title={s.vendorLabel}
+                        >{s.vendorName}</a
+                      >
+                      · {s.sourceType}
+                    </template>
+                    <template lwc:else>{s.sourceName}</template>
+                  </span>
                 </div>
                 <div class="row-meta">
                   <span class="slds-text-color_weak">
-                    <template lwc:if={s.lastUpdate}>
+                    <template lwc:if={s.lastUpdateTs}>
                       <lightning-relative-date-time
-                        value={s.lastUpdate}
+                        value={s.lastUpdateTs}
                       ></lightning-relative-date-time>
                     </template>
                     <template lwc:else>never</template>
@@ -182,7 +181,7 @@
             <template for:each={alerts} for:item="a">
               <li
                 key={a.id}
-                class="row row_click"
+                class={a.rowClass}
                 data-id={a.id}
                 onclick={handleOpenAlert}
                 onkeydown={handleAlertKey}
@@ -217,7 +216,32 @@
                   </span>
                 </div>
                 <div class="row-meta">
-                  <span class="chip">{a.status}</span>
+                  <span class={a.statusClass}>
+                    <lightning-icon
+                      icon-name={a.statusIcon}
+                      variant={a.statusVariant}
+                      size="xx-small"
+                      alternative-text=""
+                    ></lightning-icon>
+                    {a.status}
+                  </span>
+                  <template lwc:if={a.resolvedTs}>
+                    <span class="slds-text-color_weak">
+                      <lightning-relative-date-time
+                        value={a.resolvedTs}
+                      ></lightning-relative-date-time>
+                    </span>
+                  </template>
+                  <template lwc:if={a.canCreateTask}>
+                    <lightning-button
+                      label="Create task"
+                      icon-name="utility:add"
+                      data-action="task"
+                      data-id={a.id}
+                      onclick={handleCreateTask}
+                      disabled={busy}
+                    ></lightning-button>
+                  </template>
                   <template lwc:if={a.canAcknowledge}>
                     <lightning-button
                       label="Acknowledge"
@@ -233,7 +257,7 @@
           </ul>
         </template>
         <template lwc:else>
-          <p class="slds-text-color_weak">No open alerts.</p>
+          <p class="slds-text-color_weak">No alerts.</p>
         </template>
       </template>
     </div>

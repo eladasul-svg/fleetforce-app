@@ -3,7 +3,21 @@ import AssetDataHealth from "c/assetDataHealth";
 import getHealth from "@salesforce/apex/AssetDataHealthController.getHealth";
 import refreshHealth from "@salesforce/apex/AssetDataHealthController.refreshHealth";
 import setAlertStatus from "@salesforce/apex/AssetDataHealthController.setAlertStatus";
+import { encodeDefaultFieldValues } from "lightning/pageReferenceUtils";
 const ShowToastEventName = "lightning__showtoast";
+
+const mockNavigate = jest.fn();
+jest.mock("lightning/navigation", () => {
+  const Navigate = Symbol("Navigate");
+  const NavigationMixin = (Base) =>
+    class extends Base {
+      [Navigate](pageRef) {
+        mockNavigate(pageRef);
+      }
+    };
+  NavigationMixin.Navigate = Navigate;
+  return { NavigationMixin };
+});
 
 jest.mock(
   "@salesforce/apex/AssetDataHealthController.getHealth",
@@ -34,7 +48,10 @@ const AT_RISK = {
   streams: [
     {
       id: "s1",
-      sourceName: "Telematics vendor (sample)",
+      sourceName: "Geotab telematics",
+      sourceType: "Telematics",
+      vendorAccountId: "001000000000001",
+      vendorName: "Geotab",
       dataType: "Location",
       lastUpdate: "2026-10-19T08:00:00.000Z",
       status: "Stale",
@@ -50,21 +67,33 @@ const AT_RISK = {
       signals: 0
     }
   ],
+  // as the server sends them: open alerts first, most severe first, then closed ones
   alerts: [
-    {
-      id: "al1",
-      alertType: "Data gap",
-      severity: "Medium",
-      status: "Acknowledged",
-      title: "Odometer data is stale"
-    },
     {
       id: "al2",
       alertType: "Recall",
       severity: "Critical",
       status: "New",
       title: "Possible recall: airbag",
-      dueDate: "2026-11-11"
+      dueDate: "2026-11-11",
+      isOpen: true
+    },
+    {
+      id: "al1",
+      alertType: "Data gap",
+      severity: "Medium",
+      status: "Acknowledged",
+      title: "Odometer data is stale",
+      isOpen: true
+    },
+    {
+      id: "al3",
+      alertType: "Regulation",
+      severity: "Low",
+      status: "Resolved",
+      title: "Digital driver documents",
+      resolvedOn: "2026-10-27T10:00:00.000Z",
+      isOpen: false
     }
   ]
 };
@@ -118,12 +147,30 @@ describe("c-asset-data-health", () => {
     ).toContain("45 out of 100, At risk");
   });
 
-  it("shows the sample data banner when the data is sample", async () => {
+  it("shows dates as relative times, never as raw strings", async () => {
     getHealth.mockResolvedValue(AT_RISK);
     const el = await mount();
-    expect(el.shadowRoot.querySelector(".sample-banner").textContent).toContain(
-      "Sample data"
-    );
+    const times = [
+      ...el.shadowRoot.querySelectorAll("lightning-relative-date-time")
+    ].map((t) => t.value);
+    expect(times).toEqual([
+      Date.parse("2026-10-28T08:00:00.000Z"),
+      Date.parse("2026-10-19T08:00:00.000Z"),
+      Date.parse("2026-10-27T10:00:00.000Z")
+    ]);
+    expect(el.shadowRoot.querySelector(".sample-banner")).toBeNull();
+  });
+
+  it("links a stream's vendor to its account", async () => {
+    getHealth.mockResolvedValue(AT_RISK);
+    const el = await mount();
+    const vendor = el.shadowRoot.querySelector('a[data-id="001000000000001"]');
+    expect(vendor.textContent).toBe("Geotab");
+    vendor.click();
+    expect(mockNavigate).toHaveBeenCalledWith({
+      type: "standard__recordPage",
+      attributes: { recordId: "001000000000001", actionName: "view" }
+    });
   });
 
   it("lists streams with a status chip and a source link that opens in a new tab", async () => {
@@ -145,32 +192,65 @@ describe("c-asset-data-health", () => {
     expect(links[0].rel).toContain("noopener");
   });
 
-  it("sorts alerts by severity and offers Acknowledge only on new alerts", async () => {
+  it("shows every alert with its status, and actions only on open ones", async () => {
     getHealth.mockResolvedValue(AT_RISK);
     const el = await mount();
 
     const alertRows = el.shadowRoot.querySelectorAll("li.row_click");
-    expect(alertRows).toHaveLength(2);
-    expect(alertRows[0].dataset.id).toBe("al2");
-    expect(alertRows[0].querySelector("lightning-button")).not.toBeNull();
-    expect(alertRows[1].querySelector("lightning-button")).toBeNull();
+    expect(alertRows).toHaveLength(3);
+    const labels = (row) =>
+      [...row.querySelectorAll("lightning-button")].map((b) => b.label);
+    expect(labels(alertRows[0])).toEqual(["Create task", "Acknowledge"]);
+    expect(labels(alertRows[1])).toEqual(["Create task"]);
+    expect(labels(alertRows[2])).toEqual([]);
+    expect(alertRows[2].className).toContain("row_closed");
+    const statuses = [...alertRows].map((r) =>
+      r.querySelector(".row-meta .chip").textContent.trim()
+    );
+    expect(statuses).toEqual(["New", "Acknowledged", "Resolved"]);
     expect(
       el.shadowRoot.querySelectorAll(".section-title")[1].textContent
-    ).toBe("2 open alerts");
+    ).toBe("3 alerts, 2 open");
+  });
+
+  it("opens a new task on the alert from Create task", async () => {
+    getHealth.mockResolvedValue(AT_RISK);
+    encodeDefaultFieldValues.mockReturnValue("encoded");
+    const el = await mount();
+
+    el.shadowRoot.querySelector('lightning-button[data-action="task"]').click();
+    expect(encodeDefaultFieldValues).toHaveBeenCalledWith({
+      WhatId: "al2",
+      Subject: "Follow up: Possible recall: airbag"
+    });
+    expect(mockNavigate).toHaveBeenCalledWith({
+      type: "standard__objectPage",
+      attributes: { objectApiName: "Task", actionName: "new" },
+      state: {
+        defaultFieldValues: "encoded",
+        navigationLocation: "RELATED_LIST"
+      }
+    });
   });
 
   it("acknowledges an alert and shows the updated result", async () => {
     getHealth.mockResolvedValue(AT_RISK);
     const updated = {
       ...AT_RISK,
-      alerts: [AT_RISK.alerts[0], { ...AT_RISK.alerts[1], status: "Acknowledged" }]
+      alerts: [
+        { ...AT_RISK.alerts[0], status: "Acknowledged" },
+        AT_RISK.alerts[1],
+        AT_RISK.alerts[2]
+      ]
     };
     setAlertStatus.mockResolvedValue(updated);
     const el = await mount();
     const toast = jest.fn();
     el.addEventListener(ShowToastEventName, toast);
 
-    el.shadowRoot.querySelector("li.row_click lightning-button").click();
+    el.shadowRoot
+      .querySelector('lightning-button[data-status="Acknowledged"]')
+      .click();
     await flush();
 
     expect(setAlertStatus).toHaveBeenCalledWith({
@@ -178,7 +258,9 @@ describe("c-asset-data-health", () => {
       status: "Acknowledged"
     });
     expect(
-      el.shadowRoot.querySelectorAll("li.row_click lightning-button")
+      el.shadowRoot.querySelectorAll(
+        'lightning-button[data-status="Acknowledged"]'
+      )
     ).toHaveLength(0);
     expect(toast).toHaveBeenCalled();
   });

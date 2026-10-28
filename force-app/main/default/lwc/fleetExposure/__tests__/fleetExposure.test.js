@@ -169,7 +169,7 @@ describe("c-fleet-exposure", () => {
     jest.clearAllMocks();
   });
 
-  it("shows the KPI tiles and the sample banner", async () => {
+  it("shows the KPI tiles without a sample banner", async () => {
     mockAll();
     const el = await mount();
 
@@ -180,9 +180,7 @@ describe("c-fleet-exposure", () => {
     expect(el.shadowRoot.querySelector(".tile-sub").textContent).toBe(
       "60 vehicles scored"
     );
-    expect(el.shadowRoot.querySelector(".sample-banner").textContent).toContain(
-      "Sample data set"
-    );
+    expect(el.shadowRoot.querySelector(".sample-banner")).toBeNull();
   });
 
   it("opens the list view behind a tile when it is clicked", async () => {

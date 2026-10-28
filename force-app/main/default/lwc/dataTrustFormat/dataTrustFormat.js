@@ -13,6 +13,26 @@ const STREAM = {
   Missing: { icon: "utility:ban", variant: "error", css: "chip chip_bad" }
 };
 
+const ALERT_STATUS = {
+  New: { icon: "utility:priority", variant: "error", css: "chip chip_bad" },
+  Acknowledged: {
+    icon: "utility:check",
+    variant: "warning",
+    css: "chip chip_warn"
+  },
+  "In progress": {
+    icon: "utility:clock",
+    variant: "warning",
+    css: "chip chip_warn"
+  },
+  Resolved: {
+    icon: "utility:success",
+    variant: "success",
+    css: "chip chip_ok"
+  },
+  Dismissed: { icon: "utility:ban", variant: "", css: "chip" }
+};
+
 const ALERT_TYPE = {
   "Data gap": "utility:offline",
   Recall: "utility:warning",
@@ -35,6 +55,19 @@ export function healthStyle(status) {
 
 export function streamStyle(status) {
   return STREAM[status] || NEUTRAL;
+}
+
+export function alertStatusStyle(status) {
+  return ALERT_STATUS[status] || NEUTRAL;
+}
+
+/** Apex Datetimes arrive as ISO strings; the relative date component needs a timestamp. */
+export function toTimestamp(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  const ms = typeof value === "number" ? value : Date.parse(value);
+  return Number.isNaN(ms) ? null : ms;
 }
 
 export function alertTypeIcon(type) {

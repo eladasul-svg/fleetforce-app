@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Asset_Alert__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Asset Alert Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Severity__c</fieldNames>
+        <fieldNames>Due_Date__c</fieldNames>
+        <info
+    >&lt;p&gt;Check the detail and the due date. Acknowledge it once someone owns it.&lt;/p&gt;</info>
+        <picklistValueName>New</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Due_Date__c</fieldNames>
+        <info
+    >&lt;p&gt;Someone owns this alert. Log follow-ups as tasks so they show in the activity timeline.&lt;/p&gt;</info>
+        <picklistValueName>Acknowledged</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Due_Date__c</fieldNames>
+        <fieldNames>Detail__c</fieldNames>
+        <info
+    >&lt;p&gt;Work is under way, for example confirming a VIN with the manufacturer or chasing a data feed.&lt;/p&gt;</info>
+        <picklistValueName>In progress</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Resolved_On__c</fieldNames>
+        <info
+    >&lt;p&gt;Fixed. Data gaps also resolve themselves when the data arrives again.&lt;/p&gt;</info>
+        <picklistValueName>Resolved</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Resolved_On__c</fieldNames>
+        <info
+    >&lt;p&gt;Not applicable to this vehicle. Dismissed alerts stop counting toward the open totals.&lt;/p&gt;</info>
+        <picklistValueName>Dismissed</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

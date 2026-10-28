@@ -39,6 +39,10 @@ private class DataTrustControllersTest {
   static void recordPageShowsScoreStreamsAndAlertsAndCanAcknowledge() {
     Fleet_Asset__c a = asset('2023 Ford Transit A');
     Data_Source__c src = DataTrustTestData.source('Tele');
+    Account vendor = new Account(Name = 'Geotab');
+    insert vendor;
+    src.Vendor_Account__c = vendor.Id;
+    update src;
     List<Data_Stream__c> streams = DataTrustTestData.healthyStreams(
       a.Id,
       src,
@@ -82,6 +86,12 @@ private class DataTrustControllersTest {
     for (AssetDataHealthController.StreamRow r : h.streams) {
       Assert.isNotNull(r.referenceUrl, 'falls back to the source URL');
       Assert.areEqual('Tele', r.sourceName);
+      Assert.areEqual(
+        vendor.Id,
+        r.vendorAccountId,
+        'the card links to the vendor account'
+      );
+      Assert.areEqual('Geotab', r.vendorName);
     }
 
     h = AssetDataHealthController.setAlertStatus(
@@ -90,9 +100,29 @@ private class DataTrustControllersTest {
     );
     Assert.areEqual('Acknowledged', h.alerts[0].status);
     Assert.areEqual(2, h.alerts.size(), 'acknowledged alerts stay open');
+    Assert.isTrue(h.alerts[0].isOpen);
+    Id recallId = h.alerts[0].id;
+    Task ack = [
+      SELECT Subject, Status, OwnerId, Description, IsClosed
+      FROM Task
+      WHERE WhatId = :recallId
+    ];
+    Assert.isTrue(ack.Subject.startsWith('Alert acknowledged: '), ack.Subject);
+    Assert.isTrue(ack.IsClosed, 'logged as a completed task');
+    Assert.areEqual(
+      UserInfo.getUserId(),
+      ack.OwnerId,
+      'stamped with the person who acknowledged'
+    );
+    Assert.isTrue(ack.Description.contains('from New to Acknowledged'));
 
-    h = AssetDataHealthController.setAlertStatus(h.alerts[0].id, 'Resolved');
-    Assert.areEqual(1, h.alerts.size());
+    h = AssetDataHealthController.setAlertStatus(recallId, 'Resolved');
+    Assert.areEqual(2, h.alerts.size(), 'closed alerts stay on the card');
+    Assert.isTrue(h.alerts[0].isOpen, 'open alerts first');
+    Assert.areEqual('Resolved', h.alerts[1].status);
+    Assert.isFalse(h.alerts[1].isOpen);
+    Assert.isNotNull(h.alerts[1].resolvedOn);
+    Assert.areEqual(2, [SELECT COUNT() FROM Task WHERE WhatId = :recallId]);
     Assert.isNotNull(
       [
         SELECT Resolved_On__c
@@ -103,7 +133,7 @@ private class DataTrustControllersTest {
     );
 
     try {
-      AssetDataHealthController.setAlertStatus(h.alerts[0].id, 'Bogus');
+      AssetDataHealthController.setAlertStatus(recallId, 'Bogus');
       Assert.fail('expected an error');
     } catch (AuraHandledException e) {
       Assert.isNotNull(e.getMessage());
@@ -246,5 +276,42 @@ private class DataTrustControllersTest {
       0,
       FleetExposureController.getAffectedVehicles(null).size()
     );
+  }
+
+  @IsTest
+  static void statusChangedOnTheRecordIsStampedAndLogged() {
+    Fleet_Asset__c a = asset('2023 Ford Transit B');
+    Asset_Alert__c al = new Asset_Alert__c(
+      Fleet_Asset__c = a.Id,
+      Alert_Type__c = 'Other',
+      Severity__c = 'Low',
+      Status__c = 'New',
+      Title__c = 'Check paperwork',
+      Unique_Key__c = 'TEST:' + a.Id
+    );
+    insert al;
+    Assert.areEqual(
+      0,
+      [SELECT COUNT() FROM Task WHERE WhatId = :al.Id],
+      'creating an alert logs nothing'
+    );
+
+    al.Status__c = 'Dismissed'; // as the path's "Mark as current status" would
+    update al;
+    al = [SELECT Resolved_On__c FROM Asset_Alert__c WHERE Id = :al.Id];
+    Assert.isNotNull(al.Resolved_On__c, 'closing stamps Resolved On');
+    Assert.areEqual(
+      'Alert dismissed: Check paperwork',
+      [SELECT Subject FROM Task WHERE WhatId = :al.Id].Subject
+    );
+
+    al.Status__c = 'In progress';
+    update al;
+    Assert.isNull(
+      [SELECT Resolved_On__c FROM Asset_Alert__c WHERE Id = :al.Id]
+      .Resolved_On__c,
+      'reopening clears it'
+    );
+    Assert.areEqual(2, [SELECT COUNT() FROM Task WHERE WhatId = :al.Id]);
   }
 }

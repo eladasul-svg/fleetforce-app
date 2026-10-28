@@ -1,13 +1,3 @@
-.sample-banner {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  background: #eef4ff;
-  border: 1px solid #aacbff;
-}
-
 .placeholder {
   min-height: 6rem;
 }
@@ -188,6 +178,11 @@
 .chip_bad {
   border-color: #fe9399;
   background: #fef1ee;
+}
+
+.row_closed .row-title,
+.row_closed .row-sub {
+  color: #5c5c5c;
 }
 
 .sev {

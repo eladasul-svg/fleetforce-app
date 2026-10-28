@@ -204,10 +204,6 @@ export default class FleetExposure extends NavigationMixin(LightningElement) {
     return !this.loading && !this.error && !!this.summary;
   }
 
-  get isSample() {
-    return !!this.summary && this.summary.isSample;
-  }
-
   get tiles() {
     const s = this.summary;
     if (!s) {
