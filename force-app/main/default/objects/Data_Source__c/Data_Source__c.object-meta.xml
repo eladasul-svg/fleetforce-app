@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>A customer connection that supplies vehicle data: a telematics vendor, an FMC feed, an OEM, a regulatory feed or a file import. Raw data stays in the source; FleetForce keeps counters and a link.</description>
-    <enableActivities>false</enableActivities>
+    <description
+  >A customer connection that supplies vehicle data: a telematics vendor, an FMC feed, an OEM, a regulatory feed or a file import. Raw data stays in the source; FleetForce keeps counters and a link.</description>
+    <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
