@@ -1,220 +1,384 @@
 <template>
-    <div class="mp">
-        <!-- top bar -->
-        <header class="mp-top">
-            <div class="mp-brand">
-                <svg class="mp-symbol" viewBox="10 10 46 46" aria-hidden="true">
-                    <circle cx="18" cy="46" r="6" fill="none" stroke="#8CC8F2" stroke-width="4"></circle>
-                    <path d="M23 42 C40 40 24 22 40 21" fill="none" stroke="#8CC8F2" stroke-width="5" stroke-linecap="round"></path>
-                    <circle cx="46" cy="19" r="7.5" fill="#3FC795"></circle>
-                </svg>
-                <img class="mp-wordmark" src={wordmarkUrl} alt="fleetforce"/>
-                <span class="mp-brand__divider" aria-hidden="true"></span>
-                <span class="mp-brand__sub">Motorpool</span>
+  <div class="mp">
+    <!-- top bar -->
+    <header class="mp-top">
+      <div class="mp-brand">
+        <svg class="mp-symbol" viewBox="10 10 46 46" aria-hidden="true">
+          <circle
+            cx="18"
+            cy="46"
+            r="6"
+            fill="none"
+            stroke="#8CC8F2"
+            stroke-width="4"
+          ></circle>
+          <path
+            d="M23 42 C40 40 24 22 40 21"
+            fill="none"
+            stroke="#8CC8F2"
+            stroke-width="5"
+            stroke-linecap="round"
+          ></path>
+          <circle cx="46" cy="19" r="7.5" fill="#3FC795"></circle>
+        </svg>
+        <img class="mp-wordmark" src={wordmarkUrl} alt="fleetforce" />
+        <span class="mp-brand__divider" aria-hidden="true"></span>
+        <span class="mp-brand__sub">Motorpool</span>
+      </div>
+      <div class="mp-top__note">Reserve a vehicle in under a minute</div>
+    </header>
+
+    <!-- hero + search -->
+    <section class="hero">
+      <h1 class="hero__title">Book a vehicle from the motorpool</h1>
+      <p class="hero__sub">
+        See what is free for your dates, pick a vehicle and send your request.
+      </p>
+
+      <template lwc:if={showSearch}>
+        <div class="search">
+          <template lwc:if={hasLocations}>
+            <label class="field field--location">
+              <span class="field__label">Pick-up location</span>
+              <select class="field__input" onchange={handleLocation}>
+                <template for:each={locationOptions} for:item="l">
+                  <option key={l.value} value={l.value} selected={l.selected}>
+                    {l.label}
+                  </option>
+                </template>
+              </select>
+            </label>
+          </template>
+          <div class="search__row">
+            <label class="field">
+              <span class="field__label">Pick-up date</span>
+              <input
+                type="date"
+                class="field__input"
+                value={pickupDate}
+                min={minPickupDate}
+                data-field="pickupDate"
+                onchange={handlePickupDate}
+              />
+            </label>
+            <label class="field">
+              <span class="field__label">Return date</span>
+              <input
+                type="date"
+                class="field__input"
+                value={returnDate}
+                min={minReturnDate}
+                data-field="returnDate"
+                onchange={handleField}
+              />
+            </label>
+            <div class="field field--seats">
+              <span class="field__label">Seats needed</span>
+              <div class="stepper">
+                <button
+                  type="button"
+                  class="stepper__btn"
+                  data-delta="-1"
+                  onclick={handleSeats}
+                  aria-label="Fewer seats"
+                >
+                  −
+                </button>
+                <span class="stepper__value">{seats}</span>
+                <button
+                  type="button"
+                  class="stepper__btn"
+                  data-delta="1"
+                  onclick={handleSeats}
+                  aria-label="More seats"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div class="mp-top__note">Reserve a vehicle in under a minute</div>
-        </header>
+          </div>
+          <div class="times">
+            <label class="check">
+              <input
+                type="checkbox"
+                checked={showTimes}
+                onchange={handleToggleTimes}
+              />
+              <span>Set pick-up and return times</span>
+            </label>
+            <template lwc:if={showTimes}>
+              <label class="field field--time">
+                <span class="field__label">{pickupTimeLabel}</span>
+                <input
+                  type="time"
+                  class="field__input"
+                  value={pickupTime}
+                  step="900"
+                  data-field="pickupTime"
+                  onchange={handleField}
+                />
+              </label>
+              <label class="field field--time">
+                <span class="field__label">{returnTimeLabel}</span>
+                <input
+                  type="time"
+                  class="field__input"
+                  value={returnTime}
+                  step="900"
+                  data-field="returnTime"
+                  onchange={handleField}
+                />
+              </label>
+            </template>
+            <template lwc:else>
+              <span class="times__hint">{defaultTimesHint}</span>
+            </template>
+          </div>
+          <div class="search__row search__row--chips">
+            <span class="field__label">Vehicle type</span>
+            <div class="chips" role="group" aria-label="Vehicle type">
+              <template for:each={typeChips} for:item="t">
+                <button
+                  key={t.value}
+                  type="button"
+                  class={t.cls}
+                  data-value={t.value}
+                  aria-pressed={t.pressed}
+                  onclick={handleType}
+                >
+                  {t.label}
+                </button>
+              </template>
+            </div>
+            <button
+              type="button"
+              class="btn btn--primary search__go"
+              onclick={handleSearch}
+              disabled={loading}
+            >
+              <template lwc:if={loading}>Checking availability…</template>
+              <template lwc:else>Check availability</template>
+            </button>
+          </div>
+          <template lwc:if={error}>
+            <p class="error" role="alert">{error}</p>
+          </template>
+        </div>
+      </template>
+    </section>
 
-        <!-- hero + search -->
-        <section class="hero">
-            <h1 class="hero__title">Book a vehicle from the motorpool</h1>
-            <p class="hero__sub">See what is free for your dates, pick a vehicle and send your request.</p>
+    <main class="mp-main">
+      <!-- results -->
+      <template lwc:if={showResults}>
+        <div class="results__head">
+          <div>
+            <h2 class="results__title">{summaryLine}</h2>
+            <p class="results__window">
+              {windowLabel} <span class="dot">•</span> {durationLabel}
+            </p>
+          </div>
+          <div class="legend" aria-label="Legend">
+            <span class="legend__item"
+              ><i class="swatch swatch--free"></i>Free</span
+            >
+            <span class="legend__item"
+              ><i class="swatch swatch--booked"></i>Booked</span
+            >
+            <span class="legend__item"
+              ><i class="swatch swatch--service"></i>Maintenance</span
+            >
+            <span class="legend__item"
+              ><i class="swatch swatch--window"></i>Your dates</span
+            >
+          </div>
+        </div>
 
-            <template lwc:if={showSearch}>
-                <div class="search">
-                    <div class="search__row">
-                        <label class="field">
-                            <span class="field__label">Pick-up date</span>
-                            <input type="date" class="field__input" value={pickupDate} min={minPickupDate}
-                                   data-field="pickupDate" onchange={handlePickupDate}/>
-                        </label>
-                        <label class="field">
-                            <span class="field__label">Return date</span>
-                            <input type="date" class="field__input" value={returnDate} min={minReturnDate}
-                                   data-field="returnDate" onchange={handleField}/>
-                        </label>
-                        <div class="field field--seats">
-                            <span class="field__label">Seats needed</span>
-                            <div class="stepper">
-                                <button type="button" class="stepper__btn" data-delta="-1" onclick={handleSeats}
-                                        aria-label="Fewer seats">−</button>
-                                <span class="stepper__value">{seats}</span>
-                                <button type="button" class="stepper__btn" data-delta="1" onclick={handleSeats}
-                                        aria-label="More seats">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="times">
-                        <label class="check">
-                            <input type="checkbox" checked={showTimes} onchange={handleToggleTimes}/>
-                            <span>Set pick-up and return times</span>
-                        </label>
-                        <template lwc:if={showTimes}>
-                            <label class="field field--time">
-                                <span class="field__label">Pick-up time</span>
-                                <input type="time" class="field__input" value={pickupTime} step="900"
-                                       data-field="pickupTime" onchange={handleField}/>
-                            </label>
-                            <label class="field field--time">
-                                <span class="field__label">Return time</span>
-                                <input type="time" class="field__input" value={returnTime} step="900"
-                                       data-field="returnTime" onchange={handleField}/>
-                            </label>
-                        </template>
-                        <template lwc:else>
-                            <span class="times__hint">{defaultTimesHint}</span>
-                        </template>
-                    </div>
-                    <div class="search__row search__row--chips">
-                        <span class="field__label">Vehicle type</span>
-                        <div class="chips" role="group" aria-label="Vehicle type">
-                            <template for:each={typeChips} for:item="t">
-                                <button key={t.value} type="button" class={t.cls} data-value={t.value}
-                                        aria-pressed={t.pressed} onclick={handleType}>{t.label}</button>
-                            </template>
-                        </div>
-                        <button type="button" class="btn btn--primary search__go" onclick={handleSearch}
-                                disabled={loading}>
-                            <template lwc:if={loading}>Checking availability…</template>
-                            <template lwc:else>Check availability</template>
-                        </button>
-                    </div>
-                    <template lwc:if={error}>
-                        <p class="error" role="alert">{error}</p>
+        <template lwc:if={hasOptions}>
+          <div class="grid">
+            <template for:each={cards} for:item="c">
+              <article key={c.id} class={c.cardCls}>
+                <div class="vcard__art">
+                  <c-fleet-vehicle-image
+                    variant="icon"
+                    size="250"
+                    body-type={c.bodyType}
+                    color={c.color}
+                    fuel-type={c.fuelType}
+                  ></c-fleet-vehicle-image>
+                </div>
+                <div class="vcard__body">
+                  <div class="vcard__titlerow">
+                    <h3 class="vcard__title">{c.name}</h3>
+                    <span class="seats">{c.seatLabel}</span>
+                  </div>
+                  <ul class="specs">
+                    <template for:each={c.specs} for:item="s">
+                      <li key={s.key} class="spec">{s.text}</li>
                     </template>
+                  </ul>
+                  <div class={c.statusCls}>{c.statusText}</div>
+                  <div class="week" role="group" aria-label="Week availability">
+                    <template for:each={c.days} for:item="d">
+                      <div key={d.key} class={d.cls} title={d.title}>
+                        <span class="day__name">{d.dayName}</span>
+                        <span class="day__num">{d.dayNumber}</span>
+                      </div>
+                    </template>
+                  </div>
+                  <template lwc:if={c.available}>
+                    <button
+                      type="button"
+                      class="btn btn--primary vcard__cta"
+                      data-id={c.id}
+                      onclick={handleSelect}
+                    >
+                      Select this vehicle
+                    </button>
+                  </template>
+                  <template lwc:else>
+                    <button
+                      type="button"
+                      class="btn btn--ghost vcard__cta"
+                      disabled
+                    >
+                      Not available
+                    </button>
+                  </template>
                 </div>
+              </article>
             </template>
-        </section>
+          </div>
+        </template>
+        <template lwc:else>
+          <div class="empty">
+            <h3>No vehicles match</h3>
+            <p>Try fewer seats or a different vehicle type.</p>
+          </div>
+        </template>
+      </template>
 
-        <main class="mp-main">
-            <!-- results -->
-            <template lwc:if={showResults}>
-                <div class="results__head">
-                    <div>
-                        <h2 class="results__title">{summaryLine}</h2>
-                        <p class="results__window">{windowLabel} <span class="dot">•</span> {durationLabel}</p>
-                    </div>
-                    <div class="legend" aria-label="Legend">
-                        <span class="legend__item"><i class="swatch swatch--free"></i>Free</span>
-                        <span class="legend__item"><i class="swatch swatch--booked"></i>Booked</span>
-                        <span class="legend__item"><i class="swatch swatch--service"></i>Maintenance</span>
-                        <span class="legend__item"><i class="swatch swatch--window"></i>Your dates</span>
-                    </div>
-                </div>
-
-                <template lwc:if={hasOptions}>
-                    <div class="grid">
-                        <template for:each={cards} for:item="c">
-                            <article key={c.id} class={c.cardCls}>
-                                <div class="vcard__art">
-                                    <c-fleet-vehicle-image variant="icon" size="250" body-type={c.bodyType}
-                                        color={c.color} fuel-type={c.fuelType}></c-fleet-vehicle-image>
-                                </div>
-                                <div class="vcard__body">
-                                    <div class="vcard__titlerow">
-                                        <h3 class="vcard__title">{c.name}</h3>
-                                        <span class="seats">{c.seatLabel}</span>
-                                    </div>
-                                    <ul class="specs">
-                                        <template for:each={c.specs} for:item="s">
-                                            <li key={s.key} class="spec">{s.text}</li>
-                                        </template>
-                                    </ul>
-                                    <div class={c.statusCls}>{c.statusText}</div>
-                                    <div class="week" role="group" aria-label="Week availability">
-                                        <template for:each={c.days} for:item="d">
-                                            <div key={d.key} class={d.cls} title={d.title}>
-                                                <span class="day__name">{d.dayName}</span>
-                                                <span class="day__num">{d.dayNumber}</span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                    <template lwc:if={c.available}>
-                                        <button type="button" class="btn btn--primary vcard__cta" data-id={c.id}
-                                                onclick={handleSelect}>Select this vehicle</button>
-                                    </template>
-                                    <template lwc:else>
-                                        <button type="button" class="btn btn--ghost vcard__cta" disabled>Not available</button>
-                                    </template>
-                                </div>
-                            </article>
-                        </template>
-                    </div>
-                </template>
-                <template lwc:else>
-                    <div class="empty">
-                        <h3>No vehicles match</h3>
-                        <p>Try fewer seats or a different vehicle type.</p>
-                    </div>
-                </template>
+      <!-- details -->
+      <template lwc:if={showDetails}>
+        <button type="button" class="back" onclick={handleBack}>
+          ← Back to vehicles
+        </button>
+        <div class="details">
+          <aside class="panel panel--summary">
+            <c-fleet-vehicle-image
+              variant="icon"
+              size="320"
+              body-type={selected.bodyType}
+              color={selected.color}
+              fuel-type={selected.fuelType}
+            ></c-fleet-vehicle-image>
+            <h3 class="vcard__title">{selected.name}</h3>
+            <ul class="specs">
+              <template for:each={selected.specs} for:item="s">
+                <li key={s.key} class="spec">{s.text}</li>
+              </template>
+            </ul>
+            <dl class="summary">
+              <dt>Pick-up</dt>
+              <dd>{windowLabelStart}</dd>
+              <dt>Return</dt>
+              <dd>{windowLabelEnd}</dd>
+              <dt>Duration</dt>
+              <dd>{durationLabel}</dd>
+            </dl>
+          </aside>
+          <section class="panel panel--form">
+            <h2 class="panel__title">Your details</h2>
+            <p class="panel__sub">
+              We will email you once the motorpool manager approves the request.
+            </p>
+            <div class="form">
+              <label class="field"
+                ><span class="field__label">First name</span>
+                <input
+                  class="field__input"
+                  type="text"
+                  data-field="firstName"
+                  value={form.firstName}
+                  oninput={handleForm}
+                  autocomplete="given-name"
+              /></label>
+              <label class="field"
+                ><span class="field__label">Last name</span>
+                <input
+                  class="field__input"
+                  type="text"
+                  data-field="lastName"
+                  value={form.lastName}
+                  oninput={handleForm}
+                  autocomplete="family-name"
+              /></label>
+              <label class="field field--wide"
+                ><span class="field__label">Email</span>
+                <input
+                  class="field__input"
+                  type="email"
+                  data-field="email"
+                  value={form.email}
+                  oninput={handleForm}
+                  autocomplete="email"
+              /></label>
+              <label class="field field--wide"
+                ><span class="field__label">Phone (optional)</span>
+                <input
+                  class="field__input"
+                  type="tel"
+                  data-field="phone"
+                  value={form.phone}
+                  oninput={handleForm}
+                  autocomplete="tel"
+              /></label>
+            </div>
+            <template lwc:if={error}>
+              <p class="error" role="alert">{error}</p>
             </template>
+            <button
+              type="button"
+              class="btn btn--primary btn--wide"
+              onclick={handleSubmit}
+              disabled={loading}
+            >
+              <template lwc:if={loading}>Sending request…</template>
+              <template lwc:else>Request booking</template>
+            </button>
+          </section>
+        </div>
+      </template>
 
-            <!-- details -->
-            <template lwc:if={showDetails}>
-                <button type="button" class="back" onclick={handleBack}>← Back to vehicles</button>
-                <div class="details">
-                    <aside class="panel panel--summary">
-                        <c-fleet-vehicle-image variant="icon" size="320" body-type={selected.bodyType}
-                            color={selected.color} fuel-type={selected.fuelType}></c-fleet-vehicle-image>
-                        <h3 class="vcard__title">{selected.name}</h3>
-                        <ul class="specs">
-                            <template for:each={selected.specs} for:item="s">
-                                <li key={s.key} class="spec">{s.text}</li>
-                            </template>
-                        </ul>
-                        <dl class="summary">
-                            <dt>Pick-up</dt><dd>{windowLabelStart}</dd>
-                            <dt>Return</dt><dd>{windowLabelEnd}</dd>
-                            <dt>Duration</dt><dd>{durationLabel}</dd>
-                        </dl>
-                    </aside>
-                    <section class="panel panel--form">
-                        <h2 class="panel__title">Your details</h2>
-                        <p class="panel__sub">We will email you once the motorpool manager approves the request.</p>
-                        <div class="form">
-                            <label class="field"><span class="field__label">First name</span>
-                                <input class="field__input" type="text" data-field="firstName" value={form.firstName}
-                                       oninput={handleForm} autocomplete="given-name"/></label>
-                            <label class="field"><span class="field__label">Last name</span>
-                                <input class="field__input" type="text" data-field="lastName" value={form.lastName}
-                                       oninput={handleForm} autocomplete="family-name"/></label>
-                            <label class="field field--wide"><span class="field__label">Email</span>
-                                <input class="field__input" type="email" data-field="email" value={form.email}
-                                       oninput={handleForm} autocomplete="email"/></label>
-                            <label class="field field--wide"><span class="field__label">Phone (optional)</span>
-                                <input class="field__input" type="tel" data-field="phone" value={form.phone}
-                                       oninput={handleForm} autocomplete="tel"/></label>
-                        </div>
-                        <template lwc:if={error}>
-                            <p class="error" role="alert">{error}</p>
-                        </template>
-                        <button type="button" class="btn btn--primary btn--wide" onclick={handleSubmit}
-                                disabled={loading}>
-                            <template lwc:if={loading}>Sending request…</template>
-                            <template lwc:else>Request booking</template>
-                        </button>
-                    </section>
-                </div>
-            </template>
+      <!-- confirmation -->
+      <template lwc:if={showDone}>
+        <div class="done">
+          <div class="done__icon" aria-hidden="true">✓</div>
+          <h2 class="done__title">Request sent</h2>
+          <p class="done__sub">Your reference</p>
+          <p class="done__ref">{confirmation.reference}</p>
+          <dl class="summary summary--done">
+            <dt>Vehicle</dt>
+            <dd>{confirmation.vehicleName}</dd>
+            <dt>When</dt>
+            <dd>{confirmedWindow}</dd>
+            <dt>Status</dt>
+            <dd>
+              <span class="pill pill--pending">{confirmation.status}</span>
+            </dd>
+          </dl>
+          <p class="done__note">
+            The motorpool manager will review your request and email you a
+            decision.
+          </p>
+          <button type="button" class="btn btn--primary" onclick={handleReset}>
+            Make another booking
+          </button>
+        </div>
+      </template>
+    </main>
 
-            <!-- confirmation -->
-            <template lwc:if={showDone}>
-                <div class="done">
-                    <div class="done__icon" aria-hidden="true">✓</div>
-                    <h2 class="done__title">Request sent</h2>
-                    <p class="done__sub">Your reference</p>
-                    <p class="done__ref">{confirmation.reference}</p>
-                    <dl class="summary summary--done">
-                        <dt>Vehicle</dt><dd>{confirmation.vehicleName}</dd>
-                        <dt>When</dt><dd>{confirmedWindow}</dd>
-                        <dt>Status</dt><dd><span class="pill pill--pending">{confirmation.status}</span></dd>
-                    </dl>
-                    <p class="done__note">The motorpool manager will review your request and email you a decision.</p>
-                    <button type="button" class="btn btn--primary" onclick={handleReset}>Make another booking</button>
-                </div>
-            </template>
-        </main>
-
-        <footer class="mp-foot">FleetForce Motorpool · Availability updates as bookings are approved</footer>
-    </div>
+    <footer class="mp-foot">
+      FleetForce Motorpool · Availability updates as bookings are approved
+    </footer>
+  </div>
 </template>

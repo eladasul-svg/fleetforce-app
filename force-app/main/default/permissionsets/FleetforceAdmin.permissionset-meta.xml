@@ -75,15 +75,11 @@
     </classAccesses>
     <flowAccesses>
         <enabled>true</enabled>
-        <flow>
-Motorpool_Reservation_Request;
-    </flow>
+        <flow>Motorpool_Reservation_Request</flow>
     </flowAccesses>
     <flowAccesses>
         <enabled>true</enabled>
-        <flow>
-Violation_Auto_Escalation;
-    </flow>
+        <flow>Violation_Auto_Escalation</flow>
     </flowAccesses>
     <fieldPermissions>
         <editable>true</editable>

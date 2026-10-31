@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>UOM__c</fullName>
     <label>Unit of Measure</label>
@@ -7,9 +7,14 @@
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Liters</fullName><default>false</default><label>Liters</label></value>
-            <value><fullName>Gallons (US)</fullName><default>false</default><label>Gallons (US)</label></value>
-            <value><fullName>kWh.</fullName><default>false</default><label>kWh.</label></value>
+            <value><fullName>Liters</fullName><default>false</default><label
+        >Liters</label></value>
+            <value><fullName>Gallons (US)</fullName><default
+        >false</default><label>Gallons (US)</label></value>
+            <value><fullName>Gallons (UK)</fullName><default
+        >false</default><label>Gallons (UK)</label></value>
+            <value><fullName>kWh.</fullName><default>false</default><label
+        >kWh.</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

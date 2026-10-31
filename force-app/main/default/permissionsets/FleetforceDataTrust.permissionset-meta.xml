@@ -247,6 +247,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>External_Notice__c.Regulatory_Category__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>External_Notice__c.Vehicle_Category__c</field>
         <readable>true</readable>
     </fieldPermissions>

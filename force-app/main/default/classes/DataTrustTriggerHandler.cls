@@ -51,6 +51,7 @@ public with sharing class DataTrustTriggerHandler {
       'Year_To__c',
       'Fuel_Type__c',
       'Vehicle_Category__c',
+      'Regulatory_Category__c',
       'Jurisdiction__c',
       'Severity__c',
       'Effective_On__c',

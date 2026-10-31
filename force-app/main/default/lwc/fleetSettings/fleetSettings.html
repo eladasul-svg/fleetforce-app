@@ -1,43 +1,198 @@
 <template>
-    <lightning-card title="FleetForce Settings" icon-name="standard:settings">
-        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
-            <h2 class="slds-text-heading_small">Vehicle icon style</h2>
-            <p class="slds-text-color_weak slds-m-bottom_small">
-                Choose how vehicles are drawn on cards, lists and alerts. This applies to everyone in the org.
-            </p>
+  <lightning-card title="FleetForce Settings" icon-name="standard:settings">
+    <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+      <h2 class="slds-text-heading_small">Vehicle icon style</h2>
+      <p class="slds-text-color_weak slds-m-bottom_small">
+        Choose how vehicles are drawn on cards, lists and alerts. This applies
+        to everyone in the org.
+      </p>
 
-            <div class="tiles" role="radiogroup" aria-label="Vehicle icon style">
-                <template for:each={options} for:item="o">
-                    <div key={o.value} class={o.tileClass} role="radio" tabindex="0" aria-checked={o.ariaChecked}
-                         data-value={o.value} onclick={handleSelect} onkeydown={handleKey}>
-                        <div class="tile__head">
-                            <span class="tile__name">{o.label}</span>
-                            <template lwc:if={o.isSelected}>
-                                <lightning-icon icon-name="utility:check" size="x-small" variant="success"
-                                    alternative-text="Selected"></lightning-icon>
-                            </template>
-                        </div>
-                        <p class="tile__blurb">{o.blurb}</p>
-                        <div class="tile__samples">
-                            <template for:each={o.samples} for:item="s">
-                                <c-fleet-vehicle-image key={s.key} variant="icon" size="96" icon-style={o.value}
-                                    body-type={s.bodyType} color={s.color} fuel-type={s.fuelType}>
-                                </c-fleet-vehicle-image>
-                            </template>
-                        </div>
-                    </div>
-                </template>
+      <div class="tiles" role="radiogroup" aria-label="Vehicle icon style">
+        <template for:each={options} for:item="o">
+          <div
+            key={o.value}
+            class={o.tileClass}
+            role="radio"
+            tabindex="0"
+            aria-checked={o.ariaChecked}
+            data-value={o.value}
+            onclick={handleSelect}
+            onkeydown={handleKey}
+          >
+            <div class="tile__head">
+              <span class="tile__name">{o.label}</span>
+              <template lwc:if={o.isSelected}>
+                <lightning-icon
+                  icon-name="utility:check"
+                  size="x-small"
+                  variant="success"
+                  alternative-text="Selected"
+                ></lightning-icon>
+              </template>
             </div>
-
-            <template lwc:if={error}>
-                <p class="slds-text-color_error slds-m-top_small">{error}</p>
-            </template>
-
-            <div class="slds-m-top_medium slds-grid slds-grid_align-end">
-                <lightning-button label="Cancel" class="slds-m-right_x-small" onclick={handleCancel}
-                    disabled={saveDisabled}></lightning-button>
-                <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={saveDisabled}></lightning-button>
+            <p class="tile__blurb">{o.blurb}</p>
+            <div class="tile__samples">
+              <template for:each={o.samples} for:item="s">
+                <c-fleet-vehicle-image
+                  key={s.key}
+                  variant="icon"
+                  size="96"
+                  icon-style={o.value}
+                  body-type={s.bodyType}
+                  color={s.color}
+                  fuel-type={s.fuelType}
+                >
+                </c-fleet-vehicle-image>
+              </template>
             </div>
+          </div>
+        </template>
+      </div>
+
+      <template lwc:if={error}>
+        <p class="slds-text-color_error slds-m-top_small">{error}</p>
+      </template>
+
+      <div class="slds-m-top_medium slds-grid slds-grid_align-end">
+        <lightning-button
+          label="Cancel"
+          class="slds-m-right_x-small"
+          onclick={handleCancel}
+          disabled={saveDisabled}
+        ></lightning-button>
+        <lightning-button
+          variant="brand"
+          label="Save"
+          onclick={handleSave}
+          disabled={saveDisabled}
+        ></lightning-button>
+      </div>
+    </div>
+
+    <div class="slds-p-horizontal_medium slds-p-bottom_medium regional">
+      <h2 class="slds-text-heading_small">Regional settings</h2>
+      <p class="slds-text-color_weak slds-m-bottom_small">
+        Org defaults, used when a branch or vehicle leaves a value blank. Each
+        branch normally sets its own values from its Country Profile; new
+        branches start with the default country and time zone.
+      </p>
+
+      <template lwc:if={regional}>
+        <div class="slds-grid slds-wrap slds-gutters_small">
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Default country"
+              name="country"
+              value={draft.country}
+              options={regional.countries}
+              placeholder="None"
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Default time zone"
+              name="timeZone"
+              value={draft.timeZone}
+              options={regional.timeZones}
+              placeholder="None"
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Default currency"
+              name="currencyCode"
+              value={draft.currencyCode}
+              options={regional.currencies}
+              placeholder="None"
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Distance unit"
+              name="distanceUnit"
+              value={draft.distanceUnit}
+              options={regional.distanceUnits}
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Volume unit"
+              name="volumeUnit"
+              value={draft.volumeUnit}
+              options={regional.volumeUnits}
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+            <lightning-combobox
+              label="Weight unit"
+              name="weightUnit"
+              value={draft.weightUnit}
+              options={regional.weightUnits}
+              onchange={handleRegional}
+              disabled={regionalReadOnly}
+            ></lightning-combobox>
+          </div>
         </div>
-    </lightning-card>
+
+        <div class="currency-status slds-m-top_small">
+          <lightning-icon
+            icon-name={currencyIcon}
+            size="x-small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          <span
+            ><strong>{currencyHeadline}</strong> {currencyGuidance}
+            <a href={manageCurrenciesUrl} target="_blank"
+              >Setup › Company Settings › Manage Currencies</a
+            ></span
+          >
+        </div>
+
+        <template lwc:if={regionalError}>
+          <p class="slds-text-color_error slds-m-top_small">{regionalError}</p>
+        </template>
+
+        <template lwc:if={regional.canEdit}>
+          <div class="slds-m-top_medium slds-grid slds-grid_align-end">
+            <lightning-button
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleRegionalCancel}
+              disabled={regionalSaveDisabled}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save regional settings"
+              onclick={handleRegionalSave}
+              disabled={regionalSaveDisabled}
+            ></lightning-button>
+          </div>
+        </template>
+
+        <h3 class="slds-text-title_caps slds-m-top_large slds-m-bottom_x-small">
+          Country Profiles
+        </h3>
+        <p class="slds-text-color_weak slds-m-bottom_x-small">
+          Defaults a branch takes when its country is set. Change the values on
+          the branch itself.
+        </p>
+        <lightning-datatable
+          key-field="code"
+          data={regional.profiles}
+          columns={profileColumns}
+          hide-checkbox-column
+        ></lightning-datatable>
+      </template>
+    </div>
+  </lightning-card>
 </template>

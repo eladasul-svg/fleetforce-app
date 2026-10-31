@@ -1,313 +1,417 @@
-import { LightningElement } from 'lwc';
-import BRAND from '@salesforce/resourceUrl/FleetForceBrand';
-import search from '@salesforce/apex/MotorpoolBookingController.search';
-import book from '@salesforce/apex/MotorpoolBookingController.book';
+import { LightningElement, wire } from "lwc";
+import BRAND from "@salesforce/resourceUrl/FleetForceBrand";
+import searchAt from "@salesforce/apex/MotorpoolBookingController.searchAt";
+import book from "@salesforce/apex/MotorpoolBookingController.book";
+import getLocations from "@salesforce/apex/MotorpoolBookingController.getLocations";
+import {
+  fuelEconomy,
+  formatInZone,
+  offsetMinutes,
+  zoneLabel,
+  zonedToUtc
+} from "c/fleetRegional";
 
-const TYPES = ['Any', 'Sedan', 'SUV', 'Pickup', 'Van', 'Electric or hybrid'];
-const TYPE_LABELS = { Any: 'Any type', 'Electric or hybrid': 'Electric / hybrid' };
+const TYPES = ["Any", "Sedan", "SUV", "Pickup", "Van", "Electric or hybrid"];
+const TYPE_LABELS = {
+  Any: "Any type",
+  "Electric or hybrid": "Electric / hybrid"
+};
 
-const pad = (n) => String(n).padStart(2, '0');
-const dayTime = (iso) =>
-    new Intl.DateTimeFormat('en-GB', {
-        weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-    }).format(new Date(iso));
+const pad = (n) => String(n).padStart(2, "0");
+const DAY_TIME = {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit"
+};
 
-const toDateInput = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const DEFAULT_PICKUP_TIME = '09:00';
-const DEFAULT_RETURN_TIME = '17:00';
+const toDateInput = (d) =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const DEFAULT_PICKUP_TIME = "09:00";
+const DEFAULT_RETURN_TIME = "17:00";
 
 function defaultDates() {
-    const start = new Date();
-    start.setDate(start.getDate() + 3);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    return { pickupDate: toDateInput(start), returnDate: toDateInput(end) };
+  const start = new Date();
+  start.setDate(start.getDate() + 3);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { pickupDate: toDateInput(start), returnDate: toDateInput(end) };
 }
 
 export default class MotorpoolBooking extends LightningElement {
-    pickupDate = defaultDates().pickupDate;
-    returnDate = defaultDates().returnDate;
-    pickupTime = DEFAULT_PICKUP_TIME;
-    returnTime = DEFAULT_RETURN_TIME;
-    showTimes = false;
-    seats = 2;
-    vehicleType = 'Any';
+  pickupDate = defaultDates().pickupDate;
+  returnDate = defaultDates().returnDate;
+  pickupTime = DEFAULT_PICKUP_TIME;
+  returnTime = DEFAULT_RETURN_TIME;
+  showTimes = false;
+  seats = 2;
+  vehicleType = "Any";
 
-    step = 'search'; // search | results | details | done
-    loading = false;
-    error;
-    result;
-    selected;
-    form = { firstName: '', lastName: '', email: '', phone: '' };
-    confirmation;
+  step = "search"; // search | results | details | done
+  loading = false;
+  error;
+  result;
+  selected;
+  form = { firstName: "", lastName: "", email: "", phone: "" };
+  confirmation;
+  locations = [];
+  locationId = "";
 
-    get wordmarkUrl() {
-        return `${BRAND}/wordmark-on-dark.png`;
+  /**
+   * Pick-up locations. Times are entered and shown in the chosen branch's time zone, so a guest browsing from
+   * another zone still books Lisbon times for Lisbon. With no locations the guest's own zone is used.
+   */
+  @wire(getLocations)
+  wiredLocations({ data }) {
+    if (data) {
+      this.locations = data;
+      if (!this.locationId && data.length) {
+        this.locationId = data[0].id;
+      }
     }
+  }
 
-    // ---------- search form ----------
-    /** Local date-time strings ("YYYY-MM-DDTHH:mm") built from the date fields and the (default or chosen) times. */
-    get pickup() {
-        return `${this.pickupDate}T${this.pickupTime || DEFAULT_PICKUP_TIME}`;
-    }
+  get hasLocations() {
+    return this.locations.length > 1;
+  }
 
-    get dropoff() {
-        return `${this.returnDate}T${this.returnTime || DEFAULT_RETURN_TIME}`;
-    }
+  get location() {
+    return this.locations.find((l) => l.id === this.locationId);
+  }
 
-    get minPickupDate() {
-        return toDateInput(new Date());
-    }
+  get zone() {
+    return this.location ? this.location.timeZone : undefined;
+  }
 
-    get minReturnDate() {
-        return this.pickupDate || this.minPickupDate;
-    }
+  get zoneText() {
+    return zoneLabel(this.zone);
+  }
 
-    get typeChips() {
-        return TYPES.map((t) => ({
-            value: t,
-            label: TYPE_LABELS[t] || t,
-            cls: `chip${t === this.vehicleType ? ' chip--on' : ''}`,
-            pressed: String(t === this.vehicleType)
-        }));
-    }
+  get pickupTimeLabel() {
+    return this.zoneText ? `Pick-up time (${this.zoneText})` : "Pick-up time";
+  }
 
-    handleField(event) {
-        const field = event.currentTarget.dataset.field;
-        this[field] = event.target.value;
-        this.error = undefined;
-    }
+  get returnTimeLabel() {
+    return this.zoneText ? `Return time (${this.zoneText})` : "Return time";
+  }
 
-    /** After a pick-up date is chosen, make sure the return is not before it and move straight to the return date. */
-    handlePickupDate(event) {
-        this.pickupDate = event.target.value;
-        this.error = undefined;
-        if (!this.pickupDate) {
-            return;
-        }
-        if (!this.returnDate || this.returnDate < this.pickupDate) {
-            const next = new Date(`${this.pickupDate}T12:00`);
-            next.setDate(next.getDate() + 1);
-            this.returnDate = toDateInput(next);
-        }
-        // Let the new value render, then open the return date picker (falls back to plain focus).
-        Promise.resolve().then(() => {
-            const ret = this.template.querySelector('input[data-field="returnDate"]');
-            if (!ret) {
-                return;
-            }
-            ret.focus();
-            try {
-                ret.showPicker();
-            } catch (e) {
-                // showPicker needs a user gesture in some browsers; focus is enough.
-            }
-        });
-    }
+  get locationOptions() {
+    return this.locations.map((l) => ({
+      value: l.id,
+      label: [l.name, zoneLabel(l.timeZone)].filter(Boolean).join(" · "),
+      selected: l.id === this.locationId
+    }));
+  }
 
-    handleToggleTimes(event) {
-        this.showTimes = event.target.checked;
-        if (!this.showTimes) {
-            this.pickupTime = DEFAULT_PICKUP_TIME;
-            this.returnTime = DEFAULT_RETURN_TIME;
-        }
+  handleLocation(event) {
+    this.locationId = event.target.value;
+    this.result = undefined;
+    this.error = undefined;
+    if (this.step === "results") {
+      this.step = "search";
     }
+  }
 
-    get defaultTimesHint() {
-        return `Otherwise ${DEFAULT_PICKUP_TIME} pick-up, ${DEFAULT_RETURN_TIME} return.`;
-    }
+  /** The instant for a local pick-up or return string, in the branch's zone. */
+  instant(local) {
+    return zonedToUtc(local, this.zone);
+  }
 
-    handleSeats(event) {
-        const delta = Number(event.currentTarget.dataset.delta);
-        this.seats = Math.max(1, Math.min(9, this.seats + delta));
-    }
+  dayTime(value) {
+    return formatInZone(value, this.zone, DAY_TIME);
+  }
 
-    handleType(event) {
-        this.vehicleType = event.currentTarget.dataset.value;
-    }
+  get wordmarkUrl() {
+    return `${BRAND}/wordmark-on-dark.png`;
+  }
 
-    async handleSearch() {
-        if (!this.pickupDate || !this.returnDate) {
-            this.error = 'Please choose a pick-up and a return date.';
-            return;
-        }
-        const start = new Date(this.pickup);
-        const end = new Date(this.dropoff);
-        if (end <= start) {
-            this.error = 'The return time must be after the pick-up time.';
-            return;
-        }
-        this.loading = true;
-        this.error = undefined;
-        try {
-            this.result = await search({
-                startTime: start.toISOString(),
-                endTime: end.toISOString(),
-                minSeats: this.seats,
-                vehicleType: this.vehicleType,
-                tzOffsetMinutes: -start.getTimezoneOffset()
-            });
-            this.step = 'results';
-        } catch (e) {
-            this.error = this.messageOf(e);
-        } finally {
-            this.loading = false;
-        }
-    }
+  // ---------- search form ----------
+  /** Local date-time strings ("YYYY-MM-DDTHH:mm") built from the date fields and the (default or chosen) times. */
+  get pickup() {
+    return `${this.pickupDate}T${this.pickupTime || DEFAULT_PICKUP_TIME}`;
+  }
 
-    messageOf(e) {
-        return (e && e.body && e.body.message) || 'Something went wrong. Please try again.';
-    }
+  get dropoff() {
+    return `${this.returnDate}T${this.returnTime || DEFAULT_RETURN_TIME}`;
+  }
 
-    // ---------- results ----------
-    get windowLabel() {
-        return `${dayTime(this.pickup)}  →  ${dayTime(this.dropoff)}`;
-    }
+  get minPickupDate() {
+    return toDateInput(new Date());
+  }
 
-    get windowLabelStart() {
-        return dayTime(this.pickup);
-    }
+  get minReturnDate() {
+    return this.pickupDate || this.minPickupDate;
+  }
 
-    get windowLabelEnd() {
-        return dayTime(this.dropoff);
-    }
+  get typeChips() {
+    return TYPES.map((t) => ({
+      value: t,
+      label: TYPE_LABELS[t] || t,
+      cls: `chip${t === this.vehicleType ? " chip--on" : ""}`,
+      pressed: String(t === this.vehicleType)
+    }));
+  }
 
-    get durationLabel() {
-        const ms = new Date(this.dropoff) - new Date(this.pickup);
-        const hours = Math.round(ms / 36e5);
-        const days = Math.floor(hours / 24);
-        const rest = hours % 24;
-        const parts = [];
-        if (days) parts.push(`${days} day${days > 1 ? 's' : ''}`);
-        if (rest) parts.push(`${rest} h`);
-        return parts.join(' ') || '0 h';
-    }
+  handleField(event) {
+    const field = event.currentTarget.dataset.field;
+    this[field] = event.target.value;
+    this.error = undefined;
+  }
 
-    get showSearch() {
-        return this.step === 'search' || this.step === 'results';
+  /** After a pick-up date is chosen, make sure the return is not before it and move straight to the return date. */
+  handlePickupDate(event) {
+    this.pickupDate = event.target.value;
+    this.error = undefined;
+    if (!this.pickupDate) {
+      return;
     }
+    if (!this.returnDate || this.returnDate < this.pickupDate) {
+      const next = new Date(`${this.pickupDate}T12:00`);
+      next.setDate(next.getDate() + 1);
+      this.returnDate = toDateInput(next);
+    }
+    // Let the new value render, then open the return date picker (falls back to plain focus).
+    Promise.resolve().then(() => {
+      const ret = this.template.querySelector('input[data-field="returnDate"]');
+      if (!ret) {
+        return;
+      }
+      ret.focus();
+      try {
+        ret.showPicker();
+      } catch {
+        // showPicker needs a user gesture in some browsers; focus is enough.
+      }
+    });
+  }
 
-    get showResults() {
-        return this.step === 'results' && this.result;
+  handleToggleTimes(event) {
+    this.showTimes = event.target.checked;
+    if (!this.showTimes) {
+      this.pickupTime = DEFAULT_PICKUP_TIME;
+      this.returnTime = DEFAULT_RETURN_TIME;
     }
+  }
 
-    get showDetails() {
-        return this.step === 'details' && this.selected;
-    }
+  get defaultTimesHint() {
+    const zone = this.zoneText ? ` ${this.zoneText}` : "";
+    return `Otherwise ${DEFAULT_PICKUP_TIME} pick-up, ${DEFAULT_RETURN_TIME} return${zone}.`;
+  }
 
-    get showDone() {
-        return this.step === 'done' && this.confirmation;
-    }
+  handleSeats(event) {
+    const delta = Number(event.currentTarget.dataset.delta);
+    this.seats = Math.max(1, Math.min(9, this.seats + delta));
+  }
 
-    get hasOptions() {
-        return this.result && this.result.options.length > 0;
-    }
+  handleType(event) {
+    this.vehicleType = event.currentTarget.dataset.value;
+  }
 
-    get summaryLine() {
-        if (!this.result) return '';
-        const a = this.result.availableCount;
-        const u = this.result.unavailableCount;
-        return `${a} vehicle${a === 1 ? '' : 's'} available` + (u ? ` · ${u} unavailable for these dates` : '');
+  async handleSearch() {
+    if (!this.pickupDate || !this.returnDate) {
+      this.error = "Please choose a pick-up and a return date.";
+      return;
     }
+    const start = this.instant(this.pickup);
+    const end = this.instant(this.dropoff);
+    if (end <= start) {
+      this.error = "The return time must be after the pick-up time.";
+      return;
+    }
+    this.loading = true;
+    this.error = undefined;
+    try {
+      this.result = await searchAt({
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+        minSeats: this.seats,
+        vehicleType: this.vehicleType,
+        tzOffsetMinutes: this.zone
+          ? offsetMinutes(this.zone, start)
+          : -start.getTimezoneOffset(),
+        branchId: this.location ? this.location.id : null
+      });
+      this.step = "results";
+    } catch (e) {
+      this.error = this.messageOf(e);
+    } finally {
+      this.loading = false;
+    }
+  }
 
-    get cards() {
-        if (!this.result) return [];
-        return this.result.options.map((o) => ({
-            ...o,
-            cardCls: `vcard${o.available ? '' : ' vcard--off'}`,
-            statusCls: `pill ${o.available ? 'pill--ok' : 'pill--off'}`,
-            statusText: o.available ? 'Available for your dates' : o.reason,
-            days: o.days.map((d, i) => ({
-                ...d,
-                key: `${o.id}-${i}`,
-                cls: `day day--${d.status}${d.inWindow ? ' day--window' : ''}`,
-                title: `${d.dayName} ${d.dayNumber}: ${d.status === 'free' ? 'free' : d.status === 'booked' ? 'booked' : 'maintenance'}`
-            })),
-            specs: this.specsOf(o),
-            seatLabel: `${o.seats || '?'} seats`
-        }));
-    }
+  messageOf(e) {
+    return (
+      (e && e.body && e.body.message) ||
+      "Something went wrong. Please try again."
+    );
+  }
 
-    specsOf(o) {
-        const specs = [];
-        if (o.plate) specs.push(`Plate ${o.plate}`);
-        if (o.epaRated) {
-            specs.push(
-                o.evRangeMiles != null
-                    ? `${Math.round(o.mpgCombined)} MPGe · ${Math.round(o.evRangeMiles)} mi range`
-                    : `${Math.round(o.mpgCombined)} MPG`
-            );
-        }
-        if (o.fuelType) specs.push(o.fuelType);
-        if (o.branch) specs.push(o.branch);
-        return specs.map((s, i) => ({ key: `s${i}`, text: s }));
-    }
+  // ---------- results ----------
+  get windowLabel() {
+    const zone = this.zoneText ? `  (${this.zoneText})` : "";
+    return `${this.dayTime(this.instant(this.pickup))}  →  ${this.dayTime(this.instant(this.dropoff))}${zone}`;
+  }
 
-    handleSelect(event) {
-        const id = event.currentTarget.dataset.id;
-        this.selected = this.cards.find((c) => c.id === id);
-        this.step = 'details';
-        this.error = undefined;
-    }
+  get windowLabelStart() {
+    return this.dayTime(this.instant(this.pickup));
+  }
 
-    // ---------- details ----------
-    handleForm(event) {
-        this.form = { ...this.form, [event.currentTarget.dataset.field]: event.target.value };
-        this.error = undefined;
-    }
+  get windowLabelEnd() {
+    return this.dayTime(this.instant(this.dropoff));
+  }
 
-    handleBack() {
-        this.step = 'results';
-        this.error = undefined;
-    }
+  get durationLabel() {
+    const ms = this.instant(this.dropoff) - this.instant(this.pickup);
+    const hours = Math.round(ms / 36e5);
+    const days = Math.floor(hours / 24);
+    const rest = hours % 24;
+    const parts = [];
+    if (days) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+    if (rest) parts.push(`${rest} h`);
+    return parts.join(" ") || "0 h";
+  }
 
-    async handleSubmit() {
-        const { firstName, lastName, email } = this.form;
-        if (!firstName.trim() || !lastName.trim() || !/^\S+@\S+\.\S+$/.test(email.trim())) {
-            this.error = 'Please enter your name and a valid email address.';
-            return;
-        }
-        this.loading = true;
-        this.error = undefined;
-        try {
-            this.confirmation = await book({
-                assetId: this.selected.id,
-                startTime: new Date(this.pickup).toISOString(),
-                endTime: new Date(this.dropoff).toISOString(),
-                firstName: firstName.trim(),
-                lastName: lastName.trim(),
-                email: email.trim(),
-                phone: this.form.phone
-            });
-            this.step = 'done';
-        } catch (e) {
-            this.error = this.messageOf(e);
-        } finally {
-            this.loading = false;
-        }
-    }
+  get showSearch() {
+    return this.step === "search" || this.step === "results";
+  }
 
-    // ---------- confirmation ----------
-    get confirmedWindow() {
-        return this.confirmation
-            ? `${dayTime(this.confirmation.startTime)}  →  ${dayTime(this.confirmation.endTime)}`
-            : '';
-    }
+  get showResults() {
+    return this.step === "results" && this.result;
+  }
 
-    handleReset() {
-        const w = defaultDates();
-        this.pickupDate = w.pickupDate;
-        this.returnDate = w.returnDate;
-        this.pickupTime = DEFAULT_PICKUP_TIME;
-        this.returnTime = DEFAULT_RETURN_TIME;
-        this.showTimes = false;
-        this.seats = 2;
-        this.vehicleType = 'Any';
-        this.form = { firstName: '', lastName: '', email: '', phone: '' };
-        this.result = undefined;
-        this.selected = undefined;
-        this.confirmation = undefined;
-        this.error = undefined;
-        this.step = 'search';
+  get showDetails() {
+    return this.step === "details" && this.selected;
+  }
+
+  get showDone() {
+    return this.step === "done" && this.confirmation;
+  }
+
+  get hasOptions() {
+    return this.result && this.result.options.length > 0;
+  }
+
+  get summaryLine() {
+    if (!this.result) return "";
+    const a = this.result.availableCount;
+    const u = this.result.unavailableCount;
+    return (
+      `${a} vehicle${a === 1 ? "" : "s"} available` +
+      (u ? ` · ${u} unavailable for these dates` : "")
+    );
+  }
+
+  get cards() {
+    if (!this.result) return [];
+    return this.result.options.map((o) => ({
+      ...o,
+      cardCls: `vcard${o.available ? "" : " vcard--off"}`,
+      statusCls: `pill ${o.available ? "pill--ok" : "pill--off"}`,
+      statusText: o.available ? "Available for your dates" : o.reason,
+      days: o.days.map((d, i) => ({
+        ...d,
+        key: `${o.id}-${i}`,
+        cls: `day day--${d.status}${d.inWindow ? " day--window" : ""}`,
+        title: `${d.dayName} ${d.dayNumber}: ${d.status === "free" ? "free" : d.status === "booked" ? "booked" : "maintenance"}`
+      })),
+      specs: this.specsOf(o),
+      seatLabel: `${o.seats || "?"} seats`
+    }));
+  }
+
+  specsOf(o) {
+    const specs = [];
+    if (o.plate) specs.push(`Plate ${o.plate}`);
+    const fe = o.epaRated
+      ? fuelEconomy(o, o.fuelEconomyFormat, o.distanceUnit)
+      : null;
+    if (fe) {
+      specs.push(
+        o.evRangeMiles != null ? `${fe.short} · ${fe.detail}` : fe.short
+      );
     }
+    if (o.fuelType) specs.push(o.fuelType);
+    if (o.branch) specs.push(o.branch);
+    return specs.map((s, i) => ({ key: `s${i}`, text: s }));
+  }
+
+  handleSelect(event) {
+    const id = event.currentTarget.dataset.id;
+    this.selected = this.cards.find((c) => c.id === id);
+    this.step = "details";
+    this.error = undefined;
+  }
+
+  // ---------- details ----------
+  handleForm(event) {
+    this.form = {
+      ...this.form,
+      [event.currentTarget.dataset.field]: event.target.value
+    };
+    this.error = undefined;
+  }
+
+  handleBack() {
+    this.step = "results";
+    this.error = undefined;
+  }
+
+  async handleSubmit() {
+    const { firstName, lastName, email } = this.form;
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !/^\S+@\S+\.\S+$/.test(email.trim())
+    ) {
+      this.error = "Please enter your name and a valid email address.";
+      return;
+    }
+    this.loading = true;
+    this.error = undefined;
+    try {
+      this.confirmation = await book({
+        assetId: this.selected.id,
+        startTime: this.instant(this.pickup).toISOString(),
+        endTime: this.instant(this.dropoff).toISOString(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        phone: this.form.phone
+      });
+      this.step = "done";
+    } catch (e) {
+      this.error = this.messageOf(e);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // ---------- confirmation ----------
+  get confirmedWindow() {
+    if (!this.confirmation) return "";
+    const tz = this.confirmation.timeZone || this.zone;
+    const label = zoneLabel(tz);
+    return (
+      `${formatInZone(this.confirmation.startTime, tz, DAY_TIME)}  →  ${formatInZone(this.confirmation.endTime, tz, DAY_TIME)}` +
+      (label ? `  (${label})` : "")
+    );
+  }
+
+  handleReset() {
+    const w = defaultDates();
+    this.pickupDate = w.pickupDate;
+    this.returnDate = w.returnDate;
+    this.pickupTime = DEFAULT_PICKUP_TIME;
+    this.returnTime = DEFAULT_RETURN_TIME;
+    this.showTimes = false;
+    this.seats = 2;
+    this.vehicleType = "Any";
+    this.form = { firstName: "", lastName: "", email: "", phone: "" };
+    this.result = undefined;
+    this.selected = undefined;
+    this.confirmation = undefined;
+    this.error = undefined;
+    this.step = "search";
+  }
 }

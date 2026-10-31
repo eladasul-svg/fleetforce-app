@@ -86,6 +86,10 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Regulatory_Category__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Vehicle_Category__c</field>
             </layoutItems>
             <layoutItems>
