@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -34,6 +34,16 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-dea4a8ce-bdce-4de8-b31d-ff73a49c0baf</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>fleetExposure</componentName>
+                <identifier>fleetforce_fleetExposure</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-7be6f48d-1e74-4d93-91ae-28eb3c46d9f9</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -83,6 +93,20 @@
                 <identifier>flexipage_tab2</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-7be6f48d-1e74-4d93-91ae-28eb3c46d9f9</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Standard.Tab.dataShares</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab4</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>Facet-8deca5c8-99b9-484d-b159-066ad0d515e9</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -130,8 +154,10 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>runtime_sales_activities:todayTaskContainer</componentName>
-                <identifier>runtime_sales_activities_todayTaskContainer</identifier>
+                <componentName
+        >runtime_sales_activities:todayTaskContainer</componentName>
+                <identifier
+        >runtime_sales_activities_todayTaskContainer</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
