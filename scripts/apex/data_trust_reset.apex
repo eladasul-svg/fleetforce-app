@@ -3,5 +3,5 @@
 //
 // Usage:  sf apex run --file scripts/apex/data_trust_reset.apex --target-org <alias>
 
-DataTrustSampleData.reset();
+fleetforce.FleetForceSetup.resetDataTrustSample();
 System.debug(LoggingLevel.ERROR, 'DATA TRUST RESET done');

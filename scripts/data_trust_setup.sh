@@ -17,6 +17,6 @@ echo "── Seed sample data"
 sf apex run --file scripts/apex/data_trust_seed.apex --target-org "$ORG" | grep -A40 "DATA TRUST SEED" || true
 
 echo "── Schedule the nightly data health run"
-echo "DataTrustJobs.scheduleNightly();" | sf apex run --target-org "$ORG" > /dev/null
+echo "fleetforce.FleetForceSetup.scheduleNightlyDataHealth();" | sf apex run --target-org "$ORG" > /dev/null
 
 echo "✅ Data trust preview ready. Open Fleet Ops → Fleet Exposure:  sf org open --target-org $ORG"

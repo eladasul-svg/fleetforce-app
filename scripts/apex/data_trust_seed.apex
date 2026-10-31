@@ -6,5 +6,5 @@
 //
 // Usage:  sf apex run --file scripts/apex/data_trust_seed.apex --target-org <alias>
 
-DataTrustSampleData.Summary s = DataTrustSampleData.seed();
-System.debug(LoggingLevel.ERROR, 'DATA TRUST SEED ' + s);
+// fleetforce.FleetForceSetup works both in the namespaced dev org and where FleetForce is installed as a package.
+System.debug(LoggingLevel.ERROR, 'DATA TRUST SEED ' + fleetforce.FleetForceSetup.seedDataTrustSample());
