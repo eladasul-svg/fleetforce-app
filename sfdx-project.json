@@ -1,12 +1,12 @@
 {
   "packageDirectories": [
     {
-      "versionName": "ver 1.0",
-      "versionNumber": "1.0.0.NEXT",
+      "versionName": "ver 1.1",
+      "versionNumber": "1.1.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "FleetForce Platform",
-      "versionDescription": "FleetForce motorpool management application"
+      "versionDescription": "FleetForce motorpool management application: data trust layer, regional settings (countries, time zones, currencies, units), Regulatory Category matching"
     },
     {
       "path": "unpackaged",
