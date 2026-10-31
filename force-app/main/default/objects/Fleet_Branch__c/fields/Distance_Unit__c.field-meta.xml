@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Distance_Unit__c</fullName>
+    <inlineHelpText
+  >Unit for odometers and distances. Vehicles inherit it unless they override it.</inlineHelpText>
+    <label>Distance Unit</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>Distance_Unit</valueSetName>
+    </valueSet>
+</CustomField>

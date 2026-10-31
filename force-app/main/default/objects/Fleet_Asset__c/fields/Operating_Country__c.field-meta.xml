@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Operating_Country__c</fullName>
+    <description>The branch country, else the org default country.</description>
+    <externalId>false</externalId>
+    <formula
+  >BLANKVALUE(TEXT(Branch__r.Country__c), $Setup.Fleet_Display_Setting__c.Default_Country__c)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText
+  >Country of the branch the vehicle operates from.</inlineHelpText>
+    <label>Operating Country</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

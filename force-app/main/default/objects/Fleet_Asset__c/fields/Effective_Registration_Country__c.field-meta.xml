@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Effective_Registration_Country__c</fullName>
+    <description
+  >Registration Country, else the branch country, else the org default country.</description>
+    <externalId>false</externalId>
+    <formula
+  >BLANKVALUE(TEXT(Country__c), BLANKVALUE(TEXT(Branch__r.Country__c), $Setup.Fleet_Display_Setting__c.Default_Country__c))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText
+  >Country whose regulations apply to this vehicle.</inlineHelpText>
+    <label>Effective Registration Country</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

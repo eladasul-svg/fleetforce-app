@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Country__c</fullName>
+    <description
+  >ISO 3166-1 alpha-2 code for new branches, and the fallback when a branch sets none.</description>
+    <externalId>false</externalId>
+    <label>Default Country</label>
+    <length>2</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,11 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>VIN__c</fullName>
-    <externalId>false</externalId>
+    <caseSensitive>false</caseSensitive>
+    <description
+  >17-character Vehicle Identification Number. Unique and an external ID, so imports can upsert on it.</description>
+    <externalId>true</externalId>
     <label>VIN</label>
     <length>17</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>
-    <unique>false</unique>
+    <unique>true</unique>
 </CustomField>

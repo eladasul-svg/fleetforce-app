@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Regulatory_Category__c</fullName>
+    <description
+  >EU vehicle category or US GVWR class. Data Trust matches notices on it, and on Vehicle Class only when this is blank.</description>
+    <inlineHelpText
+  >Legal category of the vehicle, as on its registration document (EU M1, N1 and so on, or US Class 1 to 8).</inlineHelpText>
+    <label>Regulatory Category</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>Regulatory_Category</valueSetName>
+    </valueSet>
+</CustomField>

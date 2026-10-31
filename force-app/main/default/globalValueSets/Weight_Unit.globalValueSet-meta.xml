@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>kg</fullName>
+        <default>false</default>
+        <label>Kilograms (kg)</label>
+    </customValue>
+    <customValue>
+        <fullName>lb</fullName>
+        <default>false</default>
+        <label>Pounds (lb)</label>
+    </customValue>
+    <masterLabel>Weight Unit</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

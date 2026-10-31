@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Regional defaults per country. Picking a Country on a Fleet Branch pre-fills the branch's time zone, currency and units from the matching record. DeveloperName is the ISO 3166-1 alpha-2 code.</description>
+    <label>Country Profile</label>
+    <pluralLabel>Country Profiles</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

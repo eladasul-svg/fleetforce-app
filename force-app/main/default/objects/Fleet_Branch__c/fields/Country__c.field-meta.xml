@@ -1,39 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Country__c</fullName>
+    <inlineHelpText
+  >Country the branch operates in. Choosing it pre-fills time zone, currency and units from the Country Profile.</inlineHelpText>
     <label>Country</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>United States</fullName>
-                <default>true</default>
-                <label>United States</label>
-            </value>
-            <value>
-                <fullName>Canada</fullName>
-                <default>false</default>
-                <label>Canada</label>
-            </value>
-            <value>
-                <fullName>Mexico</fullName>
-                <default>false</default>
-                <label>Mexico</label>
-            </value>
-            <value>
-                <fullName>United Kingdom</fullName>
-                <default>false</default>
-                <label>United Kingdom</label>
-            </value>
-            <value>
-                <fullName>Other</fullName>
-                <default>false</default>
-                <label>Other</label>
-            </value>
-        </valueSetDefinition>
+        <valueSetName>Country_ISO</valueSetName>
     </valueSet>
 </CustomField>

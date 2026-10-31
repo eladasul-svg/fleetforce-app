@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>EU_M1</fullName>
+        <default>false</default>
+        <label>EU M1 - passenger car, up to 8 seats</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_M2</fullName>
+        <default>false</default>
+        <label>EU M2 - bus or minibus, up to 5 t</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_M3</fullName>
+        <default>false</default>
+        <label>EU M3 - bus or coach, over 5 t</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_N1</fullName>
+        <default>false</default>
+        <label>EU N1 - goods vehicle, up to 3.5 t</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_N2</fullName>
+        <default>false</default>
+        <label>EU N2 - goods vehicle, 3.5 to 12 t</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_N3</fullName>
+        <default>false</default>
+        <label>EU N3 - goods vehicle, over 12 t</label>
+    </customValue>
+    <customValue>
+        <fullName>EU_L</fullName>
+        <default>false</default>
+        <label>EU L - two- or three-wheeler, quadricycle</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_1</fullName>
+        <default>false</default>
+        <label>US Class 1 - up to 6,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_2</fullName>
+        <default>false</default>
+        <label>US Class 2 - 6,001 to 10,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_3</fullName>
+        <default>false</default>
+        <label>US Class 3 - 10,001 to 14,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_4</fullName>
+        <default>false</default>
+        <label>US Class 4 - 14,001 to 16,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_5</fullName>
+        <default>false</default>
+        <label>US Class 5 - 16,001 to 19,500 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_6</fullName>
+        <default>false</default>
+        <label>US Class 6 - 19,501 to 26,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_7</fullName>
+        <default>false</default>
+        <label>US Class 7 - 26,001 to 33,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>US_Class_8</fullName>
+        <default>false</default>
+        <label>US Class 8 - over 33,000 lb</label>
+    </customValue>
+    <customValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+    </customValue>
+    <description
+  >EU vehicle categories (UNECE / Regulation (EU) 2018/858) and US GVWR classes. Admins may add values.</description>
+    <masterLabel>Regulatory Category</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

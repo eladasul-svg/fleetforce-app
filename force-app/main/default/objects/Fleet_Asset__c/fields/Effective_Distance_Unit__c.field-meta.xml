@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Effective_Distance_Unit__c</fullName>
+    <description
+  >Distance Unit Override, else the branch unit, else the org default, else km.</description>
+    <externalId>false</externalId>
+    <formula
+  >BLANKVALUE(TEXT(Distance_Unit_Override__c), BLANKVALUE(TEXT(Branch__r.Distance_Unit__c), BLANKVALUE($Setup.Fleet_Display_Setting__c.Default_Distance_Unit__c, "km")))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText
+  >Unit the odometer is read and stored in: km or mi.</inlineHelpText>
+    <label>Effective Distance Unit</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

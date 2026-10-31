@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Distance_Unit_Override__c</fullName>
+    <description>Blank means the branch's distance unit.</description>
+    <inlineHelpText
+  >Set only if this vehicle's odometer reads in a different unit from its branch, for example a UK-registered vehicle at a Lisbon branch.</inlineHelpText>
+    <label>Distance Unit Override</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>Distance_Unit</valueSetName>
+    </valueSet>
+</CustomField>

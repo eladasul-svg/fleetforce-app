@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Weight_Unit__c</fullName>
+    <description>Same values as the Weight_Unit value set.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Weight Unit</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>kg</fullName>
+                <default>false</default>
+                <label>Kilograms (kg)</label>
+            </value>
+            <value>
+                <fullName>lb</fullName>
+                <default>false</default>
+                <label>Pounds (lb)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

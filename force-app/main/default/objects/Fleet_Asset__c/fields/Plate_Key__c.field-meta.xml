@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plate_Key__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description
+  >Set automatically when VIN is blank: registration country, a pipe, then the plate in capitals without spaces or hyphens (PT|AA00AA). Unique, so the same plate cannot be loaded twice in one country.</description>
+    <externalId>true</externalId>
+    <inlineHelpText
+  >Identifies a vehicle without a VIN. Filled in automatically.</inlineHelpText>
+    <label>Plate Key</label>
+    <length>60</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

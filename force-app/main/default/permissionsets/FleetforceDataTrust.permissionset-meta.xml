@@ -292,6 +292,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Fleet_Asset__c.Effective_Registration_Country__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Fleet_Asset__c.Freshness_Score__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -313,6 +318,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Fleet_Asset__c.Open_Alert_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Fleet_Asset__c.Operating_Country__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Fleet_Asset__c.Regulatory_Category__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

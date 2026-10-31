@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fuel_Economy_Format__c</fullName>
+    <description
+  >How fuel economy is displayed for vehicles operating in this country.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Fuel Economy Format</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>MPG_US</fullName>
+                <default>false</default>
+                <label>MPG (US gallons)</label>
+            </value>
+            <value>
+                <fullName>MPG_UK</fullName>
+                <default>false</default>
+                <label>MPG (imperial gallons)</label>
+            </value>
+            <value>
+                <fullName>L_100km</fullName>
+                <default>false</default>
+                <label>L/100 km</label>
+            </value>
+            <value>
+                <fullName>km_L</fullName>
+                <default>false</default>
+                <label>km/L</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
