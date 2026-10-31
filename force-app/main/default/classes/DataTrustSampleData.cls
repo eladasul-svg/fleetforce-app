@@ -614,7 +614,11 @@ public with sharing class DataTrustSampleData {
 
   // --------------------------------------------------------------------------------------------------- fleet
 
-  /** Every vehicle in name order, with make, model, year and country filled in from the name where blank. */
+  /**
+   * Every vehicle in name order, with make, model and year filled in from the name where blank. Registration
+   * Country is filled only for vehicles that have no country at all (no branch country to inherit), so a fleet
+   * spread over branches keeps its branch countries.
+   */
   @TestVisible
   private static List<Fleet_Asset__c> prepareFleet() {
     List<Fleet_Asset__c> fleet = [
@@ -626,6 +630,7 @@ public with sharing class DataTrustSampleData {
         Model__c,
         Model_Year__c,
         Country__c,
+        Effective_Registration_Country__c,
         Fuel_Type__c,
         Vehicle_Class__c
       FROM Fleet_Asset__c
@@ -649,8 +654,8 @@ public with sharing class DataTrustSampleData {
         a.Model__c = p.model;
         dirty = true;
       }
-      if (String.isBlank(a.Country__c)) {
-        // the demo fleet runs from Lisbon; a few vehicles are cross-border so the regulations differ
+      if (String.isBlank(a.Effective_Registration_Country__c)) {
+        // no branch country: treat the vehicle as part of a Lisbon fleet; a few are cross-border so the regulations differ
         a.Country__c = Math.mod(i, 5) == 3
           ? 'ES'
           : (Math.mod(i, 7) == 6 ? 'GB' : 'PT');

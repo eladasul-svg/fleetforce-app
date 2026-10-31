@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- The five fields whose type cannot be changed in place (see migrate_regional.sh). -->
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Fleet_Branch__c.Country__c</members>
+        <members>Fleet_Branch__c.Time_Zone__c</members>
+        <members>Fleet_Schedule__c.Time_Zone__c</members>
+        <members>Insurance_Policy__c.Status__c</members>
+        <members>Driver_Qualification__c.Status__c</members>
+        <name>CustomField</name>
+    </types>
+    <version>64.0</version>
+</Package>

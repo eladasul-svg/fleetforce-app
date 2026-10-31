@@ -151,8 +151,10 @@ def preseed_validate(sf):
         "Fleet_Branch__c",
         n("Fleet_Branch__c"),
         {"Name": "__TEST__ Branch",
-         n("City__c"): "Austin",
-         n("US_State__c"): "TX",
+         n("City__c"): "Chicago",
+         n("US_State__c"): "IL",
+         n("Country__c"): "US",
+         n("Time_Zone__c"): "America/Chicago",
          n("Status__c"): "Active",
          n("Type__c"): "Hub",
          n("Capacity__c"): 50}
@@ -163,7 +165,7 @@ def preseed_validate(sf):
         "Fleet_Asset__c",
         n("Fleet_Asset__c"),
         {"Name": "__TEST__ Asset",
-         n("VIN__c"): "1TESTVIN000000001",
+         n("VIN__c"): "1FTEW1EP0PKD00001",  # 17 characters, no I, O or Q
          n("License_Plate__c"): "TST-0001",
          n("Status__c"): "Available",
          n("Fuel_Type__c"): "Gasoline",

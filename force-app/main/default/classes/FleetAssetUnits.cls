@@ -1,6 +1,6 @@
 /**
- * Stored odometer readings keep the unit they were entered in. When a vehicle moves to a branch with a different
- * distance unit and has no override, the old unit is stamped into Distance_Unit_Override__c so the readings
+ * Stored odometer readings keep the unit they were entered in. When a vehicle moves from one branch to another branch
+ * with a different distance unit and has no override, the old unit is stamped into Distance_Unit_Override__c so the readings
  * (and Odometer_Km__c) stay correct. Open question for the design partner: docs/project files/design-partner-decisions.csv, D-001.
  */
 public with sharing class FleetAssetUnits {
@@ -13,8 +13,11 @@ public with sharing class FleetAssetUnits {
     Set<Id> branchIds = new Set<Id>();
     for (Fleet_Asset__c a : assets) {
       Fleet_Asset__c old = oldMap.get(a.Id);
+      // a move between two branches; a vehicle's first branch (or leaving one) is setup, not a move
       if (
         a.Branch__c != old.Branch__c &&
+        a.Branch__c != null &&
+        old.Branch__c != null &&
         String.isBlank(a.Distance_Unit_Override__c)
       ) {
         moved.add(a);

@@ -5,7 +5,20 @@
 // Idempotent: records it creates are marked in fields the app never shows (Cost_Center__c, Name, Limit__c,
 // Approval_Notes__c = 'DEMO-DRIVER') and are deleted and re-created on every run. Run after the main seed and seed_motorpool_bookings.apex.
 //
+// Booking times are wall-clock times at the booked vehicle's branch.
+//
 // Usage:  sf apex run --file scripts/apex/seed_driver_app.apex --target-org <alias>
+
+// Wall-clock time in a branch time zone (IANA), so a 09:00 booking is 09:00 at the vehicle's branch.
+Datetime localTime(Date d, Integer h, Integer m, String tz) {
+    Datetime wall = Datetime.newInstanceGmt(d, Time.newInstance(h, m, 0, 0));
+    if (String.isBlank(tz)) {
+        return wall;
+    }
+    TimeZone z = TimeZone.getTimeZone(tz);
+    Datetime guess = wall.addSeconds(-z.getOffset(wall) / 1000);
+    return wall.addSeconds(-z.getOffset(guess) / 1000);
+}
 
 Map<String, Contact> drivers = new Map<String, Contact>();
 for (Contact c : [SELECT Id, Name FROM Contact WHERE fleetforce__Contact_Type__c = 'Driver'
@@ -57,7 +70,7 @@ for (fleetforce__Fleet_Asset__c a : [
 
 // pool vehicles for the bookings
 List<fleetforce__Fleet_Asset__c> pool = [
-    SELECT Id, fleetforce__Branch__c FROM fleetforce__Fleet_Asset__c
+    SELECT Id, fleetforce__Branch__c, fleetforce__Effective_Time_Zone__c FROM fleetforce__Fleet_Asset__c
     WHERE fleetforce__Is_Active__c = true AND fleetforce__Status__c = 'Available' AND fleetforce__Driver__c = null ORDER BY Name DESC LIMIT 6
 ];
 
@@ -84,7 +97,7 @@ if (chloe != null && carOf.containsKey(chloe.Id)) {
         fleetforce__Status__c = 'Draft', fleetforce__Scheduled_Start__c = today.addDays(6), fleetforce__Scheduled_End__c = today.addDays(6),
         fleetforce__Category__c = 'Preventive Maintenance', fleetforce__Priority__c = 'Low', fleetforce__Date_Reported__c = Datetime.now().addDays(-3),
         fleetforce__Summary__c = 'Scheduled service: oil change and tire rotation', fleetforce__Approval_Notes__c = 'DEMO-DRIVER',
-        fleetforce__Description__c = 'Routine 15,000 mile service booked at the branch workshop.'));
+        fleetforce__Description__c = 'Routine service booked at the branch workshop.'));
     trips.add(new fleetforce__Allocation__c(Name = 'TRIP-DEMO-1', fleetforce__Driver__c = chloe.Id, fleetforce__Fleet_Asset__c = car.Id,
         fleetforce__Status__c = 'Active', fleetforce__Actual_Check_Out__c = Datetime.now().addHours(-3),
         fleetforce__Odometer_Start__c = car.fleetforce__Odometer__c, fleetforce__Fuel_Level_Out__c = 82,
@@ -96,12 +109,12 @@ if (chloe != null && carOf.containsKey(chloe.Id)) {
     if (pool.size() > 1) {
         reservations.add(new fleetforce__Reservation__c(Name = 'DEMO-D1', fleetforce__Requestor_Contact__c = chloe.Id, fleetforce__Assigned_Asset__c = pool[0].Id,
             fleetforce__Origin_Branch__c = pool[0].fleetforce__Branch__c, fleetforce__Cost_Center__c = 'DEMO-DRIVER', fleetforce__Status__c = 'Approved',
-            fleetforce__Start_Time__c = Datetime.newInstanceGmt(today.addDays(1), Time.newInstance(8, 30, 0, 0)),
-            fleetforce__End_Time__c = Datetime.newInstanceGmt(today.addDays(1), Time.newInstance(18, 0, 0, 0))));
+            fleetforce__Start_Time__c = localTime(today.addDays(1), 8, 30, pool[0].fleetforce__Effective_Time_Zone__c),
+            fleetforce__End_Time__c = localTime(today.addDays(1), 18, 0, pool[0].fleetforce__Effective_Time_Zone__c)));
         reservations.add(new fleetforce__Reservation__c(Name = 'DEMO-D2', fleetforce__Requestor_Contact__c = chloe.Id, fleetforce__Assigned_Asset__c = pool[1].Id,
             fleetforce__Origin_Branch__c = pool[1].fleetforce__Branch__c, fleetforce__Cost_Center__c = 'DEMO-DRIVER', fleetforce__Status__c = 'Pending',
-            fleetforce__Start_Time__c = Datetime.newInstanceGmt(today.addDays(5), Time.newInstance(9, 0, 0, 0)),
-            fleetforce__End_Time__c = Datetime.newInstanceGmt(today.addDays(6), Time.newInstance(17, 0, 0, 0))));
+            fleetforce__Start_Time__c = localTime(today.addDays(5), 9, 0, pool[1].fleetforce__Effective_Time_Zone__c),
+            fleetforce__End_Time__c = localTime(today.addDays(6), 17, 0, pool[1].fleetforce__Effective_Time_Zone__c)));
     }
 }
 
@@ -112,8 +125,8 @@ if (hannah != null && carOf.containsKey(hannah.Id)) {
     if (pool.size() > 2) {
         reservations.add(new fleetforce__Reservation__c(Name = 'DEMO-D3', fleetforce__Requestor_Contact__c = hannah.Id, fleetforce__Assigned_Asset__c = pool[2].Id,
             fleetforce__Origin_Branch__c = pool[2].fleetforce__Branch__c, fleetforce__Cost_Center__c = 'DEMO-DRIVER', fleetforce__Status__c = 'Approved',
-            fleetforce__Start_Time__c = Datetime.newInstanceGmt(today.addDays(2), Time.newInstance(10, 0, 0, 0)),
-            fleetforce__End_Time__c = Datetime.newInstanceGmt(today.addDays(2), Time.newInstance(16, 0, 0, 0))));
+            fleetforce__Start_Time__c = localTime(today.addDays(2), 10, 0, pool[2].fleetforce__Effective_Time_Zone__c),
+            fleetforce__End_Time__c = localTime(today.addDays(2), 16, 0, pool[2].fleetforce__Effective_Time_Zone__c)));
     }
 }
 

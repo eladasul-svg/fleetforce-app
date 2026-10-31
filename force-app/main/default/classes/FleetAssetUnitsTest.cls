@@ -54,7 +54,7 @@ private class FleetAssetUnitsTest {
   }
 
   @IsTest
-  static void moveFromNoBranchUsesOrgDefault() {
+  static void firstBranchIsNotAMove() {
     Fleet_Branch__c london = branch('London', 'mi');
     Fleet_Asset__c a = new Fleet_Asset__c(Name = 'Car');
     insert a;
@@ -62,7 +62,9 @@ private class FleetAssetUnitsTest {
     a.Branch__c = london.Id;
     update a;
 
-    System.assertEquals('km', reload(a.Id).Distance_Unit_Override__c);
+    a = reload(a.Id);
+    System.assertEquals(null, a.Distance_Unit_Override__c);
+    System.assertEquals('mi', a.Effective_Distance_Unit__c);
   }
 
   @IsTest

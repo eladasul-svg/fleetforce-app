@@ -1,69 +1,72 @@
 # FleetForce — Manual Setup Steps (Non-Metadata-Deployable)
 
 > These steps cannot be captured in source or automated via `sf project 
-> deploy`. They must be done via Setup UI. Keep this list current as more 
-> are discovered — check it before any TSO configuration or fresh scratch 
+deploy`. They must be done via Setup UI. Keep this list current as more
+> are discovered — check it before any TSO configuration or fresh scratch
 > org spin-up.
 
 ---
 
 ## One-time steps for the actual TSO (needed once, persists after)
 
-These apply to configuring the real Trialforce Source Org. Since a TSO is 
+These apply to configuring the real Trialforce Source Org. Since a TSO is
 a persistent org (not re-spun like a scratch org), these are done once.
 
-1. **Activate the "Fleetforce" theme** — Setup → Themes and Branding → 
-   select "Fleetforce" → Activate. `LightningExperienceTheme` metadata 
+1. **Activate the "Fleetforce" theme** — Setup → Themes and Branding →
+   select "Fleetforce" → Activate. `LightningExperienceTheme` metadata
    captures the theme definition but not which theme is active.
    (Discovered 2026-08-20.)
 
 1b. **Activate "Home Page Default" as the Home tab's default page** — open
-   the FleetOps app, go to the Home tab, Setup gear → Edit Page (Lightning
-   App Builder) on `Home_Page_Default`, then Activation → assign as Org
-   Default (or App Default for FleetOps, and per relevant profile). Without
-   this, the Home tab falls back to the standard Salesforce Home layout and
-   none of the FleetForce dashboard components (KPI tiles, map, Assistant,
-   Geotab settings) render at all. Confirmed on `fleetforce-master-tso`
-   2026-09-27: retrieving `FleetOps.app-meta.xml` from `fleetforce-dev-10`
-   (which DOES show the correct custom Home page live) is byte-identical to
-   the packaged source — no `actionOverride` for Home exists in metadata on
-   either org. This is the same category of gap as the theme above: a
-   Lightning App Builder "Activation" assignment that Metadata API cannot
-   capture or deploy. Needs doing by hand on every new org, including any
-   future TSO/Trialforce Template clone. (Discovered 2026-09-27.)
+the FleetOps app, go to the Home tab, Setup gear → Edit Page (Lightning
+App Builder) on `Home_Page_Default`, then Activation → assign as Org
+Default (or App Default for FleetOps, and per relevant profile). Without
+this, the Home tab falls back to the standard Salesforce Home layout and
+none of the FleetForce dashboard components (KPI tiles, map, Assistant,
+Geotab settings) render at all. Confirmed on `fleetforce-master-tso`
+2026-09-27: retrieving `FleetOps.app-meta.xml` from `fleetforce-dev-10`
+(which DOES show the correct custom Home page live) is byte-identical to
+the packaged source — no `actionOverride` for Home exists in metadata on
+either org. This is the same category of gap as the theme above: a
+Lightning App Builder "Activation" assignment that Metadata API cannot
+capture or deploy. Needs doing by hand on every new org, including any
+future TSO/Trialforce Template clone. (Discovered 2026-09-27.)
 
 ~~2. **Enable "Let site guest users run flows"**~~ — **No longer applicable.**
-   The Motorpool guest portal was rebuilt as a native Visualforce form with
-   a `@RemoteAction` Apex controller (`MotorpoolPortalController`), bypassing
-   Screen Flow entirely. Guest users never invoke `FlowRuntimeConnect.startFlow`,
-   so no flow-access org preference is needed. The "Process Automation Settings"
-   page was removed from Setup in a recent release and the underlying
-   `enableFlowsLightningApp` field cannot be set via Metadata API or Tooling API —
-   the VF+RemoteAction approach is the correct architecture for Force.com Sites
-   Classic guest portals.
-   (Resolved 2026-09-07.)
+The Motorpool guest portal was rebuilt as a native Visualforce form with
+a `@RemoteAction` Apex controller (`MotorpoolPortalController`), bypassing
+Screen Flow entirely. Guest users never invoke `FlowRuntimeConnect.startFlow`,
+so no flow-access org preference is needed. The "Process Automation Settings"
+page was removed from Setup in a recent release and the underlying
+`enableFlowsLightningApp` field cannot be set via Metadata API or Tooling API —
+the VF+RemoteAction approach is the correct architecture for Force.com Sites
+Classic guest portals.
+(Resolved 2026-09-07.)
 
 ---
 
 ## Per-scratch-org steps (needed every fresh scratch org spin, dev-cycle only)
 
-These do NOT apply to the TSO itself — they're artifacts of scratch org 
+These do NOT apply to the TSO itself — they're artifacts of scratch org
 metadata portability, not relevant to a persistent org with real users.
 
-1. **Update Motorpool site's `siteAdmin` / `siteGuestRecordDefaultOwner`** 
-   — `Motorpool.site-meta.xml` hardcodes a scratch-org admin username. 
-   Every new scratch org has a different auto-generated admin username 
-   (e.g. `test-8krhiycuuqa1@example.com`), so this must be updated to the 
-   new org's actual admin after each fresh spin, or the site falls back 
+1. **Update Motorpool site's `siteAdmin` / `siteGuestRecordDefaultOwner`**
+   — `Motorpool.site-meta.xml` hardcodes a scratch-org admin username.
+   Every new scratch org has a different auto-generated admin username
+   (e.g. `test-8krhiycuuqa1@example.com`), so this must be updated to the
+   new org's actual admin after each fresh spin, or the site falls back
    to the "InMaintenance" page.
    (Discovered 2026-09-07.)
 2. **Trim the App Launcher** — run `scripts/hide_standard_apps.sh <org-alias>`
    to leave only Fleet Ops and FleetForce Admin for the System
    Administrator profile. (2026-10-27)
-3. **Seed demo activity** — `scripts/apex/seed_tasks.apex`,
-   `seed_events.apex`, `seed_lisbon_locations.apex`,
-   `seed_motorpool_bookings.apex`, `seed_driver_app.apex` via
-   `sf apex run --file ... --target-org <alias>` (all re-runnable).
+3. **Load the demo data** — `./scripts/load_demo_data.sh <alias>` loads the
+   4-branch dataset (`data/sfdmu-export`, see its README) and runs every seed
+   (`seed_branch_locations`, `seed_tasks`, `seed_events`,
+   `seed_motorpool_bookings`, `seed_driver_app`, data trust); all re-runnable.
+   Multi-currency demo org: `./scripts/demo_multicurrency_setup.sh`.
+   Existing org with pre-regional data (dev-11): `./scripts/migration/migrate_regional.sh <alias>`.
+   (2026-10-31)
    Deploy the LWR site from `unpackaged/` and publish it with
    `sf community publish`. (2026-10-27)
 
@@ -176,12 +179,12 @@ external credential's `Org` principal. Data access is the user's own.
 ### 2. Connect a key (one of two options)
 
 - **Organization key (admin, shared by everyone):** open the component and
-  paste the key under *Organization connection* (visible to users with
+  paste the key under _Organization connection_ (visible to users with
   Modify All Data), or in Setup → Named Credentials → External Credentials
   → **Claude API** → principal **Org** → add authentication parameter
   `ApiKey`. The key is stored in Salesforce's encrypted credential store
   and injected as the `x-api-key` header by the named credential.
-- **Personal key (per user):** paste it under *Personal key* in the
+- **Personal key (per user):** paste it under _Personal key_ in the
   component. It is stored in the protected hierarchy custom setting
   `Assistant_User_Setting__c` (invisible to subscriber admins) and the
   callout then goes directly to `https://api.anthropic.com` through the

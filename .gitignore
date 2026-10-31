@@ -47,3 +47,7 @@ $RECYCLE.BIN/
 **/.venv/
 **/venv/
 .claude/
+scripts/migration/backup/
+data/sfdmu-export/target/
+data/sfdmu-export/reports/
+data/sfdmu-export/source/

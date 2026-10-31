@@ -1,0 +1,21 @@
+{
+  "orgName": "Fleetforce Multi-Currency Demo",
+  "edition": "Partner Developer",
+  "features": ["EnableSetPasswordInApi", "MultiCurrency"],
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    },
+    "pathAssistantSettings": {
+      "pathAssistantEnabled": true
+    },
+    "currencySettings": {
+      "enableMultiCurrency": true
+    }
+  },
+  "country": "PT",
+  "language": "en_US"
+}

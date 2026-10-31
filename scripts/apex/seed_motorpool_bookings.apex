@@ -6,7 +6,20 @@
 // Idempotent: its own reservations (Cost_Center__c = 'DEMO-SEED') and blackouts (Source_ID__c = 'DEMO-SEED') are
 // deleted and re-created, so run it again whenever the dates need refreshing.
 //
+// Times are wall-clock times at each vehicle's branch (its effective time zone).
+//
 // Usage:  sf apex run --file scripts/apex/seed_motorpool_bookings.apex --target-org <alias>
+
+// Wall-clock time in a branch time zone (IANA), so a 09:00 booking is 09:00 at the vehicle's branch.
+Datetime localTime(Date d, Integer h, Integer m, String tz) {
+    Datetime wall = Datetime.newInstanceGmt(d, Time.newInstance(h, m, 0, 0));
+    if (String.isBlank(tz)) {
+        return wall;
+    }
+    TimeZone z = TimeZone.getTimeZone(tz);
+    Datetime guess = wall.addSeconds(-z.getOffset(wall) / 1000);
+    return wall.addSeconds(-z.getOffset(guess) / 1000);
+}
 
 // 1) pool
 Set<String> poolNames = new Set<String>{
@@ -29,7 +42,7 @@ delete [SELECT Id FROM fleetforce__Reservation__c WHERE fleetforce__Cost_Center_
 delete [SELECT Id FROM fleetforce__Availability_Blackout__c WHERE fleetforce__Source_ID__c = 'DEMO-SEED'];
 
 List<fleetforce__Fleet_Asset__c> pool = [
-    SELECT Id, fleetforce__Branch__c FROM fleetforce__Fleet_Asset__c
+    SELECT Id, fleetforce__Branch__c, fleetforce__Effective_Time_Zone__c FROM fleetforce__Fleet_Asset__c
     WHERE fleetforce__Is_Active__c = true AND fleetforce__Status__c = 'Available' ORDER BY Name
 ];
 
@@ -56,8 +69,9 @@ for (Integer i = 0; i < pool.size(); i++) {
     if (kind == 'F') {
         continue;
     }
-    Datetime s = Datetime.newInstanceGmt(today.addDays((Integer) p[1]), Time.newInstance((Integer) p[2], 0, 0, 0));
-    Datetime e = Datetime.newInstanceGmt(today.addDays((Integer) p[3]), Time.newInstance((Integer) p[4], 0, 0, 0));
+    String tz = pool[i].fleetforce__Effective_Time_Zone__c;
+    Datetime s = localTime(today.addDays((Integer) p[1]), (Integer) p[2], 0, tz);
+    Datetime e = localTime(today.addDays((Integer) p[3]), (Integer) p[4], 0, tz);
     if (kind == 'R') {
         reservations.add(new fleetforce__Reservation__c(
             Name = 'SEED-' + (1000 + i),
