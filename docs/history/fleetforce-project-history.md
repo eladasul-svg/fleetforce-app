@@ -20,6 +20,7 @@
 
 Status as of 2026-09-27, fourth pass — **FleetForce Platform 1.0.0.8 is Released and installed on `fleetforce-master-tso`**; guest portal verified working there; two manual-activation steps remain before the dashboard/Assistant will render (see below):
 
+- [ ] **Environments (added 2026-11-01): read `docs/project files/environments.md` before creating, deploying to or deleting any org.** One role per org: develop in scratch orgs (source), test each package version in a fresh no-namespace scratch org (install), demo from scratch orgs, `fleetforce-master-tso` holds only the latest released package. Not sandboxes: the Apex uses the `fleetforce__` prefix, which only compiles in namespaced orgs. Rebuild any org with `./scripts/new_org.sh`. Default org is `fleetforce-dev-12`. Keep the "Current orgs" table in that file up to date.
 - [ ] **Design partner decision log (added 2026-10-31):** `docs/project files/design-partner-decisions.csv` holds the business-logic questions to ask the design partner, with what FleetForce does in the meantime. Read it before changing regional, unit or identity logic; add a row whenever a design choice is a guess about how a fleet works. Rows with Status `Open` still need asking.
 - [ ] **Regional settings and data model foundation (added 2026-10-31):** phase A (data model) done in commit `7c99d04` and phase B (logic and UI) and phase C (4-branch demo data in `fleetforce-dev-12`, migration script tested on a throwaway org, multi-currency demo org `fleetforce-demo-mc`) done; `fleetforce-dev-11` not migrated yet (needs the user's go); phase D (release) to go. Build per `docs/Code Work Orders/FleetForce regional settings and data model foundation.md` in a fresh scratch org (ideally before the first managed package version). Then demo with 4 branches for the multi-country prospect.
 - [ ] **Package the data trust layer (added 2026-10-31):** create a package version containing it, install onto `fleetforce-master-tso`, hand-check both screens. Source deploy is not package install. `fleetforce-dev-11` expires 2026-11-20.
@@ -45,6 +46,12 @@ Status as of 2026-09-27, fourth pass — **FleetForce Platform 1.0.0.8 is Releas
 - [ ] Draft flow cleanup — three `Fleetforce_*` draft flows with logic discrepancies vs. active counterparts. Untouched.
 - [ ] KPI component v2 (Custom-Metadata-Type-driven configurable redesign) — deferred to v2. Untouched.
 - [ ] CI/CD design — the explicit next phase after TSO MVP ships. Not yet started.
+
+---
+
+## 2026-10-31 / 11-01 — Regional settings phases A to C, design partner decision log, environments
+
+Built phases A to C of the regional settings work order on branch `claude/peaceful-galileo-olirr2` (commits `7c99d04`, `6e198a5`, `35a49cb`, `8fd5ca6`): value sets, Country Profiles and vehicle inheritance; Country Profile pre-fill, the Regional settings screen, units and fuel economy formats, Regulatory Category matching and branch time zones in the booking portal and driver app; a four-country demo dataset (Lisbon, London, Tel Aviv, Chicago), `scripts/load_demo_data.sh`, a tested migration script for dev-11 and a multi-currency demo org. 152 Apex tests pass in both a single- and a multi-currency org. Two new standing references: **`docs/project files/design-partner-decisions.csv`** (business-logic questions for the design partner with the interim behaviour; D-001 keeps a vehicle's distance unit when it moves between branches) and **`docs/project files/environments.md`** (the role of every org, agreed 2026-11-01: scratch orgs for development, package test installs and demos, `fleetforce-master-tso` for released versions only; sandboxes ruled out because of the namespace). Not done: phase D (package version, clean install on master-tso), the dev-11 migration (needs the user's go), UI checks by the user. Session file to be written at the end of phase D.
 
 ---
 
