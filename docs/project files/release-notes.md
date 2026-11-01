@@ -27,7 +27,8 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
 
 ### Changes and fixes
 
--
+- The FleetForce Assistant tells a user without the FleetForce Assistant User permission set to ask an administrator
+  for it, instead of showing the error "No such column 'Title__c'".
 
 ### Upgrade notes
 
