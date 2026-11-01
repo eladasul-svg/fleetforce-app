@@ -1,12 +1,12 @@
 {
   "packageDirectories": [
     {
-      "versionName": "ver 1.1",
-      "versionNumber": "1.1.0.NEXT",
+      "versionName": "ver 1.2",
+      "versionNumber": "1.2.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "FleetForce Platform",
-      "versionDescription": "FleetForce motorpool management application: data trust layer, regional settings (countries, time zones, currencies, units), Regulatory Category matching"
+      "versionDescription": "FleetForce motorpool management application: vehicle page with driver card (photo from Files), fuel ring and location map; Model Year as text; Assistant access message"
     },
     {
       "path": "unpackaged",
