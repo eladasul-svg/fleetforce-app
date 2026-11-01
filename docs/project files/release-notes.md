@@ -23,10 +23,16 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
 
 ### What's new
 
--
+- **Driver card** on the vehicle page, under the vehicle card: the assigned driver's photo (from their Related User)
+  or initials in a circle, status, branch, phone and email (click to call or write), license number, class and
+  expiry (amber within 60 days, red once expired), safety score, and a warning for expired or expiring
+  qualifications. It only appears when the vehicle has a driver, and follows a change of driver without a reload.
 
 ### Changes and fixes
 
+- Vehicle page: the Data Health component moved from the main column to its own tab, "Data Exposure", so the page
+  is shorter. The Assistant stays in the side column.
+- Vehicle page layout: Make, Model and Model Year moved from the Data Health section to Identity, under VIN.
 - The FleetForce Assistant tells a user without the FleetForce Assistant User permission set to ask an administrator
   for it, instead of showing the error "No such column 'Title__c'".
 

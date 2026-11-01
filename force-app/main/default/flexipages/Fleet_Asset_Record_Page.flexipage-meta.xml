@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -17,6 +17,10 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>hideChatterActions</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideSlackAction</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -68,6 +72,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>assetDataHealth</componentName>
+                <identifier>fleetforce_assetDataHealth</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>dataHealthTabContent</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
                     <value>relatedTabContent</value>
@@ -98,6 +112,20 @@
                 <identifier>detailTab</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>dataHealthTabContent</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Data Exposure</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>dataHealthTab</identifier>
+            </componentInstance>
+        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -105,18 +133,18 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>fleetVehicleImage</componentName>
                 <componentInstanceProperties>
                     <name>variant</name>
                     <value>hero</value>
                 </componentInstanceProperties>
+                <componentName>fleetVehicleImage</componentName>
                 <identifier>fleetforce_fleetVehicleImage</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>assetDataHealth</componentName>
-                <identifier>fleetforce_assetDataHealth</identifier>
+                <componentName>fleetDriverCard</componentName>
+                <identifier>fleetforce_fleetDriverCard</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -144,7 +172,8 @@
                     <name>showLegacyActivityComposer</name>
                     <value>false</value>
                 </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
+                <componentName
+        >runtime_sales_activities:activityPanel</componentName>
                 <identifier>runtime_sales_activities_activityPanel</identifier>
             </componentInstance>
         </itemInstances>

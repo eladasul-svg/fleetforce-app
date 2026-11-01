@@ -1,0 +1,69 @@
+<template>
+  <template lwc:if={card}>
+    <article class="card slds-card">
+      <div class="avatar" title={card.name}>
+        <template lwc:if={card.photoUrl}>
+          <img src={card.photoUrl} alt={card.name} class="avatar__img" />
+        </template>
+        <template lwc:else>
+          <span class="avatar__initials" aria-hidden="true"
+            >{card.initials}</span
+          >
+        </template>
+      </div>
+      <div class="card__info">
+        <div class="eyebrow">Assigned driver</div>
+        <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+          <a
+            href="#"
+            class="title slds-truncate"
+            title={card.name}
+            onclick={openDriver}
+            >{card.name}</a
+          >
+          <template lwc:if={card.status}>
+            <span class={statusClass}>{card.status}</span>
+          </template>
+        </div>
+        <template lwc:if={subtitle}>
+          <p class="subtitle">{subtitle}</p>
+        </template>
+
+        <div class="contact">
+          <template for:each={contacts} for:item="c">
+            <a key={c.key} href={c.href} class="contact__item" title={c.label}>
+              <lightning-icon
+                icon-name={c.icon}
+                size="xx-small"
+                alternative-text={c.label}
+              ></lightning-icon>
+              <span>{c.value}</span>
+            </a>
+          </template>
+        </div>
+
+        <dl class="facts">
+          <template for:each={facts} for:item="f">
+            <div key={f.key} class="facts__item">
+              <dt>{f.label}</dt>
+              <dd class={f.cls}>{f.value}</dd>
+            </div>
+          </template>
+        </dl>
+
+        <template lwc:if={warnings.length}>
+          <div class="warnings">
+            <template for:each={warnings} for:item="w">
+              <span key={w.key} class={w.cls}>{w.label}</span>
+            </template>
+          </div>
+        </template>
+      </div>
+    </article>
+  </template>
+  <template lwc:elseif={error}>
+    <article class="card slds-card">
+      <p class="slds-text-color_weak">Driver details are unavailable.</p>
+    </article>
+  </template>
+</template>

@@ -27,6 +27,23 @@ is the package version build (it runs every test in its own clean org) and a tes
 4. Install it into `fleetforce-master-tso`, do the manual steps in `manual-setup-steps.md`.
 5. Demo orgs are rebuilt from the released version.
 
+## Changing pages and layouts in the UI
+
+Record pages, page layouts and similar screens are easier to design in Lightning App Builder or the layout editor
+than in XML. Agreed 2026-11-01:
+
+1. **Before:** Claude retrieves the page and layout from the dev org, so it has a baseline (and checks it matches
+   git).
+2. **Edit:** the user changes them in the UI of `fleetforce-dev-<n>` and saves. Pages that are already active need
+   no re-activation. Say if a new page was created or an assignment changed: those are stored elsewhere.
+3. **After:** Claude retrieves them again, compares with the baseline, explains each change and anything worth
+   reconsidering, and copies the result into `force-app/` (renaming generated ids such as
+   `Facet-fb7a20f1-...` to readable names). Further changes requested in words are made in source on top.
+4. Deploy back to the dev org with `--ignore-conflicts` (the org copy is now older than source), check it, add the
+   change to `release-notes.md` and commit.
+
+Nothing stays only in the org: the next package version is built from source.
+
 ## One-command rebuild
 
 ```bash

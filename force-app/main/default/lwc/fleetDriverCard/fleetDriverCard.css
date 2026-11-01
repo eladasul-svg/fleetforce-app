@@ -1,0 +1,136 @@
+:host {
+  display: block;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.avatar {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ccfbf1;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1.5px #0f766e;
+}
+.avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar__initials {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f766e;
+  letter-spacing: 0.02em;
+}
+
+.card__info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.eyebrow {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+.title {
+  margin: 0 0.75rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+.subtitle {
+  margin: 0.1rem 0 0;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+}
+.pill--active {
+  background: #dcfce7;
+  color: #166534;
+}
+.pill--warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+.pill--bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.contact {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+}
+.contact__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+.contact__item:hover {
+  color: #0f766e;
+}
+
+.facts {
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+.facts__item dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+.facts__item dd {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+.facts__item dd.warn {
+  color: #b45309;
+}
+.facts__item dd.bad {
+  color: #b91c1c;
+}
+
+.warnings {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+@media (max-width: 520px) {
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
