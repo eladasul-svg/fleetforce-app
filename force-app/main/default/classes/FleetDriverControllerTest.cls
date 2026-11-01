@@ -106,4 +106,80 @@ private class FleetDriverControllerTest {
     );
     System.assertEquals('J', FleetDriverController.initials('jo', null));
   }
+
+  private static Id addFile(Id contactId, String title, String ext) {
+    ContentVersion v = new ContentVersion(
+      Title = title,
+      PathOnClient = title + '.' + ext,
+      VersionData = Blob.valueOf('not really an image'),
+      FirstPublishLocationId = contactId
+    );
+    insert v;
+    return [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :v.Id]
+    .ContentDocumentId;
+  }
+
+  @IsTest
+  static void photoIsChosenFromTheDriversImageFiles() {
+    Contact driver = [SELECT Id FROM Contact WHERE LastName = 'Patel' LIMIT 1];
+    Id photo = addFile(driver.Id, 'Maya', 'jpg');
+    addFile(driver.Id, 'Licence scan', 'pdf');
+
+    List<FleetDriverController.DriverPhoto> photos;
+    FleetDriverController.DriverCard d;
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      photos = FleetDriverController.getDriverPhotos(driver.Id);
+      FleetDriverController.setDriverPhoto(driver.Id, photo);
+      d = FleetDriverController.getDriverCard(driver.Id);
+    }
+    System.assertEquals(1, photos.size(), 'only images are offered');
+    System.assertEquals(photo, photos[0].documentId);
+    System.assertEquals(photo, d.photoDocumentId);
+    System.assert(
+      d.photoUrl.startsWith('/sfc/servlet.shepherd/version/download/068'),
+      d.photoUrl
+    );
+    System.assertEquals(true, d.canEditPhoto);
+
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      FleetDriverController.setDriverPhoto(driver.Id, null);
+      d = FleetDriverController.getDriverCard(driver.Id);
+    }
+    System.assertEquals(null, d.photoUrl, 'removed: back to initials');
+    System.assertEquals(
+      1,
+      [SELECT COUNT() FROM ContentDocument WHERE Id = :photo],
+      'the file stays'
+    );
+  }
+
+  @IsTest
+  static void onlyTheDriversOwnImagesCanBeTheirPhoto() {
+    Contact driver = [SELECT Id FROM Contact WHERE LastName = 'Patel' LIMIT 1];
+    Contact other = new Contact(LastName = 'Other');
+    insert other;
+    Id otherPhoto = addFile(other.Id, 'Someone else', 'png');
+    Id pdf = addFile(driver.Id, 'Licence scan', 'pdf');
+
+    for (Id doc : new List<Id>{ otherPhoto, pdf }) {
+      Boolean failed = false;
+      System.runAs(new User(Id = UserInfo.getUserId())) {
+        try {
+          FleetDriverController.setDriverPhoto(driver.Id, doc);
+        } catch (AuraHandledException e) {
+          failed = true;
+        }
+      }
+      System.assert(failed, 'rejected: ' + doc);
+    }
+    System.assertEquals(
+      null,
+      [
+        SELECT fleetforce__Photo_Document_Id__c
+        FROM Contact
+        WHERE Id = :driver.Id
+      ]
+      .fleetforce__Photo_Document_Id__c
+    );
+  }
 }

@@ -27,6 +27,11 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
   or initials in a circle, status, branch, phone and email (click to call or write), license number, class and
   expiry (amber within 60 days, red once expired), safety score, and a warning for expired or expiring
   qualifications. It only appears when the vehicle has a driver, and follows a change of driver without a reload.
+- **Driver photo from the driver's Files.** A pencil on the driver card's photo (for users who can edit the driver)
+  opens a picker: upload a new image, which is saved in the driver's Files, or choose an image already there;
+  "Remove photo" goes back to initials and keeps the file. The chosen file is stored in a new Contact field, Photo
+  File Id (not on the layout); a new version of the same file shows automatically. Without a chosen file the photo
+  comes from the driver's Related User, then initials.
 
 ### Changes and fixes
 

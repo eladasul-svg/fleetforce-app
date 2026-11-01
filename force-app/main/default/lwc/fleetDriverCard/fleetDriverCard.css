@@ -3,12 +3,38 @@
 }
 
 .card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1.5rem;
   padding: 1rem 1.25rem;
 }
 
+.avatar-wrap {
+  position: relative;
+  flex: 0 0 96px;
+}
+.avatar__edit {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #fff;
+  border: 1.5px solid #0f766e;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  --slds-c-icon-color-foreground-default: #0f766e;
+}
+.avatar__edit:hover,
+.avatar__edit:focus {
+  background: #ccfbf1;
+  outline: none;
+}
 .avatar {
   flex: 0 0 96px;
   width: 96px;

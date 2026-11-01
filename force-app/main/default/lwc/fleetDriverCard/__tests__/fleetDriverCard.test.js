@@ -2,6 +2,18 @@ import { createElement } from "@lwc/engine-dom";
 import FleetDriverCard from "c/fleetDriverCard";
 import { getRecord } from "lightning/uiRecordApi";
 import getDriverCard from "@salesforce/apex/FleetDriverController.getDriverCard";
+import setDriverPhoto from "@salesforce/apex/FleetDriverController.setDriverPhoto";
+import PhotoModal from "c/fleetDriverPhotoModal";
+
+jest.mock(
+  "@salesforce/apex/FleetDriverController.setDriverPhoto",
+  () => ({ default: jest.fn() }),
+  { virtual: true }
+);
+jest.mock("c/fleetDriverPhotoModal", () => ({
+  __esModule: true,
+  default: { open: jest.fn() }
+}));
 
 jest.mock(
   "@salesforce/apex/FleetDriverController.getDriverCard",
@@ -117,5 +129,60 @@ describe("c-fleet-driver-card", () => {
     getRecord.emit(ASSET_WITHOUT_DRIVER);
     await flush();
     expect(el.shadowRoot.querySelector("article")).toBeNull();
+  });
+
+  it("has no pencil when the user cannot edit the driver", async () => {
+    const el = mount();
+    getRecord.emit(ASSET_WITH_DRIVER);
+    getDriverCard.emit(CARD);
+    await flush();
+    expect(el.shadowRoot.querySelector(".avatar__edit")).toBeNull();
+  });
+
+  it("saves the photo chosen in the picker", async () => {
+    PhotoModal.open.mockResolvedValue({ documentId: "069000000000001" });
+    setDriverPhoto.mockResolvedValue();
+    const el = mount();
+    getRecord.emit(ASSET_WITH_DRIVER);
+    getDriverCard.emit({ ...CARD, canEditPhoto: true });
+    await flush();
+
+    el.shadowRoot.querySelector(".avatar__edit").click();
+    await flush();
+    await flush();
+    expect(PhotoModal.open).toHaveBeenCalledWith(
+      expect.objectContaining({ driverId: CARD.id, driverName: "Maya Patel" })
+    );
+    expect(setDriverPhoto).toHaveBeenCalledWith({
+      driverId: CARD.id,
+      documentId: "069000000000001"
+    });
+  });
+
+  it("clears the photo when the picker says remove, and saves nothing on cancel", async () => {
+    setDriverPhoto.mockResolvedValue();
+    const el = mount();
+    getRecord.emit(ASSET_WITH_DRIVER);
+    getDriverCard.emit({
+      ...CARD,
+      canEditPhoto: true,
+      photoDocumentId: "069000000000001"
+    });
+    await flush();
+
+    PhotoModal.open.mockResolvedValue(undefined);
+    el.shadowRoot.querySelector(".avatar__edit").click();
+    await flush();
+    await flush();
+    expect(setDriverPhoto).not.toHaveBeenCalled();
+
+    PhotoModal.open.mockResolvedValue({ remove: true });
+    el.shadowRoot.querySelector(".avatar__edit").click();
+    await flush();
+    await flush();
+    expect(setDriverPhoto).toHaveBeenCalledWith({
+      driverId: CARD.id,
+      documentId: null
+    });
   });
 });

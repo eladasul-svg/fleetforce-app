@@ -1,0 +1,58 @@
+<template>
+  <lightning-modal-header label={heading}></lightning-modal-header>
+  <lightning-modal-body>
+    <lightning-file-upload
+      label="Upload a new photo"
+      name="driverPhoto"
+      accept={acceptedFormats}
+      record-id={driverId}
+      onuploadfinished={handleUploadFinished}
+    ></lightning-file-upload>
+    <p class="hint">The photo is saved in the driver's Files.</p>
+
+    <h3 class="section">Or choose from the driver's Files</h3>
+    <template lwc:if={loading}>
+      <div class="loading">
+        <lightning-spinner
+          alternative-text="Loading"
+          size="small"
+        ></lightning-spinner>
+      </div>
+    </template>
+    <template lwc:elseif={error}>
+      <p class="slds-text-color_error">{error}</p>
+    </template>
+    <template lwc:elseif={hasPhotos}>
+      <ul class="grid">
+        <template for:each={photoTiles} for:item="p">
+          <li key={p.documentId}>
+            <button
+              class={p.cls}
+              title={p.title}
+              data-id={p.documentId}
+              onclick={handlePick}
+            >
+              <img src={p.url} alt={p.title} />
+            </button>
+          </li>
+        </template>
+      </ul>
+    </template>
+    <template lwc:else>
+      <p class="slds-text-color_weak">
+        There are no images in the driver's Files yet.
+      </p>
+    </template>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <template lwc:if={currentDocumentId}>
+      <lightning-button
+        label="Remove photo"
+        variant="destructive-text"
+        class="remove"
+        onclick={handleRemove}
+      ></lightning-button>
+    </template>
+    <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+  </lightning-modal-footer>
+</template>

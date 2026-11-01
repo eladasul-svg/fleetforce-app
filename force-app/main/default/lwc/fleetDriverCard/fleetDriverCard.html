@@ -1,14 +1,30 @@
 <template>
   <template lwc:if={card}>
     <article class="card slds-card">
-      <div class="avatar" title={card.name}>
-        <template lwc:if={card.photoUrl}>
-          <img src={card.photoUrl} alt={card.name} class="avatar__img" />
-        </template>
-        <template lwc:else>
-          <span class="avatar__initials" aria-hidden="true"
-            >{card.initials}</span
+      <div class="avatar-wrap">
+        <div class="avatar" title={card.name}>
+          <template lwc:if={card.photoUrl}>
+            <img src={card.photoUrl} alt={card.name} class="avatar__img" />
+          </template>
+          <template lwc:else>
+            <span class="avatar__initials" aria-hidden="true"
+              >{card.initials}</span
+            >
+          </template>
+        </div>
+        <template lwc:if={card.canEditPhoto}>
+          <button
+            class="avatar__edit"
+            title="Change photo"
+            aria-label="Change photo"
+            onclick={editPhoto}
           >
+            <lightning-icon
+              icon-name="utility:edit"
+              size="xx-small"
+              alternative-text="Change photo"
+            ></lightning-icon>
+          </button>
         </template>
       </div>
       <div class="card__info">
@@ -59,6 +75,12 @@
           </div>
         </template>
       </div>
+      <template lwc:if={savingPhoto}>
+        <lightning-spinner
+          alternative-text="Saving photo"
+          size="small"
+        ></lightning-spinner>
+      </template>
     </article>
   </template>
   <template lwc:elseif={error}>

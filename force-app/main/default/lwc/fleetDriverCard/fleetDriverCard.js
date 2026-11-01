@@ -1,7 +1,11 @@
 import { LightningElement, api, wire } from "lwc";
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import { NavigationMixin } from "lightning/navigation";
+import { refreshApex } from "@salesforce/apex";
+import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getDriverCard from "@salesforce/apex/FleetDriverController.getDriverCard";
+import setDriverPhoto from "@salesforce/apex/FleetDriverController.setDriverPhoto";
+import PhotoModal from "c/fleetDriverPhotoModal";
 
 const DRIVER_FIELD = "fleetforce__Fleet_Asset__c.fleetforce__Driver__c";
 // A licence expiring within this many days is flagged.
@@ -15,6 +19,8 @@ export default class FleetDriverCard extends NavigationMixin(LightningElement) {
   driverId;
   card;
   error;
+  savingPhoto = false;
+  _wiredCard;
 
   // The driver comes from the record through Lightning Data Service, so the card follows a change of driver
   // without a page reload, and disappears when the driver is cleared.
@@ -31,7 +37,9 @@ export default class FleetDriverCard extends NavigationMixin(LightningElement) {
   }
 
   @wire(getDriverCard, { driverId: "$driverId" })
-  wiredCard({ data, error }) {
+  wiredCard(result) {
+    this._wiredCard = result;
+    const { data, error } = result;
     if (data) {
       this.card = data;
       this.error = undefined;
@@ -174,6 +182,37 @@ export default class FleetDriverCard extends NavigationMixin(LightningElement) {
       year: "numeric",
       timeZone: "UTC"
     }).format(new Date(Date.UTC(y, m - 1, d)));
+  }
+
+  async editPhoto() {
+    const result = await PhotoModal.open({
+      size: "small",
+      label: "Driver photo",
+      driverId: this.card.id,
+      driverName: this.card.name,
+      currentDocumentId: this.card.photoDocumentId
+    });
+    if (!result) {
+      return;
+    }
+    this.savingPhoto = true;
+    try {
+      await setDriverPhoto({
+        driverId: this.card.id,
+        documentId: result.remove ? null : result.documentId
+      });
+      await refreshApex(this._wiredCard);
+    } catch (e) {
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "The photo was not saved",
+          message: (e && e.body && e.body.message) || "Please try again.",
+          variant: "error"
+        })
+      );
+    } finally {
+      this.savingPhoto = false;
+    }
   }
 
   openDriver(event) {

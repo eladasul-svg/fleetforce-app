@@ -1,9 +1,21 @@
 /**
  * Supplies the data behind the fleetDriverCard LWC: the driver assigned to a vehicle (Fleet_Asset__c.Driver__c, a
- * Contact), their branch, contact details, license and qualification warnings. The photo comes from the driver's
- * Related User; a driver without one (or with Salesforce's default silhouette) gets their initials instead.
+ * Contact), their branch, contact details, license and qualification warnings.
+ *
+ * The photo is an image file in the contact's Files, chosen or uploaded from the card; Contact.Photo_Document_Id__c
+ * holds its ContentDocument Id, so a new version of the same file shows automatically. Without one the photo comes
+ * from the driver's Related User, and without that (or with Salesforce's default silhouette) the card shows initials.
  */
 public with sharing class FleetDriverController {
+  private static final Set<String> IMAGE_TYPES = new Set<String>{
+    'JPG',
+    'JPEG',
+    'PNG',
+    'GIF',
+    'WEBP',
+    'BMP'
+  };
+
   public class DriverCard {
     @AuraEnabled
     public Id id;
@@ -17,6 +29,10 @@ public with sharing class FleetDriverController {
     public String status;
     @AuraEnabled
     public String photoUrl;
+    @AuraEnabled
+    public Id photoDocumentId;
+    @AuraEnabled
+    public Boolean canEditPhoto = false;
     @AuraEnabled
     public Id branchId;
     @AuraEnabled
@@ -43,6 +59,15 @@ public with sharing class FleetDriverController {
     public Integer qualificationsExpired = 0;
   }
 
+  public class DriverPhoto {
+    @AuraEnabled
+    public Id documentId;
+    @AuraEnabled
+    public String title;
+    @AuraEnabled
+    public String url;
+  }
+
   @AuraEnabled(cacheable=true)
   public static DriverCard getDriverCard(Id driverId) {
     if (driverId == null) {
@@ -67,7 +92,8 @@ public with sharing class FleetDriverController {
           fleetforce__License_State__c,
           fleetforce__License_Expiry__c,
           fleetforce__Safety_Score__c,
-          fleetforce__Related_User__r.MediumPhotoUrl
+          fleetforce__Related_User__r.MediumPhotoUrl,
+          fleetforce__Photo_Document_Id__c
         FROM Contact
         WHERE Id = :driverId
         WITH USER_MODE
@@ -83,7 +109,13 @@ public with sharing class FleetDriverController {
       d.initials = initials(c.FirstName, c.LastName);
       d.title = c.Title;
       d.status = c.fleetforce__Driver_Status__c;
-      d.photoUrl = photoUrl(c.fleetforce__Related_User__r?.MediumPhotoUrl);
+      d.photoUrl = fileUrl(c.fleetforce__Photo_Document_Id__c);
+      if (d.photoUrl != null) {
+        d.photoDocumentId = c.fleetforce__Photo_Document_Id__c;
+      } else {
+        d.photoUrl = photoUrl(c.fleetforce__Related_User__r?.MediumPhotoUrl);
+      }
+      d.canEditPhoto = canEditPhoto(c.Id);
       d.branchId = c.fleetforce__Driver_Branch__c;
       d.branchName = c.fleetforce__Driver_Branch__r?.Name;
       d.phone = c.Phone;
@@ -115,6 +147,105 @@ public with sharing class FleetDriverController {
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
+  }
+
+  /** Image files in the driver's Files, newest first, for the photo picker. */
+  @AuraEnabled
+  public static List<DriverPhoto> getDriverPhotos(Id driverId) {
+    try {
+      List<DriverPhoto> out = new List<DriverPhoto>();
+      for (ContentDocumentLink l : [
+        SELECT
+          ContentDocumentId,
+          ContentDocument.Title,
+          ContentDocument.FileType,
+          ContentDocument.LatestPublishedVersionId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId = :driverId
+        WITH USER_MODE
+        ORDER BY ContentDocument.CreatedDate DESC
+      ]) {
+        if (!IMAGE_TYPES.contains(l.ContentDocument.FileType)) {
+          continue;
+        }
+        DriverPhoto p = new DriverPhoto();
+        p.documentId = l.ContentDocumentId;
+        p.title = l.ContentDocument.Title;
+        p.url = versionUrl(l.ContentDocument.LatestPublishedVersionId);
+        out.add(p);
+      }
+      return out;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
+
+  /**
+   * Makes an image file in the driver's Files their photo, or clears the photo when documentId is null (the file
+   * itself stays in Files). Files uploaded from the card are linked to the contact by lightning-file-upload.
+   */
+  @AuraEnabled
+  public static void setDriverPhoto(Id driverId, Id documentId) {
+    try {
+      if (documentId != null) {
+        List<ContentDocumentLink> links = [
+          SELECT ContentDocument.FileType
+          FROM ContentDocumentLink
+          WHERE LinkedEntityId = :driverId AND ContentDocumentId = :documentId
+          WITH USER_MODE
+        ];
+        if (links.isEmpty()) {
+          throw new PhotoException('That file is not in the driver\'s Files.');
+        }
+        if (!IMAGE_TYPES.contains(links[0].ContentDocument.FileType)) {
+          throw new PhotoException(
+            'Choose an image file (JPG, PNG, GIF or WEBP).'
+          );
+        }
+      }
+      update as user new Contact(
+        Id = driverId,
+        fleetforce__Photo_Document_Id__c = documentId
+      );
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
+
+  public class PhotoException extends Exception {
+  }
+
+  private static Boolean canEditPhoto(Id driverId) {
+    if (
+      !Schema.SObjectType.Contact.fields.fleetforce__Photo_Document_Id__c.isUpdateable()
+    ) {
+      return false;
+    }
+    List<UserRecordAccess> access = [
+      SELECT RecordId, HasEditAccess
+      FROM UserRecordAccess
+      WHERE UserId = :UserInfo.getUserId() AND RecordId = :driverId
+    ];
+    return !access.isEmpty() && access[0].HasEditAccess;
+  }
+
+  // The photo file's latest version, if the file still exists and the user can see it.
+  private static String fileUrl(String documentId) {
+    // ContentDocument Ids start with 069; anything else typed into the field is ignored.
+    if (String.isBlank(documentId) || !documentId.startsWith('069')) {
+      return null;
+    }
+    List<ContentDocument> docs = [
+      SELECT LatestPublishedVersionId
+      FROM ContentDocument
+      WHERE Id = :documentId
+      WITH USER_MODE
+    ];
+    return docs.isEmpty() ? null : versionUrl(docs[0].LatestPublishedVersionId);
+  }
+
+  private static String versionUrl(Id versionId) {
+    return '/sfc/servlet.shepherd/version/download/' + versionId;
   }
 
   @TestVisible
