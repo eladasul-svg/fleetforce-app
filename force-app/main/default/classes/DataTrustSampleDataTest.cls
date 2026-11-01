@@ -211,7 +211,7 @@ private class DataTrustSampleDataTest {
     ];
     Assert.areEqual('Mercedes-Benz', parsed.Make__c);
     Assert.areEqual('Sprinter', parsed.Model__c);
-    Assert.areEqual(2023, parsed.Model_Year__c.intValue());
+    Assert.areEqual('2023', parsed.Model_Year__c);
     Assert.isNotNull(parsed.Country__c);
     // the inactive vehicle is seeded and scored too, so its record page has data, but recalls skip it
     Fleet_Asset__c parked = [

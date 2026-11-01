@@ -10,6 +10,9 @@ import {
   FUEL_BADGE
 } from "c/fleetVehicleStyles";
 
+// 2 * pi * r for the gauge ring (r = 27 in a 64 x 64 box).
+const GAUGE_CIRCUMFERENCE = 169.65;
+
 export default class FleetVehicleImage extends LightningElement {
   /** Fleet Asset id. When set, the component loads everything itself. */
   @api recordId;
@@ -171,6 +174,39 @@ export default class FleetVehicleImage extends LightningElement {
     return fe
       ? { value: fe.value, unit: `${fe.unit} combined`, detail: fe.detail }
       : null;
+  }
+
+  /** Fuel or charge level ring; null when the level is unknown. */
+  get gauge() {
+    const c = this.card;
+    if (!c || c.fuelLevel === undefined || c.fuelLevel === null) return null;
+    const level = Math.max(0, Math.min(100, Math.round(c.fuelLevel)));
+    const electric = c.fuelType === "Electric";
+    let cls = "gauge";
+    if (level < 20) cls += " gauge--critical";
+    else if (level < 50) cls += " gauge--low";
+    return {
+      cls,
+      value: `${level}%`,
+      label: electric ? "Charge" : "Fuel",
+      title: `${electric ? "Battery charge" : "Fuel level"} ${level}%`,
+      style: `--gauge-offset: ${(GAUGE_CIRCUMFERENCE * (100 - level)) / 100}`
+    };
+  }
+
+  get mapMarkers() {
+    const c = this.card;
+    if (!c || c.latitude == null || c.longitude == null) return null;
+    return [
+      {
+        location: { Latitude: c.latitude, Longitude: c.longitude },
+        title: c.name
+      }
+    ];
+  }
+
+  get mapOptions() {
+    return { disableDefaultUI: true, draggable: false, zoomControl: false };
   }
 
   get facts() {

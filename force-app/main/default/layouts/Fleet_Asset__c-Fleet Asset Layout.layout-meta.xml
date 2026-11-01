@@ -39,26 +39,8 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>License_Plate__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Country__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Plate_Key__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Registered_State__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Regulatory_Category__c</field>
             </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Status__c</field>
@@ -66,6 +48,24 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Is_Active__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>License_Plate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Country__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Registered_State__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Plate_Key__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -100,6 +100,10 @@
                 <behavior>Edit</behavior>
                 <field>Driver__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Vehicle_Class__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -109,10 +113,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Key_Tag_ID__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Vehicle_Class__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
@@ -284,8 +284,6 @@
                 <behavior>Readonly</behavior>
                 <field>Resolved_Stream_Profile__c</field>
             </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Data_Health_Score__c</field>
@@ -294,6 +292,12 @@
                 <behavior>Readonly</behavior>
                 <field>Data_Health_Status__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Data_Health_Calculated__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Freshness_Score__c</field>
@@ -305,10 +309,6 @@
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Consistency_Score__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Data_Health_Calculated__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>

@@ -120,7 +120,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Data Exposure</value>
+                    <value>Data Health</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>dataHealthTab</identifier>

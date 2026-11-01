@@ -643,7 +643,7 @@ public with sharing class DataTrustSampleData {
       NameParts p = parseName(a.Name);
       Boolean dirty = false;
       if (a.Model_Year__c == null && p.year != null) {
-        a.Model_Year__c = p.year;
+        a.Model_Year__c = String.valueOf(p.year);
         dirty = true;
       }
       if (String.isBlank(a.Make__c) && p.make != null) {
@@ -846,7 +846,7 @@ public with sharing class DataTrustSampleData {
       if (a.Make__c == null) {
         continue;
       }
-      Integer y = a.Model_Year__c == null ? null : a.Model_Year__c.intValue();
+      Integer y = DataHealthService.modelYear(a);
       addCandidate(candidates, a, a.Make__c, null, null, null);
       if (a.Model__c != null) {
         addCandidate(candidates, a, a.Make__c, a.Model__c, null, null);
@@ -865,9 +865,9 @@ public with sharing class DataTrustSampleData {
           DataHealthService.same(c.make, a.Make__c) &&
           DataHealthService.same(c.model, a.Model__c) &&
           (c.yearFrom == null ||
-          (a.Model_Year__c != null &&
-          a.Model_Year__c >= c.yearFrom &&
-          a.Model_Year__c <= c.yearTo))
+          (DataHealthService.modelYear(a) != null &&
+          DataHealthService.modelYear(a) >= c.yearFrom &&
+          DataHealthService.modelYear(a) <= c.yearTo))
         ) {
           c.ids.add(a.Id);
         }

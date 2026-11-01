@@ -1,10 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Model_Year__c</fullName>
+    <description
+  >Four-digit model year. Text rather than a number, so it shows as 2023 and not 2,023; code reads it with DataHealthService.modelYear.</description>
+    <externalId>false</externalId>
     <label>Model Year</label>
-    <precision>4</precision>
+    <length>4</length>
     <required>false</required>
-    <scale>0</scale>
     <trackTrending>false</trackTrending>
-    <type>Number</type>
+    <type>Text</type>
+    <unique>false</unique>
 </CustomField>

@@ -211,15 +211,15 @@ public with sharing class NoticeMatchingService {
     }
     if (
       n.Year_From__c != null &&
-      (a.Model_Year__c == null ||
-      a.Model_Year__c < n.Year_From__c)
+      (DataHealthService.modelYear(a) == null ||
+      DataHealthService.modelYear(a) < n.Year_From__c)
     ) {
       return false;
     }
     if (
       n.Year_To__c != null &&
-      (a.Model_Year__c == null ||
-      a.Model_Year__c > n.Year_To__c)
+      (DataHealthService.modelYear(a) == null ||
+      DataHealthService.modelYear(a) > n.Year_To__c)
     ) {
       return false;
     }

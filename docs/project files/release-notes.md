@@ -35,8 +35,15 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
 
 ### Changes and fixes
 
-- Vehicle page: the Data Health component moved from the main column to its own tab, "Data Exposure", so the page
-  is shorter. The Assistant stays in the side column.
+- Vehicle page: the Data Health component moved from the main column to its own tab, "Data Health", so the page is
+  shorter. The Assistant stays in the side column.
+- Vehicle page layout: each section's fields are split evenly over the two columns (Identity was 10 and 6, Data
+  Health 2 and 7).
+- **Model Year is now text** (4 characters, validation rule Model_Year_Format: blank or 1900-2099), so it shows as
+  2023 instead of 2,023. Recall and regulation matching reads it as a year as before.
+- **Vehicle card: fuel or charge ring and location map.** A ring shows the fuel or battery level (Fuel/Energy Level),
+  filling on load: green from half, amber below half, red and pulsing below a fifth. When the last location is known,
+  a small map of it sits on the right of the card; it is hidden when the card is too narrow for it.
 - Vehicle page layout: Make, Model and Model Year moved from the Data Health section to Identity, under VIN.
 - The FleetForce Assistant tells a user without the FleetForce Assistant User permission set to ask an administrator
   for it, instead of showing the error "No such column 'Title__c'".
@@ -44,6 +51,8 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
 ### Upgrade notes
 
 - An org on **1.0.x** still needs the 1.1.0 upgrade note below (the three fields) before this version installs.
+- **Model Year changed from Number to Text.** An org on 1.0.x does not have the field yet. An org on 1.1.0.4 (only
+  test orgs so far) may refuse the type change on upgrade; if so, delete the field there first or reinstall.
 
 ---
 

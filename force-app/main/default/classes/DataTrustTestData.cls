@@ -60,7 +60,7 @@ public class DataTrustTestData {
       Vehicle_Class__c = 'Commercial',
       Make__c = make,
       Model__c = model,
-      Model_Year__c = year,
+      Model_Year__c = year == null ? null : String.valueOf(year),
       Country__c = country
     );
   }

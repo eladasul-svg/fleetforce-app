@@ -41,6 +41,13 @@ public with sharing class FleetVehicleController {
     public String volumeUnit;
     @AuraEnabled
     public String fuelEconomyFormat;
+    /** Fuel or battery level, 0-100. */
+    @AuraEnabled
+    public Decimal fuelLevel;
+    @AuraEnabled
+    public Decimal latitude;
+    @AuraEnabled
+    public Decimal longitude;
   }
 
   @AuraEnabled(cacheable=true)
@@ -59,7 +66,10 @@ public with sharing class FleetVehicleController {
           fleetforce__Odometer__c,
           fleetforce__Effective_Distance_Unit__c,
           fleetforce__Effective_Volume_Unit__c,
-          fleetforce__Operating_Country__c
+          fleetforce__Operating_Country__c,
+          fleetforce__Fuel_Energy_Level__c,
+          fleetforce__Last_Location__Latitude__s,
+          fleetforce__Last_Location__Longitude__s
         FROM fleetforce__Fleet_Asset__c
         WHERE Id = :assetId
         WITH USER_MODE
@@ -81,6 +91,9 @@ public with sharing class FleetVehicleController {
       c.odometer = a.fleetforce__Odometer__c;
       c.distanceUnit = a.fleetforce__Effective_Distance_Unit__c;
       c.volumeUnit = a.fleetforce__Effective_Volume_Unit__c;
+      c.fuelLevel = a.fleetforce__Fuel_Energy_Level__c;
+      c.latitude = a.fleetforce__Last_Location__Latitude__s;
+      c.longitude = a.fleetforce__Last_Location__Longitude__s;
       c.fuelEconomyFormat = CountryProfiles.fuelEconomyFormat(
         a.fleetforce__Operating_Country__c,
         c.distanceUnit,
