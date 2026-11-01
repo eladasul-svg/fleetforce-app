@@ -15,7 +15,7 @@
   existing install on the same org — it does not wipe org data. Seeded demo
   data, config, and records on a demo org survive an upgrade.
 - A **Beta** version (`IsReleased: false`) can only be installed into
-  **scratch orgs and sandboxes**. It can *never* be installed into a
+  **scratch orgs and sandboxes**. It can _never_ be installed into a
   persistent, non-sandbox org (e.g. a real Developer Edition org or
   `fleetforce-master-tso`).
 - Promoting a version to **Released is permanent** — it can never be
@@ -40,6 +40,8 @@ the efficient loop is:
 
 ## Checklist: cutting and shipping a new version
 
+0. **Release notes.** Check that every change in this batch is under "Next version" in
+   `release-notes.md`, and set `versionDescription` in `sfdx-project.json` to a one-line summary of it.
 1. **Bump the version number** in `sfdx-project.json`
    (`packageDirectories[0].versionNumber`, e.g. `1.0.0.NEXT` auto-increments
    the build number; bump `versionName` too if it's a meaningful milestone).
@@ -51,7 +53,7 @@ the efficient loop is:
    procedure" in `manual-setup-steps.md` for a true install-based test, not
    just a source deploy.
 3. **Run the full Apex test suite** (`sf apex run test --target-org
-   <alias> --code-coverage --result-format human` or equivalent) and
+<alias> --code-coverage --result-format human` or equivalent) and
    confirm org-wide coverage stays at or above 75%. Note the actual number
    in the history log entry for this release.
 4. **Create the package version:**
@@ -85,7 +87,9 @@ the efficient loop is:
 7. **Verify live on the target org** — same spirit as the Motorpool
    guest-flow dry run: actually click through whatever changed, don't just
    trust the install succeeding.
-8. **Log it.** Add a dated entry to `docs/history/fleetforce-project-history.md`
+8. **Release notes.** Once promoted, turn "Next version" in `release-notes.md` into a dated section with the
+   install ID, and start a new empty "Next version". Note anything an upgrading org had to do under Upgrade notes.
+9. **Log it.** Add a dated entry to `docs/history/fleetforce-project-history.md`
    with: what changed, the new version number, whether it was released,
    which org(s) it was installed/upgraded on, and current coverage %.
 

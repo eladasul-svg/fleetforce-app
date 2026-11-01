@@ -23,7 +23,7 @@ is the package version build (it runs every test in its own clean org) and a tes
 1. Develop in `fleetforce-dev-<n>` (source), commit to a branch.
 2. Build a package version (`--code-coverage`), install it into a fresh `fleetforce-pkgtest-<n>` and check it
    (`docs/project files/package-release-checklist.md`).
-3. Promote the version to Released.
+3. Promote the version to Released and update `release-notes.md` (what is in each version, upgrade notes).
 4. Install it into `fleetforce-master-tso`, do the manual steps in `manual-setup-steps.md`.
 5. Demo orgs are rebuilt from the released version.
 
@@ -45,7 +45,8 @@ activation, the LWR site).
 | Alias                   | Role                           | Expires    | Notes                                                                                                                                     |
 | ----------------------- | ------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `fleetforcePBO`         | Packaging (Dev Hub)            | —          |                                                                                                                                           |
-| `fleetforce-master-tso` | Released version               | 2027-04-05 | FleetForce Platform 1.0.0.8, no demo data. Next: clean install of the regional release (phase D).                                         |
+| `fleetforce-master-tso` | Released version               | 2027-04-05 | FleetForce Platform 1.0.0.8, no demo data. Next: 1.2.0 (see the 1.1.0 upgrade notes in `release-notes.md`).                               |
+| `fleetforce-pkgtest-1`  | Test the package               | 2026-11-08 | 1.1.0.4 installed, four-country demo data. Delete once 1.2.0 is tested.                                                                   |
 | `fleetforce-dev-12`     | Develop                        | 2026-11-30 | Regional work (phases A to C), four-country demo data. Default org (`sf config`).                                                         |
 | `fleetforce-demo-mc`    | Demo                           | 2026-11-30 | Multi-currency (EUR corporate, GBP, USD, ILS). Source deploy for now: the regional work is not released yet.                              |
 | `fleetforce-dev-11`     | Old demo                       | 2026-11-20 | Conference demo state (US data, before the regional work). Let it expire unless it is migrated (`scripts/migration/migrate_regional.sh`). |
