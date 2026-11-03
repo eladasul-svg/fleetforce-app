@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Driver_Approves_Reorder__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description
+  >A driver may approve re-ordering their own route when nothing is late or left unassigned.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Driver Approves Reorder</label>
+    <type>Checkbox</type>
+</CustomField>

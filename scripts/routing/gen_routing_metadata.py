@@ -544,6 +544,8 @@ def main() -> None:
 
 ROUTING_CLASSES = [
     "RouteEvents",
+    "RouteReplanService",
+    "RoutingAssistantTools",
     "FleetForceRoutingProvider", "MockRoutingProvider", "OrsRoutingProvider", "RoutePlanController",
     "RoutePlanOptimizeJob", "RoutePlanService", "RoutingActions", "RoutingAssistantTools", "RoutingDtos",
     "RoutingPolicy", "RoutingProvider", "RoutingProviders",

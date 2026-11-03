@@ -138,3 +138,50 @@ Cloud Run URL exists.
 `prettier-plugin-apex` uses (which catches syntax and reserved words, not types), and the tests were
 written against the scenario data in `RoutingTestData`. The first scratch-org deploy and test run is
 the real check; expect a few compile fixes.
+
+## R4 Assistant tools and policy
+
+**D-R4-1 · Routing tools are added only in chats opened from a `Route__c` record.** Planned: add the tools
+to `AssistantTools` or a registered `RoutingAssistantTools`. Done: `RoutingAssistantTools`, which
+`AssistantService` adds to the tool list (6 + 8) and the context prompt only when the session's
+`Record_Id__c` is a Route. Why: the existing tests assert exactly 6 tools for other chats, and a
+non-route chat has no use for them. The existing assistant tests are unchanged.
+
+**D-R4-2 · No DML while tools run.** A turn may make a Claude callout and then a solver callout, and
+Salesforce forbids a callout after uncommitted DML. So `report_delay` (the one tool that writes without a
+proposal) and the "Handoff Proposed" event are buffered and written by `RoutingAssistantTools.commitPending`
+together with the turn's own messages. Approving a proposal is DML only: the solver result is stored in
+the proposal (`RoutingDtos.toContractJson`) and re-applied, and the approval is refused if the route's
+remaining stops changed in between ("ask for a new re-plan").
+
+**D-R4-3 · Who is the driver.** The running user is the route's driver when their User is the driver
+Contact's `Related_User__c`; everyone else is treated as a dispatcher. `RoutingPolicy.approvalError`
+blocks a driver from approving a change that needs a dispatcher. The guest driver app (no login) is not
+wired to the assistant yet: that waits on the open question about Experience Cloud logins.
+
+**D-R4-4 · Policy settings** live in `Routing_Policy_Setting__mdt` (record `Default`):
+`Driver_Approves_Reorder__c`, `Driver_Approves_Breaks__c`, `Late_Tolerance_Minutes__c` (the last is
+read by nothing yet; hard windows always need a dispatcher).
+
+**D-R4-5 · `report_delay` "moves the route clock forward" through events.** It writes `Delay Reported`
+only; the next `reoptimize_remaining` adds every delay reported since the last `Reoptimized` event to the
+start time. ETAs on waypoints are not shifted until the re-plan is approved.
+
+**D-R4-6 · `what_if` change types.** Implemented: take routes' vehicles out (`exclude_route_ids`) and
+delay every start (`extra_delay_minutes`). It re-solves the plan's Ready/Planned jobs and compares KPIs;
+nothing is saved.
+
+**D-R4-7 · One invocable for all tools.** Salesforce allows one `@InvocableMethod` per class, so
+`RoutingActions` exposes one "FleetForce Routing Tool" action with a tool name and JSON input (the same
+schema the assistant sees). A change comes back as a proposal; a second call with `approveProposalJson`
+applies it under the same policy.
+
+**D-R4-8 · `ModelProvider`.** `AssistantClaudeClient` implements it and stays the default
+(`ModelProviders.current()`); `AssistantService` now calls through the interface. `OpenAICompatibleProvider`
+has the message and tool mapping implemented and tested, but its callout needs a customer-supplied named
+credential, so it throws until one is set. `SalesforceModelsApiProvider` is a pure stub: the
+`aiplatform` Models API classes only compile in orgs with Einstein generative AI, so it cannot reference
+them from the core package. There is no setting yet to switch providers.
+
+**D-R4-9 · LWC.** `fleetforceAssistant` shows a proposal's own `title` when it has one (routing
+proposals), and treats any action other than `create` as an update (Current/Proposed columns).

@@ -151,4 +151,148 @@ public with sharing class RoutingPolicy {
     }
     return out;
   }
+
+  // ---------------------------------------------------------------------------------------------
+  // Approval rules
+  // ---------------------------------------------------------------------------------------------
+
+  public static final String DRIVER = 'Driver';
+  public static final String DISPATCHER = 'Dispatcher';
+
+  public class Decision {
+    public Boolean allowed = true;
+    /** 'Driver' when the route's driver may approve alone, else 'Dispatcher'. */
+    public String approver = DRIVER;
+    public List<String> reasons = new List<String>();
+
+    public Decision needsDispatcher(String reason) {
+      approver = DISPATCHER;
+      reasons.add(reason);
+      return this;
+    }
+    public Decision refuse(String reason) {
+      allowed = false;
+      approver = DISPATCHER;
+      reasons.add(reason);
+      return this;
+    }
+    public Map<String, Object> toMap() {
+      return new Map<String, Object>{
+        'allowed' => allowed,
+        'approver' => approver,
+        'reasons' => reasons
+      };
+    }
+  }
+
+  @TestVisible
+  private static Routing_Policy_Setting__mdt settingsOverride;
+
+  public static Routing_Policy_Setting__mdt settings() {
+    if (settingsOverride != null) {
+      return settingsOverride;
+    }
+    Routing_Policy_Setting__mdt s = Routing_Policy_Setting__mdt.getInstance(
+      'Default'
+    );
+    return s != null
+      ? s
+      : new Routing_Policy_Setting__mdt(
+          Driver_Approves_Reorder__c = true,
+          Driver_Approves_Breaks__c = true,
+          Late_Tolerance_Minutes__c = 0
+        );
+  }
+
+  /** Driver when the running user is the route's driver (Contact.Related_User__c), else Dispatcher. */
+  public static String actorRole(Route__c route) {
+    return route != null &&
+      route.Driver__r != null &&
+      route.Driver__r.Related_User__c == UserInfo.getUserId()
+      ? DRIVER
+      : DISPATCHER;
+  }
+
+  /** Re-ordering the remaining stops of one route (reoptimize_remaining). */
+  public static Decision forReoptimize(Map<String, Object> diff) {
+    Decision d = new Decision();
+    if (settings().Driver_Approves_Reorder__c != true) {
+      d.needsDispatcher('Re-ordering a route needs a dispatcher in this org.');
+    }
+    List<Object> hard = (List<Object>) diff.get('lateHardWindows');
+    if (hard != null && !hard.isEmpty()) {
+      d.needsDispatcher('It breaks a hard time window: ' + joinAll(hard) + '.');
+    }
+    List<Object> unassigned = (List<Object>) diff.get('unassigned');
+    if (unassigned != null && !unassigned.isEmpty()) {
+      d.needsDispatcher(
+        'It leaves ' + unassigned.size() + ' job(s) unassigned.'
+      );
+    }
+    return d;
+  }
+
+  public static Decision forWindowChange(Job_Visit__c visit) {
+    Decision d = new Decision();
+    if (visit.Hard_Window__c == true) {
+      d.needsDispatcher('The visit has a hard time window.');
+    }
+    return d;
+  }
+
+  public static Decision forSkip() {
+    return new Decision()
+      .needsDispatcher('Skipping a stop leaves its job unassigned.');
+  }
+
+  public static Decision forAddWaypoint(String waypointType) {
+    Decision d = new Decision();
+    Boolean breakLike = waypointType == 'Break' || waypointType == 'Charge';
+    if (!breakLike) {
+      d.needsDispatcher(
+        'Only breaks and charge stops can be added by the driver alone.'
+      );
+    } else if (settings().Driver_Approves_Breaks__c != true) {
+      d.needsDispatcher('Adding a stop needs a dispatcher in this org.');
+    }
+    return d;
+  }
+
+  /** Moving a visit to another route: always a dispatcher, never to a van that may not drive. */
+  public static Decision forHandoff(Route__c target, Date onDate) {
+    Decision d = new Decision()
+      .needsDispatcher('It changes another driver\'s route.');
+    if (
+      target.Fleet_Asset__c != null &&
+      !assetsInShop(new Set<Id>{ target.Fleet_Asset__c }).isEmpty()
+    ) {
+      return d.refuse(target.Name + ' has an open in-shop service ticket.');
+    }
+    if (target.Driver__c != null) {
+      DriverStatus s = driverStatus(new Set<Id>{ target.Driver__c }, onDate)
+        .get(target.Driver__c);
+      if (s != null && !s.eligible) {
+        return d.refuse(
+          'The driver on ' + target.Name + ' may not drive: ' + s.reason + '.'
+        );
+      }
+    }
+    return d;
+  }
+
+  /** At approval time: a change that needs a dispatcher cannot be approved by the driver. */
+  public static String approvalError(String approver, Route__c route) {
+    if (approver == DISPATCHER && actorRole(route) == DRIVER) {
+      return 'This change needs a dispatcher\'s approval; ask dispatch to approve it.';
+    }
+    return null;
+  }
+
+  private static String joinAll(List<Object> items) {
+    List<String> out = new List<String>();
+    for (Object o : items) {
+      out.add(String.valueOf(o));
+    }
+    return String.join(out, ', ');
+  }
 }

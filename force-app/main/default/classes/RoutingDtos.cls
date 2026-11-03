@@ -409,6 +409,74 @@ public with sharing class RoutingDtos {
     return r;
   }
 
+  /** The contract JSON for a result (the inverse of parseOptimize), e.g. to keep it in a proposal. */
+  public static String toContractJson(OptimizeResult r) {
+    List<Object> routes = new List<Object>();
+    for (Route route : r.routes) {
+      List<Object> steps = new List<Object>();
+      for (Step s : route.steps) {
+        steps.add(
+          new Map<String, Object>{
+            'type' => s.stepType,
+            'id' => s.id,
+            'location' => coord(s.location),
+            'arrival' => iso(s.arrival),
+            'departure' => iso(s.departure),
+            'service_seconds' => s.serviceSeconds,
+            'waiting_seconds' => s.waitingSeconds,
+            'leg_distance_m' => s.legDistanceM,
+            'leg_duration_s' => s.legDurationS,
+            'load' => s.load,
+            'locked' => s.locked,
+            'late_seconds' => s.lateSeconds
+          }
+        );
+      }
+      routes.add(
+        new Map<String, Object>{
+          'vehicle_id' => route.vehicleId,
+          'steps' => steps,
+          'distance_m' => route.distanceM,
+          'duration_s' => route.durationS,
+          'service_s' => route.serviceS,
+          'waiting_s' => route.waitingS,
+          'start_time' => iso(route.startTime),
+          'end_time' => iso(route.endTime),
+          'geometry' => route.geometry
+        }
+      );
+    }
+    List<Object> unassigned = new List<Object>();
+    for (Unassigned u : r.unassigned) {
+      unassigned.add(
+        new Map<String, Object>{
+          'id' => u.id,
+          'type' => u.taskType,
+          'reason' => u.reason,
+          'detail' => u.detail
+        }
+      );
+    }
+    return JSON.serialize(
+      new Map<String, Object>{
+        'routes' => routes,
+        'unassigned' => unassigned,
+        'summary' => new Map<String, Object>{
+          'routes' => r.summary.routes,
+          'assigned' => r.summary.assigned,
+          'unassigned' => r.summary.unassigned,
+          'distance_m' => r.summary.distanceM,
+          'duration_s' => r.summary.durationS,
+          'service_s' => r.summary.serviceS,
+          'waiting_s' => r.summary.waitingS,
+          'cost' => r.summary.cost,
+          'matrix_source' => r.summary.matrixSource,
+          'solve_ms' => r.summary.solveMs
+        }
+      }
+    );
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------------------------

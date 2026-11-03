@@ -85,4 +85,108 @@ private class RoutingPolicyTest {
     System.assertEquals(1, conflicts.size());
     System.assert(conflicts[0].startsWith('Overlaps'));
   }
+
+  @IsTest
+  static void approvalRules() {
+    Map<String, Object> clean = new Map<String, Object>{
+      'lateHardWindows' => new List<Object>(),
+      'unassigned' => new List<Object>()
+    };
+    System.assertEquals('Driver', RoutingPolicy.forReoptimize(clean).approver);
+    Map<String, Object> late = new Map<String, Object>{
+      'lateHardWindows' => new List<Object>{ 'JOB-1' },
+      'unassigned' => new List<Object>{ 'x' }
+    };
+    RoutingPolicy.Decision d = RoutingPolicy.forReoptimize(late);
+    System.assertEquals('Dispatcher', d.approver);
+    System.assertEquals(2, d.reasons.size());
+    System.assertEquals(
+      'Driver',
+      RoutingPolicy.forAddWaypoint('Charge').approver
+    );
+    System.assertEquals(
+      'Dispatcher',
+      RoutingPolicy.forAddWaypoint('Driver Added').approver
+    );
+    System.assertEquals('Dispatcher', RoutingPolicy.forSkip().approver);
+    System.assertEquals(
+      'Dispatcher',
+      RoutingPolicy.forWindowChange(new Job_Visit__c(Hard_Window__c = true))
+        .approver
+    );
+    System.assertEquals(
+      'Driver',
+      RoutingPolicy.forWindowChange(new Job_Visit__c(Hard_Window__c = false))
+        .approver
+    );
+
+    RoutingPolicy.settingsOverride = new Routing_Policy_Setting__mdt(
+      Driver_Approves_Reorder__c = false,
+      Driver_Approves_Breaks__c = false
+    );
+    System.assertEquals(
+      'Dispatcher',
+      RoutingPolicy.forReoptimize(clean).approver
+    );
+    System.assertEquals(
+      'Dispatcher',
+      RoutingPolicy.forAddWaypoint('Break').approver
+    );
+    RoutingPolicy.settingsOverride = null;
+    System.assertNotEquals(null, RoutingPolicy.settings());
+    System.assertEquals(
+      true,
+      RoutingPolicy.forAddWaypoint('Break').toMap().get('allowed')
+    );
+  }
+
+  @IsTest
+  static void driversCannotApproveDispatcherChanges() {
+    Contact c = new Contact(
+      LastName = 'Driver',
+      Related_User__c = UserInfo.getUserId()
+    );
+    insert c;
+    Route__c asDriver = new Route__c(Driver__c = c.Id);
+    asDriver.putSObject('Driver__r', c);
+    System.assertEquals('Driver', RoutingPolicy.actorRole(asDriver));
+    System.assertNotEquals(
+      null,
+      RoutingPolicy.approvalError('Dispatcher', asDriver)
+    );
+    System.assertEquals(null, RoutingPolicy.approvalError('Driver', asDriver));
+    System.assertEquals('Dispatcher', RoutingPolicy.actorRole(new Route__c()));
+    System.assertEquals(
+      null,
+      RoutingPolicy.approvalError('Dispatcher', new Route__c())
+    );
+  }
+
+  @IsTest
+  static void handoffTargetsMustBeAbleToDrive() {
+    Map<String, Fleet_Asset__c> vans = RoutingTestData.assetsByName();
+    Fleet_Asset__c expired = vans.get('RT-VAN-4 EXPIRED');
+    Fleet_Asset__c ok = vans.get('RT-VAN-2 EV');
+    System.runAs(RoutingTestData.self()) {
+      RoutingPolicy.Decision d = RoutingPolicy.forHandoff(
+        new Route__c(
+          Name = 'Avi',
+          Fleet_Asset__c = expired.Id,
+          Driver__c = expired.Driver__c
+        ),
+        RoutingTestData.planDate()
+      );
+      System.assert(!d.allowed);
+      d = RoutingPolicy.forHandoff(
+        new Route__c(
+          Name = 'Yossi',
+          Fleet_Asset__c = ok.Id,
+          Driver__c = ok.Driver__c
+        ),
+        RoutingTestData.planDate()
+      );
+      System.assert(d.allowed);
+      System.assertEquals('Dispatcher', d.approver);
+    }
+  }
 }

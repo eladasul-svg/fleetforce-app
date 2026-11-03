@@ -284,8 +284,7 @@ public with sharing class RoutePlanService {
   }
 
   /** Null (unlimited) when the asset has no capacity recorded in any active dimension. */
-  @TestVisible
-  private static List<Integer> capacity(
+  public static List<Integer> capacity(
     Fleet_Asset__c a,
     List<Capacity_Dimension__mdt> dims
   ) {
@@ -533,7 +532,7 @@ public with sharing class RoutePlanService {
     }
   }
 
-  private static RoutingDtos.ShipmentStep shipmentStep(
+  public static RoutingDtos.ShipmentStep shipmentStep(
     Job_Visit__c v,
     Datetime dayStart
   ) {
@@ -552,15 +551,14 @@ public with sharing class RoutePlanService {
     );
   }
 
-  private static Integer serviceSeconds(Job_Visit__c v) {
+  public static Integer serviceSeconds(Job_Visit__c v) {
     Decimal minutes = v.Service_Minutes__c == null
       ? DEFAULT_SERVICE_MINUTES
       : v.Service_Minutes__c;
     return (minutes * 60).intValue();
   }
 
-  @TestVisible
-  private static List<RoutingDtos.TimeWindow> windows(
+  public static List<RoutingDtos.TimeWindow> windows(
     Job_Visit__c v,
     Datetime dayStart
   ) {
@@ -577,7 +575,7 @@ public with sharing class RoutePlanService {
     return out;
   }
 
-  private static List<Integer> loads(
+  public static List<Integer> loads(
     Job_Visit__c v,
     List<Capacity_Dimension__mdt> dims
   ) {
