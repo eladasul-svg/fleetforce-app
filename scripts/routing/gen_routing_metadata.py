@@ -135,8 +135,8 @@ def loc(name, label, desc=""):
     return F(name, label, "Location", desc)
 
 
-def longtext(name, label, desc="", length=32768, lines=5):
-    return F(name, label, "LongTextArea", desc, length=length, lines=lines)
+def longtext(name, label, desc="", length=32768, lines=5, **kw):
+    return F(name, label, "LongTextArea", desc, length=length, lines=lines, **kw)
 
 
 SKILLS = ["Refrigerated", "Lift Gate", "Wheelchair Ramp", "Tow Hitch", "Hazmat", "Forklift", "Heavy Lift"]
@@ -253,7 +253,8 @@ OBJECTS = {
             dt("Actual_Start__c", "Actual Start"),
             dt("Actual_End__c", "Actual End"),
             num("Revision__c", "Revision", precision=6),
-            longtext("Geometry__c", "Geometry", "Encoded polyline for the map.", length=131072, lines=3),
+            longtext("Geometry__c", "Geometry", "Encoded polyline for the map.", length=131072, lines=3,
+                     layout=False),
         ],
     },
     "Waypoint__c": {
@@ -352,7 +353,8 @@ def object_xml(api: str, o: dict) -> str:
 
 
 def layout_xml(api: str, o: dict) -> str:
-    fields = o["fields"]
+    # Machine data (layout=False), such as the encoded route line, stays off the page.
+    fields = [f for f in o["fields"] if f.kw.get("layout", True)]
     left, right = [], []
     first = ["Name"]
     for i, f in enumerate(fields):
@@ -383,7 +385,9 @@ def layout_xml(api: str, o: dict) -> str:
     )
     related = "".join(
         "    <relatedLists>\n" + "".join(f"        <fields>{c}</fields>\n" for c in cols)
-        + f"        <relatedList>{rl}</relatedList>\n    </relatedLists>\n"
+        + f"        <relatedList>{rl}</relatedList>\n"
+        + (f"        <sortField>{SORT[rl]}</sortField>\n        <sortOrder>Asc</sortOrder>\n" if rl in SORT else "")
+        + "    </relatedLists>\n"
         for rl, cols in RELATED.get(api, [])
     )
     owner = related
@@ -403,6 +407,9 @@ def layout_xml(api: str, o: dict) -> str:
         "</Layout>\n"
     )
 
+
+# Related lists shown in route order rather than by record number.
+SORT = {"Waypoint__c.Route__c": "Sequence__c"}
 
 RELATED = {
     "Route_Plan__c": [

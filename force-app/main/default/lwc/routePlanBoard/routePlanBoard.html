@@ -49,12 +49,57 @@
           </template>
         </ul>
 
-        <template lwc:if={hasMarkers}>
-          <lightning-map
-            map-markers={markers}
-            zoom-level="12"
-            list-view="hidden"
-          ></lightning-map>
+        <template lwc:if={hasRoutes}>
+          <div class="toolbar">
+            <div class={filterClass}>
+              <button
+                class="slds-button slds-button_neutral"
+                aria-haspopup="true"
+                aria-expanded={filterOpen}
+                onclick={toggleFilter}
+                data-id="driver-filter"
+              >
+                {filterLabel}
+                <lightning-icon
+                  icon-name="utility:down"
+                  size="xx-small"
+                  class="slds-m-left_x-small"
+                ></lightning-icon>
+              </button>
+              <div class="slds-dropdown slds-dropdown_left filter__menu">
+                <ul class="filter__list" role="group" aria-label="Drivers">
+                  <template for:each={filterOptions} for:item="o">
+                    <li key={o.id} class="filter__item">
+                      <label class="filter__label">
+                        <input
+                          type="checkbox"
+                          checked={o.checked}
+                          data-id={o.id}
+                          onchange={handleDriverToggle}
+                        />
+                        <span class="swatch" style={o.swatchStyle}></span>
+                        <span>{o.label}</span>
+                      </label>
+                    </li>
+                  </template>
+                </ul>
+                <button
+                  class="slds-button filter__all"
+                  onclick={showAll}
+                  data-id="show-all"
+                >
+                  Show all
+                </button>
+              </div>
+            </div>
+            <span class="muted hint"
+              >Click a route card to show only that route.</span
+            >
+          </div>
+        </template>
+
+        <template lwc:if={hasMapRoutes}>
+          <c-route-map routes={mapRoutes}></c-route-map>
         </template>
 
         <template lwc:if={hasRoutes}>
@@ -68,7 +113,7 @@
               >
                 <h3 class="route__head">
                   <span class="swatch" style={r.swatchStyle}></span>
-                  <span class="route__name">{r.name}</span>
+                  <span class="route__name">{r.who}</span>
                   <span class="muted"
                     >{r.jobStops} stops · {r.distanceKm} km · {r.window}</span
                   >
@@ -76,6 +121,7 @@
                 <ol class="stops">
                   <template for:each={r.stops} for:item="s">
                     <li key={s.id} class="stop">
+                      <span class="mark" style={r.markStyle}>{s.mark}</span>
                       <span class="stop__eta">{s.eta}</span>
                       <span class="stop__label">{s.label}</span>
                       <template lwc:if={s.badge}

@@ -45,6 +45,9 @@ public with sharing class RoutePlanController {
     public Decimal distanceKm;
     @AuraEnabled
     public Integer jobStops = 0;
+    /** Encoded polyline (precision 5) of the road path, for the map. */
+    @AuraEnabled
+    public String geometry;
     @AuraEnabled
     public List<Stop> stops = new List<Stop>();
   }
@@ -173,7 +176,8 @@ public with sharing class RoutePlanController {
         Driver__r.Name,
         Planned_Start__c,
         Planned_End__c,
-        Planned_Distance_Km__c
+        Planned_Distance_Km__c,
+        Geometry__c
       FROM Route__c
       WHERE Route_Plan__c = :planId
       WITH USER_MODE
@@ -189,6 +193,7 @@ public with sharing class RoutePlanController {
       v.plannedStart = r.Planned_Start__c;
       v.plannedEnd = r.Planned_End__c;
       v.distanceKm = r.Planned_Distance_Km__c;
+      v.geometry = r.Geometry__c;
       views.put(r.Id, v);
       b.routes.add(v);
     }

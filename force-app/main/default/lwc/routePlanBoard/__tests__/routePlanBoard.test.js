@@ -163,10 +163,19 @@ describe("c-route-plan-board", () => {
     expect(text).toContain("12 min late");
     expect(text).toContain("Refrigerated");
     expect(el.shadowRoot.querySelectorAll("section.route")).toHaveLength(2);
-    // The start is not listed as a stop.
-    expect(el.shadowRoot.querySelectorAll("li.stop")).toHaveLength(5);
-    const map = el.shadowRoot.querySelector("lightning-map");
-    expect(map.mapMarkers).toHaveLength(5);
+    // The start and the return to the depot are not listed as stops.
+    expect(el.shadowRoot.querySelectorAll("li.stop")).toHaveLength(4);
+    const map = el.shadowRoot.querySelector("c-route-map");
+    expect(map.routes).toHaveLength(2);
+    const first = map.routes[0];
+    // Job stops are numbered in route order; a charge stop shows C and does not take a number.
+    expect(first.stops.map((s) => s.mark)).toEqual(["1", "C", "2"]);
+    expect(first.depot).toEqual({
+      lat: 31.25,
+      lng: 34.79,
+      title: "Beer Sheva Depot"
+    });
+    expect(first.color).not.toEqual(map.routes[1].color);
     expect(subscribe).toHaveBeenCalledWith(
       "/event/Route_Plan_Update__e",
       -1,
@@ -174,16 +183,48 @@ describe("c-route-plan-board", () => {
     );
   });
 
-  it("filters the map to the selected route", async () => {
+  it("shows only the clicked route, and all again on a second click", async () => {
     const el = mount();
     getBoard.emit(BOARD);
     await flush();
-    el.shadowRoot.querySelector('section[data-id="a0R000000000002"]').click();
+    const card = el.shadowRoot.querySelector(
+      'section[data-id="a0R000000000002"]'
+    );
+    card.click();
     await flush();
+    const routes = () => el.shadowRoot.querySelector("c-route-map").routes;
+    expect(routes().map((r) => r.id)).toEqual(["a0R000000000002"]);
+    expect(el.shadowRoot.querySelectorAll("section.route--off")).toHaveLength(
+      1
+    );
+    card.click();
+    await flush();
+    expect(routes()).toHaveLength(2);
+  });
+
+  it("filters the map by driver", async () => {
+    const el = mount();
+    getBoard.emit(BOARD);
+    await flush();
+    const trigger = el.shadowRoot.querySelector(
+      'button[data-id="driver-filter"]'
+    );
+    expect(trigger.textContent).toContain("All drivers (2)");
+    trigger.click();
+    await flush();
+    const box = el.shadowRoot.querySelector(
+      'input[type="checkbox"][data-id="a0R000000000001"]'
+    );
+    box.checked = false;
+    box.dispatchEvent(new CustomEvent("change"));
+    await flush();
+    expect(trigger.textContent).toContain("1 of 2 drivers");
     expect(
-      el.shadowRoot.querySelector("lightning-map").mapMarkers
-    ).toHaveLength(1);
-    expect(el.shadowRoot.querySelector("section.route--on")).not.toBeNull();
+      el.shadowRoot.querySelector("c-route-map").routes.map((r) => r.id)
+    ).toEqual(["a0R000000000002"]);
+    el.shadowRoot.querySelector('button[data-id="show-all"]').click();
+    await flush();
+    expect(el.shadowRoot.querySelector("c-route-map").routes).toHaveLength(2);
   });
 
   it("optimizes and publishes", async () => {

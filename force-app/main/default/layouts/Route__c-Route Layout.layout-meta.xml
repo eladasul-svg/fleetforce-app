@@ -42,10 +42,6 @@
                 <behavior>Edit</behavior>
                 <field>Actual_End__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Geometry__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -111,6 +107,8 @@
         <fields>ETA__c</fields>
         <fields>Locked__c</fields>
         <relatedList>Waypoint__c.Route__c</relatedList>
+        <sortField>Sequence__c</sortField>
+        <sortOrder>Asc</sortOrder>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
