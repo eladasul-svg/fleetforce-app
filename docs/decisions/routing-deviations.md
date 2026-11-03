@@ -224,10 +224,10 @@ in-Apex greedy planner when the Cloud Run service is not up (rehearsals, offline
 
 **What is verified and what is not**
 
-| Part                               | Status in the cloud session                                       |
-| ---------------------------------- | ----------------------------------------------------------------- |
-| Routing service                    | 35 pytest tests pass on `HaversineMatrix` (OSRM responses mocked) |
-| LWC                                | 55 Jest tests pass (7 new), ESLint clean on changed components    |
-| Apex (24 classes, 15 test classes) | Parses with the Apex parser; never compiled or run                |
-| Metadata                           | Well-formed XML in Metadata API element order; never deployed     |
-| Docker, Cloud Build, Cloud Run     | Files written; nothing built or deployed                          |
+| Part                                                                  | Status in the cloud session                                       |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Routing service                                                       | 35 pytest tests pass on `HaversineMatrix` (OSRM responses mocked) |
+| LWC                                                                   | 55 Jest tests pass (7 new), ESLint clean on changed components    |
+| Apex (19 new classes, 15 test classes + `RoutingTestData`, 1 trigger) | Parses with the Apex parser; never compiled or run                |
+| Metadata                                                              | Well-formed XML in Metadata API element order; never deployed     |
+| Docker, Cloud Build, Cloud Run                                        | Files written; nothing built or deployed                          |
