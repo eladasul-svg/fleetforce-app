@@ -59,16 +59,16 @@ activation, the LWR site).
 
 ## Current orgs (update when one is created or deleted)
 
-| Alias                   | Role                           | Expires    | Notes                                                                                                                                     |
-| ----------------------- | ------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `fleetforcePBO`         | Packaging (Dev Hub)            | —          |                                                                                                                                           |
-| `fleetforce-master-tso` | Released version               | 2027-04-05 | FleetForce Platform 1.0.0.8, no demo data. Next: 1.2.0 (see the 1.1.0 upgrade notes in `release-notes.md`).                               |
-| `fleetforce-pkgtest-1`  | Test the package               | 2026-11-08 | 1.1.0.4 installed, four-country demo data. Delete once 1.2.0 is tested.                                                                   |
-| `fleetforce-dev-12`     | Develop                        | 2026-11-30 | Regional work (phases A to C), four-country demo data. Default org (`sf config`).                                                         |
-| `fleetforce-dev-13`     | Develop                        | 2026-12-03 | Routing module (`feature/routing-module`), source deploy, no demo data yet. Not the default org.                                          |
-| `fleetforce-demo-mc`    | Demo                           | 2026-11-30 | Multi-currency (EUR corporate, GBP, USD, ILS). Source deploy for now: the regional work is not released yet.                              |
-| `fleetforce-dev-11`     | Old demo                       | 2026-11-20 | Conference demo state (US data, before the regional work). Let it expire unless it is migrated (`scripts/migration/migrate_regional.sh`). |
-| `true-subscriber-hub`   | Second Dev Hub (other account) | —          | For install tests from a different account. No active scratch org.                                                                        |
+| Alias                   | Role                           | Expires    | Notes                                                                                                                                                |
+| ----------------------- | ------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fleetforcePBO`         | Packaging (Dev Hub)            | —          |                                                                                                                                                      |
+| `fleetforce-master-tso` | Released version               | 2027-04-05 | FleetForce Platform 1.0.0.8, no demo data. Next: 1.2.0 (see the 1.1.0 upgrade notes in `release-notes.md`).                                          |
+| `fleetforce-pkgtest-1`  | Test the package               | 2026-11-08 | 1.1.0.4 installed, four-country demo data. Delete once 1.2.0 is tested.                                                                              |
+| `fleetforce-dev-12`     | Develop                        | 2026-11-30 | Regional work (phases A to C), four-country demo data. Default org (`sf config`).                                                                    |
+| `fleetforce-dev-13`     | Develop                        | 2026-12-03 | Routing module (`feature/routing-module`), source deploy, demo data, openrouteservice key, Motorpool site (activate in the UI). Not the default org. |
+| `fleetforce-demo-mc`    | Demo                           | 2026-11-30 | Multi-currency (EUR corporate, GBP, USD, ILS). Source deploy for now: the regional work is not released yet.                                         |
+| `fleetforce-dev-11`     | Old demo                       | 2026-11-20 | Conference demo state (US data, before the regional work). Let it expire unless it is migrated (`scripts/migration/migrate_regional.sh`).            |
+| `true-subscriber-hub`   | Second Dev Hub (other account) | —          | For install tests from a different account. No active scratch org.                                                                                   |
 
 Other orgs connected to this machine (`aharai-prod`, `myProductionOrg`, `br7gdev`, `pss_dev_org`) belong to other
 projects; FleetForce commands must never target them.

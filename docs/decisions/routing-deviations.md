@@ -287,6 +287,20 @@ per vehicle, both ends of a shipment counted. Min Distance and Min Vehicles stil
 overnight plan gave one driver all 12 cars), so the South morning and the overnight plan are now seeded
 as Balanced.
 
+**D-L1-10 · The board map is Leaflet, not `lightning-map`.** The design only said "map". `lightning-map`
+cannot draw lines or label markers, so the board showed loose pins with no order and the stored road path
+(`Route__c.Geometry__c`) was never drawn. The new `routeMap` LWC uses Leaflet 1.9.4 (BSD-2, static resource
+`Leaflet`) on OpenStreetMap tiles (CSP Trusted Site `OpenStreetMap_Tiles`, images only). It draws one coloured
+road line per route from the encoded polyline (dashed straight lines when a route has none), numbered job
+stops, B and C for breaks and charge stops, and the depot. `getBoard` now returns each route's geometry. The
+board has a driver multi-select, and clicking a route card shows only that route. The OSM tile policy is for
+light use only: before a paying customer the tile host must become a setting (e.g. MapTiler or Stadia with a
+key). The user chose this on 2026-11-03.
+
+**D-L1-11 · `Geometry__c` off the Route layout, waypoints in route order.** The generator now has
+`layout=False` for machine data (the encoded polyline showed as unreadable text on the page) and sorts the
+Waypoints related list by Sequence. The field itself and its FLS are unchanged.
+
 **Results on `fleetforce-dev-13`**
 
 | Check                                   | Result                                                                                                                       |
@@ -298,5 +312,7 @@ as Balanced.
 | Routing service pytest                  | 35 of 35 pass on Python 3.12.16 (standalone build in `~/.local/python3.12`; the system Python 3.9.6 is too old for the pins) |
 | Demo data                               | Loaded (`load_demo_data.sh`, then the fixed routing seed)                                                                    |
 | Optimize on openrouteservice            | South morning: 3 routes, 0 unassigned, 113 km. Overnight: 3 routes of 4 cars, each pickup before its drop                    |
+| Route map (D-L1-10)                     | Deployed; Jest 8 of 8 (board and `routeMap`), `RoutePlanControllerTest` passes. Not yet checked in the browser               |
+| Motorpool site                          | Created, deployed, published and seeded. Still Under Construction: activating needs the UI (see `docs/motorpool-portal.md`)  |
 
 Not done in this session: Cloud Run (step 4) and a package version. Demo data was loaded at the user's request, after the openrouteservice key was set.

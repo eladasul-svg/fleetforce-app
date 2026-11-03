@@ -52,6 +52,10 @@ Status as of 2026-09-27, fourth pass — **FleetForce Platform 1.0.0.8 is Releas
 
 ---
 
+## 2026-11-03 — Route map with road lines and a driver filter; Motorpool site in `fleetforce-dev-13`
+
+The user checked the board in dev-13: loose pins, no stop order and no road path, and the Geometry field on the Route page was unreadable. With the user's choice, the board map moved from `lightning-map` to a new Leaflet component (`routeMap`, OpenStreetMap tiles): coloured road lines, numbered stops, the depot, a driver multi-select, and click-a-card to show one route. Geometry is off the Route layout and waypoints list in route order. The Motorpool site (with the driver app) had never been set up in dev-13; it is now created, deployed, published and seeded, but still has to be activated in the UI. Details: `docs/decisions/routing-deviations.md` (D-L1-10, D-L1-11).
+
 ## 2026-11-03 — Routing on openrouteservice in `fleetforce-dev-13`
 
 Installed a standalone Python 3.12 in `~/.local/python3.12`; the routing service pytest passes (35). The user chose openrouteservice for demos until there is a customer (Cloud Run later), and set the free key on the `Openrouteservice` external credential in dev-13. Loaded the demo data; the routing seed had never run and needed two fixes (case-insensitive name clash, an inner class that crashes anonymous Apex). Added a morning in openrouteservice size (Beer Sheva South Depot, 3 vans sent, 35 drops) and Balanced support to `OrsRoutingProvider`; with both plans on Balanced, Optimize gives 3 routes each with every rule kept. Not checked yet: the board and the assistant in the UI, and the 11:40 story. Details: `docs/decisions/routing-deviations.md` (D-L1-7 to D-L1-9), `docs/Datasets/routing-demo-dataset.md` (Story 1b).
