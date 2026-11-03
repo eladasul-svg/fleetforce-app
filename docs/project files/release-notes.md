@@ -47,6 +47,9 @@ Will be 1.2.0, or 1.1.1 if it only holds small fixes. 1.1.0 is released, so no f
 - Vehicle page layout: Make, Model and Model Year moved from the Data Health section to Identity, under VIN.
 - The FleetForce Assistant tells a user without the FleetForce Assistant User permission set to ask an administrator
   for it, instead of showing the error "No such column 'Title__c'".
+- Data Health: missing spaces restored ("Freshness (40%)", "Calculated 2 minutes ago", "Webfleet · Telematics",
+  "Recall · due Dec 2, 2026").
+- Fleet Map Explorer list (Home): the vehicle icon no longer overlaps the "License:" line.
 
 ### Upgrade notes
 

@@ -81,8 +81,9 @@
               <template for:each={parts} for:item="p">
                 <li key={p.key} class="part">
                   <span class="part-label"
-                    >{p.label}
-                    <span class="slds-text-color_weak">({p.weight})</span></span
+                    >{p.label}&nbsp;<span class="slds-text-color_weak"
+                      >({p.weight})</span
+                    ></span
                   >
                   <span class="part-bar" aria-hidden="true"
                     ><span class="part-fill" style={p.barStyle}></span
@@ -93,11 +94,10 @@
             </ul>
             <p class="slds-text-body_small slds-text-color_weak">
               <template lwc:if={health.profileName}
-                >Profile: {health.profileName}.
-              </template>
+                >Profile: {health.profileName}.&nbsp;</template
+              >
               <template lwc:if={calculatedOn}>
-                Calculated
-                <lightning-relative-date-time
+                Calculated&nbsp;<lightning-relative-date-time
                   value={calculatedOn}
                 ></lightning-relative-date-time
                 >.
@@ -124,7 +124,7 @@
                         title={s.vendorLabel}
                         >{s.vendorName}</a
                       >
-                      · {s.sourceType}
+                      &nbsp;· {s.sourceType}
                     </template>
                     <template lwc:else>{s.sourceName}</template>
                   </span>
@@ -200,11 +200,12 @@
                   </span>
                   <span class="row-sub">
                     <span class={a.sevClass}>{a.severity}</span>
-                    <span class="slds-text-color_weak"> · {a.alertType}</span>
+                    <span class="slds-text-color_weak"
+                      >&nbsp;· {a.alertType}</span
+                    >
                     <template lwc:if={a.dueDate}>
                       <span class="slds-text-color_weak">
-                        · due
-                        <lightning-formatted-date-time
+                        &nbsp;· due&nbsp;<lightning-formatted-date-time
                           value={a.dueDate}
                           year="numeric"
                           month="short"
