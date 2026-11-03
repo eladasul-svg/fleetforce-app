@@ -582,8 +582,8 @@ def permission_set() -> str:
     objs["Route_Event__c"] = dict(c=True, r=True, e=False, d=False)
     objs["Allocation__c"] = dict(c=True, r=True, e=True, d=False)
     objs["Route_Plan_Update__e"] = dict(c=True, r=True, e=False, d=False, platform_event=True)
-    for ro in ["Fleet_Asset__c", "Fleet_Branch__c", "Service_Ticket__c", "Driver_Qualification__c",
-               "Schedule_Assignment__c", "Assistant_Session__c"]:
+    for ro in ["Contact", "Fleet_Asset__c", "Fleet_Branch__c", "Service_Ticket__c", "Driver_Qualification__c",
+               "Fleet_Schedule__c", "Schedule_Assignment__c", "Schedule_Window__c", "Assistant_Session__c"]:
         objs[ro] = dict(c=False, r=True, e=False, d=False)
     for api in sorted(objs, key=str.lower):
         p = objs[api]

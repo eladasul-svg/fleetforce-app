@@ -330,7 +330,7 @@ private class RoutePlanServiceTest {
         Geometry__c,
         (
           SELECT Sequence__c, Type__c, Solver_Step_Id__c
-          FROM Waypoints
+          FROM Waypoints__r
           ORDER BY Sequence__c
         )
       FROM Route__c
@@ -342,11 +342,14 @@ private class RoutePlanServiceTest {
     System.assert(r.Name.contains('Dana'), r.Name);
     System.assertEquals('Planned', r.Status__c);
     System.assertNotEquals(null, r.Geometry__c);
-    System.assertEquals('Start', r.Waypoints[0].Type__c);
-    System.assertEquals('End', r.Waypoints[r.Waypoints.size() - 1].Type__c);
+    System.assertEquals('Start', r.Waypoints__r[0].Type__c);
+    System.assertEquals(
+      'End',
+      r.Waypoints__r[r.Waypoints__r.size() - 1].Type__c
+    );
     System.assertEquals(
       8,
-      r.Waypoints.size(),
+      r.Waypoints__r.size(),
       'start, 4 drops, pickup, drop, end'
     );
 

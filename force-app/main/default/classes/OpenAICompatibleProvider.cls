@@ -32,15 +32,15 @@ public with sharing class OpenAICompatibleProvider implements ModelProvider {
   /** Claude Messages request -> chat/completions request. */
   public Map<String, Object> toChatRequest(Map<String, Object> req) {
     List<Object> messages = new List<Object>();
-    List<String> system = new List<String>();
+    List<String> systemTexts = new List<String>();
     for (Object o : RoutingDtos.toList(req.get('system'))) {
-      system.add(String.valueOf(((Map<String, Object>) o).get('text')));
+      systemTexts.add(String.valueOf(((Map<String, Object>) o).get('text')));
     }
-    if (!system.isEmpty()) {
+    if (!systemTexts.isEmpty()) {
       messages.add(
         new Map<String, Object>{
           'role' => 'system',
-          'content' => String.join(system, '\n\n')
+          'content' => String.join(systemTexts, '\n\n')
         }
       );
     }

@@ -696,7 +696,7 @@ public with sharing class RoutingAssistantTools {
         Total_Distance_Km__c,
         Total_Duration_Min__c,
         Unassigned_Count__c,
-        (SELECT Id FROM Routes)
+        (SELECT Id FROM Routes__r)
       FROM Route_Plan__c
       WHERE Id = :route.Route_Plan__c
       WITH USER_MODE
@@ -705,7 +705,7 @@ public with sharing class RoutingAssistantTools {
       new Map<String, Object>{
         'saved' => false,
         'before' => new Map<String, Object>{
-          'routes' => plan.Routes.size(),
+          'routes' => plan.Routes__r.size(),
           'unassigned' => plan.Unassigned_Count__c,
           'distanceKm' => plan.Total_Distance_Km__c,
           'durationMin' => plan.Total_Duration_Min__c

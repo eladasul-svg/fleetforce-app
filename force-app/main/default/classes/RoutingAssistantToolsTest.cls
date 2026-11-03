@@ -33,7 +33,7 @@ private class RoutingAssistantToolsTest {
         Type__c,
         Status__c,
         Locked__c,
-        (SELECT Id FROM Job_Visits)
+        (SELECT Id FROM Job_Visits__r)
       FROM Waypoint__c
       WHERE Route__c = :routeId
       ORDER BY Sequence__c
@@ -172,8 +172,8 @@ private class RoutingAssistantToolsTest {
       'the start is history and stays'
     );
     System.assertEquals(
-      before[2].Job_Visits[0].Id,
-      after[1].Job_Visits[0].Id,
+      before[2].Job_Visits__r[0].Id,
+      after[1].Job_Visits__r[0].Id,
       'the locked stop comes first'
     );
     System.assert(after[1].Locked__c);
@@ -276,7 +276,7 @@ private class RoutingAssistantToolsTest {
     Job_Visit__c v = [
       SELECT Waypoint__c, Route_Job__r.Status__c, Route_Job__r.Planned_Route__c
       FROM Job_Visit__c
-      WHERE Id = :stop.Job_Visits[0].Id
+      WHERE Id = :stop.Job_Visits__r[0].Id
     ];
     System.assertEquals(null, v.Waypoint__c);
     System.assertEquals('Ready', v.Route_Job__r.Status__c);
@@ -413,7 +413,7 @@ private class RoutingAssistantToolsTest {
     };
     RoutingProviders.useForTest(new MockRoutingProvider());
     Waypoint__c moving = stops(source.Id)[1];
-    Id visitId = moving.Job_Visits[0].Id;
+    Id visitId = moving.Job_Visits__r[0].Id;
 
     AssistantTools.ToolResult res = run(
       'propose_handoff',
@@ -465,7 +465,7 @@ private class RoutingAssistantToolsTest {
       Status__c = 'Planned'
     );
     insert target;
-    Id visitId = stops(source.Id)[1].Job_Visits[0].Id;
+    Id visitId = stops(source.Id)[1].Job_Visits__r[0].Id;
     AssistantTools.ToolResult res = run(
       'propose_handoff',
       new Map<String, Object>{

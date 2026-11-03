@@ -289,7 +289,7 @@ public with sharing class RoutePlanService {
     List<Capacity_Dimension__mdt> dims
   ) {
     List<Integer> out = new List<Integer>();
-    Boolean any = false;
+    Boolean hasCapacity = false;
     for (Integer slot = 1; slot <= RoutingDtos.CAPACITY_DIMENSIONS; slot++) {
       Capacity_Dimension__mdt d = dimFor(dims, slot);
       if (d == null) {
@@ -302,11 +302,11 @@ public with sharing class RoutePlanService {
       if (raw == null) {
         out.add(UNLIMITED);
       } else {
-        any = true;
+        hasCapacity = true;
         out.add(scaled((Decimal) raw, d));
       }
     }
-    return any ? out : null;
+    return hasCapacity ? out : null;
   }
 
   private static Integer scaled(Decimal value, Capacity_Dimension__mdt d) {
@@ -449,7 +449,7 @@ public with sharing class RoutePlanService {
             Load_2__c,
             Load_3__c,
             Address__c
-          FROM Visits
+          FROM Visits__r
           ORDER BY Name
         )
       FROM Route_Job__c
@@ -468,7 +468,7 @@ public with sharing class RoutePlanService {
       Job_Visit__c delivery;
       List<Job_Visit__c> others = new List<Job_Visit__c>();
       Boolean missingLocation = false;
-      for (Job_Visit__c v : j.Visits) {
+      for (Job_Visit__c v : j.Visits__r) {
         ctx.visits.put(v.Id, v);
         ctx.jobOfVisit.put(v.Id, j.Id);
         if (
@@ -485,7 +485,7 @@ public with sharing class RoutePlanService {
           others.add(v);
         }
       }
-      if (j.Visits.isEmpty()) {
+      if (j.Visits__r.isEmpty()) {
         ctx.request.skippedJobs.put(j.Id, 'The job has no visits.');
         continue;
       }
@@ -507,8 +507,8 @@ public with sharing class RoutePlanService {
         s.skills = skills;
         s.priority = priority;
         ctx.request.shipments.add(s);
-      } else if (j.Visits.size() == 1) {
-        Job_Visit__c v = j.Visits[0];
+      } else if (j.Visits__r.size() == 1) {
+        Job_Visit__c v = j.Visits__r[0];
         RoutingDtos.Job job = new RoutingDtos.Job();
         job.id = v.Id;
         job.location = visitLocation(v);
