@@ -128,7 +128,7 @@ private class RoutingAssistantIntegrationTest {
       System.assertEquals(
         true,
         resolved.outcome.get('success'),
-        resolved.outcome.get('error')
+        'error: ' + resolved.outcome.get('error')
       );
     }
     Route_Event__c e = [

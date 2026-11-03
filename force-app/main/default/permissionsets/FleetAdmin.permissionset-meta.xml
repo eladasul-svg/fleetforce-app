@@ -1074,6 +1074,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Service_Ticket__c.In_Shop__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Citation__c.Fine_Amount__c</field>
         <readable>true</readable>

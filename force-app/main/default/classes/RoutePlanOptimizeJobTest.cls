@@ -25,7 +25,7 @@ private class RoutePlanOptimizeJobTest {
       FROM Route_Plan__c
       WHERE Id = :pid
     ];
-    System.assertEquals('Optimized', plan.Status__c, plan.Error__c);
+    System.assertEquals('Optimized', plan.Status__c, 'error: ' + plan.Error__c);
     System.assertEquals(1, plan.Revision__c);
     System.assertEquals(
       1,
@@ -121,7 +121,7 @@ private class RoutePlanOptimizeJobTest {
       FROM Route_Plan__c
       WHERE Id = :pid
     ];
-    System.assertEquals('Optimized', plan.Status__c, plan.Error__c);
+    System.assertEquals('Optimized', plan.Status__c, 'error: ' + plan.Error__c);
     System.assertEquals(
       2,
       plan.Unassigned_Count__c,

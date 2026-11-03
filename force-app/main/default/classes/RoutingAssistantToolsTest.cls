@@ -164,7 +164,11 @@ private class RoutingAssistantToolsTest {
     System.assertEquals(6, ((List<String>) diff.get('after')).size());
 
     Map<String, Object> outcome = approve(res.proposal);
-    System.assertEquals(true, outcome.get('success'), outcome.get('error'));
+    System.assertEquals(
+      true,
+      outcome.get('success'),
+      'error: ' + outcome.get('error')
+    );
     List<Waypoint__c> after = stops(r.Id);
     System.assertEquals(
       'Start',
@@ -240,7 +244,11 @@ private class RoutingAssistantToolsTest {
     // A dispatcher may.
     update new Contact(Id = r.Driver__c, Related_User__c = null);
     outcome = approve(res.proposal);
-    System.assertEquals(true, outcome.get('success'), outcome.get('error'));
+    System.assertEquals(
+      true,
+      outcome.get('success'),
+      'error: ' + outcome.get('error')
+    );
     System.assertEquals(
       RoutingTestData.local(15, 0),
       [SELECT Window_Start__c FROM Job_Visit__c WHERE Id = :v.Id]
@@ -268,7 +276,11 @@ private class RoutingAssistantToolsTest {
     );
     System.assertEquals('Dispatcher', res.proposal.get('approver'));
     Map<String, Object> outcome = approve(res.proposal);
-    System.assertEquals(true, outcome.get('success'), outcome.get('error'));
+    System.assertEquals(
+      true,
+      outcome.get('success'),
+      'error: ' + outcome.get('error')
+    );
     System.assertEquals(
       'Skipped',
       [SELECT Status__c FROM Waypoint__c WHERE Id = :stop.Id].Status__c
@@ -307,7 +319,11 @@ private class RoutingAssistantToolsTest {
     );
     System.assertEquals('Driver', res.proposal.get('approver'));
     Map<String, Object> outcome = approve(res.proposal);
-    System.assertEquals(true, outcome.get('success'), outcome.get('error'));
+    System.assertEquals(
+      true,
+      outcome.get('success'),
+      'error: ' + outcome.get('error')
+    );
     List<Waypoint__c> after = stops(r.Id);
     System.assertEquals(before.size() + 1, after.size());
     System.assertEquals('Break', after[2].Type__c, 'right after the next stop');
@@ -426,7 +442,11 @@ private class RoutingAssistantToolsTest {
     System.assert(!res.isError, res.content);
     System.assertEquals('Dispatcher', res.proposal.get('approver'));
     Map<String, Object> outcome = approve(res.proposal);
-    System.assertEquals(true, outcome.get('success'), outcome.get('error'));
+    System.assertEquals(
+      true,
+      outcome.get('success'),
+      'error: ' + outcome.get('error')
+    );
     Job_Visit__c v = [
       SELECT Waypoint__r.Route__c, Route_Job__r.Planned_Route__c
       FROM Job_Visit__c
