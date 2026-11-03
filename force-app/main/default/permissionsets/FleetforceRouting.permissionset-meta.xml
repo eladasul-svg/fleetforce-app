@@ -1,7 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>FleetForceRoutingProvider</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>MockRoutingProvider</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>OrsRoutingProvider</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RouteEvents</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutePlanOptimizeJob</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutePlanService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutingDtos</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutingPolicy</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutingProvider</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RoutingProviders</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description
   >FleetForce Routing: plan, optimize and dispatch routes. Assign together with Fleetforce Admin or Fleet Admin (which grant the fleet objects). Route Events are create and read only: the audit trail is append-only.</description>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal
+    >fleetforce__FleetForce_Routing-Org</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal
+    >fleetforce__Openrouteservice-Org</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
     <fieldPermissions>
         <editable>true</editable>
         <field>Fleet_Asset__c.Cargo_Volume_M3__c</field>
@@ -533,6 +583,13 @@
         <modifyAllRecords>false</modifyAllRecords>
         <object>Route_Plan__c</object>
         <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <object>Route_Plan_Update__e</object>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>false</allowCreate>

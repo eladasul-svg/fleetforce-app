@@ -95,3 +95,46 @@ come from valid `Driver_Qualification__c` names (R3).
 is well-formed XML with elements in Metadata API order; the first scratch-org deploy is the real check.
 Tabs were added to the FleetOps app (with console mappings) for Route Plans, Routes, Route Jobs and
 Route Events; Job Visits and Waypoints are reached through related lists.
+
+## R3 Apex integration
+
+**D-R3-1 · DTOs are maps on the wire.** The contract's snake_case keys include words Apex reserves
+(`type`, `end`), so `RoutingDtos` builds requests with `toMap()` and parses responses from untyped JSON
+instead of `JSON.serialize` on typed classes. The classes still mirror `schemas.py` one to one.
+
+**D-R3-2 · Task ids are record Ids.** A one-visit job is sent with the `Job_Visit__c` Id as its id; a
+pickup→drop job is a shipment with the `Route_Job__c` Id and its two visit Ids as step ids. Results map
+straight back to visits without a lookup table. Jobs with more than two visits, or two visits that are
+not one Pickup plus one Delivery, are skipped with a reason (`Unassigned_Reason__c = skipped: …`).
+
+**D-R3-3 · Soft windows.** The design says soft windows "become a cost in the solver". VROOM only has hard
+windows, so a soft window (`Hard_Window__c = false`) is sent with 30 minutes of slack after its end
+(`SOFT_WINDOW_GRACE_MINUTES`). Hard windows are sent as is.
+
+**D-R3-4 · EV charging is a 30-minute break.** EVs (`Fuel_Type__c = Electric`) get one `charge` break
+between 11:30 and 13:30 depot time, which becomes a `Charge` waypoint. There is no charger location data
+yet, so the stop is wherever the van is; range-based charging needs charger sites (Place__c, deferred).
+
+**D-R3-5 · Shifts.** Taken from `Schedule_Assignment__c` → `Schedule_Window__c` (Available/Required windows
+for the plan's weekday, by asset first, then by driver), else 07:00–17:00 in the depot branch's time zone.
+
+**D-R3-6 · Eligibility lives in `RoutingPolicy` from R3.** The "never allowed" rules (in-shop ticket,
+expired licence or mandatory qualification) are needed to build a request, so `RoutingPolicy` was started
+in R3 and R4 adds the approval rules to it. `In_Shop__c` is a formula on `TODAY()`, so it is read, not
+filtered on, and `Status__c = In-Shop` also counts.
+
+**D-R3-7 · Added classes:** `RoutingProviders` (factory, named-credential names, shared HTTP and error
+text, `RoutingException`), `RouteEvents` (event builder and the append-only rule for
+`RouteEventTrigger`), and `RoutingTestData` (test factory plus an HTTP mock that answers like the
+service). `RoutePlanService.publishPlan` creates the `Allocation__c` per route after the motorpool's
+overlap check.
+
+**D-R3-8 · `openrouteservice` gets its own named and external credential** (`Openrouteservice`,
+`Authorization` header), next to `FleetForce_Routing` (`X-FleetForce-Key` header). The FleetForce Routing
+URL in the named credential is a placeholder (`https://fleetforce-routing.example.run.app`) until the
+Cloud Run URL exists.
+
+**D-R3-9 · Not compiled.** No org in the cloud session. Every class parses with the Apex parser that
+`prettier-plugin-apex` uses (which catches syntax and reserved words, not types), and the tests were
+written against the scenario data in `RoutingTestData`. The first scratch-org deploy and test run is
+the real check; expect a few compile fixes.

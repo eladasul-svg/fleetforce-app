@@ -543,6 +543,7 @@ def main() -> None:
 
 
 ROUTING_CLASSES = [
+    "RouteEvents",
     "FleetForceRoutingProvider", "MockRoutingProvider", "OrsRoutingProvider", "RoutePlanController",
     "RoutePlanOptimizeJob", "RoutePlanService", "RoutingActions", "RoutingAssistantTools", "RoutingDtos",
     "RoutingPolicy", "RoutingProvider", "RoutingProviders",
@@ -558,10 +559,11 @@ def permission_set() -> str:
     out.append(tag("description", "FleetForce Routing: plan, optimize and dispatch routes. Assign together with "
                    "Fleetforce Admin or Fleet Admin (which grant the fleet objects). Route Events are create and read "
                    "only: the audit trail is append-only."))
-    if (ROOT / "externalCredentials/FleetForce_Routing.externalCredential-meta.xml").exists():
-        out.append("    <externalCredentialPrincipalAccesses>\n        <enabled>true</enabled>\n"
-                   "        <externalCredentialPrincipal>fleetforce__FleetForce_Routing-Org</externalCredentialPrincipal>\n"
-                   "    </externalCredentialPrincipalAccesses>\n")
+    for cred in ("FleetForce_Routing", "Openrouteservice"):
+        if (ROOT / f"externalCredentials/{cred}.externalCredential-meta.xml").exists():
+            out.append("    <externalCredentialPrincipalAccesses>\n        <enabled>true</enabled>\n"
+                       f"        <externalCredentialPrincipal>fleetforce__{cred}-Org</externalCredentialPrincipal>\n"
+                       "    </externalCredentialPrincipalAccesses>\n")
     fls = []
     for api, o in OBJECTS.items():
         for f in o["fields"]:
@@ -577,6 +579,7 @@ def permission_set() -> str:
     objs = {api: dict(c=True, r=True, e=True, d=True) for api in OBJECTS}
     objs["Route_Event__c"] = dict(c=True, r=True, e=False, d=False)
     objs["Allocation__c"] = dict(c=True, r=True, e=True, d=False)
+    objs["Route_Plan_Update__e"] = dict(c=True, r=True, e=False, d=False, platform_event=True)
     for ro in ["Fleet_Asset__c", "Fleet_Branch__c", "Service_Ticket__c", "Driver_Qualification__c",
                "Schedule_Assignment__c", "Assistant_Session__c"]:
         objs[ro] = dict(c=False, r=True, e=False, d=False)
@@ -587,9 +590,10 @@ def permission_set() -> str:
             "    <objectPermissions>\n"
             f"        <allowCreate>{b(p['c'])}</allowCreate>\n        <allowDelete>{b(p['d'])}</allowDelete>\n"
             f"        <allowEdit>{b(p['e'])}</allowEdit>\n        <allowRead>true</allowRead>\n"
-            "        <modifyAllRecords>false</modifyAllRecords>\n"
-            f"        <object>{api}</object>\n        <viewAllRecords>false</viewAllRecords>\n"
-            "    </objectPermissions>\n"
+            + ("" if p.get("platform_event") else "        <modifyAllRecords>false</modifyAllRecords>\n")
+            + f"        <object>{api}</object>\n"
+            + ("" if p.get("platform_event") else "        <viewAllRecords>false</viewAllRecords>\n")
+            + "    </objectPermissions>\n"
         )
     for t in sorted(api for api, o in OBJECTS.items() if "tab" in o):
         out.append(f"    <tabSettings>\n        <tab>{t}</tab>\n        <visibility>Visible</visibility>\n"
