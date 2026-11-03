@@ -1,0 +1,119 @@
+<template>
+  <article class="slds-card board">
+    <header class="slds-card__header head">
+      <div>
+        <h2 class="slds-text-heading_small">Route plan</h2>
+        <template lwc:if={loaded}>
+          <p class="muted">{board.depot} · {board.status}</p>
+        </template>
+      </div>
+      <div class="actions">
+        <lightning-button
+          label={optimizeLabel}
+          variant="brand"
+          onclick={handleOptimize}
+          disabled={optimizeDisabled}
+          data-id="optimize"
+        ></lightning-button>
+        <lightning-button
+          label="Publish"
+          onclick={handlePublish}
+          disabled={publishDisabled}
+          data-id="publish"
+        ></lightning-button>
+      </div>
+    </header>
+
+    <div class="slds-card__body slds-card__body_inner">
+      <template lwc:if={error}>
+        <p class="error" role="alert">{error}</p>
+      </template>
+      <template lwc:if={loaded}>
+        <template lwc:if={board.error}>
+          <p class="error" role="alert">
+            Last optimization failed: {board.error}
+          </p>
+        </template>
+        <template lwc:if={isOptimizing}>
+          <p class="info" role="status">
+            Optimizing… the board refreshes when the solver is done.
+          </p>
+        </template>
+
+        <ul class="kpis">
+          <template for:each={kpis} for:item="k">
+            <li key={k.key} class="kpi">
+              <span class="kpi__value">{k.value}</span>
+              <span class="kpi__label">{k.label}</span>
+            </li>
+          </template>
+        </ul>
+
+        <template lwc:if={hasMarkers}>
+          <lightning-map
+            map-markers={markers}
+            zoom-level="12"
+            list-view="hidden"
+          ></lightning-map>
+        </template>
+
+        <template lwc:if={hasRoutes}>
+          <div class="routes">
+            <template for:each={routes} for:item="r">
+              <section
+                key={r.id}
+                class={r.cardClass}
+                data-id={r.id}
+                onclick={handleSelect}
+              >
+                <h3 class="route__head">
+                  <span class="swatch" style={r.swatchStyle}></span>
+                  <span class="route__name">{r.name}</span>
+                  <span class="muted"
+                    >{r.jobStops} stops · {r.distanceKm} km · {r.window}</span
+                  >
+                </h3>
+                <ol class="stops">
+                  <template for:each={r.stops} for:item="s">
+                    <li key={s.id} class="stop">
+                      <span class="stop__eta">{s.eta}</span>
+                      <span class="stop__label">{s.label}</span>
+                      <template lwc:if={s.badge}
+                        ><span class="badge">{s.badge}</span></template
+                      >
+                      <template lwc:if={s.locked}
+                        ><span class="badge">Locked</span></template
+                      >
+                      <template lwc:if={s.isLate}
+                        ><span class="badge badge--late"
+                          >{s.lateMinutes} min late</span
+                        ></template
+                      >
+                    </li>
+                  </template>
+                </ol>
+              </section>
+            </template>
+          </div>
+        </template>
+        <template lwc:else>
+          <p class="muted empty">
+            No routes yet. Press Optimize to plan the jobs for this depot and
+            day.
+          </p>
+        </template>
+
+        <template lwc:if={hasUnassigned}>
+          <h3 class="slds-text-heading_small unassigned__head">Not planned</h3>
+          <ul class="unassigned">
+            <template for:each={board.unassigned} for:item="j">
+              <li key={j.id}>
+                <strong>{j.name}</strong> <span class="muted">{j.reason}</span>
+              </li>
+            </template>
+          </ul>
+        </template>
+      </template>
+    </div>
+  </article>
+</template>

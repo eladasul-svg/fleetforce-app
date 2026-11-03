@@ -185,3 +185,24 @@ them from the core package. There is no setting yet to switch providers.
 
 **D-R4-9 · LWC.** `fleetforceAssistant` shows a proposal's own `title` when it has one (routing
 proposals), and treats any action other than `create` as an update (Current/Proposed columns).
+
+## R6 UI
+
+**D-R6-1 · `routePlanBoard` is built but not placed on a page.** The LWC (map with one colour per
+route, a stop list per route, KPIs, Optimize / Re-optimize and Publish, the jobs that were not planned
+and why) targets the `Route_Plan__c` record page. No flexipage was generated: Lightning record pages are
+easiest to place in App Builder, and a generated one would overwrite the default page. It listens to
+`Route_Plan_Update__e` through `lightning/empApi` and refreshes when the solver is done.
+`RoutePlanController.getBoard` is cacheable and only reads; `optimize` and `publish` are not cacheable.
+
+**D-R6-2 · The driver app's Route tab has no assistant panel yet.** Planned: a route tab "with the
+assistant panel". Done: a `Route` tab (`driverRoute` LWC, `DriverRouteController`) with today's
+remaining stops, ETAs, windows, access notes and a Navigate link to the next stop. The assistant needs a
+named user with the assistant permission set, and the driver app runs on the guest site with a driver
+picker, so the panel waits on the open question about Experience Cloud logins. `DriverRouteController`
+follows `DriverAppController` (without sharing, driver as a parameter) and the guest profile needs class
+access to it (see the local next steps).
+
+**D-R6-3 · A pre-existing lint error in `driverApp.js`.** `dateText` was an arrow function that
+prettier and ESLint's `no-confusing-arrow` format in opposite ways, so the pre-commit hook could not pass
+on any change to the file. It is now a plain function with the same behaviour.

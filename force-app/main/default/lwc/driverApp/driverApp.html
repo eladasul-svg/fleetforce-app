@@ -353,6 +353,14 @@
           >
         </template>
 
+        <!-- ================= ROUTE ================= -->
+        <template lwc:if={isRoute}>
+          <c-driver-route
+            driver-id={driverId}
+            time-zone={zone}
+          ></c-driver-route>
+        </template>
+
         <!-- ================= ME ================= -->
         <template lwc:if={isMe}>
           <section class="card profile">
