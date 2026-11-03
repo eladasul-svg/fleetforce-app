@@ -271,12 +271,12 @@ were run by hand after the deploy succeeded.
 
 **Results on `fleetforce-dev-13`**
 
-| Check                                   | Result                                                                                                                                       |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `force-app` deploy                      | Succeeded, 1062 components                                                                                                                   |
-| Routing and assistant test classes      | 109 of 109 pass, 94% coverage of the classes they cover                                                                                      |
-| `RunLocalTests`                         | 238 of 238 pass, 94% org-wide; no class under 75% (lowest routing class `RouteReplanService` 82%)                                            |
-| Guest profile (`DriverRouteController`) | Deployed                                                                                                                                     |
-| Routing service pytest                  | **Not run**: this Mac has only Python 3.9.6; the pins (`fastapi==0.162.0` etc.) need 3.10+ and the image uses 3.12. No brew, Docker or pyenv |
+| Check                                   | Result                                                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `force-app` deploy                      | Succeeded, 1062 components                                                                                                   |
+| Routing and assistant test classes      | 109 of 109 pass, 94% coverage of the classes they cover                                                                      |
+| `RunLocalTests`                         | 238 of 238 pass, 94% org-wide; no class under 75% (lowest routing class `RouteReplanService` 82%)                            |
+| Guest profile (`DriverRouteController`) | Deployed                                                                                                                     |
+| Routing service pytest                  | 35 of 35 pass on Python 3.12.16 (standalone build in `~/.local/python3.12`; the system Python 3.9.6 is too old for the pins) |
 
 Not done in this session, as agreed: Cloud Run (step 4), demo data, a package version.

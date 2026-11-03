@@ -31,6 +31,9 @@ npm install
 
 ## 2. Routing service tests (local, no Docker)
 
+Needs Python 3.10+ (the image uses 3.12). This Mac has a standalone 3.12 in `~/.local/python3.12`; if
+`python3 --version` says 3.9, replace `python3` below with `~/.local/python3.12/bin/python3`.
+
 ```bash
 cd services/routing && python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements-dev.txt && python -m pytest -q; deactivate; cd ../..
 ```

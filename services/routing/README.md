@@ -21,6 +21,9 @@ services/routing/
 
 ## Run the tests
 
+Needs Python 3.10 or later (the image uses 3.12). On a Mac with only the system Python 3.9, use a
+standalone 3.12, for example `~/.local/python3.12/bin/python3 -m venv .venv`.
+
 ```bash
 cd services/routing
 python3 -m venv .venv && . .venv/bin/activate
