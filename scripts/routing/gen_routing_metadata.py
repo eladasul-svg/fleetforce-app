@@ -214,7 +214,7 @@ OBJECTS = {
             lookup("Depot_Branch__c", "Depot Branch", "Fleet_Branch__c", "Route_Plans", "Route Plans"),
             pick("Status__c", "Status", ["Draft", "Optimizing", "Optimized", "Published", "In Progress", "Completed",
                                          "Cancelled"], default="Draft"),
-            pick("Provider__c", "Provider", ["FleetForce Routing", "Openrouteservice", "Google"],
+            pick("Provider__c", "Provider", ["FleetForce Routing", "Openrouteservice", "Google", "Mock"],
                  default="FleetForce Routing"),
             pick("Objective__c", "Objective", ["Min Duration", "Min Distance", "Min Vehicles", "Balanced"],
                  default="Min Duration"),

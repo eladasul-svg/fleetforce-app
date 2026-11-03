@@ -206,3 +206,28 @@ access to it (see the local next steps).
 **D-R6-3 · A pre-existing lint error in `driverApp.js`.** `dateText` was an arrow function that
 prettier and ESLint's `no-confusing-arrow` format in opposite ways, so the pre-commit hook could not pass
 on any change to the file. It is now a plain function with the same behaviour.
+
+## R7 Hand-off
+
+**D-R7-1 · Whole-file re-format of two assistant classes.** The pre-commit hook runs prettier on every
+staged file, and `AssistantService.cls` and `AssistantClaudeClient.cls` had never been through it, so the
+R4 commit re-formats them completely (whitespace only). The real changes are small: `AssistantService`
+calls the model through `ModelProviders.current()`, adds the routing tools and prompt for Route chats,
+dispatches routing tool calls and routing proposals, and writes buffered routing events before its own
+DML; `AssistantClaudeClient` implements `ModelProvider`. Review with `git diff -w`.
+
+**D-R7-2 · A `Mock` provider value on `Route_Plan__c.Provider__c`,** so a plan can be optimized with the
+in-Apex greedy planner when the Cloud Run service is not up (rehearsals, offline demos).
+
+**D-R7-3 · Org scripts.** `scripts/new_org.sh` and `scripts/load_demo_data.sh` now assign
+`FleetforceRouting`; the guest profile in `unpackaged/` gets class access to `DriverRouteController`.
+
+**What is verified and what is not**
+
+| Part                               | Status in the cloud session                                       |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| Routing service                    | 35 pytest tests pass on `HaversineMatrix` (OSRM responses mocked) |
+| LWC                                | 55 Jest tests pass (7 new), ESLint clean on changed components    |
+| Apex (24 classes, 15 test classes) | Parses with the Apex parser; never compiled or run                |
+| Metadata                           | Well-formed XML in Metadata API element order; never deployed     |
+| Docker, Cloud Build, Cloud Run     | Files written; nothing built or deployed                          |

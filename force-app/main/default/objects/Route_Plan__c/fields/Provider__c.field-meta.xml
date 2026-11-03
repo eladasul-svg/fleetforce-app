@@ -24,6 +24,11 @@
                 <default>false</default>
                 <label>Google</label>
             </value>
+            <value>
+                <fullName>Mock</fullName>
+                <default>false</default>
+                <label>Mock</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
