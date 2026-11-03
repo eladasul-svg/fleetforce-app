@@ -480,6 +480,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Asset__c.Cargo_Volume_M3__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Asset__c.Country__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -549,6 +554,16 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Asset__c.Pallet_Capacity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Asset__c.Payload_Kg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Fleet_Asset__c.Plate_Key__c</field>
         <readable>true</readable>
@@ -566,6 +581,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Fleet_Asset__c.Vehicle_Class__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Asset__c.Vehicle_Features__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description
+  >Published when an optimization finishes or a route changes, so open route boards refresh.</description>
+    <eventType>HighVolume</eventType>
+    <label>Route Plan Update</label>
+    <pluralLabel>Route Plan Updates</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>
