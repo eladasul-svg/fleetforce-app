@@ -206,6 +206,32 @@ private class OrsRoutingProviderTest {
   }
 
   @IsTest
+  static void balancedCapsTasksPerVehicle() {
+    OrsMock mock = new OrsMock();
+    Test.setMock(HttpCalloutMock.class, mock);
+    new OrsRoutingProvider().optimize(request(2));
+    Map<String, Object> v = sentVehicle(mock);
+    System.assert(!v.containsKey('max_tasks'), 'no cap for Min Duration');
+
+    RoutingDtos.OptimizeRequest req = request(2);
+    req.objective = 'balanced';
+    new OrsRoutingProvider().optimize(req);
+    v = sentVehicle(mock);
+    System.assertEquals(
+      5,
+      v.get('max_tasks'),
+      'ceil(4 tasks / 1 vehicle) + 1, both ends of the shipment counted'
+    );
+  }
+
+  private static Map<String, Object> sentVehicle(OrsMock mock) {
+    Map<String, Object> sent = (Map<String, Object>) JSON.deserializeUntyped(
+      mock.last.getBody()
+    );
+    return (Map<String, Object>) ((List<Object>) sent.get('vehicles'))[0];
+  }
+
+  @IsTest
   static void refusesWhatTheFreeKeyCannotDo() {
     try {
       new OrsRoutingProvider().optimize(request(OrsRoutingProvider.MAX_JOBS));

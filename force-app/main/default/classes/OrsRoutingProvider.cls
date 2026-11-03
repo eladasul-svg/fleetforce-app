@@ -3,7 +3,8 @@
  * 50 jobs and 3 vehicles per request. ORS runs VROOM too, so the neutral request is translated to the
  * VROOM problem format here (the FleetForce service does the same translation in Python).
  *
- * Not supported here: locked stops (options.fixed) and reasons for unassigned jobs.
+ * Not supported here: locked stops (options.fixed), reasons for unassigned jobs, and the Min Distance and
+ * Min Vehicles objectives (ORS takes no vehicle costs). Balanced uses the service's task cap.
  */
 public with sharing class OrsRoutingProvider implements RoutingProvider {
   public static final String NAMED_CREDENTIAL = 'Openrouteservice';
@@ -136,6 +137,15 @@ public with sharing class OrsRoutingProvider implements RoutingProvider {
             'skills' => skills(s.skills)
           }
         );
+      }
+      // Balanced: the same cap per vehicle as the FleetForce service (both ends of a shipment count).
+      if (req.objective == 'balanced' && !vehicles.isEmpty()) {
+        Integer tasks = req.jobs.size() + 2 * req.shipments.size();
+        Integer perVehicle =
+          Math.ceil(tasks / (Decimal) vehicles.size()).intValue() + 1;
+        for (Object o : vehicles) {
+          ((Map<String, Object>) o).put('max_tasks', perVehicle);
+        }
       }
       problem.put('vehicles', vehicles);
       problem.put('jobs', jobs);
