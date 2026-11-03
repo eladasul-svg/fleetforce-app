@@ -269,6 +269,24 @@ The assistant test classes are unchanged.
 **D-L1-6 · `new_org.sh` stops at a failed deploy** (`set -e`), so the permission sets and the App Launcher trim
 were run by hand after the deploy succeeded.
 
+**D-L1-7 · The routing seed had never run.** Two fixes in `seed_routing_demo.apex`: Apex names are
+case-insensitive, so the constants `DEPOT` and `HUB` clashed with the variables `depot` and `hub` (now
+`DEPOT_NAME`, `HUB_NAME`); and the `Rng` inner class (any inner class with a field) made anonymous Apex fail
+with an internal server error, so it is now a `between(state, lo, hi)` method with the state in a
+one-element list. The numbers are the same, so the city is the same.
+
+**D-L1-8 · A morning sized for openrouteservice.** The seed adds **Beer Sheva South Depot** (4 vans, BSS-03
+in the shop, 35 drops) and a plan **Beer Sheva South · morning** set to Openrouteservice, because the
+60-drop morning is over the free key's 3 vans and 50 stops. Details in
+`docs/Datasets/routing-demo-dataset.md` (Story 1b).
+
+**D-L1-9 · Balanced on openrouteservice, and as the demo objective.** `OrsRoutingProvider` ignored the
+objective. It now applies Balanced the way the service does (D-R1-5): `max_tasks` = ⌈tasks / vehicles⌉ + 1
+per vehicle, both ends of a shipment counted. Min Distance and Min Vehicles still have no equivalent there
+(ORS takes no vehicle costs). Under Min Duration the solver leaves vans idle when fewer finish sooner (the
+overnight plan gave one driver all 12 cars), so the South morning and the overnight plan are now seeded
+as Balanced.
+
 **Results on `fleetforce-dev-13`**
 
 | Check                                   | Result                                                                                                                       |
@@ -278,5 +296,7 @@ were run by hand after the deploy succeeded.
 | `RunLocalTests`                         | 238 of 238 pass, 94% org-wide; no class under 75% (lowest routing class `RouteReplanService` 82%)                            |
 | Guest profile (`DriverRouteController`) | Deployed                                                                                                                     |
 | Routing service pytest                  | 35 of 35 pass on Python 3.12.16 (standalone build in `~/.local/python3.12`; the system Python 3.9.6 is too old for the pins) |
+| Demo data                               | Loaded (`load_demo_data.sh`, then the fixed routing seed)                                                                    |
+| Optimize on openrouteservice            | South morning: 3 routes, 0 unassigned, 113 km. Overnight: 3 routes of 4 cars, each pickup before its drop                    |
 
-Not done in this session, as agreed: Cloud Run (step 4), demo data, a package version.
+Not done in this session: Cloud Run (step 4) and a package version. Demo data was loaded at the user's request, after the openrouteservice key was set.

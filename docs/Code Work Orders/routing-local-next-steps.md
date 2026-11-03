@@ -224,8 +224,12 @@ screens (a greedy planner inside Apex, not an optimizer), then press Optimize:
 sf data update record --target-org fleetforce-dev-13 --sobject fleetforce__Route_Plan__c --where "Name='Beer Sheva · morning'" --values "fleetforce__Provider__c=Mock"
 ```
 
-**Openrouteservice** (dev only, max 50 stops and 3 vans): set the key on the `Openrouteservice` external
-credential's Org principal the same way, and the plan's provider to `Openrouteservice`.
+**Openrouteservice** (dev only, max 50 stops and 3 vans per request): set the key on the `Openrouteservice`
+external credential's Org principal (Authentication Parameter `ApiKey`). The seed's **Beer Sheva South ·
+morning** plan is already set to Openrouteservice and sized for it (3 vans sent, 35 drops); the overnight
+plan fits too (3 drivers, 24 stops). The 60-drop **Beer Sheva · morning** does not. Not available on
+openrouteservice: locked stops in a re-plan, reasons for unplanned jobs (all show `no_room`), and the Min
+Distance and Min Vehicles objectives; Balanced works.
 
 ## 6. Package version and install test
 
