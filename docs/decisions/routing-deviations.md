@@ -231,3 +231,52 @@ in-Apex greedy planner when the Cloud Run service is not up (rehearsals, offline
 | Apex (19 new classes, 15 test classes + `RoutingTestData`, 1 trigger) | Parses with the Apex parser; never compiled or run                |
 | Metadata                                                              | Well-formed XML in Metadata API element order; never deployed     |
 | Docker, Cloud Build, Cloud Run                                        | Files written; nothing built or deployed                          |
+
+## Local session 1 (2026-11-03, compile and test)
+
+First deploy of `force-app` to `fleetforce-dev-13` (namespaced scratch org, `--no-data`) and the first Apex
+test run. The design's shape is unchanged; every fix is a compile, permission or test-idiom fix. Commits
+`ac98ce9` and `d66f36b`.
+
+**D-L1-1 · Reserved identifiers.** The Apex parser accepts `system` and `any` as names; the compiler does not.
+`OpenAICompatibleProvider.toChatRequest` now uses `systemTexts`, `RoutePlanService.capacity` uses
+`hasCapacity`. Every other class that failed on the first deploy failed only because it depends on these two.
+
+**D-L1-2 · Child relationships need `__r`.** The subqueries used `FROM Visits`, `FROM Waypoints`,
+`FROM Routes` and `FROM Job_Visits` (and `j.Visits` etc.). Custom child relationships are `Visits__r` and so
+on. The relationship names in the generated field metadata were right, so only the Apex changed
+(`RoutePlanService`, `RoutingAssistantTools`, `RoutePlanServiceTest`, `RoutingAssistantToolsTest`).
+
+**D-L1-3 · `FleetforceRouting` reads the master objects too.** The platform refuses read on a detail object
+without read on its master: `Driver_Qualification__c` needs `Contact`, `Schedule_Assignment__c` needs
+`Fleet_Schedule__c`. `Schedule_Window__c` (the shift windows `RoutePlanService` reads) was missing as well.
+All three are read-only in `gen_routing_metadata.py`, and the permission set was regenerated.
+
+**D-L1-4 · `Service_Ticket__c.In_Shop__c` had no field permission anywhere.** A pre-existing gap: no
+permission set granted the formula, and nothing read it in user mode before routing.
+`RoutingPolicy.assetsInShop` queries it `WITH USER_MODE`, which failed every plan build with the misleading
+`Variable does not exist: tmpVar1`. Read access is now in `FleetAdmin` and `FleetforceAdmin`, next to
+`Status__c` (the routing permission set leaves fleet-object FLS to the admin sets, D-R2-1). The same scan
+found `Service_Ticket__c.Grand_Total__c` without any field permission; routing does not read it, so it was
+left alone.
+
+**D-L1-5 · Assert messages must not be null.** Apex throws `Argument 3 cannot be null` whenever the message
+of `System.assertEquals` is null, even if the assertion passes. Eight success-path asserts passed
+`outcome.get('error')` or `plan.Error__c`, which are null exactly when the test should pass. They now pass
+`'error: ' + …` (`RoutingAssistantToolsTest`, `RoutePlanOptimizeJobTest`, `RoutingAssistantIntegrationTest`).
+The assistant test classes are unchanged.
+
+**D-L1-6 · `new_org.sh` stops at a failed deploy** (`set -e`), so the permission sets and the App Launcher trim
+were run by hand after the deploy succeeded.
+
+**Results on `fleetforce-dev-13`**
+
+| Check                                   | Result                                                                                                                                       |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `force-app` deploy                      | Succeeded, 1062 components                                                                                                                   |
+| Routing and assistant test classes      | 109 of 109 pass, 94% coverage of the classes they cover                                                                                      |
+| `RunLocalTests`                         | 238 of 238 pass, 94% org-wide; no class under 75% (lowest routing class `RouteReplanService` 82%)                                            |
+| Guest profile (`DriverRouteController`) | Deployed                                                                                                                                     |
+| Routing service pytest                  | **Not run**: this Mac has only Python 3.9.6; the pins (`fastapi==0.162.0` etc.) need 3.10+ and the image uses 3.12. No brew, Docker or pyenv |
+
+Not done in this session, as agreed: Cloud Run (step 4), demo data, a package version.
