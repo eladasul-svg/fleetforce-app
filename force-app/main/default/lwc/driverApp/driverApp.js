@@ -49,8 +49,11 @@ const WHEN_OPTIONS = {
   minute: "2-digit"
 };
 const CLOCK_OPTIONS = { hour: "2-digit", minute: "2-digit" };
-const dateText = (v) =>
-  v ? WEEKDAY.format(new Date(v.length === 10 ? `${v}T12:00:00` : v)) : "";
+function dateText(v) {
+  return v
+    ? WEEKDAY.format(new Date(v.length === 10 ? `${v}T12:00:00` : v))
+    : "";
+}
 /** A date-time in the branch's time zone (the browser's when the branch has none). */
 const whenText = (v, tz) => formatInZone(v, tz, WHEN_OPTIONS);
 const number = (n) => (n == null ? "–" : Math.round(n).toLocaleString("en-US"));
@@ -210,6 +213,11 @@ export default class DriverApp extends LightningElement {
         label: "Vehicle",
         icon: "M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5"
       },
+      {
+        key: "route",
+        label: "Route",
+        icon: "M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a3 3 0 0 1 3-3h7M18 9v6a3 3 0 0 1-3 3H8"
+      },
       { key: "trips", label: "Trips", icon: "M5 4v16M5 5h11l-2 4 2 4H5" },
       {
         key: "me",
@@ -241,6 +249,9 @@ export default class DriverApp extends LightningElement {
   }
   get isTrips() {
     return this.view === "trips";
+  }
+  get isRoute() {
+    return this.view === "route";
   }
   get isMe() {
     return this.view === "me";

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!-- Guest user profile of the FleetForce Motorpool Experience site. Deliberately minimal: only lets the public
      booking page call its Apex. Profiles are not packageable, so this lives in unpackaged/. -->
 <Profile xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -12,6 +12,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>DriverAppController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DriverRouteController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <custom>false</custom>

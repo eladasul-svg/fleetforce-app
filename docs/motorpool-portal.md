@@ -6,12 +6,12 @@ availability strip per vehicle), select one and send a booking request. The requ
 
 ## Where the pieces live
 
-| Piece | Location | Ships in the package? |
-|---|---|---|
-| `motorpoolBooking` LWC, `MotorpoolBookingController` (+ test) | `force-app` | yes |
-| Site (`digitalExperiences`, `networks`, `digitalExperienceConfigs`) | `unpackaged/` | **no** - LWR site workspaces are reported not to be packageable in a 2GP managed package, so the site is deployed separately, like the older Sites-based portal |
-| Guest user profile access to the booking Apex | `unpackaged/main/default/profiles/FleetForce Motorpool Profile.profile-meta.xml` | no (profiles are not packageable) |
-| Digital Experiences org setting | `unpackaged/main/default/settings/Communities.settings-meta.xml` | no |
+| Piece                                                               | Location                                                                         | Ships in the package?                                                                                                                                           |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `motorpoolBooking` LWC, `MotorpoolBookingController` (+ test)       | `force-app`                                                                      | yes                                                                                                                                                             |
+| Site (`digitalExperiences`, `networks`, `digitalExperienceConfigs`) | `unpackaged/`                                                                    | **no** - LWR site workspaces are reported not to be packageable in a 2GP managed package, so the site is deployed separately, like the older Sites-based portal |
+| Guest user profile access to the booking Apex                       | `unpackaged/main/default/profiles/FleetForce Motorpool Profile.profile-meta.xml` | no (profiles are not packageable)                                                                                                                               |
+| Digital Experiences org setting                                     | `unpackaged/main/default/settings/Communities.settings-meta.xml`                 | no                                                                                                                                                              |
 
 ## Standing the site up in a new org
 
@@ -21,9 +21,13 @@ availability strip per vehicle), select one and send a booking request. The requ
 3. Create the site shell so the guest user and domain exist (the name and prefix must match the config):
    `sf community create --name "FleetForce Motorpool" --template-name "Build Your Own (LWR)" --url-path-prefix motorpool`
    and wait for the background job to finish.
-4. Deploy the site and the guest profile:
+4. Deploy the site and the guest profile (add `--ignore-conflicts` in a scratch org with source tracking: the
+   blank site from step 3 shows up as a conflict and ours must win):
    `sf project deploy start --source-dir unpackaged/main/default/digitalExperiences --source-dir unpackaged/main/default/networks --source-dir unpackaged/main/default/digitalExperienceConfigs --source-dir "unpackaged/main/default/profiles/FleetForce Motorpool Profile.profile-meta.xml"`
 5. Publish: `sf community publish --name "FleetForce Motorpool"` (republish after any change to the component or the site).
+   In a new org the site stays **Under Construction**, so guests are sent to the login page. Activate it in the UI:
+   Setup → All Sites → FleetForce Motorpool → Workspaces → Administration → Settings → **Activate**. Deploying the
+   network as `Live` fails in a scratch org (no `CommunityWelcomeEmailTemplate`).
 6. Seed the demo data: `sf apex run --file scripts/apex/seed_motorpool_bookings.apex` (also re-run it to refresh the dates).
 
 The public URL is `https://<org domain>.my.site.com/motorpool/`.

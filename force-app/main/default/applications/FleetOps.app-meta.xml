@@ -68,6 +68,10 @@
     <tabs>External_Notice__c</tabs>
     <tabs>Data_Source__c</tabs>
     <tabs>Stream_Profile__c</tabs>
+    <tabs>Route_Plan__c</tabs>
+    <tabs>Route__c</tabs>
+    <tabs>Route_Job__c</tabs>
+    <tabs>Route_Event__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>FleetOps_UtilityBar</utilityBar>
     <workspaceConfig>
@@ -184,6 +188,18 @@
         </mappings>
         <mappings>
             <tab>Stream_Profile__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Route_Plan__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Route__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Route_Job__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Route_Event__c</tab>
         </mappings>
     </workspaceConfig>
 </CustomApplication>

@@ -1,0 +1,40 @@
+<template>
+  <template lwc:if={loading}><p class="hint">Loading your route…</p></template>
+  <template lwc:if={error}
+    ><p class="hint error" role="alert">{error}</p></template
+  >
+  <template lwc:if={empty}
+    ><p class="hint">No route for you today.</p></template
+  >
+  <template lwc:if={hasRoute}>
+    <section class="card">
+      <h2 class="title">{route.name}</h2>
+      <p class="muted">{summary}</p>
+      <template lwc:if={next}>
+        <div class="next">
+          <p class="label">Next stop · {next.eta}</p>
+          <p class="next__name">{next.label}</p>
+          <template lwc:if={next.accessNotes}
+            ><p class="muted">{next.accessNotes}</p></template
+          >
+          <template lwc:if={navigateUrl}>
+            <a class="btn" href={navigateUrl} target="_blank" rel="noopener"
+              >Navigate</a
+            >
+          </template>
+        </div>
+      </template>
+    </section>
+    <section class="card">
+      <ol class="stops">
+        <template for:each={stops} for:item="s">
+          <li key={s.id} class={s.cls}>
+            <span class="eta">{s.eta}</span>
+            <span class="name">{s.label}</span>
+            <span class="muted">{s.until}</span>
+          </li>
+        </template>
+      </ol>
+    </section>
+  </template>
+</template>

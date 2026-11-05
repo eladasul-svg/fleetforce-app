@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>Leaflet 1.9.4 (BSD-2-Clause, see LICENSE), the map library behind routeMap: route lines and numbered stops. Unmodified dist/leaflet.js and dist/leaflet.css from the npm package.</description>
+</StaticResource>
