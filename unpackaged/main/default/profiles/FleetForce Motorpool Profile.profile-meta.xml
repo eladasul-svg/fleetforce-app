@@ -18,6 +18,10 @@
         <apexClass>DriverRouteController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>DriverRouteScanController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <custom>false</custom>
     <userLicense>Guest User License</userLicense>
 </Profile>

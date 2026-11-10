@@ -25,6 +25,8 @@ public without sharing class DriverRouteController {
     @AuraEnabled
     public String accessNotes;
     @AuraEnabled
+    public String address;
+    @AuraEnabled
     public Decimal latitude;
     @AuraEnabled
     public Decimal longitude;
@@ -42,6 +44,8 @@ public without sharing class DriverRouteController {
     @AuraEnabled
     public String vehicle;
     @AuraEnabled
+    public Decimal vehiclePayloadKg;
+    @AuraEnabled
     public Datetime plannedEnd;
     @AuraEnabled
     public Integer remaining = 0;
@@ -56,7 +60,13 @@ public without sharing class DriverRouteController {
     }
     Date today = Date.today();
     List<Route__c> routes = [
-      SELECT Id, Name, Status__c, Fleet_Asset__r.Name, Planned_End__c
+      SELECT
+        Id,
+        Name,
+        Status__c,
+        Fleet_Asset__r.Name,
+        Fleet_Asset__r.Payload_Kg__c,
+        Planned_End__c
       FROM Route__c
       WHERE
         Driver__c = :driverId
@@ -74,6 +84,9 @@ public without sharing class DriverRouteController {
     out.name = r.Name;
     out.status = r.Status__c;
     out.vehicle = r.Fleet_Asset__r == null ? null : r.Fleet_Asset__r.Name;
+    out.vehiclePayloadKg = r.Fleet_Asset__r == null
+      ? null
+      : r.Fleet_Asset__r.Payload_Kg__c;
     out.plannedEnd = r.Planned_End__c;
 
     Map<Id, List<Job_Visit__c>> visits = new Map<Id, List<Job_Visit__c>>();
@@ -82,6 +95,7 @@ public without sharing class DriverRouteController {
         Waypoint__c,
         Role__c,
         Window_End__c,
+        Address__c,
         Access_Notes__c,
         Route_Job__r.Name,
         Route_Job__r.Type__c
@@ -118,6 +132,7 @@ public without sharing class DriverRouteController {
       s.done = RouteReplanService.DONE_STATUSES.contains(w.Status__c);
       List<String> labels = new List<String>();
       List<String> notes = new List<String>();
+      List<String> addresses = new List<String>();
       for (
         Job_Visit__c jv : visits.containsKey(w.Id)
           ? visits.get(w.Id)
@@ -126,6 +141,9 @@ public without sharing class DriverRouteController {
         labels.add(
           jv.Route_Job__r.Name + (jv.Role__c == 'Pickup' ? ' (pick up)' : '')
         );
+        if (String.isNotBlank(jv.Address__c)) {
+          addresses.add(jv.Address__c);
+        }
         if (String.isNotBlank(jv.Access_Notes__c)) {
           notes.add(jv.Access_Notes__c);
         }
@@ -140,6 +158,7 @@ public without sharing class DriverRouteController {
       s.label = labels.isEmpty()
         ? (w.Type__c == 'End' ? 'Back to depot' : w.Type__c)
         : String.join(labels, ', ');
+      s.address = addresses.isEmpty() ? null : String.join(addresses, ' · ');
       s.accessNotes = notes.isEmpty() ? null : String.join(notes, ' · ');
       if (!s.done && w.Type__c != 'End') {
         out.remaining++;
