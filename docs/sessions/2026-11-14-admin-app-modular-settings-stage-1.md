@@ -71,6 +71,18 @@ The FleetForce Admin App (`FleetForce_Admin.app`) previously hosted a single mon
 
 ## 3. Verification & Test Results
 
-- **Apex Tests**: 7/7 tests passing in `FleetDisplaySettingsControllerTest`, 6/6 tests passing in `AutoNamingServiceTest` (100% pass rate).
+- **Apex Tests**: 8/8 tests passing in `FleetDisplaySettingsControllerTest`, 6/6 tests passing in `AutoNamingServiceTest` (100% pass rate).
 - **Jest Tests**: 14 test suites, 60/60 tests passing (`npm test`).
 - **Scratch Org Deployment**: Deployed and verified in `fleetforce-dev-13`.
+
+---
+
+## 4. User Review & Post-Deployment Refinements
+
+Based on immediate user feedback on the deployed UI:
+
+1. **General Settings BYOK Architecture**: Transformed AI model selection to a Customer-Provided API Key (Bring Your Own Key) model. Admins input API keys for Google Gemini, Anthropic Claude, and OpenAI; models are dynamically unlocked in the dropdown only when matching keys are present. Converted General Settings to the 2-step Overview (masked key badges & active model) $\rightarrow$ Edit Mode workflow.
+2. **Neutral Sanitization Terminology**: Stripped third-party branding, replacing it with neutral **"Digital Data Sanitization Protocol"** (clearing driver phone pairs, navigation history, and garage door openers on hand-off).
+3. **General Settings Cleanup**: Removed the Auto-Naming row from General Settings since it resides on its own dedicated tab.
+4. **Brand & Theme Polish**: Replaced misleading static theme active banners with an explicit "FleetForce Packaged Theme" default state vs. "Use Custom Organization Theme" toggle, allowing custom brand name, custom header hex color, custom logo asset, and clear guidance on how Salesforce custom themes override the Astro loading spinner.
+5. **Country Profiles Explanation**: Added detailed architectural guidance to Regional Settings explaining that profiles reside in `Country_Profile__mdt` as baseline inheritance templates. Clarified that individual branches can override units directly on `Fleet_Branch__c`, while changing org-wide country baselines (e.g. Spain to Miles) is managed in Custom Metadata, which Stage 2 will make directly editable via the CMDT Control Panel.
