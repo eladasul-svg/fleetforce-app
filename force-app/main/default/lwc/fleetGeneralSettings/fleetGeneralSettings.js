@@ -5,14 +5,18 @@ import saveGeneralSettings from "@salesforce/apex/FleetDisplaySettingsController
 
 export default class FleetGeneralSettings extends LightningElement {
   loading = true;
-  isEditing = false;
   saving = false;
+  activeEditSection = null; // null | 'ai' | 'privacy' | 'maintenance' | 'governance'
   error;
 
   serverSettings = {
-    enableAiInsights: false,
-    aiProvider: null,
+    enableAiInsights: true,
+    aiProvider: "Google Gemini",
     enableExtendedPrivacy: false,
+    autoCreateDtcTickets: true,
+    maintenanceGraceDays: 14,
+    odometerDriftThreshold: 5,
+    telemetryRetentionDays: 90,
     hasGoogleKey: false,
     hasAnthropicKey: false,
     hasOpenAiKey: false,
@@ -24,9 +28,13 @@ export default class FleetGeneralSettings extends LightningElement {
   };
 
   draft = {
-    enableAiInsights: false,
-    aiProvider: "",
+    enableAiInsights: true,
+    aiProvider: "Google Gemini",
     enableExtendedPrivacy: false,
+    autoCreateDtcTickets: true,
+    maintenanceGraceDays: 14,
+    odometerDriftThreshold: 5,
+    telemetryRetentionDays: 90,
     googleApiKey: "",
     anthropicApiKey: "",
     openAiApiKey: ""
@@ -48,34 +56,75 @@ export default class FleetGeneralSettings extends LightningElement {
 
   resetDraft() {
     this.draft = {
-      enableAiInsights: !!this.serverSettings.enableAiInsights,
-      aiProvider: this.serverSettings.aiProvider || "",
+      enableAiInsights: this.serverSettings.enableAiInsights !== false,
+      aiProvider: this.serverSettings.aiProvider || "Google Gemini",
       enableExtendedPrivacy: !!this.serverSettings.enableExtendedPrivacy,
+      autoCreateDtcTickets: this.serverSettings.autoCreateDtcTickets !== false,
+      maintenanceGraceDays: this.serverSettings.maintenanceGraceDays || 14,
+      odometerDriftThreshold: this.serverSettings.odometerDriftThreshold || 5,
+      telemetryRetentionDays: this.serverSettings.telemetryRetentionDays || 90,
       googleApiKey: "",
       anthropicApiKey: "",
       openAiApiKey: ""
     };
   }
 
-  get isOverview() {
-    return !this.isEditing;
-  }
-
   get canEdit() {
     return this.serverSettings && this.serverSettings.canEdit;
   }
 
-  get activeModelLabel() {
-    if (
-      !this.serverSettings.enableAiInsights ||
-      !this.serverSettings.aiProvider
-    ) {
-      return null;
-    }
-    const match = (this.serverSettings.aiProviders || []).find(
-      (p) => p.value === this.serverSettings.aiProvider
-    );
-    return match ? match.label : this.serverSettings.aiProvider;
+  // Section 1: AI
+  get isAiOverview() {
+    return this.activeEditSection !== "ai";
+  }
+  get isAiEditing() {
+    return this.activeEditSection === "ai";
+  }
+
+  // Section 2: Privacy
+  get isPrivacyOverview() {
+    return this.activeEditSection !== "privacy";
+  }
+  get isPrivacyEditing() {
+    return this.activeEditSection === "privacy";
+  }
+
+  // Section 3: Maintenance
+  get isMaintenanceOverview() {
+    return this.activeEditSection !== "maintenance";
+  }
+  get isMaintenanceEditing() {
+    return this.activeEditSection === "maintenance";
+  }
+
+  // Section 4: Governance
+  get isGovernanceOverview() {
+    return this.activeEditSection !== "governance";
+  }
+  get isGovernanceEditing() {
+    return this.activeEditSection === "governance";
+  }
+
+  get configuredKeysCount() {
+    let count = 0;
+    if (this.serverSettings.hasGoogleKey) count++;
+    if (this.serverSettings.hasAnthropicKey) count++;
+    if (this.serverSettings.hasOpenAiKey) count++;
+    return count;
+  }
+
+  get aiVaultBadgeText() {
+    const count = this.configuredKeysCount;
+    if (count === 3) return "All 3 Providers Configured";
+    if (count > 0) return `${count} of 3 Providers Configured`;
+    return "No Keys Configured";
+  }
+
+  get aiVaultBadgeClass() {
+    const count = this.configuredKeysCount;
+    if (count === 3) return "slds-badge slds-theme_success slds-m-right_small";
+    if (count > 0) return "slds-badge slds-theme_info slds-m-right_small";
+    return "slds-badge slds-badge_lightest slds-m-right_small";
   }
 
   get googlePlaceholder() {
@@ -87,7 +136,7 @@ export default class FleetGeneralSettings extends LightningElement {
   get anthropicPlaceholder() {
     return this.serverSettings.hasAnthropicKey
       ? `Configured (${this.serverSettings.maskedAnthropicKey})`
-      : "Paste Anthropic API Key (sk-ant-...)...";
+      : "Paste Anthropic Claude API Key (sk-ant-...)...";
   }
 
   get openAiPlaceholder() {
@@ -96,99 +145,33 @@ export default class FleetGeneralSettings extends LightningElement {
       : "Paste OpenAI API Key (sk-...)...";
   }
 
-  get hasGoogleActive() {
-    return (
-      (this.draft.googleApiKey && this.draft.googleApiKey.trim().length > 0) ||
-      this.serverSettings.hasGoogleKey
-    );
-  }
-
-  get hasAnthropicActive() {
-    return (
-      (this.draft.anthropicApiKey &&
-        this.draft.anthropicApiKey.trim().length > 0) ||
-      this.serverSettings.hasAnthropicKey
-    );
-  }
-
-  get hasOpenAiActive() {
-    return (
-      (this.draft.openAiApiKey && this.draft.openAiApiKey.trim().length > 0) ||
-      this.serverSettings.hasOpenAiKey
-    );
-  }
-
-  get availableModelOptions() {
-    const list = [];
-    if (this.hasGoogleActive) {
-      list.push(
-        { label: "Google Gemini 2.5 Flash (Fast)", value: "Gemini 2.5 Flash" },
-        {
-          label: "Google Gemini 2.5 Pro (Deep Analytics)",
-          value: "Gemini 2.5 Pro"
-        }
-      );
-    }
-    if (this.hasAnthropicActive) {
-      list.push(
-        { label: "Anthropic Claude 3.5 Sonnet", value: "Claude 3.5 Sonnet" },
-        { label: "Anthropic Claude 3.5 Haiku", value: "Claude 3.5 Haiku" }
-      );
-    }
-    if (this.hasOpenAiActive) {
-      list.push(
-        { label: "OpenAI GPT-4o", value: "GPT-4o" },
-        { label: "OpenAI GPT-4o mini", value: "GPT-4o mini" }
-      );
-    }
-    return list;
-  }
-
-  get hasNoAvailableModels() {
-    return this.availableModelOptions.length === 0;
-  }
-
-  get modelSelectorPlaceholder() {
-    return this.hasNoAvailableModels
-      ? "Enter at least one API key above"
-      : "Select an unlocked AI model";
-  }
-
-  get modelSelectorGuidance() {
-    return this.hasNoAvailableModels
-      ? "No models unlocked. Paste an API key for Google, Anthropic, or OpenAI above to activate models."
-      : "Select which model executes analytical queries. Models are unlocked based on your configured API keys.";
-  }
-
-  get dirty() {
-    const aiToggled =
-      this.draft.enableAiInsights !== this.serverSettings.enableAiInsights;
-    const privacyToggled =
-      this.draft.enableExtendedPrivacy !==
-      this.serverSettings.enableExtendedPrivacy;
-    const modelChanged =
-      this.draft.aiProvider !== (this.serverSettings.aiProvider || "");
-    const newKeys =
-      (this.draft.googleApiKey && this.draft.googleApiKey.trim().length > 0) ||
-      (this.draft.anthropicApiKey &&
-        this.draft.anthropicApiKey.trim().length > 0) ||
-      (this.draft.openAiApiKey && this.draft.openAiApiKey.trim().length > 0);
-    return aiToggled || privacyToggled || modelChanged || newKeys;
-  }
-
-  get saveDisabled() {
-    return !this.dirty || this.saving;
-  }
-
-  handleStartEdit() {
+  handleEditAi() {
     this.resetDraft();
-    this.isEditing = true;
+    this.activeEditSection = "ai";
+    this.error = undefined;
+  }
+
+  handleEditPrivacy() {
+    this.resetDraft();
+    this.activeEditSection = "privacy";
+    this.error = undefined;
+  }
+
+  handleEditMaintenance() {
+    this.resetDraft();
+    this.activeEditSection = "maintenance";
+    this.error = undefined;
+  }
+
+  handleEditGovernance() {
+    this.resetDraft();
+    this.activeEditSection = "governance";
     this.error = undefined;
   }
 
   handleCancelEdit() {
     this.resetDraft();
-    this.isEditing = false;
+    this.activeEditSection = null;
     this.error = undefined;
   }
 
@@ -200,17 +183,27 @@ export default class FleetGeneralSettings extends LightningElement {
   handleFieldChange(event) {
     const { name, value } = event.target;
     this.draft = { ...this.draft, [name]: value };
-
-    // Auto-select first model if current selection is invalid
-    if (
-      this.availableModelOptions.length > 0 &&
-      !this.availableModelOptions.some((m) => m.value === this.draft.aiProvider)
-    ) {
-      this.draft.aiProvider = this.availableModelOptions[0].value;
-    }
   }
 
-  async handleSave() {
+  async handleSaveAi() {
+    await this.saveCurrentDraft("AI Foundation Keys Vault updated.");
+  }
+
+  async handleSavePrivacy() {
+    await this.saveCurrentDraft("Digital Data Sanitization Protocol updated.");
+  }
+
+  async handleSaveMaintenance() {
+    await this.saveCurrentDraft(
+      "Maintenance & Work Order Automation rules saved."
+    );
+  }
+
+  async handleSaveGovernance() {
+    await this.saveCurrentDraft("Telemetry Drift & Governance settings saved.");
+  }
+
+  async saveCurrentDraft(successMsg) {
     this.saving = true;
     this.error = undefined;
     try {
@@ -220,21 +213,25 @@ export default class FleetGeneralSettings extends LightningElement {
         enableExtendedPrivacy: this.draft.enableExtendedPrivacy,
         googleApiKey: this.draft.googleApiKey || null,
         anthropicApiKey: this.draft.anthropicApiKey || null,
-        openAiApiKey: this.draft.openAiApiKey || null
+        openAiApiKey: this.draft.openAiApiKey || null,
+        autoCreateDtcTickets: this.draft.autoCreateDtcTickets,
+        maintenanceGraceDays: this.draft.maintenanceGraceDays,
+        odometerDriftThreshold: this.draft.odometerDriftThreshold,
+        telemetryRetentionDays: this.draft.telemetryRetentionDays
       });
       this.serverSettings = updated;
       this.resetDraft();
-      this.isEditing = false;
+      this.activeEditSection = null;
       this.dispatchEvent(
         new ShowToastEvent({
-          title: "General Settings Saved",
-          message: "FleetForce general settings and API keys updated.",
+          title: "Settings Saved",
+          message: successMsg,
           variant: "success"
         })
       );
     } catch (e) {
       this.error =
-        (e && e.body && e.body.message) || "Unable to save general settings.";
+        (e && e.body && e.body.message) || "Unable to save settings.";
     } finally {
       this.saving = false;
     }

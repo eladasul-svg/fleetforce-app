@@ -9,6 +9,20 @@ const getPrebuiltInsightsAdapter =
   registerApexTestWireAdapter(getPrebuiltInsights);
 
 jest.mock(
+  "@salesforce/apex/FleetAiInsightsController.setActiveAiModel",
+  () => ({
+    default: jest.fn().mockResolvedValue({
+      isAiEnabled: true,
+      provider: "Anthropic Claude",
+      modelName: "Claude 3.5 Sonnet",
+      hasKey: true,
+      apiKeyMasked: "sk-ant-••••••••"
+    })
+  }),
+  { virtual: true }
+);
+
+jest.mock(
   "@salesforce/apex/FleetAiInsightsController.queryStrategicInsight",
   () => ({
     default: jest.fn().mockResolvedValue({
@@ -96,7 +110,7 @@ describe("c-fleet-ai-insights", () => {
     expect(card.title).toBe("AI Strategic Insights Engine");
 
     const badge = element.shadowRoot.querySelector(".slds-badge");
-    expect(badge.textContent).toBe("Gemini 2.5 Pro (Deep Reasoning)");
+    expect(badge.textContent).toContain("Gemini 2.5 Pro");
   });
 
   it("triggers strategic query on button click", async () => {

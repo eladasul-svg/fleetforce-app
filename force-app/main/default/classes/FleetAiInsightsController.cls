@@ -4,6 +4,21 @@
  * maintenance delays, warranty void risks, carbon reduction hotspots, and compliance anomalies.
  */
 public with sharing class FleetAiInsightsController {
+  public class ModelOptionDTO {
+    @AuraEnabled
+    public String label;
+    @AuraEnabled
+    public String value;
+    @AuraEnabled
+    public Boolean isConfigured;
+
+    public ModelOptionDTO(String label, String value, Boolean isConfigured) {
+      this.label = label;
+      this.value = value;
+      this.isConfigured = isConfigured;
+    }
+  }
+
   public class AiConfigDTO {
     @AuraEnabled
     public Boolean isAiEnabled;
@@ -15,6 +30,8 @@ public with sharing class FleetAiInsightsController {
     public Boolean hasKey;
     @AuraEnabled
     public String apiKeyMasked;
+    @AuraEnabled
+    public List<ModelOptionDTO> availableModels;
   }
 
   public class ActionDTO {
@@ -102,7 +119,36 @@ public with sharing class FleetAiInsightsController {
       dto.hasKey = false;
       dto.modelName = 'Not Configured';
     }
+
+    dto.availableModels = new List<ModelOptionDTO>{
+      new ModelOptionDTO(
+        'Google Gemini 2.5 Pro (Deep Reasoning)',
+        'Google Gemini',
+        setting != null && String.isNotBlank(setting.Google_Api_Key__c)
+      ),
+      new ModelOptionDTO(
+        'Anthropic Claude 3.5 Sonnet',
+        'Anthropic Claude',
+        setting != null && String.isNotBlank(setting.Anthropic_Api_Key__c)
+      ),
+      new ModelOptionDTO(
+        'OpenAI GPT-4o Enterprise',
+        'OpenAI',
+        setting != null && String.isNotBlank(setting.OpenAI_Api_Key__c)
+      )
+    };
     return dto;
+  }
+
+  @AuraEnabled
+  public static AiConfigDTO setActiveAiModel(String provider) {
+    if (String.isBlank(provider)) {
+      throw new AuraHandledException('Provider cannot be blank.');
+    }
+    Fleet_Display_Setting__c setting = Fleet_Display_Setting__c.getOrgDefaults();
+    setting.AI_Provider__c = provider.trim();
+    upsert setting;
+    return getAiConfig();
   }
 
   @AuraEnabled(cacheable=true)

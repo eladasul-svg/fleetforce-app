@@ -62,6 +62,14 @@ public with sharing class FleetDisplaySettingsController {
     @AuraEnabled
     public Boolean enableExtendedPrivacy;
     @AuraEnabled
+    public Boolean autoCreateDtcTickets;
+    @AuraEnabled
+    public Decimal maintenanceGraceDays;
+    @AuraEnabled
+    public Decimal odometerDriftThreshold;
+    @AuraEnabled
+    public Decimal telemetryRetentionDays;
+    @AuraEnabled
     public Boolean hasGoogleKey;
     @AuraEnabled
     public Boolean hasAnthropicKey;
@@ -104,6 +112,20 @@ public with sharing class FleetDisplaySettingsController {
     g.enableExtendedPrivacy = org.fleetforce__Enable_Extended_Privacy__c != null
       ? org.fleetforce__Enable_Extended_Privacy__c
       : false;
+    g.autoCreateDtcTickets = org.fleetforce__Auto_Create_DTC_Tickets__c != null
+      ? org.fleetforce__Auto_Create_DTC_Tickets__c
+      : true;
+    g.maintenanceGraceDays = org.fleetforce__Maintenance_Grace_Days__c != null
+      ? org.fleetforce__Maintenance_Grace_Days__c
+      : 14;
+    g.odometerDriftThreshold = org.fleetforce__Odometer_Drift_Threshold__c !=
+      null
+      ? org.fleetforce__Odometer_Drift_Threshold__c
+      : 5;
+    g.telemetryRetentionDays = org.fleetforce__Telemetry_Retention_Days__c !=
+      null
+      ? org.fleetforce__Telemetry_Retention_Days__c
+      : 90;
     g.hasGoogleKey = String.isNotBlank(org.fleetforce__Google_Api_Key__c);
     g.hasAnthropicKey = String.isNotBlank(org.fleetforce__Anthropic_Api_Key__c);
     g.hasOpenAiKey = String.isNotBlank(org.fleetforce__OpenAI_Api_Key__c);
@@ -134,7 +156,11 @@ public with sharing class FleetDisplaySettingsController {
     Boolean enableExtendedPrivacy,
     String googleApiKey,
     String anthropicApiKey,
-    String openAiApiKey
+    String openAiApiKey,
+    Boolean autoCreateDtcTickets,
+    Decimal maintenanceGraceDays,
+    Decimal odometerDriftThreshold,
+    Decimal telemetryRetentionDays
   ) {
     if (!canEditGeneral()) {
       throw new AuraHandledException(
@@ -142,8 +168,25 @@ public with sharing class FleetDisplaySettingsController {
       );
     }
     fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
-    org.fleetforce__Enable_AI_Insights__c = enableAiInsights == true;
-    org.fleetforce__Enable_Extended_Privacy__c = enableExtendedPrivacy == true;
+    if (enableAiInsights != null) {
+      org.fleetforce__Enable_AI_Insights__c = enableAiInsights == true;
+    }
+    if (enableExtendedPrivacy != null) {
+      org.fleetforce__Enable_Extended_Privacy__c =
+        enableExtendedPrivacy == true;
+    }
+    if (autoCreateDtcTickets != null) {
+      org.fleetforce__Auto_Create_DTC_Tickets__c = autoCreateDtcTickets == true;
+    }
+    if (maintenanceGraceDays != null) {
+      org.fleetforce__Maintenance_Grace_Days__c = maintenanceGraceDays;
+    }
+    if (odometerDriftThreshold != null) {
+      org.fleetforce__Odometer_Drift_Threshold__c = odometerDriftThreshold;
+    }
+    if (telemetryRetentionDays != null) {
+      org.fleetforce__Telemetry_Retention_Days__c = telemetryRetentionDays;
+    }
 
     if (String.isNotBlank(googleApiKey) && !googleApiKey.contains('••')) {
       org.fleetforce__Google_Api_Key__c = googleApiKey.trim() == 'CLEAR'
@@ -161,9 +204,9 @@ public with sharing class FleetDisplaySettingsController {
         : openAiApiKey.trim();
     }
 
-    org.fleetforce__AI_Provider__c = String.isNotBlank(aiProvider)
-      ? aiProvider.trim()
-      : null;
+    if (String.isNotBlank(aiProvider)) {
+      org.fleetforce__AI_Provider__c = aiProvider.trim();
+    }
     upsert org;
     return getGeneralSettings();
   }

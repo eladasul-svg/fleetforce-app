@@ -6,32 +6,48 @@
     <div class="slds-p-around_medium">
       <!-- Active Model & BYOK Status Bar -->
       <div
-        class="slds-box slds-box_x-small slds-theme_shade slds-m-bottom_medium slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+        class="slds-box slds-box_x-small slds-theme_shade slds-m-bottom_medium slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap"
       >
-        <div class="slds-grid slds-grid_vertical-align-center">
+        <div
+          class="slds-grid slds-grid_vertical-align-center slds-wrap slds-m-right_medium"
+        >
           <lightning-icon
             icon-name="utility:ai"
             size="small"
             class="slds-m-right_small"
           ></lightning-icon>
-          <div>
+          <div class="slds-m-right_medium slds-m-vertical_xx-small">
             <span class="slds-text-title_bold slds-m-right_x-small"
-              >Strategic Model:</span
-            >
-            <span class="slds-badge slds-theme_inverse"
-              >{modelDisplayName}</span
+              >Strategic Engine:</span
             >
             <template lwc:if={hasKey}>
-              <span class="slds-badge slds-theme_success slds-m-left_xx-small"
-                >Enterprise BYOK Active</span
+              <span class="slds-badge slds-theme_success"
+                >Active BYOK: {modelDisplayName}</span
+              >
+            </template>
+            <template lwc:else>
+              <span class="slds-badge slds-theme_warning"
+                >Key Required: {modelDisplayName}</span
               >
             </template>
           </div>
+
+          <div style="min-width: 320px" class="slds-m-vertical_xx-small">
+            <lightning-combobox
+              name="activeModel"
+              variant="label-hidden"
+              value={activeModelValue}
+              options={modelOptions}
+              placeholder="Switch Active AI Engine..."
+              onchange={handleModelChange}
+              disabled={isSwitchingModel}
+            ></lightning-combobox>
+          </div>
         </div>
-        <div>
+        <div class="slds-m-vertical_xx-small">
           <lightning-button
-            label="Configure AI Keys"
-            variant="base"
+            label="Configure API Keys"
+            variant="neutral"
             icon-name="utility:settings"
             onclick={handleNavigateGeneral}
           ></lightning-button>

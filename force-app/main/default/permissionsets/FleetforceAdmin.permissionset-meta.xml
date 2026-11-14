@@ -1092,6 +1092,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Auto_Create_DTC_Tickets__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Display_Setting__c.Custom_Brand_Color__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1152,7 +1157,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Maintenance_Grace_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Odometer_Drift_Threshold__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Display_Setting__c.OpenAI_Api_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Telemetry_Retention_Days__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

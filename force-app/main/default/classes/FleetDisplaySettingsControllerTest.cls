@@ -147,11 +147,19 @@ private class FleetDisplaySettingsControllerTest {
         true,
         'AIzaSyDummyGoogleKey12345',
         'sk-ant-dummy-anthropic-key-12345',
-        'sk-dummy-openai-key-12345'
+        'sk-dummy-openai-key-12345',
+        true,
+        21,
+        7,
+        180
       );
       System.assertEquals(true, saved.enableAiInsights);
       System.assertEquals('Claude 3.5 Sonnet', saved.aiProvider);
       System.assertEquals(true, saved.enableExtendedPrivacy);
+      System.assertEquals(true, saved.autoCreateDtcTickets);
+      System.assertEquals(21, saved.maintenanceGraceDays);
+      System.assertEquals(7, saved.odometerDriftThreshold);
+      System.assertEquals(180, saved.telemetryRetentionDays);
       System.assertEquals(true, saved.hasGoogleKey);
       System.assertEquals(true, saved.hasAnthropicKey);
       System.assertEquals(true, saved.hasOpenAiKey);
@@ -162,6 +170,10 @@ private class FleetDisplaySettingsControllerTest {
       System.assertEquals(true, org.fleetforce__Enable_AI_Insights__c);
       System.assertEquals('Claude 3.5 Sonnet', org.fleetforce__AI_Provider__c);
       System.assertEquals(true, org.fleetforce__Enable_Extended_Privacy__c);
+      System.assertEquals(true, org.fleetforce__Auto_Create_DTC_Tickets__c);
+      System.assertEquals(21, org.fleetforce__Maintenance_Grace_Days__c);
+      System.assertEquals(7, org.fleetforce__Odometer_Drift_Threshold__c);
+      System.assertEquals(180, org.fleetforce__Telemetry_Retention_Days__c);
       System.assertEquals(
         'AIzaSyDummyGoogleKey12345',
         org.fleetforce__Google_Api_Key__c

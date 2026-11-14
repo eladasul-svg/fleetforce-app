@@ -112,4 +112,17 @@ private class FleetAiInsightsControllerTest {
       'Service ticket should have been inserted'
     );
   }
+
+  @isTest
+  static void testSetActiveAiModel() {
+    Test.startTest();
+    FleetAiInsightsController.AiConfigDTO updated = FleetAiInsightsController.setActiveAiModel(
+      'Anthropic Claude'
+    );
+    Test.stopTest();
+
+    System.assertEquals('Anthropic Claude', updated.provider);
+    System.assertNotEquals(null, updated.availableModels);
+    System.assertEquals(3, updated.availableModels.size());
+  }
 }

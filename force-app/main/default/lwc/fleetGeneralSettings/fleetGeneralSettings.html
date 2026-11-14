@@ -1,32 +1,5 @@
 <template>
   <lightning-card title="General Settings" icon-name="standard:settings">
-    <div slot="actions">
-      <template lwc:if={isEditing}>
-        <lightning-button
-          label="Cancel"
-          onclick={handleCancelEdit}
-          disabled={saving}
-          class="slds-m-right_x-small"
-        ></lightning-button>
-        <lightning-button
-          variant="brand"
-          label="Save General Settings"
-          onclick={handleSave}
-          disabled={saveDisabled}
-        ></lightning-button>
-      </template>
-      <template lwc:else>
-        <template lwc:if={canEdit}>
-          <lightning-button
-            variant="brand"
-            label="Modify General Settings"
-            icon-name="utility:edit"
-            onclick={handleStartEdit}
-          ></lightning-button>
-        </template>
-      </template>
-    </div>
-
     <div class="slds-p-horizontal_medium slds-p-bottom_medium">
       <template lwc:if={loading}>
         <lightning-spinner
@@ -44,168 +17,223 @@
         </div>
       </template>
 
-      <!-- STEP 1: READ-ONLY OVERVIEW MODE -->
-      <template lwc:if={isOverview}>
-        <div class="overview-container">
-          <p class="slds-text-color_weak slds-m-bottom_medium">
-            Global system capabilities, customer-provided AI credentials, and
-            vehicle privacy compliance protocols.
-          </p>
+      <p class="slds-text-color_weak slds-m-bottom_medium">
+        Global system capabilities, foundation model credentials, automated
+        maintenance workflows, and data governance policies.
+      </p>
 
-          <!-- Card 1: AI Strategic Insights Engine -->
-          <div class="summary-card slds-box slds-m-bottom_medium">
-            <div
-              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
-            >
-              <div class="slds-grid slds-grid_vertical-align-center">
-                <lightning-icon
-                  icon-name="standard:service_crew"
-                  size="small"
-                  class="slds-m-right_small"
-                ></lightning-icon>
-                <div>
-                  <h3 class="slds-text-heading_small slds-text-title_bold">
-                    AI Strategic Insights Engine
-                  </h3>
-                  <p class="slds-text-color_weak slds-text-body_small">
-                    Cross-fleet predictive risk scoring, warranty lapse alerts,
-                    and automated routing anomaly detection.
-                  </p>
-                </div>
+      <!-- ================= CARD 1: AI FOUNDATION MODELS & BYOK VAULT ================= -->
+      <div class="setting-card slds-box slds-m-bottom_medium">
+        <!-- View Mode -->
+        <template lwc:if={isAiOverview}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:service_crew"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  AI Foundation Models &amp; BYOK Keys Vault
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Securely store your organization's API keys for Google Gemini,
+                  Anthropic Claude, and OpenAI to power AI insights and
+                  assistant workflows.
+                </p>
               </div>
-              <template lwc:if={serverSettings.enableAiInsights}>
-                <span class="slds-badge slds-theme_success">
-                  <lightning-icon
-                    icon-name="utility:check"
-                    size="xx-small"
-                    variant="inverse"
-                    class="slds-m-right_xx-small"
-                  ></lightning-icon>
-                  Active Engine
-                </span>
-              </template>
-              <template lwc:else>
-                <span class="slds-badge">Inactive</span>
-              </template>
             </div>
-
-            <div
-              class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-border_top slds-p-top_small"
-            >
-              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                <div class="key-status-group">
-                  <span
-                    class="slds-text-title_caps slds-text-color_weak slds-m-bottom_xx-small slds-show"
-                    >Customer AI Providers (BYOK)</span
-                  >
-                  <div class="slds-grid slds-wrap slds-m-top_xx-small">
-                    <div class="slds-m-right_small slds-m-bottom_xx-small">
-                      <span class="slds-text-body_small slds-m-right_xx-small"
-                        >Google Gemini:</span
-                      >
-                      <template lwc:if={serverSettings.hasGoogleKey}>
-                        <span class="slds-badge slds-theme_success"
-                          >{serverSettings.maskedGoogleKey}</span
-                        >
-                      </template>
-                      <template lwc:else>
-                        <span class="slds-badge slds-badge_lightest"
-                          >Not Configured</span
-                        >
-                      </template>
-                    </div>
-
-                    <div class="slds-m-right_small slds-m-bottom_xx-small">
-                      <span class="slds-text-body_small slds-m-right_xx-small"
-                        >Anthropic Claude:</span
-                      >
-                      <template lwc:if={serverSettings.hasAnthropicKey}>
-                        <span class="slds-badge slds-theme_success"
-                          >{serverSettings.maskedAnthropicKey}</span
-                        >
-                      </template>
-                      <template lwc:else>
-                        <span class="slds-badge slds-badge_lightest"
-                          >Not Configured</span
-                        >
-                      </template>
-                    </div>
-
-                    <div class="slds-m-bottom_xx-small">
-                      <span class="slds-text-body_small slds-m-right_xx-small"
-                        >OpenAI:</span
-                      >
-                      <template lwc:if={serverSettings.hasOpenAiKey}>
-                        <span class="slds-badge slds-theme_success"
-                          >{serverSettings.maskedOpenAiKey}</span
-                        >
-                      </template>
-                      <template lwc:else>
-                        <span class="slds-badge slds-badge_lightest"
-                          >Not Configured</span
-                        >
-                      </template>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                <div
-                  class="active-model-box slds-p-around_small slds-theme_shade slds-border_rounded"
-                >
-                  <span
-                    class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
-                    >Active Foundational Model</span
-                  >
-                  <template lwc:if={activeModelLabel}>
-                    <div class="slds-grid slds-grid_vertical-align-center">
-                      <lightning-icon
-                        icon-name="utility:connected_apps"
-                        size="x-small"
-                        class="slds-m-right_xx-small"
-                      ></lightning-icon>
-                      <strong class="slds-text-body_regular"
-                        >{activeModelLabel}</strong
-                      >
-                    </div>
-                  </template>
-                  <template lwc:else>
-                    <p class="slds-text-color_weak slds-text-body_small">
-                      No model active. Click "Modify General Settings" to
-                      provide an API key.
-                    </p>
-                  </template>
-                </div>
-              </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <span class={aiVaultBadgeClass}>{aiVaultBadgeText}</span>
+              <template lwc:if={canEdit}>
+                <lightning-button
+                  label="Configure AI Keys"
+                  icon-name="utility:edit"
+                  onclick={handleEditAi}
+                ></lightning-button>
+              </template>
             </div>
           </div>
 
-          <!-- Card 2: Digital Data Sanitization Protocol -->
-          <div class="summary-card slds-box">
+          <div
+            class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-border_top slds-p-top_small"
+          >
             <div
-              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_xx-small"
             >
-              <div class="slds-grid slds-grid_vertical-align-center">
-                <lightning-icon
-                  icon-name="standard:privacy_policy"
-                  size="small"
-                  class="slds-m-right_small"
-                ></lightning-icon>
-                <div>
-                  <h3 class="slds-text-heading_small slds-text-title_bold">
-                    Digital Data Sanitization Protocol
-                  </h3>
-                  <p class="slds-text-color_weak slds-text-body_small">
-                    Enforces automatic digital sanitization tasks (clearing
-                    Bluetooth pairings, navigation/home addresses, garage door
-                    openers) whenever an asset changes drivers or completes
-                    external service.
-                  </p>
-                </div>
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Google Gemini</span
+              >
+              <template lwc:if={serverSettings.hasGoogleKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >{serverSettings.maskedGoogleKey}</span
+                >
+              </template>
+              <template lwc:else>
+                <span class="slds-badge slds-badge_lightest slds-m-top_xx-small"
+                  >Not Configured</span
+                >
+              </template>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Anthropic Claude</span
+              >
+              <template lwc:if={serverSettings.hasAnthropicKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >{serverSettings.maskedAnthropicKey}</span
+                >
+              </template>
+              <template lwc:else>
+                <span class="slds-badge slds-badge_lightest slds-m-top_xx-small"
+                  >Not Configured</span
+                >
+              </template>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >OpenAI</span
+              >
+              <template lwc:if={serverSettings.hasOpenAiKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >{serverSettings.maskedOpenAiKey}</span
+                >
+              </template>
+              <template lwc:else>
+                <span class="slds-badge slds-badge_lightest slds-m-top_xx-small"
+                  >Not Configured</span
+                >
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- Edit Mode -->
+        <template lwc:if={isAiEditing}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-border_bottom slds-p-bottom_small"
+          >
+            <div>
+              <h4 class="slds-text-title_bold">
+                Configure AI Foundation Models &amp; API Keys
+              </h4>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Keys are stored securely in organization settings. Enter a new
+                key to update, or type CLEAR to remove an existing key.
+              </p>
+            </div>
+            <span class="slds-badge slds-theme_warning">Editing Keys</span>
+          </div>
+
+          <div class="slds-grid slds-wrap slds-gutters_small">
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="password"
+                label="Google Gemini API Key"
+                name="googleApiKey"
+                value={draft.googleApiKey}
+                placeholder={googlePlaceholder}
+                onchange={handleFieldChange}
+              ></lightning-input>
+              <template lwc:if={serverSettings.hasGoogleKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >Currently Configured</span
+                >
+              </template>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="password"
+                label="Anthropic Claude API Key"
+                name="anthropicApiKey"
+                value={draft.anthropicApiKey}
+                placeholder={anthropicPlaceholder}
+                onchange={handleFieldChange}
+              ></lightning-input>
+              <template lwc:if={serverSettings.hasAnthropicKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >Currently Configured</span
+                >
+              </template>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="password"
+                label="OpenAI API Key"
+                name="openAiApiKey"
+                value={draft.openAiApiKey}
+                placeholder={openAiPlaceholder}
+                onchange={handleFieldChange}
+              ></lightning-input>
+              <template lwc:if={serverSettings.hasOpenAiKey}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >Currently Configured</span
+                >
+              </template>
+            </div>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end slds-m-top_small">
+            <lightning-button
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleCancelEdit}
+              disabled={saving}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save AI Keys"
+              onclick={handleSaveAi}
+              disabled={saving}
+            ></lightning-button>
+          </div>
+        </template>
+      </div>
+
+      <!-- ================= CARD 2: DIGITAL DATA SANITIZATION PROTOCOL ================= -->
+      <div class="setting-card slds-box slds-m-bottom_medium">
+        <!-- View Mode -->
+        <template lwc:if={isPrivacyOverview}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:privacy_policy"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Digital Data Sanitization Protocol
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Enforces automatic digital sanitization tasks (clearing paired
+                  phones, navigation history, garage door openers) whenever an
+                  asset changes drivers or completes external service.
+                </p>
               </div>
+            </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
               <template lwc:if={serverSettings.enableExtendedPrivacy}>
-                <span class="slds-badge slds-theme_success">
+                <span class="slds-badge slds-theme_success slds-m-right_small">
                   <lightning-icon
                     icon-name="utility:check"
                     size="xx-small"
@@ -216,172 +244,50 @@
                 </span>
               </template>
               <template lwc:else>
-                <span class="slds-badge">Inactive</span>
+                <span class="slds-badge slds-m-right_small">Inactive</span>
+              </template>
+              <template lwc:if={canEdit}>
+                <lightning-button
+                  label="Modify Protocol"
+                  icon-name="utility:edit"
+                  onclick={handleEditPrivacy}
+                ></lightning-button>
               </template>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <!-- STEP 2: DEDICATED EDIT MODE -->
-      <template lwc:if={isEditing}>
-        <div class="edit-container slds-box slds-theme_default">
+        <!-- Edit Mode -->
+        <template lwc:if={isPrivacyEditing}>
           <div
-            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-border_bottom slds-p-bottom_small"
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
           >
             <div>
-              <h3 class="slds-text-heading_small slds-text-title_bold">
-                Modify General Settings
-              </h3>
+              <h4 class="slds-text-title_bold">
+                Modify Digital Data Sanitization Protocol
+              </h4>
               <p class="slds-text-color_weak slds-text-body_small">
-                Enter your company's API keys (BYOK) to enable AI models, or
-                update operational protocols.
+                Toggle automated task generation for driver handovers and
+                maintenance returns.
               </p>
             </div>
-            <span class="slds-badge slds-theme_warning"
-              >Editing In Progress</span
-            >
+            <span class="slds-badge slds-theme_warning">Editing Protocol</span>
           </div>
 
-          <!-- Toggle 1: Enable AI Insights -->
-          <div class="slds-box slds-m-bottom_medium slds-theme_shade">
+          <div
+            class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-bottom_small"
+          >
             <div
               class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
             >
               <div>
-                <h4 class="slds-text-title_bold">
-                  Enable AI Strategic Insights
-                </h4>
-                <p class="slds-text-color_weak slds-text-body_small">
-                  Allows fleet managers to run automated risk audits and ask
-                  operational questions via AI.
-                </p>
-              </div>
-              <lightning-input
-                type="toggle"
-                name="enableAiInsights"
-                label="Enable AI Insights"
-                variant="label-hidden"
-                checked={draft.enableAiInsights}
-                onchange={handleToggle}
-              ></lightning-input>
-            </div>
-
-            <template lwc:if={draft.enableAiInsights}>
-              <div class="slds-m-top_medium slds-p-top_medium slds-border_top">
-                <h5 class="slds-text-title_bold slds-m-bottom_xx-small">
-                  Customer API Keys (Bring Your Own Key)
-                </h5>
-                <p
-                  class="slds-text-color_weak slds-text-body_small slds-m-bottom_small"
+                <span class="slds-text-title_bold"
+                  >Enable Extended Privacy Protocol</span
                 >
-                  FleetForce connects directly using your company's credentials.
-                  Keys are encrypted and stored in org settings. Only models
-                  matching your active keys will be unlocked.
-                </p>
-
-                <div class="slds-grid slds-wrap slds-gutters_small">
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                  >
-                    <lightning-input
-                      type="password"
-                      label="Google Gemini API Key"
-                      name="googleApiKey"
-                      value={draft.googleApiKey}
-                      placeholder={googlePlaceholder}
-                      onchange={handleFieldChange}
-                    ></lightning-input>
-                    <template lwc:if={serverSettings.hasGoogleKey}>
-                      <span
-                        class="slds-badge slds-theme_success slds-m-top_xx-small"
-                        >Currently Configured</span
-                      >
-                    </template>
-                  </div>
-
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                  >
-                    <lightning-input
-                      type="password"
-                      label="Anthropic Claude API Key"
-                      name="anthropicApiKey"
-                      value={draft.anthropicApiKey}
-                      placeholder={anthropicPlaceholder}
-                      onchange={handleFieldChange}
-                    ></lightning-input>
-                    <template lwc:if={serverSettings.hasAnthropicKey}>
-                      <span
-                        class="slds-badge slds-theme_success slds-m-top_xx-small"
-                        >Currently Configured</span
-                      >
-                    </template>
-                  </div>
-
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                  >
-                    <lightning-input
-                      type="password"
-                      label="OpenAI API Key"
-                      name="openAiApiKey"
-                      value={draft.openAiApiKey}
-                      placeholder={openAiPlaceholder}
-                      onchange={handleFieldChange}
-                    ></lightning-input>
-                    <template lwc:if={serverSettings.hasOpenAiKey}>
-                      <span
-                        class="slds-badge slds-theme_success slds-m-top_xx-small"
-                        >Currently Configured</span
-                      >
-                    </template>
-                  </div>
-                </div>
-
-                <div
-                  class="slds-m-top_small slds-grid slds-wrap slds-gutters_small slds-grid_vertical-align-end"
-                >
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"
-                  >
-                    <lightning-combobox
-                      label="Active Foundational AI Model"
-                      name="aiProvider"
-                      value={draft.aiProvider}
-                      options={availableModelOptions}
-                      placeholder={modelSelectorPlaceholder}
-                      disabled={hasNoAvailableModels}
-                      onchange={handleFieldChange}
-                    ></lightning-combobox>
-                  </div>
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"
-                  >
-                    <p
-                      class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
-                    >
-                      {modelSelectorGuidance}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-
-          <!-- Toggle 2: Digital Data Sanitization Protocol -->
-          <div class="slds-box slds-theme_shade slds-m-bottom_medium">
-            <div
-              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-            >
-              <div>
-                <h4 class="slds-text-title_bold">
-                  Enable Digital Data Sanitization Protocol
-                </h4>
                 <p class="slds-text-color_weak slds-text-body_small">
-                  Triggers automated driver check-out workflows and maintenance
-                  checklists to erase infotainment personal data (contacts,
-                  paired phones, navigation history).
+                  Automatically generates driver handover checklists and
+                  attaches infotainment wipe guidelines from the vehicle
+                  catalogue.
                 </p>
               </div>
               <lightning-input
@@ -395,7 +301,7 @@
             </div>
           </div>
 
-          <div class="slds-grid slds-grid_align-end slds-m-top_medium">
+          <div class="slds-grid slds-grid_align-end">
             <lightning-button
               label="Cancel"
               class="slds-m-right_x-small"
@@ -404,13 +310,299 @@
             ></lightning-button>
             <lightning-button
               variant="brand"
-              label="Save General Settings"
-              onclick={handleSave}
-              disabled={saveDisabled}
+              label="Save Privacy Protocol"
+              onclick={handleSavePrivacy}
+              disabled={saving}
             ></lightning-button>
           </div>
-        </div>
-      </template>
+        </template>
+      </div>
+
+      <!-- ================= CARD 3: MAINTENANCE & WORK ORDER AUTOMATION ================= -->
+      <div class="setting-card slds-box slds-m-bottom_medium">
+        <!-- View Mode -->
+        <template lwc:if={isMaintenanceOverview}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:work_order"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Maintenance &amp; Work Order Automation
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Governs automated service ticket creation for critical
+                  telematics trouble codes and preventive maintenance warranty
+                  buffers.
+                </p>
+              </div>
+            </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <template lwc:if={canEdit}>
+                <lightning-button
+                  label="Modify Automation"
+                  icon-name="utility:edit"
+                  onclick={handleEditMaintenance}
+                ></lightning-button>
+              </template>
+            </div>
+          </div>
+
+          <div
+            class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-border_top slds-p-top_small"
+          >
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Auto-Create DTC Tickets</span
+              >
+              <template lwc:if={serverSettings.autoCreateDtcTickets}>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >Enabled (Draft Tickets Created)</span
+                >
+              </template>
+              <template lwc:else>
+                <span class="slds-badge slds-badge_lightest slds-m-top_xx-small"
+                  >Disabled (Alerts Only)</span
+                >
+              </template>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Maintenance Grace Window</span
+              >
+              <span class="slds-badge slds-theme_info slds-m-top_xx-small"
+                >{serverSettings.maintenanceGraceDays} Days</span
+              >
+            </div>
+          </div>
+        </template>
+
+        <!-- Edit Mode -->
+        <template lwc:if={isMaintenanceEditing}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
+          >
+            <div>
+              <h4 class="slds-text-title_bold">
+                Modify Maintenance Automation Rules
+              </h4>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Configure ticket generation thresholds and warranty protection
+                grace windows.
+              </p>
+            </div>
+            <span class="slds-badge slds-theme_warning"
+              >Editing Maintenance</span
+            >
+          </div>
+
+          <div
+            class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_small"
+          >
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <div
+                class="slds-p-around_small slds-theme_shade slds-border_rounded"
+              >
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                >
+                  <div>
+                    <span class="slds-text-title_bold"
+                      >Auto-Create Service Tickets on Critical DTCs</span
+                    >
+                    <p class="slds-text-color_weak slds-text-body_small">
+                      Automatically inserts Draft Service Tickets when Tier-1
+                      engine/brake diagnostic codes arrive.
+                    </p>
+                  </div>
+                  <lightning-input
+                    type="toggle"
+                    name="autoCreateDtcTickets"
+                    label="Auto-Create DTC Tickets"
+                    variant="label-hidden"
+                    checked={draft.autoCreateDtcTickets}
+                    onchange={handleToggle}
+                  ></lightning-input>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="number"
+                label="Maintenance Grace Window (Days)"
+                name="maintenanceGraceDays"
+                value={draft.maintenanceGraceDays}
+                min="1"
+                max="90"
+                field-level-help="Days past scheduled maintenance due date before system flags warranty voidance risk."
+                onchange={handleFieldChange}
+              ></lightning-input>
+            </div>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end">
+            <lightning-button
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleCancelEdit}
+              disabled={saving}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save Maintenance Rules"
+              onclick={handleSaveMaintenance}
+              disabled={saving}
+            ></lightning-button>
+          </div>
+        </template>
+      </div>
+
+      <!-- ================= CARD 4: TELEMETRY DRIFT & DATA GOVERNANCE ================= -->
+      <div class="setting-card slds-box">
+        <!-- View Mode -->
+        <template lwc:if={isGovernanceOverview}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:data_streams"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Telemetry Drift &amp; Data Governance
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Audit tolerance thresholds between telematics odometer
+                  readings and manual entries, and raw GPS breadcrumb retention
+                  limits.
+                </p>
+              </div>
+            </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <template lwc:if={canEdit}>
+                <lightning-button
+                  label="Modify Governance"
+                  icon-name="utility:edit"
+                  onclick={handleEditGovernance}
+                ></lightning-button>
+              </template>
+            </div>
+          </div>
+
+          <div
+            class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-border_top slds-p-top_small"
+          >
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Odometer Drift Tolerance</span
+              >
+              <span class="slds-badge slds-theme_info slds-m-top_xx-small"
+                >&plusmn;{serverSettings.odometerDriftThreshold}%</span
+              >
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_xx-small"
+            >
+              <span class="slds-text-title_caps slds-text-color_weak slds-show"
+                >Raw Telemetry Retention</span
+              >
+              <span class="slds-badge slds-theme_info slds-m-top_xx-small"
+                >{serverSettings.telemetryRetentionDays} Days</span
+              >
+            </div>
+          </div>
+        </template>
+
+        <!-- Edit Mode -->
+        <template lwc:if={isGovernanceEditing}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
+          >
+            <div>
+              <h4 class="slds-text-title_bold">
+                Modify Telemetry &amp; Governance Rules
+              </h4>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Set allowable odometer variance before audit flags, and raw
+                breadcrumb auto-archive period.
+              </p>
+            </div>
+            <span class="slds-badge slds-theme_warning"
+              >Editing Governance</span
+            >
+          </div>
+
+          <div
+            class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_small"
+          >
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="number"
+                label="Odometer Drift Tolerance (%)"
+                name="odometerDriftThreshold"
+                value={draft.odometerDriftThreshold}
+                min="1"
+                max="50"
+                field-level-help="Acceptable percentage variance between telematics odometer and manual driver entries before triggering an audit alert."
+                onchange={handleFieldChange}
+              ></lightning-input>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <lightning-input
+                type="number"
+                label="Raw Telemetry Breadcrumb Retention (Days)"
+                name="telemetryRetentionDays"
+                value={draft.telemetryRetentionDays}
+                min="7"
+                max="730"
+                field-level-help="Number of days high-frequency GPS breadcrumbs remain in hot storage before archiving."
+                onchange={handleFieldChange}
+              ></lightning-input>
+            </div>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end">
+            <lightning-button
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleCancelEdit}
+              disabled={saving}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save Governance Rules"
+              onclick={handleSaveGovernance}
+              disabled={saving}
+            ></lightning-button>
+          </div>
+        </template>
+      </div>
     </div>
   </lightning-card>
 </template>

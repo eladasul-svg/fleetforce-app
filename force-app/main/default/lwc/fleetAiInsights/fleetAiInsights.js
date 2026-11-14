@@ -6,6 +6,7 @@ import getAiConfig from "@salesforce/apex/FleetAiInsightsController.getAiConfig"
 import getPrebuiltInsights from "@salesforce/apex/FleetAiInsightsController.getPrebuiltInsights";
 import queryStrategicInsight from "@salesforce/apex/FleetAiInsightsController.queryStrategicInsight";
 import executeStrategicAction from "@salesforce/apex/FleetAiInsightsController.executeStrategicAction";
+import setActiveAiModel from "@salesforce/apex/FleetAiInsightsController.setActiveAiModel";
 
 export default class FleetAiInsights extends NavigationMixin(LightningElement) {
   @track aiConfig;
@@ -15,6 +16,7 @@ export default class FleetAiInsights extends NavigationMixin(LightningElement) {
   searchPrompt = "";
   isQuerying = false;
   isLoading = true;
+  isSwitchingModel = false;
 
   @wire(getAiConfig)
   wiredAiConfig({ data, error }) {
@@ -49,6 +51,53 @@ export default class FleetAiInsights extends NavigationMixin(LightningElement) {
 
   get hasKey() {
     return this.aiConfig && this.aiConfig.hasKey;
+  }
+
+  get activeModelValue() {
+    return this.aiConfig ? this.aiConfig.provider : "Google Gemini";
+  }
+
+  get modelOptions() {
+    if (!this.aiConfig || !this.aiConfig.availableModels) {
+      return [
+        {
+          label: "Google Gemini 2.5 Pro (Deep Reasoning)",
+          value: "Google Gemini"
+        },
+        { label: "Anthropic Claude 3.5 Sonnet", value: "Anthropic Claude" },
+        { label: "OpenAI GPT-4o Enterprise", value: "OpenAI" }
+      ];
+    }
+    return this.aiConfig.availableModels.map((m) => ({
+      label: m.isConfigured
+        ? `${m.label} (Ready)`
+        : `${m.label} (Key Required)`,
+      value: m.value
+    }));
+  }
+
+  async handleModelChange(event) {
+    const selectedProvider = event.detail.value;
+    this.isSwitchingModel = true;
+    try {
+      const updatedConfig = await setActiveAiModel({
+        provider: selectedProvider
+      });
+      this.aiConfig = updatedConfig;
+      this.showToast(
+        "AI Engine Switched",
+        `Active foundation model set to ${updatedConfig.modelName}`,
+        "success"
+      );
+    } catch (error) {
+      this.showToast(
+        "Model Switch Failed",
+        this.extractErrorMessage(error),
+        "error"
+      );
+    } finally {
+      this.isSwitchingModel = false;
+    }
   }
 
   get prebuiltInsightsCount() {
