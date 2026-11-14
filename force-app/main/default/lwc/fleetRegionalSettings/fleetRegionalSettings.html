@@ -374,9 +374,17 @@
                 assigned to a country.
               </p>
             </div>
-            <span class="slds-badge"
-              >{profileCount} Pre-configured Profiles</span
-            >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <span class="slds-badge slds-m-right_small"
+                >{profileCount} Pre-configured Profiles</span
+              >
+              <lightning-button
+                label="Manage & Edit Profiles"
+                variant="brand-outline"
+                icon-name="utility:custom_apps"
+                onclick={handleNavigateToCmdt}
+              ></lightning-button>
+            </div>
           </div>
 
           <!-- Explanation of Inheritance & Modification -->
@@ -420,10 +428,10 @@
                 </div>
                 <p class="slds-text-body_small slds-text-color_weak">
                   To change the baseline default for <em>all</em> future
-                  branches in Spain across the org, edit
-                  <code>Country_Profile__mdt.ES</code>. In Stage 2, direct
-                  profile editing and deactivation will be available right here
-                  via the CMDT Control Panel.
+                  branches in Spain across the org (e.g. from KM to Miles), open
+                  the <strong>Custom Metadata Control Panel</strong> and edit
+                  <code>Country_Profile__mdt.ES</code> with one click. Changes
+                  are deployed as native Salesforce metadata immediately.
                 </p>
               </div>
             </div>

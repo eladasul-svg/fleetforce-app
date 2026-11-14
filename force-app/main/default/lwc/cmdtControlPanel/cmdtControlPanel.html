@@ -1,0 +1,298 @@
+<template>
+  <lightning-card
+    title="Custom Metadata Control Panel"
+    icon-name="custom:custom18"
+  >
+    <!-- Subtitle & Controls -->
+    <div
+      class="slds-p-horizontal_medium slds-p-bottom_medium slds-border_bottom"
+    >
+      <div
+        class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-end slds-gutters_small"
+      >
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <lightning-combobox
+            name="cmdtType"
+            label="Select Custom Metadata Type"
+            value={selectedType}
+            options={typeOptions}
+            placeholder="Choose metadata configuration..."
+            onchange={handleTypeChange}
+          ></lightning-combobox>
+        </div>
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-grid slds-grid_align-end slds-m-top_small"
+        >
+          <lightning-button-icon
+            icon-name="utility:refresh"
+            alternative-text="Refresh Records"
+            title="Refresh"
+            onclick={handleRefresh}
+            class="slds-m-right_x-small"
+          ></lightning-button-icon>
+          <lightning-button
+            class="add-record-btn"
+            label="Add Record"
+            variant="brand"
+            icon-name="utility:add"
+            onclick={handleAddNew}
+          ></lightning-button>
+        </div>
+      </div>
+
+      <!-- Description & Metadata Details -->
+      <template lwc:if={typeInfo}>
+        <div
+          class="slds-box slds-box_x-small slds-theme_shade slds-m-top_small"
+        >
+          <div
+            class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center"
+          >
+            <div>
+              <span class="slds-text-title_bold slds-m-right_small"
+                >{typeInfo.pluralLabel}</span
+              >
+              <code class="slds-text-body_small">{typeInfo.apiName}</code>
+              <p
+                class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
+              >
+                {currentTypeDescription}
+              </p>
+            </div>
+            <div>
+              <span class="slds-badge slds-theme_inverse"
+                >{recordCount} Records</span
+              >
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Main Datatable Container -->
+    <div
+      class="slds-p-around_medium"
+      style="position: relative; min-height: 8rem"
+    >
+      <template lwc:if={isLoading}>
+        <lightning-spinner
+          alternative-text="Loading metadata records..."
+          size="medium"
+        ></lightning-spinner>
+      </template>
+
+      <template lwc:if={hasNoRecords}>
+        <div
+          class="slds-illustration slds-illustration_small slds-p-around_large slds-text-align_center"
+        >
+          <lightning-icon
+            icon-name="utility:file"
+            size="large"
+            class="slds-m-bottom_small"
+          ></lightning-icon>
+          <h3 class="slds-text-heading_small slds-text-title_bold">
+            No Records Found
+          </h3>
+          <p
+            class="slds-text-body_regular slds-text-color_weak slds-m-top_xx-small"
+          >
+            No custom metadata records currently exist for {selectedTypeLabel}.
+          </p>
+          <lightning-button
+            label="Create First Record"
+            variant="neutral"
+            icon-name="utility:add"
+            onclick={handleAddNew}
+            class="slds-m-top_medium"
+          ></lightning-button>
+        </div>
+      </template>
+
+      <template lwc:if={hasRecords}>
+        <div class="slds-table_bordered slds-scrollable_x">
+          <lightning-datatable
+            key-field="Id"
+            data={records}
+            columns={datatableColumns}
+            onrowaction={handleRowAction}
+            hide-checkbox-column
+          ></lightning-datatable>
+        </div>
+      </template>
+    </div>
+  </lightning-card>
+
+  <!-- RECORD EDIT / CREATE MODAL -->
+  <template lwc:if={showModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+      aria-modal="true"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            title="Close"
+            onclick={closeModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="close"
+              variant="inverse"
+              size="small"
+            ></lightning-icon>
+            <span class="slds-assistive-text">Close</span>
+          </button>
+          <h2 class="slds-text-heading_medium slds-hyphenate">{modalTitle}</h2>
+          <p
+            class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
+          >
+            {modalSubtitle}
+          </p>
+        </header>
+
+        <div
+          class="slds-modal__content slds-p-around_medium"
+          style="position: relative; max-height: 65vh; overflow-y: auto"
+        >
+          <template lwc:if={isDeploying}>
+            <div class="deploy-spinner-container">
+              <lightning-spinner
+                alternative-text="Deploying metadata to org..."
+                size="medium"
+              ></lightning-spinner>
+              <p
+                class="slds-text-title_bold slds-text-align_center slds-m-top_large"
+              >
+                Enqueuing metadata deployment & awaiting platform
+                verification...
+              </p>
+            </div>
+          </template>
+
+          <!-- Core CMDT Identifier Fields -->
+          <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input
+                  label="Record Label (MasterLabel)"
+                  value={masterLabel}
+                  required
+                  disabled={isDeploying}
+                  onchange={handleMasterLabelChange}
+                  placeholder="e.g. Spain"
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input
+                  label="Developer Name (API Name)"
+                  value={developerName}
+                  required
+                  disabled={isDeveloperNameDisabled}
+                  onchange={handleDeveloperNameChange}
+                  placeholder="e.g. ES"
+                  field-level-help="Unique alphanumeric identifier. Cannot be edited once created."
+                ></lightning-input>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Custom Fields -->
+          <h3
+            class="slds-text-title_caps slds-text-color_weak slds-m-bottom_small"
+          >
+            Configuration Fields
+          </h3>
+          <div class="slds-grid slds-wrap slds-gutters_small">
+            <template for:each={dynamicFormFields} for:item="field">
+              <div
+                key={field.apiName}
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <template lwc:if={field.isLookup}>
+                  <lightning-input
+                    label={field.label}
+                    value={field.value}
+                    disabled
+                    data-field={field.apiName}
+                    field-level-help="Relationship lookups are managed via reference."
+                  ></lightning-input>
+                </template>
+                <template lwc:elseif={field.isCheckbox}>
+                  <div class="slds-form-element slds-m-top_medium">
+                    <lightning-input
+                      type="checkbox"
+                      label={field.label}
+                      checked={field.checked}
+                      disabled={isDeploying}
+                      data-field={field.apiName}
+                      onchange={handleFieldChange}
+                    ></lightning-input>
+                  </div>
+                </template>
+                <template lwc:elseif={field.isPicklist}>
+                  <lightning-combobox
+                    label={field.label}
+                    value={field.value}
+                    options={field.picklistOptions}
+                    disabled={isDeploying}
+                    data-field={field.apiName}
+                    onchange={handleFieldChange}
+                    placeholder="Select an option..."
+                  ></lightning-combobox>
+                </template>
+                <template lwc:elseif={field.isNumber}>
+                  <lightning-input
+                    type="number"
+                    label={field.label}
+                    value={field.value}
+                    disabled={isDeploying}
+                    data-field={field.apiName}
+                    onchange={handleFieldChange}
+                  ></lightning-input>
+                </template>
+                <template lwc:elseif={field.isTextArea}>
+                  <lightning-textarea
+                    label={field.label}
+                    value={field.value}
+                    disabled={isDeploying}
+                    data-field={field.apiName}
+                    onchange={handleFieldChange}
+                  ></lightning-textarea>
+                </template>
+                <template lwc:else>
+                  <lightning-input
+                    type="text"
+                    label={field.label}
+                    value={field.value}
+                    disabled={isDeploying}
+                    data-field={field.apiName}
+                    onchange={handleFieldChange}
+                  ></lightning-input>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+          <lightning-button
+            label="Cancel"
+            onclick={closeModal}
+            disabled={isDeploying}
+          ></lightning-button>
+          <lightning-button
+            label="Save & Deploy Metadata"
+            variant="brand"
+            icon-name="utility:save"
+            onclick={handleSave}
+            disabled={isDeploying}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

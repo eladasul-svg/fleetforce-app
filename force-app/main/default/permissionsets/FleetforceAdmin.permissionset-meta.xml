@@ -89,6 +89,26 @@
         <apexClass>FleetDisplaySettingsController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>CmdtTypeRegistry</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CmdtSchemaService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CmdtRecordService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CmdtDeployCallback</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CmdtDeployService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <flowAccesses>
         <enabled>true</enabled>
         <flow>Motorpool_Reservation_Request</flow>
@@ -2308,6 +2328,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Fleet_Map_Explorer</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Cmdt_Control_Panel</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

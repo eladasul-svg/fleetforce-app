@@ -1,4 +1,5 @@
 import { LightningElement, wire } from "lwc";
+import { NavigationMixin } from "lightning/navigation";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getRegionalSettings from "@salesforce/apex/FleetDisplaySettingsController.getRegionalSettings";
 import saveRegionalSettings from "@salesforce/apex/FleetDisplaySettingsController.saveRegionalSettings";
@@ -27,7 +28,9 @@ const PROFILE_COLUMNS = [
 const pick = (r) =>
   Object.fromEntries(REGIONAL_FIELDS.map((f) => [f, (r && r[f]) || ""]));
 
-export default class FleetRegionalSettings extends LightningElement {
+export default class FleetRegionalSettings extends NavigationMixin(
+  LightningElement
+) {
   loading = true;
   isEditing = false;
   regional;
@@ -195,5 +198,14 @@ export default class FleetRegionalSettings extends LightningElement {
     } finally {
       this.regionalSaving = false;
     }
+  }
+
+  handleNavigateToCmdt() {
+    this[NavigationMixin.Navigate]({
+      type: "standard__navItemPage",
+      attributes: {
+        apiName: "Cmdt_Control_Panel"
+      }
+    });
   }
 }
