@@ -60,10 +60,31 @@ List<fleetforce__Fleet_Asset__c> oldAssets = [
   SELECT Id
   FROM fleetforce__Fleet_Asset__c
   WHERE
-    Name LIKE 'BSV-%'
+    fleetforce__Asset_ID__c LIKE 'BS%'
+    OR Name LIKE 'BSV-%'
     OR Name LIKE 'BSR-%'
     OR Name LIKE 'BSC-%'
     OR Name LIKE 'BSS-%'
+];
+delete [
+  SELECT Id
+  FROM fleetforce__Fuel_Log__c
+  WHERE fleetforce__Fleet_Asset__c IN :oldAssets
+];
+delete [
+  SELECT Id
+  FROM fleetforce__Carbon_Log__c
+  WHERE fleetforce__Fleet_Asset__c IN :oldAssets
+];
+delete [
+  SELECT Id
+  FROM fleetforce__Citation__c
+  WHERE fleetforce__Fleet_Asset__c IN :oldAssets
+];
+delete [
+  SELECT Id
+  FROM fleetforce__Asset_Document__c
+  WHERE fleetforce__Fleet_Asset__c IN :oldAssets
 ];
 delete [
   SELECT Id
@@ -142,11 +163,22 @@ for (Integer i = 1; i <= 6; i++) {
   vans.add(
     new fleetforce__Fleet_Asset__c(
       Name = 'BSV-0' + i + (ev ? ' (EV)' : ''),
+      fleetforce__Asset_ID__c = 'BSV-0' + i,
       fleetforce__Branch__c = depot.Id,
       fleetforce__Driver__c = drivers[i - 1].Id,
       fleetforce__Status__c = 'Available',
       fleetforce__Is_Active__c = true,
       fleetforce__Fuel_Type__c = ev ? 'Electric' : 'Diesel',
+      fleetforce__Engine_Type__c = ev ? 'Electric' : 'Diesel',
+      fleetforce__Vehicle_Class__c = 'Commercial',
+      fleetforce__Make__c = 'Ford',
+      fleetforce__Model__c = ev ? 'E-Transit' : 'Transit-250',
+      fleetforce__Model_Year__c = ev ? '2024' : '2023',
+      fleetforce__License_Plate__c = '38-' + (100 + i * 13) + '-72',
+      fleetforce__Purchase_Price__c = ev ? 54000 : 42000,
+      fleetforce__Residual_Value__c = ev ? 36000 : 27000,
+      fleetforce__Odometer__c = 15000 + i * 4500,
+      fleetforce__Ownership__c = 'Owned',
       fleetforce__Payload_Kg__c = ev ? 700 : 900,
       fleetforce__Cargo_Volume_M3__c = ev ? 8 : 10,
       fleetforce__Pallet_Capacity__c = 4,
@@ -272,11 +304,22 @@ for (Integer i = 1; i <= 4; i++) {
   southVans.add(
     new fleetforce__Fleet_Asset__c(
       Name = 'BSS-0' + i + (ev ? ' (EV)' : ''),
+      fleetforce__Asset_ID__c = 'BSS-0' + i,
       fleetforce__Branch__c = south.Id,
       fleetforce__Driver__c = southDrivers[i - 1].Id,
       fleetforce__Status__c = 'Available',
       fleetforce__Is_Active__c = true,
       fleetforce__Fuel_Type__c = ev ? 'Electric' : 'Diesel',
+      fleetforce__Engine_Type__c = ev ? 'Electric' : 'Diesel',
+      fleetforce__Vehicle_Class__c = 'Commercial',
+      fleetforce__Make__c = 'Mercedes-Benz',
+      fleetforce__Model__c = ev ? 'eSprinter' : 'Sprinter 2500',
+      fleetforce__Model_Year__c = ev ? '2024' : '2023',
+      fleetforce__License_Plate__c = '49-' + (200 + i * 17) + '-81',
+      fleetforce__Purchase_Price__c = ev ? 62000 : 49000,
+      fleetforce__Residual_Value__c = ev ? 42000 : 32000,
+      fleetforce__Odometer__c = 12000 + i * 3800,
+      fleetforce__Ownership__c = 'Owned',
       fleetforce__Payload_Kg__c = ev ? 700 : 900,
       fleetforce__Cargo_Volume_M3__c = ev ? 8 : 10,
       fleetforce__Pallet_Capacity__c = 4,
@@ -383,11 +426,22 @@ for (Integer i = 1; i <= 3; i++) {
   shuttles.add(
     new fleetforce__Fleet_Asset__c(
       Name = 'BSR-0' + i + ' relocation',
+      fleetforce__Asset_ID__c = 'BSR-0' + i,
       fleetforce__Branch__c = hub.Id,
       fleetforce__Driver__c = drivers[5 + i].Id,
       fleetforce__Status__c = 'Available',
       fleetforce__Is_Active__c = true,
       fleetforce__Fuel_Type__c = 'Hybrid',
+      fleetforce__Engine_Type__c = 'Hybrid',
+      fleetforce__Vehicle_Class__c = 'Standard',
+      fleetforce__Make__c = 'Toyota',
+      fleetforce__Model__c = 'RAV4 Hybrid',
+      fleetforce__Model_Year__c = '2024',
+      fleetforce__License_Plate__c = '71-' + (300 + i * 19) + '-55',
+      fleetforce__Purchase_Price__c = 34000,
+      fleetforce__Residual_Value__c = 24000,
+      fleetforce__Odometer__c = 8000 + i * 2200,
+      fleetforce__Ownership__c = 'Leased',
       fleetforce__Pallet_Capacity__c = 1
     )
   );
@@ -407,12 +461,24 @@ insert assignments;
 // The 12 car-share cars are parked around town (no branch, so they are not routing vehicles).
 List<fleetforce__Fleet_Asset__c> cars = new List<fleetforce__Fleet_Asset__c>();
 for (Integer i = 1; i <= 12; i++) {
+  Boolean isTesla = i <= 6;
   cars.add(
     new fleetforce__Fleet_Asset__c(
       Name = 'BSC-' + String.valueOf(i).leftPad(2, '0'),
+      fleetforce__Asset_ID__c = 'BSC-' + String.valueOf(i).leftPad(2, '0'),
       fleetforce__Status__c = 'Available',
       fleetforce__Is_Active__c = true,
       fleetforce__Fuel_Type__c = 'Electric',
+      fleetforce__Engine_Type__c = 'Electric',
+      fleetforce__Vehicle_Class__c = 'Standard',
+      fleetforce__Make__c = isTesla ? 'Tesla' : 'Hyundai',
+      fleetforce__Model__c = isTesla ? 'Model 3' : 'Ioniq 5',
+      fleetforce__Model_Year__c = '2024',
+      fleetforce__License_Plate__c = '62-' + (400 + i * 23) + '-14',
+      fleetforce__Purchase_Price__c = isTesla ? 42000 : 44000,
+      fleetforce__Residual_Value__c = isTesla ? 29000 : 30000,
+      fleetforce__Odometer__c = 5000 + i * 1500,
+      fleetforce__Ownership__c = 'Owned',
       fleetforce__Last_Location__Latitude__s = between(rng, LAT_MIN, LAT_MAX),
       fleetforce__Last_Location__Longitude__s = between(rng, LON_MIN, LON_MAX)
     )
@@ -479,6 +545,214 @@ insert new fleetforce__Route_Plan__c(
   fleetforce__Objective__c = 'Balanced',
   fleetforce__Revision__c = 0
 );
+
+// ── Operational Child Records (Fuel, Carbon, Citations, Documents) ───────────
+List<fleetforce__Fleet_Asset__c> demoVehicles = new List<fleetforce__Fleet_Asset__c>();
+demoVehicles.addAll(vans);
+demoVehicles.addAll(southVans);
+demoVehicles.addAll(shuttles);
+
+List<fleetforce__Fuel_Log__c> demoFuelLogs = new List<fleetforce__Fuel_Log__c>();
+for (Integer v = 0; v < demoVehicles.size(); v++) {
+  fleetforce__Fleet_Asset__c a = demoVehicles[v];
+  for (Integer k = 1; k <= 3; k++) {
+    Boolean isEv = a.fleetforce__Fuel_Type__c == 'Electric';
+    Boolean isDiesel = a.fleetforce__Fuel_Type__c == 'Diesel';
+    Decimal vol = isEv
+      ? (45.0 + Math.mod(v * 7 + k * 3, 20))
+      : (isDiesel
+          ? (55.0 + Math.mod(v * 5 + k * 4, 25))
+          : (35.0 + Math.mod(v * 4 + k * 2, 15)));
+    Decimal unitCost = isEv ? 0.35 : (isDiesel ? 1.92 : 1.84);
+    Decimal totalCost = (vol * unitCost).setScale(2);
+    Decimal eco = isEv ? 3.8 : (isDiesel ? 11.4 : 14.2);
+    demoFuelLogs.add(
+      new fleetforce__Fuel_Log__c(
+        Name = 'FL-' + a.fleetforce__Asset_ID__c + '-' + k,
+        fleetforce__Fleet_Asset__c = a.Id,
+        fleetforce__Driver__c = a.fleetforce__Driver__c,
+        fleetforce__Product_Type__c = isEv
+          ? 'Electric Charge.'
+          : (isDiesel ? 'Diesel' : 'Petrol'),
+        fleetforce__Volume__c = vol,
+        fleetforce__Unit_Cost__c = unitCost,
+        fleetforce__Total_Cost__c = totalCost,
+        fleetforce__Fuel_Economy__c = eco,
+        fleetforce__Vendor_Name__c = isEv
+          ? 'Afcon EV Charging'
+          : (isDiesel ? 'Paz Beer Sheva' : 'Sonol Depot'),
+        fleetforce__Transaction_Date__c = Date.today().addDays(-(k * 7 + v)),
+        fleetforce__Odometer__c = a.fleetforce__Odometer__c - (k * 280)
+      )
+    );
+  }
+}
+insert demoFuelLogs;
+
+List<fleetforce__Carbon_Log__c> demoCarbonLogs = new List<fleetforce__Carbon_Log__c>();
+for (fleetforce__Fuel_Log__c fl : demoFuelLogs) {
+  Boolean isEv = fl.fleetforce__Product_Type__c == 'Electric Charge.';
+  Boolean isDiesel = fl.fleetforce__Product_Type__c == 'Diesel';
+  Decimal factor = isEv ? 0.3800 : (isDiesel ? 2.6800 : 2.3100);
+  demoCarbonLogs.add(
+    new fleetforce__Carbon_Log__c(
+      Name = 'CL-' + fl.Name,
+      fleetforce__Fleet_Asset__c = fl.fleetforce__Fleet_Asset__c,
+      fleetforce__Source_Fuel_Log__c = fl.Id,
+      fleetforce__Date__c = fl.fleetforce__Transaction_Date__c.date(),
+      fleetforce__Scope__c = isEv
+        ? 'Scope 2 (Purchased Energy/EV).'
+        : 'Scope 1 (Combustion)',
+      fleetforce__Calc_Method__c = isEv
+        ? 'Regional Grid (EV).'
+        : 'Standard EPA',
+      fleetforce__Emission_Factor__c = factor,
+      fleetforce__CO2_KG__c = (fl.fleetforce__Volume__c * factor).setScale(2),
+      fleetforce__Offset_Status__c = isEv ? 'Partially Offset' : 'Unmitigated'
+    )
+  );
+}
+insert demoCarbonLogs;
+
+List<fleetforce__Citation__c> demoCitations = new List<fleetforce__Citation__c>();
+List<List<Object>> citationConfigs = new List<List<Object>>{
+  new List<Object>{
+    vans[0],
+    drivers[0],
+    'Speeding',
+    250.00,
+    25.00,
+    'New',
+    'IL-SPD-1001',
+    Date.today().addDays(-12)
+  },
+  new List<Object>{
+    vans[1],
+    drivers[1],
+    'Parking',
+    100.00,
+    15.00,
+    'Paid',
+    'BS-PRK-2001',
+    Date.today().addDays(-20)
+  },
+  new List<Object>{
+    southVans[0],
+    southDrivers[0],
+    'Speeding',
+    500.00,
+    30.00,
+    'Contested',
+    'IL-SPD-1002',
+    Date.today().addDays(-8)
+  },
+  new List<Object>{
+    southVans[1],
+    southDrivers[1],
+    'Red Light Camera',
+    750.00,
+    35.00,
+    'New',
+    'IL-RLC-3001',
+    Date.today().addDays(-15)
+  },
+  new List<Object>{
+    vans[3],
+    drivers[3],
+    'Parking',
+    150.00,
+    15.00,
+    'Paid',
+    'BS-PRK-2002',
+    Date.today().addDays(-28)
+  },
+  new List<Object>{
+    shuttles[0],
+    drivers[6],
+    'Toll Evasion',
+    180.00,
+    20.00,
+    'New',
+    'IL-TOL-4001',
+    Date.today().addDays(-5)
+  }
+};
+for (List<Object> cc : citationConfigs) {
+  fleetforce__Fleet_Asset__c a = (fleetforce__Fleet_Asset__c) cc[0];
+  Contact d = (Contact) cc[1];
+  Decimal fine = (Decimal) cc[3];
+  Decimal fee = (Decimal) cc[4];
+  demoCitations.add(
+    new fleetforce__Citation__c(
+      Name = 'DEMO-CIT-' + cc[6],
+      fleetforce__Fleet_Asset__c = a.Id,
+      fleetforce__Driver__c = d.Id,
+      fleetforce__Violation_Type__c = (String) cc[2],
+      fleetforce__Fine_Amount__c = fine,
+      fleetforce__Admin_Fee__c = fee,
+      fleetforce__Total_Amount__c = fine + fee,
+      fleetforce__Status__c = (String) cc[5],
+      fleetforce__Ticket_Number__c = (String) cc[6],
+      fleetforce__Citation_Date__c = (Date) cc[7],
+      fleetforce__Issuing_Authority__c = 'Traffic Enforcement'
+    )
+  );
+}
+insert demoCitations;
+
+List<fleetforce__Asset_Document__c> demoDocs = new List<fleetforce__Asset_Document__c>();
+for (Integer v = 0; v < demoVehicles.size(); v++) {
+  fleetforce__Fleet_Asset__c a = demoVehicles[v];
+  // 1. Registration
+  demoDocs.add(
+    new fleetforce__Asset_Document__c(
+      Name = 'Registration - ' + a.fleetforce__Asset_ID__c,
+      fleetforce__Fleet_Asset__c = a.Id,
+      fleetforce__Doc_Type__c = 'Registration',
+      fleetforce__Doc_Number__c = 'REG-' + a.fleetforce__Asset_ID__c,
+      fleetforce__Issuing_Authority__c = 'Ministry of Transport',
+      fleetforce__Compliance_State__c = 'IL',
+      fleetforce__Valid_From__c = Date.today().addYears(-1),
+      fleetforce__Valid_Until__c = Date.today().addMonths(6),
+      fleetforce__Status__c = 'Current'
+    )
+  );
+  // 2. Insurance Card (with a couple expiring soon and one expired)
+  Date insExpiry = v == 1
+    ? Date.today().addDays(14)
+    : (v == 2 ? Date.today().addDays(-5) : Date.today().addMonths(8));
+  String insStatus = v == 1
+    ? 'Expiring Soon'
+    : (v == 2 ? 'Expired' : 'Current');
+  demoDocs.add(
+    new fleetforce__Asset_Document__c(
+      Name = 'Insurance - ' + a.fleetforce__Asset_ID__c,
+      fleetforce__Fleet_Asset__c = a.Id,
+      fleetforce__Doc_Type__c = 'Insurance Card',
+      fleetforce__Doc_Number__c = 'POL-' + a.fleetforce__Asset_ID__c,
+      fleetforce__Issuing_Authority__c = 'Harel Fleet Insurance',
+      fleetforce__Compliance_State__c = 'IL',
+      fleetforce__Valid_From__c = Date.today().addYears(-1),
+      fleetforce__Valid_Until__c = insExpiry,
+      fleetforce__Status__c = insStatus
+    )
+  );
+  // 3. Inspection Report
+  demoDocs.add(
+    new fleetforce__Asset_Document__c(
+      Name = 'Inspection - ' + a.fleetforce__Asset_ID__c,
+      fleetforce__Fleet_Asset__c = a.Id,
+      fleetforce__Doc_Type__c = 'Inspection Report',
+      fleetforce__Doc_Number__c = 'INSP-' + a.fleetforce__Asset_ID__c,
+      fleetforce__Issuing_Authority__c = 'Fleet Safety Bureau',
+      fleetforce__Compliance_State__c = 'IL',
+      fleetforce__Valid_From__c = Date.today().addMonths(-3),
+      fleetforce__Valid_Until__c = Date.today().addMonths(9),
+      fleetforce__Status__c = 'Current'
+    )
+  );
+}
+insert demoDocs;
 
 System.debug(
   'ROUTING DEMO: 3 branches, ' +
