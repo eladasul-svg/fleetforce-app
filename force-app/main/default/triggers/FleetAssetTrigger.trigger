@@ -3,4 +3,5 @@ trigger FleetAssetTrigger on Fleet_Asset__c(before insert, before update) {
     FleetAssetUnits.keepDistanceUnitOnMove(Trigger.new, Trigger.oldMap);
   }
   FleetAssetIdentity.setKeys(Trigger.new);
+  AutoNamingService.apply(Trigger.new);
 }
