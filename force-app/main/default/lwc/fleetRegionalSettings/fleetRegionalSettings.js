@@ -201,10 +201,14 @@ export default class FleetRegionalSettings extends NavigationMixin(
   }
 
   handleNavigateToCmdt() {
+    const isNamespaced = window.location.pathname.includes("fleetforce__");
+    const apiName = isNamespaced
+      ? "fleetforce__Cmdt_Control_Panel"
+      : "Cmdt_Control_Panel";
     this[NavigationMixin.Navigate]({
       type: "standard__navItemPage",
       attributes: {
-        apiName: "Cmdt_Control_Panel"
+        apiName
       }
     });
   }

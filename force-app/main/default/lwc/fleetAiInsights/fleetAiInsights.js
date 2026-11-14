@@ -155,10 +155,14 @@ export default class FleetAiInsights extends NavigationMixin(LightningElement) {
   }
 
   handleNavigateGeneral() {
+    const isNamespaced = window.location.pathname.includes("fleetforce__");
+    const apiName = isNamespaced
+      ? "fleetforce__Fleetforce_General_Settings"
+      : "Fleetforce_General_Settings";
     this[NavigationMixin.Navigate]({
       type: "standard__navItemPage",
       attributes: {
-        apiName: "Fleetforce_General_Settings"
+        apiName
       }
     });
   }
