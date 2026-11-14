@@ -113,6 +113,10 @@
         <apexClass>FleetIntegrationsController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>FleetAiInsightsController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <flowAccesses>
         <enabled>true</enabled>
         <flow>Motorpool_Reservation_Request</flow>
@@ -2340,6 +2344,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Fleetforce_Integrations</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_AI_Insights</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

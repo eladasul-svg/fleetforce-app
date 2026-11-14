@@ -21,5 +21,6 @@
     <tabs>Fleetforce_Auto_Naming</tabs>
     <tabs>Cmdt_Control_Panel</tabs>
     <tabs>Fleetforce_Integrations</tabs>
+    <tabs>Fleetforce_AI_Insights</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

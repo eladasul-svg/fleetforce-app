@@ -1,0 +1,22 @@
+.insight-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.insight-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.prompt-chip {
+  font-size: 0.76rem;
+  border-radius: 12px;
+  padding: 0.2rem 0.6rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.prompt-chip:hover {
+  background: #0176d3;
+  color: #fff;
+  border-color: #0176d3;
+}
