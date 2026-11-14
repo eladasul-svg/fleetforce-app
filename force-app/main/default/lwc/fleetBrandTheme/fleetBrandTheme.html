@@ -201,49 +201,33 @@
                   name="customLogoUrl"
                   value={draft.customLogoUrl}
                   placeholder="e.g. Acme_Logo or https://..."
+                  field-level-help="When set, FleetForce automatically applies your company logo to headers and loading spinners."
                   onchange={handleFieldChange}
                 ></lightning-input>
               </div>
             </div>
 
-            <!-- Loading Screen / Astro Replacement Guidance -->
+            <!-- Clean Company Brand Guidance Note -->
             <div
-              class="loading-guide-box slds-box slds-theme_shade slds-m-top_small"
+              class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
             >
               <div
                 class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
               >
                 <lightning-icon
-                  icon-name="utility:refresh"
+                  icon-name="utility:image"
                   size="x-small"
                   class="slds-m-right_xx-small"
                 ></lightning-icon>
                 <strong class="slds-text-body_small"
-                  >Astro Loading Spinner Replacement</strong
+                  >Company Brand &amp; Logo</strong
                 >
               </div>
-              <p
-                class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small"
-              >
-                In standard Salesforce, record refreshes show the Astro
-                astronaut. Salesforce replaces Astro whenever a custom theme has
-                <em>"Override loading image with your brand image"</em> checked.
-                You can activate your custom theme directly in Themes &
-                Branding:
+              <p class="slds-text-body_small slds-text-color_weak">
+                Configuring a company logo applies your enterprise branding
+                across all FleetForce navigation headers, operational screens,
+                and loading states automatically.
               </p>
-              <a
-                href={themesSetupUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="slds-button slds-button_neutral slds-button_small"
-              >
-                <lightning-icon
-                  icon-name="utility:new_window"
-                  size="xx-small"
-                  class="slds-m-right_xx-small"
-                ></lightning-icon>
-                Open Themes and Branding in Setup
-              </a>
             </div>
           </div>
         </template>
