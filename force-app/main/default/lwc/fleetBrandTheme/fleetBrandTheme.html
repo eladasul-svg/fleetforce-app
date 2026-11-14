@@ -12,13 +12,29 @@
       ></lightning-button>
       <lightning-button
         variant="brand"
-        label="Save Icon Style"
+        label="Save Brand & Theme"
         onclick={handleSave}
         disabled={saveDisabled}
       ></lightning-button>
     </div>
 
     <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+      <template lwc:if={loading}>
+        <lightning-spinner
+          alternative-text="Loading brand settings"
+          size="medium"
+        ></lightning-spinner>
+      </template>
+
+      <template lwc:if={error}>
+        <div
+          class="slds-notify slds-notify_alert slds-theme_error slds-m-bottom_medium"
+          role="alert"
+        >
+          <h2>{error}</h2>
+        </div>
+      </template>
+
       <!-- Section 1: Vehicle Icon Style -->
       <div class="slds-m-bottom_large">
         <h2 class="slds-text-heading_small slds-text-title_bold">
@@ -39,8 +55,8 @@
               tabindex="0"
               aria-checked={o.ariaChecked}
               data-value={o.value}
-              onclick={handleSelect}
-              onkeydown={handleKey}
+              onclick={handleSelectStyle}
+              onkeydown={handleKeyStyle}
             >
               <div class="tile__head">
                 <span class="tile__name">{o.label}</span>
@@ -70,47 +86,156 @@
             </div>
           </template>
         </div>
-
-        <template lwc:if={error}>
-          <p class="slds-text-color_error slds-m-top_small">{error}</p>
-        </template>
       </div>
 
-      <!-- Section 2: Lightning Theme & Custom Loading Spinner -->
-      <div class="theme-box slds-box slds-m-bottom_medium">
-        <div class="slds-grid slds-wrap slds-gutters">
-          <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-            <div
-              class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
+      <!-- Section 2: Application Theme & Brand Customization -->
+      <div class="theme-box slds-box">
+        <div
+          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+        >
+          <div class="slds-grid slds-grid_vertical-align-center">
+            <lightning-icon
+              icon-name="standard:portal"
+              size="small"
+              class="slds-m-right_small"
+            ></lightning-icon>
+            <div>
+              <h3 class="slds-text-heading_small slds-text-title_bold">
+                Brand Identity & Theme
+              </h3>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Control the branding displayed across FleetForce headers,
+                navigation bars, and loading states.
+              </p>
+            </div>
+          </div>
+          <div class="slds-grid slds-grid_vertical-align-center">
+            <span class="slds-text-body_small slds-m-right_x-small"
+              >Custom Organization Theme:</span
             >
-              <lightning-icon
-                icon-name="standard:portal"
-                size="small"
-                class="slds-m-right_small"
-              ></lightning-icon>
+            <lightning-input
+              type="toggle"
+              name="useCustomTheme"
+              label="Custom Theme Toggle"
+              variant="label-hidden"
+              checked={draft.useCustomTheme}
+              onchange={handleThemeToggle}
+            ></lightning-input>
+          </div>
+        </div>
+
+        <!-- Default: FleetForce Packaged Brand -->
+        <template lwc:if={isPackagedTheme}>
+          <div
+            class="slds-p-around_medium slds-theme_shade slds-border_rounded"
+          >
+            <div
+              class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center"
+            >
               <div>
-                <h3 class="slds-text-heading_small slds-text-title_bold">
-                  Salesforce Theme & Loading Experience
-                </h3>
-                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
-                  >Fleetforce Custom Theme Enabled</span
+                <div
+                  class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
                 >
+                  <strong class="slds-text-body_regular"
+                    >FleetForce Packaged Theme</strong
+                  >
+                  <span class="slds-badge slds-theme_success slds-m-left_small"
+                    >Default Active</span
+                  >
+                </div>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Uses the signature FleetForce dark navy header (#0F1E33) and
+                  the official Waypoint logo. To customize your company's logo,
+                  colors, and loading animation, switch to "Custom Organization
+                  Theme" above.
+                </p>
+              </div>
+              <div
+                class="palette-swatch slds-m-top_small slds-m-medium-top_none"
+              >
+                <div
+                  class="swatch-color"
+                  style="background-color: #0f1e33"
+                ></div>
+                <span class="swatch-label">#0F1E33<br />Navy</span>
               </div>
             </div>
-            <p
-              class="slds-text-color_weak slds-m-top_x-small slds-text-body_regular"
+          </div>
+        </template>
+
+        <!-- Custom Theme Configuration Form -->
+        <template lwc:if={draft.useCustomTheme}>
+          <div
+            class="slds-p-around_medium slds-box slds-theme_default slds-m-top_small"
+          >
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Custom Theme Name"
+                  name="customThemeName"
+                  value={draft.customThemeName}
+                  placeholder="e.g. Acme Fleet Operations"
+                  onchange={handleFieldChange}
+                ></lightning-input>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-input
+                  type="color"
+                  label="Primary Header Color"
+                  name="customBrandColor"
+                  value={draft.customBrandColor}
+                  onchange={handleFieldChange}
+                ></lightning-input>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Company Logo Asset Name or URL"
+                  name="customLogoUrl"
+                  value={draft.customLogoUrl}
+                  placeholder="e.g. Acme_Logo or https://..."
+                  onchange={handleFieldChange}
+                ></lightning-input>
+              </div>
+            </div>
+
+            <!-- Loading Screen / Astro Replacement Guidance -->
+            <div
+              class="loading-guide-box slds-box slds-theme_shade slds-m-top_small"
             >
-              FleetForce overrides standard Salesforce Astro astronaut loading
-              spinners and default headers with enterprise fleet branding. You
-              can customize the active theme, brand logo, and loading animations
-              directly in Themes & Branding.
-            </p>
-            <div class="slds-m-top_medium">
+              <div
+                class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
+              >
+                <lightning-icon
+                  icon-name="utility:refresh"
+                  size="x-small"
+                  class="slds-m-right_xx-small"
+                ></lightning-icon>
+                <strong class="slds-text-body_small"
+                  >Astro Loading Spinner Replacement</strong
+                >
+              </div>
+              <p
+                class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small"
+              >
+                In standard Salesforce, record refreshes show the Astro
+                astronaut. Salesforce replaces Astro whenever a custom theme has
+                <em>"Override loading image with your brand image"</em> checked.
+                You can activate your custom theme directly in Themes &
+                Branding:
+              </p>
               <a
                 href={themesSetupUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="slds-button slds-button_neutral"
+                class="slds-button slds-button_neutral slds-button_small"
               >
                 <lightning-icon
                   icon-name="utility:new_window"
@@ -121,49 +246,7 @@
               </a>
             </div>
           </div>
-
-          <div
-            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-top_small slds-m-medium-top_none"
-          >
-            <div class="palette-card slds-p-around_small slds-border_rounded">
-              <h4 class="slds-text-title_bold slds-m-bottom_xx-small">
-                FleetForce Color Palette
-              </h4>
-              <div
-                class="slds-grid slds-wrap slds-grid_align-spread slds-m-top_x-small"
-              >
-                <div class="palette-swatch" title="Header & Primary: #0F1E33">
-                  <div
-                    class="swatch-color"
-                    style="background-color: #0f1e33"
-                  ></div>
-                  <span class="swatch-label">#0F1E33<br />Navy</span>
-                </div>
-                <div class="palette-swatch" title="Brand Action: #0176D3">
-                  <div
-                    class="swatch-color"
-                    style="background-color: #0176d3"
-                  ></div>
-                  <span class="swatch-label">#0176D3<br />Blue</span>
-                </div>
-                <div class="palette-swatch" title="Eco & Green: #2E844A">
-                  <div
-                    class="swatch-color"
-                    style="background-color: #2e844a"
-                  ></div>
-                  <span class="swatch-label">#2E844A<br />Green</span>
-                </div>
-                <div class="palette-swatch" title="Alert & Risk: #EA001E">
-                  <div
-                    class="swatch-color"
-                    style="background-color: #ea001e"
-                  ></div>
-                  <span class="swatch-label">#EA001E<br />Red</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        </template>
       </div>
     </div>
   </lightning-card>

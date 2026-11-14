@@ -1,29 +1,33 @@
 <template>
-  <lightning-card
-    title="General Settings"
-    icon-name="standard:custom_notification"
-  >
+  <lightning-card title="General Settings" icon-name="standard:settings">
     <div slot="actions">
-      <lightning-button
-        label="Reset to Saved"
-        onclick={handleCancel}
-        disabled={saveDisabled}
-        class="slds-m-right_x-small"
-      ></lightning-button>
-      <lightning-button
-        variant="brand"
-        label="Save General Settings"
-        onclick={handleSave}
-        disabled={saveDisabled}
-      ></lightning-button>
+      <template lwc:if={isEditing}>
+        <lightning-button
+          label="Cancel"
+          onclick={handleCancelEdit}
+          disabled={saving}
+          class="slds-m-right_x-small"
+        ></lightning-button>
+        <lightning-button
+          variant="brand"
+          label="Save General Settings"
+          onclick={handleSave}
+          disabled={saveDisabled}
+        ></lightning-button>
+      </template>
+      <template lwc:else>
+        <template lwc:if={canEdit}>
+          <lightning-button
+            variant="brand"
+            label="Modify General Settings"
+            icon-name="utility:edit"
+            onclick={handleStartEdit}
+          ></lightning-button>
+        </template>
+      </template>
     </div>
 
     <div class="slds-p-horizontal_medium slds-p-bottom_medium">
-      <p class="slds-text-color_weak slds-m-bottom_medium">
-        Configure global system capabilities, AI analytical engines, and
-        compliance protocols across your FleetForce org.
-      </p>
-
       <template lwc:if={loading}>
         <lightning-spinner
           alternative-text="Loading general settings"
@@ -40,191 +44,373 @@
         </div>
       </template>
 
-      <!-- Section 1: AI Strategic Insights -->
-      <div class="setting-card slds-box slds-m-bottom_medium">
-        <div
-          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-        >
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <lightning-icon
-              icon-name="standard:service_crew"
-              size="small"
-              class="slds-m-right_small"
-            ></lightning-icon>
-            <div>
-              <h3 class="slds-text-heading_small slds-text-title_bold">
-                AI Strategic Insights Engine
-              </h3>
-              <p class="slds-text-color_weak slds-text-body_small">
-                Empower global fleet managers with predictive risk scoring,
-                warranty lapse prevention, and routing anomaly detection.
-              </p>
-            </div>
-          </div>
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <template lwc:if={draft.enableAiInsights}>
-              <span class="slds-badge slds-theme_success slds-m-right_small"
-                >Enabled</span
-              >
-            </template>
-            <template lwc:else>
-              <span class="slds-badge slds-m-right_small">Disabled</span>
-            </template>
-            <lightning-input
-              type="toggle"
-              name="enableAiInsights"
-              label="Enable AI Insights"
-              variant="label-hidden"
-              checked={draft.enableAiInsights}
-              onchange={handleToggle}
-              disabled={isReadOnly}
-            ></lightning-input>
-          </div>
-        </div>
+      <!-- STEP 1: READ-ONLY OVERVIEW MODE -->
+      <template lwc:if={isOverview}>
+        <div class="overview-container">
+          <p class="slds-text-color_weak slds-m-bottom_medium">
+            Global system capabilities, customer-provided AI credentials, and
+            vehicle privacy compliance protocols.
+          </p>
 
-        <template lwc:if={draft.enableAiInsights}>
-          <div
-            class="slds-m-top_medium slds-p-top_medium slds-border_top slds-grid slds-wrap slds-gutters"
-          >
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-              <lightning-combobox
-                label="Foundational AI Provider"
-                name="aiProvider"
-                value={draft.aiProvider}
-                options={aiProviders}
-                onchange={handleFieldChange}
-                disabled={isReadOnly}
-              ></lightning-combobox>
-              <p
-                class="slds-text-color_weak slds-m-top_xx-small slds-text-body_small"
-              >
-                Selects the AI model used for cross-branch telemetry synthesis
-                and strategic fleet alerts.
-              </p>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-              <div
-                class="token-info-box slds-p-around_small slds-theme_shade slds-border_rounded"
-              >
-                <div
-                  class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
-                >
+          <!-- Card 1: AI Strategic Insights Engine -->
+          <div class="summary-card slds-box slds-m-bottom_medium">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+            >
+              <div class="slds-grid slds-grid_vertical-align-center">
+                <lightning-icon
+                  icon-name="standard:service_crew"
+                  size="small"
+                  class="slds-m-right_small"
+                ></lightning-icon>
+                <div>
+                  <h3 class="slds-text-heading_small slds-text-title_bold">
+                    AI Strategic Insights Engine
+                  </h3>
+                  <p class="slds-text-color_weak slds-text-body_small">
+                    Cross-fleet predictive risk scoring, warranty lapse alerts,
+                    and automated routing anomaly detection.
+                  </p>
+                </div>
+              </div>
+              <template lwc:if={serverSettings.enableAiInsights}>
+                <span class="slds-badge slds-theme_success">
                   <lightning-icon
-                    icon-name="utility:lock"
-                    size="x-small"
+                    icon-name="utility:check"
+                    size="xx-small"
+                    variant="inverse"
                     class="slds-m-right_xx-small"
                   ></lightning-icon>
-                  <strong class="slds-text-body_small"
-                    >API Key & Gateway Token Policy</strong
+                  Active Engine
+                </span>
+              </template>
+              <template lwc:else>
+                <span class="slds-badge">Inactive</span>
+              </template>
+            </div>
+
+            <div
+              class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-border_top slds-p-top_small"
+            >
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="key-status-group">
+                  <span
+                    class="slds-text-title_caps slds-text-color_weak slds-m-bottom_xx-small slds-show"
+                    >Customer AI Providers (BYOK)</span
                   >
+                  <div class="slds-grid slds-wrap slds-m-top_xx-small">
+                    <div class="slds-m-right_small slds-m-bottom_xx-small">
+                      <span class="slds-text-body_small slds-m-right_xx-small"
+                        >Google Gemini:</span
+                      >
+                      <template lwc:if={serverSettings.hasGoogleKey}>
+                        <span class="slds-badge slds-theme_success"
+                          >{serverSettings.maskedGoogleKey}</span
+                        >
+                      </template>
+                      <template lwc:else>
+                        <span class="slds-badge slds-badge_lightest"
+                          >Not Configured</span
+                        >
+                      </template>
+                    </div>
+
+                    <div class="slds-m-right_small slds-m-bottom_xx-small">
+                      <span class="slds-text-body_small slds-m-right_xx-small"
+                        >Anthropic Claude:</span
+                      >
+                      <template lwc:if={serverSettings.hasAnthropicKey}>
+                        <span class="slds-badge slds-theme_success"
+                          >{serverSettings.maskedAnthropicKey}</span
+                        >
+                      </template>
+                      <template lwc:else>
+                        <span class="slds-badge slds-badge_lightest"
+                          >Not Configured</span
+                        >
+                      </template>
+                    </div>
+
+                    <div class="slds-m-bottom_xx-small">
+                      <span class="slds-text-body_small slds-m-right_xx-small"
+                        >OpenAI:</span
+                      >
+                      <template lwc:if={serverSettings.hasOpenAiKey}>
+                        <span class="slds-badge slds-theme_success"
+                          >{serverSettings.maskedOpenAiKey}</span
+                        >
+                      </template>
+                      <template lwc:else>
+                        <span class="slds-badge slds-badge_lightest"
+                          >Not Configured</span
+                        >
+                      </template>
+                    </div>
+                  </div>
                 </div>
-                <p class="slds-text-body_small slds-text-color_weak">
-                  Enterprise credentials (Named Credentials / External
-                  Credentials) manage secure token routing. Multi-cloud token
-                  governance (Copilot, OpenAI, Vertex AI) is verified.
-                </p>
+              </div>
+
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div
+                  class="active-model-box slds-p-around_small slds-theme_shade slds-border_rounded"
+                >
+                  <span
+                    class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+                    >Active Foundational Model</span
+                  >
+                  <template lwc:if={activeModelLabel}>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <lightning-icon
+                        icon-name="utility:connected_apps"
+                        size="x-small"
+                        class="slds-m-right_xx-small"
+                      ></lightning-icon>
+                      <strong class="slds-text-body_regular"
+                        >{activeModelLabel}</strong
+                      >
+                    </div>
+                  </template>
+                  <template lwc:else>
+                    <p class="slds-text-color_weak slds-text-body_small">
+                      No model active. Click "Modify General Settings" to
+                      provide an API key.
+                    </p>
+                  </template>
+                </div>
               </div>
             </div>
           </div>
-        </template>
-      </div>
 
-      <!-- Section 2: Extended Vehicle Privacy Protocol (Privacy4Cars) -->
-      <div class="setting-card slds-box slds-m-bottom_medium">
-        <div
-          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-        >
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <lightning-icon
-              icon-name="standard:privacy_policy"
-              size="small"
-              class="slds-m-right_small"
-            ></lightning-icon>
-            <div>
+          <!-- Card 2: Digital Data Sanitization Protocol -->
+          <div class="summary-card slds-box">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+            >
               <div class="slds-grid slds-grid_vertical-align-center">
-                <h3
-                  class="slds-text-heading_small slds-text-title_bold slds-m-right_small"
-                >
-                  Extended Vehicle Privacy Protocol
-                </h3>
-                <span class="slds-badge slds-theme_alt-inverse"
-                  >Privacy4Cars Standard</span
-                >
+                <lightning-icon
+                  icon-name="standard:privacy_policy"
+                  size="small"
+                  class="slds-m-right_small"
+                ></lightning-icon>
+                <div>
+                  <h3 class="slds-text-heading_small slds-text-title_bold">
+                    Digital Data Sanitization Protocol
+                  </h3>
+                  <p class="slds-text-color_weak slds-text-body_small">
+                    Enforces automatic digital sanitization tasks (clearing
+                    Bluetooth pairings, navigation/home addresses, garage door
+                    openers) whenever an asset changes drivers or completes
+                    external service.
+                  </p>
+                </div>
               </div>
-              <p class="slds-text-color_weak slds-text-body_small">
-                Automate digital data sanitization tasks (clearing navigation
-                history, paired phone books, garage openers, and personal
-                addresses) whenever a vehicle transfers drivers or returns from
-                service.
-              </p>
+              <template lwc:if={serverSettings.enableExtendedPrivacy}>
+                <span class="slds-badge slds-theme_success">
+                  <lightning-icon
+                    icon-name="utility:check"
+                    size="xx-small"
+                    variant="inverse"
+                    class="slds-m-right_xx-small"
+                  ></lightning-icon>
+                  Enforced
+                </span>
+              </template>
+              <template lwc:else>
+                <span class="slds-badge">Inactive</span>
+              </template>
             </div>
           </div>
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <template lwc:if={draft.enableExtendedPrivacy}>
-              <span class="slds-badge slds-theme_success slds-m-right_small"
-                >Active Enforcement</span
-              >
-            </template>
-            <template lwc:else>
-              <span class="slds-badge slds-m-right_small">Inactive</span>
-            </template>
-            <lightning-input
-              type="toggle"
-              name="enableExtendedPrivacy"
-              label="Enable Extended Privacy"
-              variant="label-hidden"
-              checked={draft.enableExtendedPrivacy}
-              onchange={handleToggle}
-              disabled={isReadOnly}
-            ></lightning-input>
-          </div>
         </div>
+      </template>
 
-        <div class="slds-m-top_small slds-text-body_small slds-text-color_weak">
-          <p>
-            Vehicles connect to driver phones and store sensitive PII in
-            infotainment memory. Activating this policy triggers automated
-            driver check-out workflows and attaches manufacturer-specific
-            digital wipe guides from the Vehicle Catalogue.
-          </p>
-        </div>
-      </div>
-
-      <!-- Section 3: Record Auto-Naming Engine -->
-      <div class="setting-card slds-box">
-        <div
-          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-        >
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <lightning-icon
-              icon-name="standard:process"
-              size="small"
-              class="slds-m-right_small"
-            ></lightning-icon>
+      <!-- STEP 2: DEDICATED EDIT MODE -->
+      <template lwc:if={isEditing}>
+        <div class="edit-container slds-box slds-theme_default">
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-border_bottom slds-p-bottom_small"
+          >
             <div>
               <h3 class="slds-text-heading_small slds-text-title_bold">
-                Record Auto-Naming Engine
+                Modify General Settings
               </h3>
               <p class="slds-text-color_weak slds-text-body_small">
-                Centralized formula tokens and standardization rules governing
-                Fleet Assets, Reservations, Citations, and Driver
-                Qualifications.
+                Enter your company's API keys (BYOK) to enable AI models, or
+                update operational protocols.
               </p>
             </div>
-          </div>
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <span class="slds-badge slds-theme_success slds-m-right_small"
-              >4 Objects Configured</span
+            <span class="slds-badge slds-theme_warning"
+              >Editing In Progress</span
             >
+          </div>
+
+          <!-- Toggle 1: Enable AI Insights -->
+          <div class="slds-box slds-m-bottom_medium slds-theme_shade">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+            >
+              <div>
+                <h4 class="slds-text-title_bold">
+                  Enable AI Strategic Insights
+                </h4>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Allows fleet managers to run automated risk audits and ask
+                  operational questions via AI.
+                </p>
+              </div>
+              <lightning-input
+                type="toggle"
+                name="enableAiInsights"
+                label="Enable AI Insights"
+                variant="label-hidden"
+                checked={draft.enableAiInsights}
+                onchange={handleToggle}
+              ></lightning-input>
+            </div>
+
+            <template lwc:if={draft.enableAiInsights}>
+              <div class="slds-m-top_medium slds-p-top_medium slds-border_top">
+                <h5 class="slds-text-title_bold slds-m-bottom_xx-small">
+                  Customer API Keys (Bring Your Own Key)
+                </h5>
+                <p
+                  class="slds-text-color_weak slds-text-body_small slds-m-bottom_small"
+                >
+                  FleetForce connects directly using your company's credentials.
+                  Keys are encrypted and stored in org settings. Only models
+                  matching your active keys will be unlocked.
+                </p>
+
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                  >
+                    <lightning-input
+                      type="password"
+                      label="Google Gemini API Key"
+                      name="googleApiKey"
+                      value={draft.googleApiKey}
+                      placeholder={googlePlaceholder}
+                      onchange={handleFieldChange}
+                    ></lightning-input>
+                    <template lwc:if={serverSettings.hasGoogleKey}>
+                      <span
+                        class="slds-badge slds-theme_success slds-m-top_xx-small"
+                        >Currently Configured</span
+                      >
+                    </template>
+                  </div>
+
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                  >
+                    <lightning-input
+                      type="password"
+                      label="Anthropic Claude API Key"
+                      name="anthropicApiKey"
+                      value={draft.anthropicApiKey}
+                      placeholder={anthropicPlaceholder}
+                      onchange={handleFieldChange}
+                    ></lightning-input>
+                    <template lwc:if={serverSettings.hasAnthropicKey}>
+                      <span
+                        class="slds-badge slds-theme_success slds-m-top_xx-small"
+                        >Currently Configured</span
+                      >
+                    </template>
+                  </div>
+
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                  >
+                    <lightning-input
+                      type="password"
+                      label="OpenAI API Key"
+                      name="openAiApiKey"
+                      value={draft.openAiApiKey}
+                      placeholder={openAiPlaceholder}
+                      onchange={handleFieldChange}
+                    ></lightning-input>
+                    <template lwc:if={serverSettings.hasOpenAiKey}>
+                      <span
+                        class="slds-badge slds-theme_success slds-m-top_xx-small"
+                        >Currently Configured</span
+                      >
+                    </template>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-m-top_small slds-grid slds-wrap slds-gutters_small slds-grid_vertical-align-end"
+                >
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"
+                  >
+                    <lightning-combobox
+                      label="Active Foundational AI Model"
+                      name="aiProvider"
+                      value={draft.aiProvider}
+                      options={availableModelOptions}
+                      placeholder={modelSelectorPlaceholder}
+                      disabled={hasNoAvailableModels}
+                      onchange={handleFieldChange}
+                    ></lightning-combobox>
+                  </div>
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"
+                  >
+                    <p
+                      class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
+                    >
+                      {modelSelectorGuidance}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Toggle 2: Digital Data Sanitization Protocol -->
+          <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+            >
+              <div>
+                <h4 class="slds-text-title_bold">
+                  Enable Digital Data Sanitization Protocol
+                </h4>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Triggers automated driver check-out workflows and maintenance
+                  checklists to erase infotainment personal data (contacts,
+                  paired phones, navigation history).
+                </p>
+              </div>
+              <lightning-input
+                type="toggle"
+                name="enableExtendedPrivacy"
+                label="Enable Extended Privacy"
+                variant="label-hidden"
+                checked={draft.enableExtendedPrivacy}
+                onchange={handleToggle}
+              ></lightning-input>
+            </div>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end slds-m-top_medium">
             <lightning-button
-              label="Manage Rules"
-              icon-name="utility:forward"
-              icon-position="right"
-              onclick={navigateToAutoNaming}
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleCancelEdit}
+              disabled={saving}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save General Settings"
+              onclick={handleSave}
+              disabled={saveDisabled}
             ></lightning-button>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </lightning-card>
 </template>

@@ -139,25 +139,54 @@ private class FleetDisplaySettingsControllerTest {
     System.runAs(new User(Id = UserInfo.getUserId())) {
       FleetDisplaySettingsController.GeneralSettings g = FleetDisplaySettingsController.getGeneralSettings();
       System.assertNotEquals(null, g);
-      System.assert(g.aiProviders.size() >= 3);
       System.assert(g.canEdit);
 
       FleetDisplaySettingsController.GeneralSettings saved = FleetDisplaySettingsController.saveGeneralSettings(
         true,
-        'Anthropic Claude 3.5 Sonnet',
-        true
+        'Claude 3.5 Sonnet',
+        true,
+        'AIzaSyDummyGoogleKey12345',
+        'sk-ant-dummy-anthropic-key-12345',
+        'sk-dummy-openai-key-12345'
       );
       System.assertEquals(true, saved.enableAiInsights);
-      System.assertEquals('Anthropic Claude 3.5 Sonnet', saved.aiProvider);
+      System.assertEquals('Claude 3.5 Sonnet', saved.aiProvider);
       System.assertEquals(true, saved.enableExtendedPrivacy);
+      System.assertEquals(true, saved.hasGoogleKey);
+      System.assertEquals(true, saved.hasAnthropicKey);
+      System.assertEquals(true, saved.hasOpenAiKey);
+      System.assert(saved.maskedGoogleKey.contains('••••'));
+      System.assert(saved.aiProviders.size() >= 4);
 
       fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
       System.assertEquals(true, org.fleetforce__Enable_AI_Insights__c);
-      System.assertEquals(
-        'Anthropic Claude 3.5 Sonnet',
-        org.fleetforce__AI_Provider__c
-      );
+      System.assertEquals('Claude 3.5 Sonnet', org.fleetforce__AI_Provider__c);
       System.assertEquals(true, org.fleetforce__Enable_Extended_Privacy__c);
+      System.assertEquals(
+        'AIzaSyDummyGoogleKey12345',
+        org.fleetforce__Google_Api_Key__c
+      );
+    }
+  }
+
+  @IsTest
+  static void brandSettingsAreRetrievedAndSaved() {
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      FleetDisplaySettingsController.BrandSettings b = FleetDisplaySettingsController.getBrandSettings();
+      System.assertNotEquals(null, b);
+      System.assert(b.canEdit);
+
+      FleetDisplaySettingsController.BrandSettings saved = FleetDisplaySettingsController.saveBrandSettings(
+        'modern',
+        true,
+        'Acme Global Fleet',
+        '#0176D3',
+        'https://example.com/logo.png'
+      );
+      System.assertEquals('modern', saved.iconStyle);
+      System.assertEquals(true, saved.useCustomTheme);
+      System.assertEquals('Acme Global Fleet', saved.customThemeName);
+      System.assertEquals('#0176D3', saved.customBrandColor);
     }
   }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Use_Custom_Theme__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Indicates whether custom brand theme identity overrides default FleetForce packaged styling.</description>
+    <externalId>false</externalId>
+    <label>Use Custom Theme</label>
+    <type>Checkbox</type>
+</CustomField>

@@ -1059,6 +1059,26 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Anthropic_Api_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Custom_Brand_Color__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Custom_Logo_Url__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Custom_Theme_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Display_Setting__c.Default_Country__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1095,6 +1115,21 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Fleet_Display_Setting__c.Enable_Extended_Privacy__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Google_Api_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.OpenAI_Api_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Use_Custom_Theme__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
