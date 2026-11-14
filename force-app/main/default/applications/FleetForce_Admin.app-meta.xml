@@ -20,5 +20,6 @@
     <tabs>Fleetforce_Regional_Settings</tabs>
     <tabs>Fleetforce_Auto_Naming</tabs>
     <tabs>Cmdt_Control_Panel</tabs>
+    <tabs>Fleetforce_Integrations</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

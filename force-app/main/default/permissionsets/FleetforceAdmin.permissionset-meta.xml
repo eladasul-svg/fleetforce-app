@@ -109,6 +109,10 @@
         <apexClass>CmdtDeployService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>FleetIntegrationsController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <flowAccesses>
         <enabled>true</enabled>
         <flow>Motorpool_Reservation_Request</flow>
@@ -2332,6 +2336,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Cmdt_Control_Panel</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_Integrations</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>
