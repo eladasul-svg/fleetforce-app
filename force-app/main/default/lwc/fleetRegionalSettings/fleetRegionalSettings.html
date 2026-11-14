@@ -1,0 +1,406 @@
+<template>
+  <lightning-card title="Regional Settings" icon-name="standard:address">
+    <div slot="actions">
+      <template lwc:if={isEditing}>
+        <lightning-button
+          label="Cancel"
+          onclick={handleCancelEdit}
+          disabled={regionalSaving}
+          class="slds-m-right_x-small"
+        ></lightning-button>
+        <lightning-button
+          variant="brand"
+          label="Save Regional Settings"
+          onclick={handleSave}
+          disabled={saveDisabled}
+        ></lightning-button>
+      </template>
+      <template lwc:else>
+        <template lwc:if={canEdit}>
+          <lightning-button
+            variant="brand"
+            label="Modify Regional Defaults"
+            icon-name="utility:edit"
+            onclick={handleStartEdit}
+          ></lightning-button>
+        </template>
+      </template>
+    </div>
+
+    <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+      <template lwc:if={loading}>
+        <lightning-spinner
+          alternative-text="Loading regional settings"
+          size="medium"
+        ></lightning-spinner>
+      </template>
+
+      <template lwc:if={regionalError}>
+        <div
+          class="slds-notify slds-notify_alert slds-theme_error slds-m-bottom_medium"
+          role="alert"
+        >
+          <h2>{regionalError}</h2>
+        </div>
+      </template>
+
+      <template lwc:if={regional}>
+        <!-- STEP 1: READ-ONLY OVERVIEW MODE -->
+        <template lwc:if={isOverview}>
+          <div class="overview-container slds-m-bottom_large">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+            >
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Active Org Defaults
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Baseline units and regional parameters applied automatically
+                  when a branch or vehicle leaves a value blank.
+                </p>
+              </div>
+              <span class="slds-badge slds-theme_success">
+                <lightning-icon
+                  icon-name="utility:check"
+                  size="xx-small"
+                  variant="inverse"
+                  class="slds-m-right_xx-small"
+                ></lightning-icon>
+                Active Configuration
+              </span>
+            </div>
+
+            <!-- Summary Cards Grid -->
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Default Country
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:location"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayCountry}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Default Time Zone
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:clock"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayTimeZone}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Default Currency
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:moneybag"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayCurrency}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Distance Unit
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:forward"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayDistanceUnit}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Volume Unit
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:standard_objects"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayVolumeUnit}</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <div class="summary-card slds-p-around_small slds-box">
+                  <div
+                    class="summary-card__label slds-text-title_caps slds-text-color_weak"
+                  >
+                    Weight Unit
+                  </div>
+                  <div
+                    class="summary-card__value slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+                  >
+                    <lightning-icon
+                      icon-name="utility:asset_audit"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span class="slds-text-heading_small slds-text-title_bold"
+                      >{displayWeightUnit}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Currency Multi-Currency Guidance Banner -->
+            <div
+              class="currency-banner slds-box slds-theme_shade slds-m-top_x-small slds-grid slds-grid_vertical-align-center"
+            >
+              <lightning-icon
+                icon-name={currencyIcon}
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <strong>{currencyHeadline}</strong> {currencyGuidance}
+                <a
+                  href={manageCurrenciesUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="slds-m-left_xx-small"
+                >
+                  Setup › Company Settings › Manage Currencies
+                </a>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- STEP 2: EDIT MODE -->
+        <template lwc:if={isEditing}>
+          <div
+            class="edit-container slds-box slds-theme_default slds-m-bottom_large"
+          >
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-border_bottom slds-p-bottom_small"
+            >
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Modify Regional Defaults
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Adjust default parameters. Saving updates org hierarchy
+                  settings immediately.
+                </p>
+              </div>
+              <span class="slds-badge slds-theme_warning"
+                >Editing In Progress</span
+              >
+            </div>
+
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Default Country"
+                  name="country"
+                  value={draft.country}
+                  options={regional.countries}
+                  placeholder="None"
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Default Time Zone"
+                  name="timeZone"
+                  value={draft.timeZone}
+                  options={regional.timeZones}
+                  placeholder="None"
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Default Currency"
+                  name="currencyCode"
+                  value={draft.currencyCode}
+                  options={regional.currencies}
+                  placeholder="None"
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Distance Unit"
+                  name="distanceUnit"
+                  value={draft.distanceUnit}
+                  options={regional.distanceUnits}
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Volume Unit"
+                  name="volumeUnit"
+                  value={draft.volumeUnit}
+                  options={regional.volumeUnits}
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+              >
+                <lightning-combobox
+                  label="Weight Unit"
+                  name="weightUnit"
+                  value={draft.weightUnit}
+                  options={regional.weightUnits}
+                  onchange={handleInputChange}
+                  disabled={regionalSaving}
+                ></lightning-combobox>
+              </div>
+            </div>
+
+            <div class="slds-m-top_medium slds-grid slds-grid_align-end">
+              <lightning-button
+                label="Cancel"
+                class="slds-m-right_x-small"
+                onclick={handleCancelEdit}
+                disabled={regionalSaving}
+              ></lightning-button>
+              <lightning-button
+                variant="brand"
+                label="Save Regional Settings"
+                onclick={handleSave}
+                disabled={saveDisabled}
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
+
+        <!-- COUNTRY PROFILES TABLE SECTION -->
+        <div class="profiles-section slds-m-top_large">
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small"
+          >
+            <div>
+              <h3 class="slds-text-heading_small slds-text-title_bold">
+                Country Profiles
+              </h3>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Standard baseline profiles that pre-populate branch defaults
+                based on country assignment.
+              </p>
+            </div>
+            <span class="slds-badge"
+              >{profileCount} Pre-configured Profiles</span
+            >
+          </div>
+
+          <div
+            class="stage-notice slds-box slds-theme_shade slds-m-bottom_small slds-grid slds-grid_vertical-align-center"
+          >
+            <lightning-icon
+              icon-name="utility:info"
+              size="x-small"
+              class="slds-m-right_x-small"
+            ></lightning-icon>
+            <span class="slds-text-body_small">
+              Branch defaults automatically derive from these profiles.
+              Individual profile editing, addition, and deactivation are managed
+              in Stage 2 (CMDT Control Panel).
+            </span>
+          </div>
+
+          <lightning-datatable
+            key-field="code"
+            data={regional.profiles}
+            columns={profileColumns}
+            hide-checkbox-column
+          ></lightning-datatable>
+        </div>
+      </template>
+    </div>
+  </lightning-card>
+</template>

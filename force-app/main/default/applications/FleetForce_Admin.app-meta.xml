@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
     <brand>
         <headerColor>#0F1E33</headerColor>
@@ -6,7 +6,8 @@
         <logoVersion>1</logoVersion>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
     </brand>
-    <description>Administration for FleetForce: display options and configuration.</description>
+    <description
+  >Administration for FleetForce: display options and configuration.</description>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
     <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
@@ -14,6 +15,9 @@
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>FleetForce Admin</label>
     <navType>Standard</navType>
-    <tabs>Fleetforce_Settings</tabs>
+    <tabs>Fleetforce_General_Settings</tabs>
+    <tabs>Fleetforce_Brand_Theme</tabs>
+    <tabs>Fleetforce_Regional_Settings</tabs>
+    <tabs>Fleetforce_Auto_Naming</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

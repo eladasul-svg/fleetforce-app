@@ -1,0 +1,170 @@
+<template>
+  <lightning-card
+    title="Brand & Theme"
+    icon-name="standard:custom_notification"
+  >
+    <div slot="actions">
+      <lightning-button
+        label="Reset to Saved"
+        onclick={handleCancel}
+        disabled={saveDisabled}
+        class="slds-m-right_x-small"
+      ></lightning-button>
+      <lightning-button
+        variant="brand"
+        label="Save Icon Style"
+        onclick={handleSave}
+        disabled={saveDisabled}
+      ></lightning-button>
+    </div>
+
+    <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+      <!-- Section 1: Vehicle Icon Style -->
+      <div class="slds-m-bottom_large">
+        <h2 class="slds-text-heading_small slds-text-title_bold">
+          Vehicle Icon Style
+        </h2>
+        <p class="slds-text-color_weak slds-m-bottom_small">
+          Choose how vehicles are visually rendered across fleet lists, map
+          overlays, operational cards, and mobile views. This setting applies to
+          all users in the organization.
+        </p>
+
+        <div class="tiles" role="radiogroup" aria-label="Vehicle icon style">
+          <template for:each={options} for:item="o">
+            <div
+              key={o.value}
+              class={o.tileClass}
+              role="radio"
+              tabindex="0"
+              aria-checked={o.ariaChecked}
+              data-value={o.value}
+              onclick={handleSelect}
+              onkeydown={handleKey}
+            >
+              <div class="tile__head">
+                <span class="tile__name">{o.label}</span>
+                <template lwc:if={o.isSelected}>
+                  <lightning-icon
+                    icon-name="utility:check"
+                    size="x-small"
+                    variant="success"
+                    alternative-text="Selected"
+                  ></lightning-icon>
+                </template>
+              </div>
+              <p class="tile__blurb">{o.blurb}</p>
+              <div class="tile__samples">
+                <template for:each={o.samples} for:item="s">
+                  <c-fleet-vehicle-image
+                    key={s.key}
+                    variant="icon"
+                    size="96"
+                    icon-style={o.value}
+                    body-type={s.bodyType}
+                    color={s.color}
+                    fuel-type={s.fuelType}
+                  ></c-fleet-vehicle-image>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <template lwc:if={error}>
+          <p class="slds-text-color_error slds-m-top_small">{error}</p>
+        </template>
+      </div>
+
+      <!-- Section 2: Lightning Theme & Custom Loading Spinner -->
+      <div class="theme-box slds-box slds-m-bottom_medium">
+        <div class="slds-grid slds-wrap slds-gutters">
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
+            >
+              <lightning-icon
+                icon-name="standard:portal"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Salesforce Theme & Loading Experience
+                </h3>
+                <span class="slds-badge slds-theme_success slds-m-top_xx-small"
+                  >Fleetforce Custom Theme Enabled</span
+                >
+              </div>
+            </div>
+            <p
+              class="slds-text-color_weak slds-m-top_x-small slds-text-body_regular"
+            >
+              FleetForce overrides standard Salesforce Astro astronaut loading
+              spinners and default headers with enterprise fleet branding. You
+              can customize the active theme, brand logo, and loading animations
+              directly in Themes & Branding.
+            </p>
+            <div class="slds-m-top_medium">
+              <a
+                href={themesSetupUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="slds-button slds-button_neutral"
+              >
+                <lightning-icon
+                  icon-name="utility:new_window"
+                  size="xx-small"
+                  class="slds-m-right_xx-small"
+                ></lightning-icon>
+                Open Themes and Branding in Setup
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-top_small slds-m-medium-top_none"
+          >
+            <div class="palette-card slds-p-around_small slds-border_rounded">
+              <h4 class="slds-text-title_bold slds-m-bottom_xx-small">
+                FleetForce Color Palette
+              </h4>
+              <div
+                class="slds-grid slds-wrap slds-grid_align-spread slds-m-top_x-small"
+              >
+                <div class="palette-swatch" title="Header & Primary: #0F1E33">
+                  <div
+                    class="swatch-color"
+                    style="background-color: #0f1e33"
+                  ></div>
+                  <span class="swatch-label">#0F1E33<br />Navy</span>
+                </div>
+                <div class="palette-swatch" title="Brand Action: #0176D3">
+                  <div
+                    class="swatch-color"
+                    style="background-color: #0176d3"
+                  ></div>
+                  <span class="swatch-label">#0176D3<br />Blue</span>
+                </div>
+                <div class="palette-swatch" title="Eco & Green: #2E844A">
+                  <div
+                    class="swatch-color"
+                    style="background-color: #2e844a"
+                  ></div>
+                  <span class="swatch-label">#2E844A<br />Green</span>
+                </div>
+                <div class="palette-swatch" title="Alert & Risk: #EA001E">
+                  <div
+                    class="swatch-color"
+                    style="background-color: #ea001e"
+                  ></div>
+                  <span class="swatch-label">#EA001E<br />Red</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </lightning-card>
+</template>

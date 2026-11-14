@@ -133,4 +133,31 @@ private class FleetDisplaySettingsControllerTest {
         .fleetforce__Default_Distance_Unit__c
     );
   }
+
+  @IsTest
+  static void generalSettingsAreRetrievedAndSaved() {
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      FleetDisplaySettingsController.GeneralSettings g = FleetDisplaySettingsController.getGeneralSettings();
+      System.assertNotEquals(null, g);
+      System.assert(g.aiProviders.size() >= 3);
+      System.assert(g.canEdit);
+
+      FleetDisplaySettingsController.GeneralSettings saved = FleetDisplaySettingsController.saveGeneralSettings(
+        true,
+        'Anthropic Claude 3.5 Sonnet',
+        true
+      );
+      System.assertEquals(true, saved.enableAiInsights);
+      System.assertEquals('Anthropic Claude 3.5 Sonnet', saved.aiProvider);
+      System.assertEquals(true, saved.enableExtendedPrivacy);
+
+      fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+      System.assertEquals(true, org.fleetforce__Enable_AI_Insights__c);
+      System.assertEquals(
+        'Anthropic Claude 3.5 Sonnet',
+        org.fleetforce__AI_Provider__c
+      );
+      System.assertEquals(true, org.fleetforce__Enable_Extended_Privacy__c);
+    }
+  }
 }

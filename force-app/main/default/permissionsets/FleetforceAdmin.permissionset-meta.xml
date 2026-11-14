@@ -1054,6 +1054,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Fleet_Display_Setting__c.AI_Provider__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Fleet_Display_Setting__c.Default_Country__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1080,6 +1085,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Fleet_Display_Setting__c.Default_Weight_Unit__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Enable_AI_Insights__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Fleet_Display_Setting__c.Enable_Extended_Privacy__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2238,6 +2253,22 @@
     </tabSettings>
     <tabSettings>
         <tab>Fleetforce_Settings</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_General_Settings</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_Brand_Theme</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_Regional_Settings</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Fleetforce_Auto_Naming</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>

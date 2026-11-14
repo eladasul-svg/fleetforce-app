@@ -48,10 +48,86 @@ public with sharing class FleetDisplaySettingsController {
     public String label;
     @AuraEnabled
     public String value;
-    Option(String label, String value) {
+    public Option(String label, String value) {
       this.label = label;
       this.value = value;
     }
+  }
+
+  public class GeneralSettings {
+    @AuraEnabled
+    public Boolean enableAiInsights;
+    @AuraEnabled
+    public String aiProvider;
+    @AuraEnabled
+    public Boolean enableExtendedPrivacy;
+    @AuraEnabled
+    public Boolean canEdit;
+    @AuraEnabled
+    public List<Option> aiProviders;
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static GeneralSettings getGeneralSettings() {
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    GeneralSettings g = new GeneralSettings();
+    g.enableAiInsights = org.fleetforce__Enable_AI_Insights__c != null
+      ? org.fleetforce__Enable_AI_Insights__c
+      : true;
+    g.aiProvider = String.isNotBlank(org.fleetforce__AI_Provider__c)
+      ? org.fleetforce__AI_Provider__c
+      : 'Gemini 2.5 Flash';
+    g.enableExtendedPrivacy = org.fleetforce__Enable_Extended_Privacy__c != null
+      ? org.fleetforce__Enable_Extended_Privacy__c
+      : false;
+    g.canEdit = canEditGeneral();
+    g.aiProviders = new List<Option>{
+      new Option('Google Gemini 2.5 Flash (Recommended)', 'Gemini 2.5 Flash'),
+      new Option('Google Gemini 2.5 Pro (Deep Analytics)', 'Gemini 2.5 Pro'),
+      new Option('Anthropic Claude 3.5 Sonnet', 'Claude 3.5 Sonnet'),
+      new Option('OpenAI GPT-4o', 'GPT-4o')
+    };
+    return g;
+  }
+
+  @AuraEnabled
+  public static GeneralSettings saveGeneralSettings(
+    Boolean enableAiInsights,
+    String aiProvider,
+    Boolean enableExtendedPrivacy
+  ) {
+    if (!canEditGeneral()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce general settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Enable_AI_Insights__c = enableAiInsights == true;
+    org.fleetforce__AI_Provider__c = String.isNotBlank(aiProvider)
+      ? aiProvider.trim()
+      : 'Gemini 2.5 Flash';
+    org.fleetforce__Enable_Extended_Privacy__c = enableExtendedPrivacy == true;
+    upsert org;
+    return getGeneralSettings();
+  }
+
+  private static Boolean canEditGeneral() {
+    Schema.DescribeSObjectResult d = Schema.sObjectType.fleetforce__Fleet_Display_Setting__c;
+    if (!d.isUpdateable() || !d.isCreateable()) {
+      return false;
+    }
+    for (
+      Schema.SObjectField f : new List<Schema.SObjectField>{
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Enable_AI_Insights__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__AI_Provider__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Enable_Extended_Privacy__c
+      }
+    ) {
+      if (!f.getDescribe().isUpdateable()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public class ProfileRow {
