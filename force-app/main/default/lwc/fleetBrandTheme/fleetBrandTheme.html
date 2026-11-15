@@ -3,21 +3,6 @@
     title="Brand & Theme"
     icon-name="standard:custom_notification"
   >
-    <div slot="actions">
-      <lightning-button
-        label="Reset to Saved"
-        onclick={handleCancel}
-        disabled={saveDisabled}
-        class="slds-m-right_x-small"
-      ></lightning-button>
-      <lightning-button
-        variant="brand"
-        label="Save Brand & Theme"
-        onclick={handleSave}
-        disabled={saveDisabled}
-      ></lightning-button>
-    </div>
-
     <div class="slds-p-horizontal_medium slds-p-bottom_medium">
       <template lwc:if={loading}>
         <lightning-spinner
@@ -35,200 +20,281 @@
         </div>
       </template>
 
-      <!-- Section 1: Vehicle Icon Style -->
-      <div class="slds-m-bottom_large">
-        <h2 class="slds-text-heading_small slds-text-title_bold">
-          Vehicle Icon Style
-        </h2>
-        <p class="slds-text-color_weak slds-m-bottom_small">
-          Choose how vehicles are visually rendered across fleet lists, map
-          overlays, operational cards, and mobile views. This setting applies to
-          all users in the organization.
-        </p>
+      <p class="slds-text-color_weak slds-m-bottom_medium">
+        Customize vehicle visual rendering styles and company branding across
+        the FleetForce platform.
+      </p>
 
-        <div class="tiles" role="radiogroup" aria-label="Vehicle icon style">
-          <template for:each={options} for:item="o">
-            <div
-              key={o.value}
-              class={o.tileClass}
-              role="radio"
-              tabindex="0"
-              aria-checked={o.ariaChecked}
-              data-value={o.value}
-              onclick={handleSelectStyle}
-              onkeydown={handleKeyStyle}
-            >
-              <div class="tile__head">
-                <span class="tile__name">{o.label}</span>
-                <template lwc:if={o.isSelected}>
-                  <lightning-icon
-                    icon-name="utility:check"
-                    size="x-small"
-                    variant="success"
-                    alternative-text="Selected"
-                  ></lightning-icon>
-                </template>
-              </div>
-              <p class="tile__blurb">{o.blurb}</p>
-              <div class="tile__samples">
-                <template for:each={o.samples} for:item="s">
-                  <c-fleet-vehicle-image
-                    key={s.key}
-                    variant="icon"
-                    size="96"
-                    icon-style={o.value}
-                    body-type={s.bodyType}
-                    color={s.color}
-                    fuel-type={s.fuelType}
-                  ></c-fleet-vehicle-image>
-                </template>
-              </div>
-            </div>
-          </template>
-        </div>
-      </div>
-
-      <!-- Section 2: Application Theme & Brand Customization -->
-      <div class="theme-box slds-box">
-        <div
-          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
-        >
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <lightning-icon
-              icon-name="standard:portal"
-              size="small"
-              class="slds-m-right_small"
-            ></lightning-icon>
-            <div>
-              <h3 class="slds-text-heading_small slds-text-title_bold">
-                Brand Identity & Theme
-              </h3>
-              <p class="slds-text-color_weak slds-text-body_small">
-                Control the branding displayed across FleetForce headers,
-                navigation bars, and loading states.
-              </p>
-            </div>
-          </div>
-          <div class="slds-grid slds-grid_vertical-align-center">
-            <span class="slds-text-body_small slds-m-right_x-small"
-              >Custom Organization Theme:</span
-            >
-            <lightning-input
-              type="toggle"
-              name="useCustomTheme"
-              label="Custom Theme Toggle"
-              variant="label-hidden"
-              checked={draft.useCustomTheme}
-              onchange={handleThemeToggle}
-            ></lightning-input>
-          </div>
-        </div>
-
-        <!-- Default: FleetForce Packaged Brand -->
-        <template lwc:if={isPackagedTheme}>
+      <!-- ================= CARD 1: VEHICLE ICON STYLE ================= -->
+      <div class="brand-card slds-box slds-m-bottom_medium">
+        <!-- Overview Mode -->
+        <template lwc:if={isStyleOverview}>
           <div
-            class="slds-p-around_medium slds-theme_shade slds-border_rounded"
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
           >
-            <div
-              class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center"
-            >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:asset_relationship"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
               <div>
-                <div
-                  class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
-                >
-                  <strong class="slds-text-body_regular"
-                    >FleetForce Packaged Theme</strong
-                  >
-                  <span class="slds-badge slds-theme_success slds-m-left_small"
-                    >Default Active</span
-                  >
-                </div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Vehicle Icon Style
+                </h3>
                 <p class="slds-text-color_weak slds-text-body_small">
-                  Uses the signature FleetForce dark navy header (#0F1E33) and
-                  the official Waypoint logo. To customize your company's logo,
-                  colors, and loading animation, switch to "Custom Organization
-                  Theme" above.
+                  Visual rendering style applied to vehicles across fleet lists,
+                  map overlays, operational cards, and mobile views.
                 </p>
               </div>
-              <div
-                class="palette-swatch slds-m-top_small slds-m-medium-top_none"
+            </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <span class="slds-badge slds-theme_info slds-m-right_small"
+                >{activeStyleLabel}</span
               >
-                <div
-                  class="swatch-color"
-                  style="background-color: #0f1e33"
-                ></div>
-                <span class="swatch-label">#0F1E33<br />Navy</span>
-              </div>
+              <template lwc:if={canEdit}>
+                <lightning-button
+                  label="Modify Icon Style"
+                  icon-name="utility:edit"
+                  onclick={handleEditStyle}
+                ></lightning-button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Active Style Preview -->
+          <div
+            class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
+          >
+            <span
+              class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_x-small"
+              >Current Active Style: {activeStyleLabel}</span
+            >
+            <div class="tile__samples">
+              <template for:each={activeStyleSamples} for:item="s">
+                <c-fleet-vehicle-image
+                  key={s.key}
+                  style-variant={serverSettings.iconStyle}
+                  body-type={s.bodyType}
+                  color={s.color}
+                  fuel-type={s.fuelType}
+                  width="110"
+                ></c-fleet-vehicle-image>
+              </template>
             </div>
           </div>
         </template>
 
-        <!-- Custom Theme Configuration Form -->
-        <template lwc:if={draft.useCustomTheme}>
+        <!-- Edit Mode -->
+        <template lwc:if={isStyleEditing}>
           <div
-            class="slds-p-around_medium slds-box slds-theme_default slds-m-top_small"
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
           >
-            <div class="slds-grid slds-wrap slds-gutters_small">
-              <div
-                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-              >
-                <lightning-input
-                  label="Custom Theme Name"
-                  name="customThemeName"
-                  value={draft.customThemeName}
-                  placeholder="e.g. Acme Fleet Operations"
-                  onchange={handleFieldChange}
-                ></lightning-input>
-              </div>
-
-              <div
-                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-              >
-                <lightning-input
-                  type="color"
-                  label="Primary Header Color"
-                  name="customBrandColor"
-                  value={draft.customBrandColor}
-                  onchange={handleFieldChange}
-                ></lightning-input>
-              </div>
-
-              <div
-                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-              >
-                <lightning-input
-                  label="Company Logo Asset Name or URL"
-                  name="customLogoUrl"
-                  value={draft.customLogoUrl}
-                  placeholder="e.g. Acme_Logo or https://..."
-                  field-level-help="When set, FleetForce automatically applies your company logo to headers and loading spinners."
-                  onchange={handleFieldChange}
-                ></lightning-input>
-              </div>
-            </div>
-
-            <!-- Clean Company Brand Guidance Note -->
-            <div
-              class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
-            >
-              <div
-                class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
-              >
-                <lightning-icon
-                  icon-name="utility:image"
-                  size="x-small"
-                  class="slds-m-right_xx-small"
-                ></lightning-icon>
-                <strong class="slds-text-body_small"
-                  >Company Brand &amp; Logo</strong
-                >
-              </div>
-              <p class="slds-text-body_small slds-text-color_weak">
-                Configuring a company logo applies your enterprise branding
-                across all FleetForce navigation headers, operational screens,
-                and loading states automatically.
+            <div>
+              <h4 class="slds-text-title_bold">Select Vehicle Icon Style</h4>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Choose a visual rendering style. Changes apply to all users
+                across the organization.
               </p>
             </div>
+            <span class="slds-badge slds-theme_warning">Editing Style</span>
+          </div>
+
+          <div
+            class="tiles slds-m-bottom_small"
+            role="radiogroup"
+            aria-label="Vehicle icon style"
+          >
+            <template for:each={options} for:item="o">
+              <div
+                key={o.value}
+                class={o.tileClass}
+                role="radio"
+                tabindex="0"
+                aria-checked={o.ariaChecked}
+                data-value={o.value}
+                onclick={handleSelectStyle}
+                onkeydown={handleKeyStyle}
+              >
+                <div class="tile__head">
+                  <span class="tile__name">{o.label}</span>
+                  <template lwc:if={o.isSelected}>
+                    <lightning-icon
+                      icon-name="utility:check"
+                      size="x-small"
+                      variant="success"
+                    ></lightning-icon>
+                  </template>
+                </div>
+                <p class="tile__blurb">{o.blurb}</p>
+                <div class="tile__samples">
+                  <template for:each={o.samples} for:item="s">
+                    <c-fleet-vehicle-image
+                      key={s.key}
+                      style-variant={o.value}
+                      body-type={s.bodyType}
+                      color={s.color}
+                      fuel-type={s.fuelType}
+                      width="100"
+                    ></c-fleet-vehicle-image>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end slds-m-top_small">
+            <lightning-button
+              label="Cancel"
+              class="slds-m-right_x-small"
+              onclick={handleCancelStyle}
+              disabled={saving}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Save Icon Style"
+              onclick={handleSaveStyle}
+              disabled={saving}
+            ></lightning-button>
+          </div>
+        </template>
+      </div>
+
+      <!-- ================= CARD 2: COMPANY BRAND LOGO ================= -->
+      <div class="brand-card slds-box">
+        <!-- Overview Mode -->
+        <template lwc:if={isLogoOverview}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+          >
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="standard:lead_insights"
+                size="small"
+                class="slds-m-right_small"
+              ></lightning-icon>
+              <div>
+                <h3 class="slds-text-heading_small slds-text-title_bold">
+                  Company Brand Logo
+                </h3>
+                <p class="slds-text-color_weak slds-text-body_small">
+                  Enterprise logo displayed across navigation headers,
+                  operational screens, and system states.
+                </p>
+              </div>
+            </div>
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <template lwc:if={serverSettings.hasCustomLogo}>
+                <span class="slds-badge slds-theme_success slds-m-right_small"
+                  >Custom Enterprise Logo</span
+                >
+              </template>
+              <template lwc:else>
+                <span class="slds-badge slds-badge_lightest slds-m-right_small"
+                  >Default FleetForce Logo</span
+                >
+              </template>
+
+              <template lwc:if={canEdit}>
+                <template lwc:if={serverSettings.hasCustomLogo}>
+                  <lightning-button
+                    label="Replace Logo"
+                    icon-name="utility:upload"
+                    onclick={handleEditLogo}
+                    class="slds-m-right_x-small"
+                  ></lightning-button>
+                  <lightning-button
+                    label="Revert to Default"
+                    icon-name="utility:undo"
+                    onclick={handleRevertLogo}
+                    disabled={saving}
+                  ></lightning-button>
+                </template>
+                <template lwc:else>
+                  <lightning-button
+                    variant="brand"
+                    label="Upload Company Logo"
+                    icon-name="utility:upload"
+                    onclick={handleEditLogo}
+                  ></lightning-button>
+                </template>
+              </template>
+            </div>
+          </div>
+
+          <!-- Logo Live Preview Box -->
+          <div
+            class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
+          >
+            <span
+              class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_x-small"
+              >Header Navigation Preview (Dark Mode Surface)</span
+            >
+            <div class="logo-preview-box">
+              <template lwc:if={currentLogoUrl}>
+                <img
+                  src={currentLogoUrl}
+                  alt="Company Brand Logo"
+                  class="logo-preview-img"
+                />
+              </template>
+            </div>
+            <p
+              class="slds-text-body_small slds-text-color_weak slds-m-top_x-small"
+            >
+              {logoStatusDescription}
+            </p>
+          </div>
+        </template>
+
+        <!-- Edit / Upload Mode -->
+        <template lwc:if={isLogoEditing}>
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
+          >
+            <div>
+              <h4 class="slds-text-title_bold">Upload Company Logo</h4>
+              <p class="slds-text-color_weak slds-text-body_small">
+                Upload your company's image file (.png, .svg, .jpg). FleetForce
+                will store it in Salesforce Files and apply it automatically.
+              </p>
+            </div>
+            <span class="slds-badge slds-theme_warning">Uploading Logo</span>
+          </div>
+
+          <div
+            class="slds-p-around_medium slds-theme_shade slds-border_rounded slds-m-bottom_small"
+          >
+            <lightning-file-upload
+              label="Select Logo File"
+              name="companyLogoUploader"
+              accept={acceptedFormats}
+              record-id={currentUserId}
+              onuploadfinished={handleUploadFinished}
+              class="slds-m-bottom_small"
+            ></lightning-file-upload>
+
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+            >
+              <lightning-icon
+                icon-name="utility:info"
+                size="xx-small"
+                class="slds-m-right_xx-small"
+              ></lightning-icon>
+              <p class="slds-text-body_small slds-text-color_weak">
+                Recommended: PNG or SVG with transparent background, horizontal
+                orientation (aspect ratio ~ 3:1 or 4:1), max 2MB.
+              </p>
+            </div>
+          </div>
+
+          <div class="slds-grid slds-grid_align-end">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCancelLogo}
+              disabled={saving}
+            ></lightning-button>
           </div>
         </template>
       </div>

@@ -99,6 +99,14 @@ public with sharing class FleetDisplaySettingsController {
     @AuraEnabled
     public String customLogoUrl;
     @AuraEnabled
+    public String defaultLogoUrl;
+    @AuraEnabled
+    public Boolean hasCustomLogo;
+    @AuraEnabled
+    public Id settingId;
+    @AuraEnabled
+    public Id currentUserId;
+    @AuraEnabled
     public Boolean canEdit;
   }
 
@@ -229,8 +237,61 @@ public with sharing class FleetDisplaySettingsController {
       ? org.fleetforce__Custom_Brand_Color__c
       : '#0F1E33';
     b.customLogoUrl = org.fleetforce__Custom_Logo_Url__c;
+    b.hasCustomLogo = String.isNotBlank(org.fleetforce__Custom_Logo_Url__c);
+    b.defaultLogoUrl = '/file-asset/Fleetforce_Waypoint_Logo';
+    b.settingId = org.Id;
+    b.currentUserId = UserInfo.getUserId();
     b.canEdit = canEditBrand();
     return b;
+  }
+
+  @AuraEnabled
+  public static BrandSettings saveBrandIconStyle(String iconStyle) {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    if (String.isNotBlank(iconStyle)) {
+      String s = iconStyle.trim().toLowerCase();
+      if (STYLES.contains(s)) {
+        org.fleetforce__Vehicle_Icon_Style__c = s;
+      }
+    }
+    upsert org;
+    return getBrandSettings();
+  }
+
+  @AuraEnabled
+  public static BrandSettings saveCustomLogo(Id contentVersionId) {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    if (contentVersionId == null) {
+      throw new AuraHandledException('ContentVersion Id is required.');
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Custom_Logo_Url__c =
+      '/sfc/servlet.shepherd/version/download/' + contentVersionId;
+    org.fleetforce__Use_Custom_Theme__c = true;
+    upsert org;
+    return getBrandSettings();
+  }
+
+  @AuraEnabled
+  public static BrandSettings revertToDefaultLogo() {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Custom_Logo_Url__c = null;
+    upsert org;
+    return getBrandSettings();
   }
 
   @AuraEnabled

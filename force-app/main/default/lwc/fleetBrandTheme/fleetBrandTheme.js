@@ -1,46 +1,66 @@
 import { LightningElement, wire } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
+import USER_ID from "@salesforce/user/Id";
 import getBrandSettings from "@salesforce/apex/FleetDisplaySettingsController.getBrandSettings";
-import saveBrandSettings from "@salesforce/apex/FleetDisplaySettingsController.saveBrandSettings";
-import { STYLE_OPTIONS, DEFAULT_STYLE } from "c/fleetVehicleStyles";
+import saveBrandIconStyle from "@salesforce/apex/FleetDisplaySettingsController.saveBrandIconStyle";
+import saveCustomLogo from "@salesforce/apex/FleetDisplaySettingsController.saveCustomLogo";
+import revertToDefaultLogo from "@salesforce/apex/FleetDisplaySettingsController.revertToDefaultLogo";
+
+const DEFAULT_STYLE = "silhouette";
+
+const STYLE_OPTIONS = [
+  {
+    value: "silhouette",
+    label: "Silhouette",
+    blurb: "Solid shapes with cut-outs. The default."
+  },
+  { value: "flat", label: "Flat", blurb: "Clean 2D side views." },
+  {
+    value: "classic",
+    label: "Classic",
+    blurb: "Retro curves, whitewalls and chrome."
+  },
+  {
+    value: "modern",
+    label: "Modern",
+    blurb: "Sleek lines with crisp lights."
+  },
+  {
+    value: "futuristic",
+    label: "Futuristic",
+    blurb: "Angular, faceted, light-bar front."
+  }
+];
 
 const SAMPLES = [
-  { key: "s1", bodyType: "Sedan", color: "Blue", fuelType: "Gasoline" },
-  { key: "s2", bodyType: "Pickup", color: "Red", fuelType: "Electric" },
-  { key: "s3", bodyType: "Van", color: "Silver", fuelType: "Diesel" },
-  { key: "s4", bodyType: "SUV", color: "Green", fuelType: "Hybrid" }
+  { key: "van", bodyType: "van", color: "blue", fuelType: "electric" },
+  { key: "sedan", bodyType: "sedan", color: "green", fuelType: "hybrid" },
+  { key: "truck", bodyType: "truck", color: "red", fuelType: "diesel" }
 ];
 
 export default class FleetBrandTheme extends LightningElement {
   loading = true;
   saving = false;
+  activeEditSection = null; // null | 'style' | 'logo'
   error;
 
   serverSettings = {
     iconStyle: DEFAULT_STYLE,
-    useCustomTheme: false,
-    customThemeName: "FleetForce Packaged Theme",
-    customBrandColor: "#0F1E33",
-    customLogoUrl: "",
+    customLogoUrl: null,
+    defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
+    hasCustomLogo: false,
+    settingId: null,
     canEdit: true
   };
 
-  draft = {
-    iconStyle: DEFAULT_STYLE,
-    useCustomTheme: false,
-    customThemeName: "",
-    customBrandColor: "#0F1E33",
-    customLogoUrl: ""
-  };
-
-  themesSetupUrl = "/lightning/setup/ThemingAndBranding/home";
+  draftStyle = DEFAULT_STYLE;
 
   @wire(getBrandSettings)
   wiredSettings({ data, error }) {
     this.loading = false;
     if (data) {
       this.serverSettings = data;
-      this.resetDraft();
+      this.draftStyle = data.iconStyle || DEFAULT_STYLE;
       this.error = undefined;
     } else if (error) {
       this.error =
@@ -49,51 +69,90 @@ export default class FleetBrandTheme extends LightningElement {
     }
   }
 
-  resetDraft() {
-    this.draft = {
-      iconStyle: this.serverSettings.iconStyle || DEFAULT_STYLE,
-      useCustomTheme: !!this.serverSettings.useCustomTheme,
-      customThemeName: this.serverSettings.customThemeName || "",
-      customBrandColor: this.serverSettings.customBrandColor || "#0F1E33",
-      customLogoUrl: this.serverSettings.customLogoUrl || ""
-    };
+  get canEdit() {
+    return this.serverSettings && this.serverSettings.canEdit;
   }
 
-  get isPackagedTheme() {
-    return !this.draft.useCustomTheme;
+  get currentUserId() {
+    return (
+      (this.serverSettings && this.serverSettings.currentUserId) || USER_ID
+    );
+  }
+
+  // Section 1: Icon Style
+  get isStyleOverview() {
+    return this.activeEditSection !== "style";
+  }
+
+  get isStyleEditing() {
+    return this.activeEditSection === "style";
+  }
+
+  get activeStyleLabel() {
+    const match = STYLE_OPTIONS.find(
+      (o) => o.value === (this.serverSettings.iconStyle || DEFAULT_STYLE)
+    );
+    return match ? match.label : "Silhouette";
+  }
+
+  get activeStyleSamples() {
+    return SAMPLES;
   }
 
   get options() {
     return STYLE_OPTIONS.map((o) => ({
       ...o,
-      isSelected: o.value === this.draft.iconStyle,
-      tileClass: `tile${o.value === this.draft.iconStyle ? " tile--selected" : ""}`,
-      ariaChecked: String(o.value === this.draft.iconStyle),
+      isSelected: o.value === this.draftStyle,
+      tileClass: `tile${o.value === this.draftStyle ? " tile--selected" : ""}`,
+      ariaChecked: String(o.value === this.draftStyle),
       samples: SAMPLES
     }));
   }
 
-  get dirty() {
+  // Section 2: Logo
+  get isLogoOverview() {
+    return this.activeEditSection !== "logo";
+  }
+
+  get isLogoEditing() {
+    return this.activeEditSection === "logo";
+  }
+
+  get currentLogoUrl() {
+    if (this.serverSettings.customLogoUrl) {
+      return this.serverSettings.customLogoUrl;
+    }
     return (
-      this.draft.iconStyle !== this.serverSettings.iconStyle ||
-      this.draft.useCustomTheme !== this.serverSettings.useCustomTheme ||
-      this.draft.customThemeName !==
-        (this.serverSettings.customThemeName || "") ||
-      this.draft.customBrandColor !==
-        (this.serverSettings.customBrandColor || "#0F1E33") ||
-      this.draft.customLogoUrl !== (this.serverSettings.customLogoUrl || "")
+      this.serverSettings.defaultLogoUrl ||
+      "/file-asset/Fleetforce_Waypoint_Logo"
     );
   }
 
-  get saveDisabled() {
-    return !this.dirty || this.saving || !this.serverSettings.canEdit;
+  get logoStatusDescription() {
+    if (this.serverSettings.hasCustomLogo) {
+      return "Custom enterprise logo is active and displayed across all FleetForce navigation headers.";
+    }
+    return "Official FleetForce Waypoint logo is currently active as the system default.";
+  }
+
+  get acceptedFormats() {
+    return [".png", ".jpg", ".jpeg", ".svg"];
+  }
+
+  handleEditStyle() {
+    this.draftStyle = this.serverSettings.iconStyle || DEFAULT_STYLE;
+    this.activeEditSection = "style";
+    this.error = undefined;
+  }
+
+  handleCancelStyle() {
+    this.draftStyle = this.serverSettings.iconStyle || DEFAULT_STYLE;
+    this.activeEditSection = null;
+    this.error = undefined;
   }
 
   handleSelectStyle(event) {
-    this.draft = {
-      ...this.draft,
-      iconStyle: event.currentTarget.dataset.value
-    };
+    this.draftStyle = event.currentTarget.dataset.value;
   }
 
   handleKeyStyle(event) {
@@ -103,47 +162,83 @@ export default class FleetBrandTheme extends LightningElement {
     }
   }
 
-  handleThemeToggle(event) {
-    this.draft = { ...this.draft, useCustomTheme: event.target.checked };
-  }
-
-  handleFieldChange(event) {
-    const { name, value } = event.target;
-    this.draft = { ...this.draft, [name]: value };
-  }
-
-  handleCancel() {
-    this.resetDraft();
-    this.error = undefined;
-  }
-
-  async handleSave() {
+  async handleSaveStyle() {
     this.saving = true;
     this.error = undefined;
     try {
-      const updated = await saveBrandSettings({
-        iconStyle: this.draft.iconStyle,
-        useCustomTheme: this.draft.useCustomTheme,
-        customThemeName: this.draft.customThemeName,
-        customBrandColor: this.draft.customBrandColor,
-        customLogoUrl: this.draft.customLogoUrl
-      });
+      const updated = await saveBrandIconStyle({ iconStyle: this.draftStyle });
       this.serverSettings = updated;
-      this.resetDraft();
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Brand & Theme Saved",
-          message:
-            "Brand preferences saved. Reload other FleetForce pages to view changes.",
-          variant: "success"
-        })
+      this.draftStyle = updated.iconStyle;
+      this.activeEditSection = null;
+      this.showToast(
+        "Icon Style Saved",
+        "Vehicle icon style updated across all fleet views.",
+        "success"
       );
     } catch (e) {
       this.error =
-        (e && e.body && e.body.message) ||
-        "The brand settings could not be saved.";
+        (e && e.body && e.body.message) || "Could not save icon style.";
     } finally {
       this.saving = false;
     }
+  }
+
+  handleEditLogo() {
+    this.activeEditSection = "logo";
+    this.error = undefined;
+  }
+
+  handleCancelLogo() {
+    this.activeEditSection = null;
+    this.error = undefined;
+  }
+
+  async handleUploadFinished(event) {
+    const uploadedFiles = event.detail.files;
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      return;
+    }
+
+    const contentVersionId = uploadedFiles[0].contentVersionId;
+    this.saving = true;
+    this.error = undefined;
+    try {
+      const updated = await saveCustomLogo({ contentVersionId });
+      this.serverSettings = updated;
+      this.activeEditSection = null;
+      this.showToast(
+        "Company Logo Uploaded",
+        "Your enterprise logo has been saved and applied to FleetForce headers.",
+        "success"
+      );
+    } catch (e) {
+      this.error =
+        (e && e.body && e.body.message) || "Could not link uploaded logo.";
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  async handleRevertLogo() {
+    this.saving = true;
+    this.error = undefined;
+    try {
+      const updated = await revertToDefaultLogo();
+      this.serverSettings = updated;
+      this.activeEditSection = null;
+      this.showToast(
+        "Reverted to Default",
+        "FleetForce standard logo restored.",
+        "success"
+      );
+    } catch (e) {
+      this.error = (e && e.body && e.body.message) || "Could not revert logo.";
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  showToast(title, message, variant) {
+    this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
   }
 }

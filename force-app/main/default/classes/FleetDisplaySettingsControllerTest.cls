@@ -199,6 +199,31 @@ private class FleetDisplaySettingsControllerTest {
       System.assertEquals(true, saved.useCustomTheme);
       System.assertEquals('Acme Global Fleet', saved.customThemeName);
       System.assertEquals('#0176D3', saved.customBrandColor);
+
+      // Test individual saveBrandIconStyle
+      FleetDisplaySettingsController.BrandSettings styleSaved = FleetDisplaySettingsController.saveBrandIconStyle(
+        'futuristic'
+      );
+      System.assertEquals('futuristic', styleSaved.iconStyle);
+
+      // Create test ContentVersion for logo
+      ContentVersion cv = new ContentVersion(
+        Title = 'Test Company Logo',
+        PathOnClient = 'test_logo.png',
+        VersionData = Blob.valueOf('Fake PNG Image Data')
+      );
+      insert cv;
+
+      FleetDisplaySettingsController.BrandSettings logoSaved = FleetDisplaySettingsController.saveCustomLogo(
+        cv.Id
+      );
+      System.assertEquals(true, logoSaved.hasCustomLogo);
+      System.assert(logoSaved.customLogoUrl.contains(String.valueOf(cv.Id)));
+
+      // Test revertToDefaultLogo
+      FleetDisplaySettingsController.BrandSettings reverted = FleetDisplaySettingsController.revertToDefaultLogo();
+      System.assertEquals(false, reverted.hasCustomLogo);
+      System.assertEquals(null, reverted.customLogoUrl);
     }
   }
 }

@@ -1,3 +1,10 @@
+.brand-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -53,34 +60,18 @@
   gap: 0.5rem 0.75rem;
 }
 
-.theme-box {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+.logo-preview-box {
+  background: #0f1e33;
   border-radius: 8px;
-}
-
-.palette-card {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.palette-swatch {
+  padding: 1.25rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  min-height: 90px;
 }
 
-.swatch-color {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  margin-bottom: 4px;
-}
-
-.swatch-label {
-  font-size: 0.65rem;
-  line-height: 1.1;
-  color: #475569;
+.logo-preview-img {
+  max-height: 55px;
+  max-width: 240px;
+  object-fit: contain;
 }
