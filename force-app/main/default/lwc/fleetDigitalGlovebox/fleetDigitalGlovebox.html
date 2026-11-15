@@ -98,7 +98,7 @@
                   and annual inspection reports on file.
                 </p>
                 <span class="slds-badge slds-badge_lightest">
-                  {payload.complianceDocuments.length} Documents Found
+                  {complianceDocumentsCount} Documents Found
                 </span>
               </div>
 
@@ -151,6 +151,19 @@
                         <div
                           class="slds-grid slds-grid_align-end slds-grid_vertical-align-center"
                         >
+                          <button
+                            type="button"
+                            data-id={doc.id}
+                            class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
+                            onclick={handleViewAssetDocument}
+                          >
+                            <lightning-icon
+                              icon-name="utility:record"
+                              size="xx-small"
+                              class="slds-m-right_xx-small"
+                            ></lightning-icon>
+                            View Asset Document
+                          </button>
                           <template lwc:if={doc.hasFiles}>
                             <a
                               href={doc.fileDownloadUrl}
@@ -214,7 +227,225 @@
             </div>
           </lightning-tab>
 
-          <!-- ================= TAB 2: OEM MANUALS & RECOVERY ================= -->
+          <!-- ================= TAB 2: VEHICLE DOCUMENTS & FILES REPOSITORY ================= -->
+          <lightning-tab
+            label="Vehicle Documents"
+            value="documents"
+            icon-name="utility:open_folder"
+          >
+            <div class="slds-m-top_small">
+              <!-- Part A: System-Linked Record Documents -->
+              <div class="slds-m-bottom_large">
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small"
+                >
+                  <div>
+                    <h4 class="slds-text-title_bold">
+                      Part A: System-Linked Record Documents
+                    </h4>
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      Aggregated files attached across this vehicle's citations,
+                      insurance policies, and service work orders.
+                    </p>
+                  </div>
+                  <span class="slds-badge slds-badge_lightest">
+                    {systemLinkedCount} Linked Files
+                  </span>
+                </div>
+
+                <template lwc:if={hasSystemLinkedDocuments}>
+                  <div class="slds-grid slds-wrap slds-gutters">
+                    <template
+                      for:each={payload.systemLinkedDocuments}
+                      for:item="f"
+                    >
+                      <div
+                        key={f.id}
+                        class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                      >
+                        <div class="doc-card slds-p-around_small slds-box">
+                          <div
+                            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small"
+                          >
+                            <div
+                              class="slds-grid slds-grid_vertical-align-center"
+                            >
+                              <lightning-icon
+                                icon-name="doctype:pdf"
+                                size="x-small"
+                                class="slds-m-right_x-small"
+                              ></lightning-icon>
+                              <strong
+                                class="slds-text-body_regular slds-truncate"
+                                title={f.title}
+                                >{f.title}</strong
+                              >
+                            </div>
+                            <span class={f.sourceBadgeClass}
+                              >{f.sourceEntityType}</span
+                            >
+                          </div>
+                          <div
+                            class="slds-text-body_small slds-text-color_weak slds-m-bottom_small"
+                          >
+                            <p>Source: <strong>{f.sourceRecordName}</strong></p>
+                            <p>
+                              Format: {f.fileExtension} &nbsp;·&nbsp; Size:
+                              {f.fileSize}
+                            </p>
+                          </div>
+                          <div
+                            class="slds-grid slds-grid_align-end slds-grid_vertical-align-center"
+                          >
+                            <button
+                              type="button"
+                              data-id={f.sourceRecordId}
+                              class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
+                              onclick={handleViewRecord}
+                            >
+                              <lightning-icon
+                                icon-name="utility:record"
+                                size="xx-small"
+                                class="slds-m-right_xx-small"
+                              ></lightning-icon>
+                              View Source Record
+                            </button>
+                            <a
+                              href={f.downloadUrl}
+                              target="_blank"
+                              class="slds-button slds-button_brand slds-button_small"
+                              download
+                            >
+                              <lightning-icon
+                                icon-name="utility:download"
+                                size="xx-small"
+                                class="slds-m-right_xx-small"
+                              ></lightning-icon>
+                              Download
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template lwc:else>
+                  <div
+                    class="slds-box slds-theme_shade slds-text-align_center slds-p-around_medium slds-border_rounded"
+                  >
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      No documents currently attached to related citations,
+                      insurance links, or service tickets.
+                    </p>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Part B: Direct Vehicle Documents & File Upload -->
+              <div>
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small"
+                >
+                  <div>
+                    <h4 class="slds-text-title_bold">
+                      Part B: Direct Vehicle Files (Title, Bill of Sale,
+                      Inspections)
+                    </h4>
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      Files and attachments uploaded directly to this vehicle
+                      asset record.
+                    </p>
+                  </div>
+                  <span class="slds-badge slds-badge_lightest">
+                    {directAssetCount} Asset Files
+                  </span>
+                </div>
+
+                <template lwc:if={hasDirectAssetDocuments}>
+                  <div
+                    class="slds-grid slds-wrap slds-gutters slds-m-bottom_small"
+                  >
+                    <template
+                      for:each={payload.directAssetDocuments}
+                      for:item="f"
+                    >
+                      <div
+                        key={f.id}
+                        class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                      >
+                        <div class="doc-card slds-p-around_small slds-box">
+                          <div
+                            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small"
+                          >
+                            <div
+                              class="slds-grid slds-grid_vertical-align-center"
+                            >
+                              <lightning-icon
+                                icon-name="doctype:attachment"
+                                size="x-small"
+                                class="slds-m-right_x-small"
+                              ></lightning-icon>
+                              <strong
+                                class="slds-text-body_regular slds-truncate"
+                                title={f.title}
+                                >{f.title}</strong
+                              >
+                            </div>
+                            <span class="slds-badge slds-badge_lightest"
+                              >{f.fileExtension}</span
+                            >
+                          </div>
+                          <div
+                            class="slds-text-body_small slds-text-color_weak slds-m-bottom_small"
+                          >
+                            <p>
+                              Direct Vehicle File &nbsp;·&nbsp; Size:
+                              {f.fileSize}
+                            </p>
+                          </div>
+                          <div class="slds-grid slds-grid_align-end">
+                            <a
+                              href={f.downloadUrl}
+                              target="_blank"
+                              class="slds-button slds-button_brand slds-button_small"
+                              download
+                            >
+                              <lightning-icon
+                                icon-name="utility:download"
+                                size="xx-small"
+                                class="slds-m-right_xx-small"
+                              ></lightning-icon>
+                              Download File
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+
+                <!-- Drag-and-drop file upload zone -->
+                <div
+                  class="slds-box slds-theme_default slds-p-around_small slds-border_rounded"
+                >
+                  <span
+                    class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+                  >
+                    Upload Vehicle Document to Asset
+                  </span>
+                  <lightning-file-upload
+                    label="Attach File to Vehicle"
+                    name="vehicleFileUpload"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                    record-id={recordId}
+                    onuploadfinished={handleUploadFinished}
+                  ></lightning-file-upload>
+                </div>
+              </div>
+            </div>
+          </lightning-tab>
+
+          <!-- ================= TAB 3: OEM MANUALS & RECOVERY ================= -->
           <lightning-tab
             label="Manufacturer Manuals"
             value="manuals"
@@ -369,7 +600,7 @@
             </div>
           </lightning-tab>
 
-          <!-- ================= TAB 3: INFOTAINMENT & PRIVACY ================= -->
+          <!-- ================= TAB 4: INFOTAINMENT & PRIVACY ================= -->
           <lightning-tab
             label="Infotainment &amp; Privacy"
             value="privacy"
@@ -466,72 +697,265 @@
             </div>
           </lightning-tab>
 
-          <!-- ================= TAB 4: PREVENTIVE MAINTENANCE ================= -->
+          <!-- ================= TAB 5: PREVENTIVE MAINTENANCE ================= -->
           <lightning-tab
             label="Maintenance Schedules"
             value="maintenance"
             icon-name="utility:custom_apps"
           >
             <div class="slds-m-top_small">
-              <div class="slds-m-bottom_medium">
-                <span
-                  class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_x-small"
+              <!-- Active Program Master Card -->
+              <div
+                class="slds-box active-plan-banner slds-p-around_medium slds-m-bottom_medium"
+              >
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
                 >
-                  Applicable Master Maintenance Plans
-                </span>
-                <div class="slds-grid slds-wrap slds-gutters">
-                  <template
-                    for:each={payload.maintenanceInfo.applicablePlans}
-                    for:item="plan"
-                  >
+                  <div>
                     <div
-                      key={plan.id}
-                      class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                      class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small"
                     >
-                      <div class="slds-box slds-theme_shade plan-card">
-                        <div
-                          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small"
+                      <lightning-icon
+                        icon-name="standard:maintenance_plan"
+                        size="small"
+                        class="slds-m-right_small"
+                      ></lightning-icon>
+                      <h3 class="slds-text-heading_small slds-text-title_bold">
+                        {payload.maintenanceInfo.activePlan.name}
+                      </h3>
+                    </div>
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      Vehicle Service Program &nbsp;·&nbsp; Type:
+                      <strong
+                        >{payload.maintenanceInfo.activePlan.assetType}</strong
+                      >
+                      &nbsp;·&nbsp; Cadence:
+                      <strong
+                        >{payload.maintenanceInfo.activePlan.frequencyType}</strong
+                      >
+                    </p>
+                  </div>
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <template lwc:if={payload.maintenanceInfo.isOverridden}>
+                      <span
+                        class="slds-badge slds-theme_warning slds-m-right_small"
+                        >Custom Vehicle Override</span
+                      >
+                    </template>
+                    <template lwc:else>
+                      <span
+                        class="slds-badge slds-badge_lightest slds-m-right_small"
+                        >Model Default Program</span
+                      >
+                    </template>
+                    <button
+                      type="button"
+                      class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
+                      data-id="view-plan-record-btn"
+                      onclick={handleViewActivePlanRecord}
+                    >
+                      <lightning-icon
+                        icon-name="utility:new_window"
+                        size="xx-small"
+                        class="slds-m-right_xx-small"
+                      ></lightning-icon>
+                      View Program Record
+                    </button>
+                    <button
+                      type="button"
+                      class="slds-button slds-button_brand slds-button_small"
+                      data-id="change-plan-btn"
+                      onclick={handleOpenChangePlanModal}
+                    >
+                      <lightning-icon
+                        icon-name="utility:change_record_type"
+                        size="xx-small"
+                        class="slds-m-right_xx-small"
+                      ></lightning-icon>
+                      Change Program
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Next Scheduled PM Milestone Card -->
+              <template lwc:if={payload.maintenanceInfo.hasNextMilestone}>
+                <div
+                  class="slds-box next-milestone-card slds-p-around_medium slds-m-bottom_medium"
+                >
+                  <div
+                    class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small"
+                  >
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <lightning-icon
+                        icon-name="utility:event"
+                        size="small"
+                        variant="warning"
+                        class="slds-m-right_small"
+                      ></lightning-icon>
+                      <div>
+                        <span class="slds-text-title_caps slds-text-color_weak"
+                          >Next Scheduled PM Milestone</span
                         >
-                          <strong class="slds-text-body_regular"
-                            >{plan.name}</strong
-                          >
-                          <span class="slds-badge slds-theme_info"
-                            >{plan.frequencyType}</span
-                          >
-                        </div>
-                        <div
-                          class="slds-text-body_small slds-text-color_weak slds-m-bottom_small"
+                        <h4
+                          class="slds-text-heading_small slds-text-title_bold"
                         >
-                          <template lwc:if={plan.intervalValue}>
-                            <span
-                              >Interval:
-                              <strong>{plan.intervalValue} mi</strong></span
+                          {payload.maintenanceInfo.nextMilestone.name}
+                        </h4>
+                      </div>
+                    </div>
+                    <span
+                      class={payload.maintenanceInfo.nextMilestoneStatusBadgeClass}
+                    >
+                      {payload.maintenanceInfo.nextMilestoneStatusLabel}
+                    </span>
+                  </div>
+
+                  <div
+                    class="slds-grid slds-wrap slds-grid_align-spread slds-m-bottom_x-small"
+                  >
+                    <div>
+                      <span class="slds-text-color_weak slds-text-body_small"
+                        >Target Odometer</span
+                      >
+                      <p class="slds-text-body_regular slds-text-title_bold">
+                        {payload.maintenanceInfo.nextMilestoneDueOdometer} mi
+                      </p>
+                    </div>
+                    <div>
+                      <span class="slds-text-color_weak slds-text-body_small"
+                        >Service Category</span
+                      >
+                      <p class="slds-text-body_regular">
+                        {payload.maintenanceInfo.nextMilestone.serviceCategory}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="slds-text-color_weak slds-text-body_small"
+                        >Components Serviced</span
+                      >
+                      <p class="slds-text-body_regular">
+                        {payload.maintenanceInfo.nextMilestone.componentsServiced}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="slds-text-color_weak slds-text-body_small"
+                        >Est. Cost &amp; Labor</span
+                      >
+                      <p class="slds-text-body_regular">
+                        ${payload.maintenanceInfo.nextMilestone.estimatedCost}
+                        ({payload.maintenanceInfo.nextMilestone.estimatedHours}
+                        hrs)
+                      </p>
+                    </div>
+                  </div>
+
+                  <template lwc:if={payload.maintenanceInfo.hasScheduledTicket}>
+                    <div
+                      class="slds-p-around_x-small slds-theme_default slds-border_rounded slds-m-top_x-small"
+                    >
+                      <div
+                        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                      >
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                          <lightning-icon
+                            icon-name="utility:task"
+                            size="xx-small"
+                            class="slds-m-right_xx-small"
+                          ></lightning-icon>
+                          <span class="slds-text-body_small">
+                            Active Work Order:
+                            <strong
+                              >{payload.maintenanceInfo.scheduledTicket.name}</strong
                             >
-                          </template>
-                          <template lwc:if={plan.intervalMonths}>
-                            <span>
-                              &nbsp;·&nbsp; Cycle:
-                              <strong
-                                >{plan.intervalMonths} Months</strong
-                              ></span
-                            >
-                          </template>
+                            ({payload.maintenanceInfo.scheduledTicket.summary})
+                          </span>
                         </div>
-                        <template lwc:if={plan.sopChecklist}>
-                          <div
-                            class="slds-p-around_x-small slds-theme_default slds-border_rounded slds-m-top_x-small"
-                          >
-                            <span
-                              class="slds-text-title_caps slds-text-color_weak slds-show"
-                              >SOP Checklist Preview</span
-                            >
-                            <pre class="sop-text">{plan.sopChecklist}</pre>
-                          </div>
-                        </template>
+                        <span class="slds-badge slds-badge_lightest"
+                          >{payload.maintenanceInfo.scheduledTicket.status}</span
+                        >
                       </div>
                     </div>
                   </template>
                 </div>
+              </template>
+
+              <!-- Milestone Lifecycle Roadmap -->
+              <div class="slds-m-bottom_medium">
+                <span
+                  class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_x-small"
+                >
+                  Program Milestone Lifecycle Roadmap
+                </span>
+                <template lwc:if={hasLineItems}>
+                  <div class="slds-grid slds-wrap slds-gutters">
+                    <template
+                      for:each={payload.maintenanceInfo.lineItems}
+                      for:item="item"
+                    >
+                      <div
+                        key={item.id}
+                        class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                      >
+                        <div class="slds-box slds-theme_shade line-item-card">
+                          <div
+                            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small"
+                          >
+                            <div>
+                              <span class="seq-circle slds-m-right_xx-small"
+                                >{item.sequence}</span
+                              >
+                              <strong class="slds-text-body_regular"
+                                >{item.name}</strong
+                              >
+                            </div>
+                            <span class={item.milestoneBadgeClass}
+                              >{item.milestoneStatus}</span
+                            >
+                          </div>
+                          <p
+                            class="slds-text-body_small slds-text-color_weak slds-m-bottom_xx-small"
+                          >
+                            Milestone:
+                            <strong>{item.milestoneMileage} mi</strong>
+                            &nbsp;·&nbsp; {item.milestoneMonths} Months
+                            &nbsp;·&nbsp; Category: {item.serviceCategory}
+                          </p>
+                          <p class="slds-text-body_small slds-m-bottom_x-small">
+                            {item.componentsServiced}
+                          </p>
+                          <div
+                            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-theme_default slds-p-around_xx-small slds-border_rounded"
+                          >
+                            <span
+                              class="slds-text-body_small slds-text-color_weak"
+                              >Est: ${item.estimatedCost} ·
+                              {item.estimatedHours} hrs</span
+                            >
+                            <button
+                              type="button"
+                              class="slds-button slds-button_neutral slds-button_small"
+                              data-id={item.id}
+                              onclick={handleViewRecord}
+                            >
+                              View Item Details
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template lwc:else>
+                  <div
+                    class="slds-box slds-theme_shade slds-text-align_center slds-p-around_medium"
+                  >
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      No milestone line items defined for this maintenance plan
+                      yet.
+                    </p>
+                  </div>
+                </template>
               </div>
 
               <!-- Recent Service Tickets Executed -->
@@ -698,6 +1122,66 @@
               label="Save Document"
               onclick={handleSaveNewDoc}
               disabled={savingDoc}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Change Maintenance Plan Modal -->
+    <template lwc:if={showChangePlanModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <button
+              class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+              onclick={handleCloseChangePlanModal}
+            >
+              <lightning-icon
+                icon-name="utility:close"
+                size="small"
+                variant="inverse"
+              ></lightning-icon>
+              <span class="slds-assistive-text">Close</span>
+            </button>
+            <h2 class="slds-modal__title slds-hyphenate">
+              Change Vehicle Maintenance Program
+            </h2>
+          </header>
+          <div class="slds-modal__content slds-p-around_medium">
+            <p
+              class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium"
+            >
+              Select an enterprise maintenance program to govern scheduled
+              service intervals and warranty milestones for this vehicle.
+            </p>
+            <lightning-combobox
+              data-id="plan-select"
+              label="Select Maintenance Program"
+              value={selectedPlanId}
+              options={planOptions}
+              required
+              onchange={handlePlanSelect}
+            ></lightning-combobox>
+          </div>
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseChangePlanModal}
+              class="slds-m-right_x-small"
+            ></lightning-button>
+            <lightning-button
+              data-id="save-plan-btn"
+              variant="brand"
+              label="Save Program Assignment"
+              onclick={handleSavePlanAssignment}
+              disabled={savingPlan}
             ></lightning-button>
           </footer>
         </div>

@@ -40,9 +40,44 @@
   justify-content: space-between;
 }
 
-.plan-card {
+.active-plan-banner {
+  background: #f8fafc;
+  border-left: 4px solid #0176d3;
+  border-radius: 0.375rem;
+}
+
+.next-milestone-card {
+  background: #fffdf5;
+  border: 1.5px solid #fe9339;
+  border-radius: 0.5rem;
+}
+
+.line-item-card {
   height: 100%;
   border-radius: 0.375rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.line-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.seq-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background-color: #0176d3;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .video-container {
