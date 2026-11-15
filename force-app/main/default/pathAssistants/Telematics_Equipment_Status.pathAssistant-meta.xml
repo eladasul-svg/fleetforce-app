@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Telematics_Equipment__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Telematics Equipment Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Fleet_Asset__c</fieldNames>
+        <fieldNames>Equipment_Type__c</fieldNames>
+        <fieldNames>IMEI__c</fieldNames>
+        <fieldNames>Last_Ping__c</fieldNames>
+        <fieldNames>Firmware_Ver__c</fieldNames>
+        <info
+    >&lt;p&gt;Telematics device installed, paired to vehicle, and transmitting CAN-bus / GPS telemetry.&lt;/p&gt;</info>
+        <picklistValueName>Active</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Equipment_Type__c</fieldNames>
+        <fieldNames>Manufacturer__c</fieldNames>
+        <fieldNames>Model__c</fieldNames>
+        <info
+    >&lt;p&gt;Device unassigned from vehicle or placed in depot inventory pending deployment.&lt;/p&gt;</info>
+        <picklistValueName>Inactive</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <fieldNames>Last_Ping__c</fieldNames>
+        <fieldNames>Firmware_Ver__c</fieldNames>
+        <info
+    >&lt;p&gt;Telemetry communication error, missing heartbeat, or hardware fault reported. Diagnostic ticket required.&lt;/p&gt;</info>
+        <picklistValueName>Faulty</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <fieldNames>Warranty_End__c</fieldNames>
+        <info
+    >&lt;p&gt;Hardware retired, recycled, or returned to manufacturer under warranty.&lt;/p&gt;</info>
+        <picklistValueName>Decommissioned</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

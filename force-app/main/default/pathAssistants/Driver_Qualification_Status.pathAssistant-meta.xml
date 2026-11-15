@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Driver_Qualification__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Driver Qualification Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Driver__c</fieldNames>
+        <fieldNames>Type__c</fieldNames>
+        <fieldNames>Cert_ID__c</fieldNames>
+        <fieldNames>Valid_Until__c</fieldNames>
+        <fieldNames>Verification_URL__c</fieldNames>
+        <info
+    >&lt;p&gt;Qualification is active and verified. Driver is authorized for relevant vehicle classes.&lt;/p&gt;</info>
+        <picklistValueName>Valid</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Valid_Until__c</fieldNames>
+        <fieldNames>Authority__c</fieldNames>
+        <fieldNames>Verification_URL__c</fieldNames>
+        <info
+    >&lt;p&gt;Qualification expiring within 30 days. Dispatch renewal notice and verify exam or renewal submission.&lt;/p&gt;</info>
+        <picklistValueName>Expiring Soon</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Valid_Until__c</fieldNames>
+        <fieldNames>Driver__c</fieldNames>
+        <info
+    >&lt;p&gt;Qualification lapsed. Commercial vehicle driving privileges are suspended until renewal is confirmed.&lt;/p&gt;</info>
+        <picklistValueName>Expired</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <fieldNames>Authority__c</fieldNames>
+        <info
+    >&lt;p&gt;Certification revoked by governing licensing authority or compliance audit.&lt;/p&gt;</info>
+        <picklistValueName>Revoked</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>
