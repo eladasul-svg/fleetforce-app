@@ -75,3 +75,24 @@
   max-width: 240px;
   object-fit: contain;
 }
+
+.color-pill {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-family: monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+}
+
+.logo-theme-box {
+  background: #0f1e33;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+}
+
+.theme-logo-preview {
+  max-height: 48px;
+  max-width: 220px;
+  object-fit: contain;
+  display: block;
+}

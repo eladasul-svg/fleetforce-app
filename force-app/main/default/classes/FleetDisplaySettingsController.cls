@@ -103,6 +103,22 @@ public with sharing class FleetDisplaySettingsController {
     @AuraEnabled
     public Boolean hasCustomLogo;
     @AuraEnabled
+    public Boolean hasCustomTheme;
+    @AuraEnabled
+    public Id activeThemeId;
+    @AuraEnabled
+    public String activeThemeName;
+    @AuraEnabled
+    public String activeThemeEditUrl;
+    @AuraEnabled
+    public String themesSetupUrl;
+    @AuraEnabled
+    public String activeBrandColor;
+    @AuraEnabled
+    public String activeBrandImageUrl;
+    @AuraEnabled
+    public Boolean overrideLoadingImage;
+    @AuraEnabled
     public Id settingId;
     @AuraEnabled
     public Id currentUserId;
@@ -241,7 +257,70 @@ public with sharing class FleetDisplaySettingsController {
     b.defaultLogoUrl = '/file-asset/Fleetforce_Waypoint_Logo';
     b.settingId = org.Id;
     b.currentUserId = UserInfo.getUserId();
+    b.themesSetupUrl = '/lightning/setup/ThemingAndBranding/home';
     b.canEdit = canEditBrand();
+
+    // Query custom LightningExperienceTheme records
+    try {
+      List<LightningExperienceTheme> customThemes = [
+        SELECT
+          Id,
+          DeveloperName,
+          MasterLabel,
+          Description,
+          DefaultBrandingSetId,
+          ShouldOverrideLoadingImage
+        FROM LightningExperienceTheme
+        ORDER BY LastModifiedDate DESC
+        LIMIT 1
+      ];
+
+      if (!customThemes.isEmpty()) {
+        LightningExperienceTheme active = customThemes[0];
+        b.hasCustomTheme = true;
+        b.activeThemeId = active.Id;
+        b.activeThemeName = active.MasterLabel;
+        b.activeThemeEditUrl =
+          '/lightning/setup/ThemingAndBranding/' +
+          active.Id +
+          '/edit';
+        b.overrideLoadingImage = active.ShouldOverrideLoadingImage == true;
+
+        if (active.DefaultBrandingSetId != null) {
+          for (BrandingSetProperty prop : [
+            SELECT PropertyName, PropertyValue
+            FROM BrandingSetProperty
+            WHERE BrandingSetId = :active.DefaultBrandingSetId
+          ]) {
+            if (
+              prop.PropertyName == 'BRAND_COLOR' &&
+              String.isNotBlank(prop.PropertyValue)
+            ) {
+              b.activeBrandColor = prop.PropertyValue;
+            } else if (
+              prop.PropertyName == 'BRAND_IMAGE' &&
+              String.isNotBlank(prop.PropertyValue)
+            ) {
+              b.activeBrandImageUrl = prop.PropertyValue;
+            } else if (
+              prop.PropertyName == 'OVERRIDE_LOADING_PAGE' &&
+              prop.PropertyValue == 'true'
+            ) {
+              b.overrideLoadingImage = true;
+            }
+          }
+        }
+      } else {
+        b.hasCustomTheme = false;
+        b.activeThemeName = 'Salesforce Cosmos (Default)';
+        b.activeThemeEditUrl = null;
+        b.overrideLoadingImage = false;
+      }
+    } catch (Exception e) {
+      b.hasCustomTheme = false;
+      b.activeThemeName = 'Salesforce Cosmos (Default)';
+    }
+
     return b;
   }
 

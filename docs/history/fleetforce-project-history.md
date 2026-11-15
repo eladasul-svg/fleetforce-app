@@ -52,6 +52,11 @@ Status as of 2026-09-27, fourth pass — **FleetForce Platform 1.0.0.8 is Releas
 
 ---
 
+## 2026-11-15 — Brand & Theme: Restored Vehicle Illustrations & Deep Native Salesforce Theming (`fleetforce-dev-13`)
+
+Fixed vehicle icon style preview illustrations across Overview and Modify modes in `fleetBrandTheme` by restoring `variant="icon"` and `icon-style` attribute bindings on `c-fleet-vehicle-image`. Realigned Card 2 with native Salesforce Lightning Themes & Branding architecture per admin feedback: dynamically queries the active `LightningExperienceTheme` (e.g. `Fleetforce`, `0S1Wm000000046rKAA`) and its `BrandingSetProperty` (brand colors, logo assets, loading animation overrides). Provided a clickable theme title link, live theme attribute pills, and two dedicated action buttons: **Edit Active Theme** (direct deep link into setup editor `/lightning/setup/ThemingAndBranding/{themeId}/edit`) and **Open Themes & Branding in Setup** (`/lightning/setup/ThemingAndBranding/home`). Deployed and verified on `fleetforce-dev-13`: Apex tests 8/8 passed (100%), Jest unit tests 19/19 suites passed (70/70).
+→ [full session notes](sessions/2026-11-15-brand-theme-native-salesforce-setup-alignment.md)
+
 ## 2026-11-15 — Admin Console Refinements: Brand & Theme Per-Setting Modify & Salesforce File Upload (`fleetforce-dev-13`)
 
 Refactored the **Brand & Theme** tab (`fleetBrandTheme` LWC) to follow the unified, card-level Overview $\rightarrow$ Modify UX pattern. Card 1 (Vehicle Icon Style) displays an executive overview with active style pill and vehicle preview, opening a 5-tile picker upon clicking "Modify Icon Style". Card 2 (Company Brand Logo) replaces raw URL input with native Salesforce file upload (`lightning-file-upload`) accepting `.png`, `.jpg`, and `.svg`. Uploaded files attach to the admin user and populate `Fleet_Display_Setting__c.Custom_Logo_Url__c` via the servlet download endpoint, with live preview on dark navy `#0F1E33` surface, status badges ("Custom Enterprise Logo" vs. "Default FleetForce Logo"), and an instant "Revert to Default" action restoring the packaged FleetForce Waypoint logo. Cleaned up redundant Astro loading spinner references and advanced theme styling fields. Tested and deployed to `fleetforce-dev-13`: Apex tests 8/8 passed (100%), Jest unit tests 19/19 suites passed (70/70).

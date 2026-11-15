@@ -74,11 +74,12 @@
               <template for:each={activeStyleSamples} for:item="s">
                 <c-fleet-vehicle-image
                   key={s.key}
-                  style-variant={serverSettings.iconStyle}
+                  variant="icon"
+                  size="96"
+                  icon-style={serverSettings.iconStyle}
                   body-type={s.bodyType}
                   color={s.color}
                   fuel-type={s.fuelType}
-                  width="110"
                 ></c-fleet-vehicle-image>
               </template>
             </div>
@@ -131,11 +132,12 @@
                   <template for:each={o.samples} for:item="s">
                     <c-fleet-vehicle-image
                       key={s.key}
-                      style-variant={o.value}
+                      variant="icon"
+                      size="96"
+                      icon-style={o.value}
                       body-type={s.bodyType}
                       color={s.color}
                       fuel-type={s.fuelType}
-                      width="100"
                     ></c-fleet-vehicle-image>
                   </template>
                 </div>
@@ -160,143 +162,147 @@
         </template>
       </div>
 
-      <!-- ================= CARD 2: COMPANY BRAND LOGO ================= -->
+      <!-- ================= CARD 2: SALESFORCE THEMES & BRANDING ================= -->
       <div class="brand-card slds-box">
-        <!-- Overview Mode -->
-        <template lwc:if={isLogoOverview}>
-          <div
-            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
-          >
-            <div class="slds-grid slds-grid_vertical-align-center">
-              <lightning-icon
-                icon-name="standard:lead_insights"
-                size="small"
-                class="slds-m-right_small"
-              ></lightning-icon>
-              <div>
-                <h3 class="slds-text-heading_small slds-text-title_bold">
-                  Company Brand Logo
-                </h3>
-                <p class="slds-text-color_weak slds-text-body_small">
-                  Enterprise logo displayed across navigation headers,
-                  operational screens, and system states.
-                </p>
-              </div>
-            </div>
-            <div class="slds-grid slds-grid_vertical-align-center">
-              <template lwc:if={serverSettings.hasCustomLogo}>
-                <span class="slds-badge slds-theme_success slds-m-right_small"
-                  >Custom Enterprise Logo</span
-                >
-              </template>
-              <template lwc:else>
-                <span class="slds-badge slds-badge_lightest slds-m-right_small"
-                  >Default FleetForce Logo</span
-                >
-              </template>
-
-              <template lwc:if={canEdit}>
-                <template lwc:if={serverSettings.hasCustomLogo}>
-                  <lightning-button
-                    label="Replace Logo"
-                    icon-name="utility:upload"
-                    onclick={handleEditLogo}
-                    class="slds-m-right_x-small"
-                  ></lightning-button>
-                  <lightning-button
-                    label="Revert to Default"
-                    icon-name="utility:undo"
-                    onclick={handleRevertLogo}
-                    disabled={saving}
-                  ></lightning-button>
-                </template>
-                <template lwc:else>
-                  <lightning-button
-                    variant="brand"
-                    label="Upload Company Logo"
-                    icon-name="utility:upload"
-                    onclick={handleEditLogo}
-                  ></lightning-button>
-                </template>
-              </template>
-            </div>
-          </div>
-
-          <!-- Logo Live Preview Box -->
-          <div
-            class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
-          >
-            <span
-              class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_x-small"
-              >Header Navigation Preview (Dark Mode Surface)</span
-            >
-            <div class="logo-preview-box">
-              <template lwc:if={currentLogoUrl}>
-                <img
-                  src={currentLogoUrl}
-                  alt="Company Brand Logo"
-                  class="logo-preview-img"
-                />
-              </template>
-            </div>
-            <p
-              class="slds-text-body_small slds-text-color_weak slds-m-top_x-small"
-            >
-              {logoStatusDescription}
-            </p>
-          </div>
-        </template>
-
-        <!-- Edit / Upload Mode -->
-        <template lwc:if={isLogoEditing}>
-          <div
-            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-border_bottom slds-p-bottom_small"
-          >
+        <div
+          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+        >
+          <div class="slds-grid slds-grid_vertical-align-center">
+            <lightning-icon
+              icon-name="standard:theme"
+              size="small"
+              class="slds-m-right_small"
+            ></lightning-icon>
             <div>
-              <h4 class="slds-text-title_bold">Upload Company Logo</h4>
+              <h3 class="slds-text-heading_small slds-text-title_bold">
+                Salesforce Themes &amp; Branding
+              </h3>
               <p class="slds-text-color_weak slds-text-body_small">
-                Upload your company's image file (.png, .svg, .jpg). FleetForce
-                will store it in Salesforce Files and apply it automatically.
-              </p>
-            </div>
-            <span class="slds-badge slds-theme_warning">Uploading Logo</span>
-          </div>
-
-          <div
-            class="slds-p-around_medium slds-theme_shade slds-border_rounded slds-m-bottom_small"
-          >
-            <lightning-file-upload
-              label="Select Logo File"
-              name="companyLogoUploader"
-              accept={acceptedFormats}
-              record-id={currentUserId}
-              onuploadfinished={handleUploadFinished}
-              class="slds-m-bottom_small"
-            ></lightning-file-upload>
-
-            <div
-              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
-            >
-              <lightning-icon
-                icon-name="utility:info"
-                size="xx-small"
-                class="slds-m-right_xx-small"
-              ></lightning-icon>
-              <p class="slds-text-body_small slds-text-color_weak">
-                Recommended: PNG or SVG with transparent background, horizontal
-                orientation (aspect ratio ~ 3:1 or 4:1), max 2MB.
+                Enterprise company logo, primary colors, navigation headers, and
+                loading animation override.
               </p>
             </div>
           </div>
+          <div class="slds-grid slds-grid_vertical-align-center">
+            <template lwc:if={serverSettings.hasCustomTheme}>
+              <span class="slds-badge slds-theme_success slds-m-right_small">
+                Custom Theme Active
+              </span>
+            </template>
+            <template lwc:else>
+              <span class="slds-badge slds-badge_lightest slds-m-right_small">
+                Standard Salesforce Theme
+              </span>
+            </template>
 
-          <div class="slds-grid slds-grid_align-end">
+            <template lwc:if={serverSettings.hasCustomTheme}>
+              <lightning-button
+                variant="brand"
+                label="Edit Active Theme"
+                icon-name="utility:edit"
+                onclick={handleOpenActiveTheme}
+                class="slds-m-right_x-small"
+              ></lightning-button>
+            </template>
+
             <lightning-button
-              label="Cancel"
-              onclick={handleCancelLogo}
-              disabled={saving}
+              variant="neutral"
+              label="Open Themes &amp; Branding in Setup"
+              icon-name="utility:new_window"
+              onclick={handleOpenThemesSetup}
             ></lightning-button>
           </div>
-        </template>
+        </div>
+
+        <!-- Active Theme Information Box -->
+        <div
+          class="slds-p-around_small slds-theme_shade slds-border_rounded slds-m-top_small"
+        >
+          <div
+            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+          >
+            <div>
+              <span
+                class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+              >
+                Active Organization Theme
+              </span>
+              <div class="slds-grid slds-grid_vertical-align-center">
+                <template lwc:if={serverSettings.hasCustomTheme}>
+                  <a
+                    href={serverSettings.activeThemeEditUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="slds-text-heading_small slds-text-title_bold slds-m-right_x-small"
+                  >
+                    {serverSettings.activeThemeName}
+                  </a>
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                    class="slds-m-right_small"
+                  ></lightning-icon>
+                </template>
+                <template lwc:else>
+                  <span
+                    class="slds-text-heading_small slds-text-title_bold slds-m-right_small"
+                  >
+                    {serverSettings.activeThemeName}
+                  </span>
+                </template>
+
+                <template lwc:if={serverSettings.overrideLoadingImage}>
+                  <span class="slds-badge slds-theme_info slds-m-right_x-small">
+                    Astro Spinner Replaced
+                  </span>
+                </template>
+              </div>
+            </div>
+
+            <!-- Brand Color swatch if available -->
+            <template lwc:if={serverSettings.activeBrandColor}>
+              <div class="slds-grid slds-grid_vertical-align-center">
+                <span
+                  class="slds-text-body_small slds-text-color_weak slds-m-right_x-small"
+                >
+                  Brand Color:
+                </span>
+                <span class="color-pill slds-badge" style={brandColorStyle}>
+                  {serverSettings.activeBrandColor}
+                </span>
+              </div>
+            </template>
+          </div>
+
+          <!-- Brand Logo Preview from Theme if configured -->
+          <template lwc:if={serverSettings.activeBrandImageUrl}>
+            <div
+              class="slds-m-top_small slds-p-around_small slds-box slds-box_x-small logo-theme-box"
+            >
+              <span
+                class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+              >
+                Theme Brand Logo
+              </span>
+              <img
+                src={serverSettings.activeBrandImageUrl}
+                alt={serverSettings.activeThemeName}
+                class="theme-logo-preview"
+              />
+            </div>
+          </template>
+
+          <p
+            class="slds-text-body_small slds-text-color_weak slds-m-top_x-small"
+          >
+            Salesforce Lightning controls the global top navigation bar, company
+            logo, and loading animations through native Themes &amp; Branding.
+            Clicking <strong>Edit Active Theme</strong> opens this theme
+            directly in Setup, or click
+            <strong>Open Themes &amp; Branding in Setup</strong> to browse and
+            activate all available themes.
+          </p>
+        </div>
       </div>
     </div>
   </lightning-card>

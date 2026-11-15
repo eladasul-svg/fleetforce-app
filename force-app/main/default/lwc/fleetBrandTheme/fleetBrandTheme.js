@@ -1,10 +1,7 @@
 import { LightningElement, wire } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import USER_ID from "@salesforce/user/Id";
 import getBrandSettings from "@salesforce/apex/FleetDisplaySettingsController.getBrandSettings";
 import saveBrandIconStyle from "@salesforce/apex/FleetDisplaySettingsController.saveBrandIconStyle";
-import saveCustomLogo from "@salesforce/apex/FleetDisplaySettingsController.saveCustomLogo";
-import revertToDefaultLogo from "@salesforce/apex/FleetDisplaySettingsController.revertToDefaultLogo";
 
 const DEFAULT_STYLE = "silhouette";
 
@@ -41,15 +38,19 @@ const SAMPLES = [
 export default class FleetBrandTheme extends LightningElement {
   loading = true;
   saving = false;
-  activeEditSection = null; // null | 'style' | 'logo'
+  activeEditSection = null; // null | 'style'
   error;
 
   serverSettings = {
     iconStyle: DEFAULT_STYLE,
-    customLogoUrl: null,
-    defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
-    hasCustomLogo: false,
-    settingId: null,
+    hasCustomTheme: false,
+    activeThemeId: null,
+    activeThemeName: "Salesforce Cosmos (Default)",
+    activeThemeEditUrl: null,
+    themesSetupUrl: "/lightning/setup/ThemingAndBranding/home",
+    activeBrandColor: null,
+    activeBrandImageUrl: null,
+    overrideLoadingImage: false,
     canEdit: true
   };
 
@@ -71,12 +72,6 @@ export default class FleetBrandTheme extends LightningElement {
 
   get canEdit() {
     return this.serverSettings && this.serverSettings.canEdit;
-  }
-
-  get currentUserId() {
-    return (
-      (this.serverSettings && this.serverSettings.currentUserId) || USER_ID
-    );
   }
 
   // Section 1: Icon Style
@@ -109,34 +104,9 @@ export default class FleetBrandTheme extends LightningElement {
     }));
   }
 
-  // Section 2: Logo
-  get isLogoOverview() {
-    return this.activeEditSection !== "logo";
-  }
-
-  get isLogoEditing() {
-    return this.activeEditSection === "logo";
-  }
-
-  get currentLogoUrl() {
-    if (this.serverSettings.customLogoUrl) {
-      return this.serverSettings.customLogoUrl;
-    }
-    return (
-      this.serverSettings.defaultLogoUrl ||
-      "/file-asset/Fleetforce_Waypoint_Logo"
-    );
-  }
-
-  get logoStatusDescription() {
-    if (this.serverSettings.hasCustomLogo) {
-      return "Custom enterprise logo is active and displayed across all FleetForce navigation headers.";
-    }
-    return "Official FleetForce Waypoint logo is currently active as the system default.";
-  }
-
-  get acceptedFormats() {
-    return [".png", ".jpg", ".jpeg", ".svg"];
+  get brandColorStyle() {
+    const color = this.serverSettings && this.serverSettings.activeBrandColor;
+    return color ? `background-color: ${color}; color: #ffffff;` : "";
   }
 
   handleEditStyle() {
@@ -183,59 +153,17 @@ export default class FleetBrandTheme extends LightningElement {
     }
   }
 
-  handleEditLogo() {
-    this.activeEditSection = "logo";
-    this.error = undefined;
-  }
-
-  handleCancelLogo() {
-    this.activeEditSection = null;
-    this.error = undefined;
-  }
-
-  async handleUploadFinished(event) {
-    const uploadedFiles = event.detail.files;
-    if (!uploadedFiles || uploadedFiles.length === 0) {
-      return;
-    }
-
-    const contentVersionId = uploadedFiles[0].contentVersionId;
-    this.saving = true;
-    this.error = undefined;
-    try {
-      const updated = await saveCustomLogo({ contentVersionId });
-      this.serverSettings = updated;
-      this.activeEditSection = null;
-      this.showToast(
-        "Company Logo Uploaded",
-        "Your enterprise logo has been saved and applied to FleetForce headers.",
-        "success"
-      );
-    } catch (e) {
-      this.error =
-        (e && e.body && e.body.message) || "Could not link uploaded logo.";
-    } finally {
-      this.saving = false;
+  handleOpenActiveTheme() {
+    if (this.serverSettings && this.serverSettings.activeThemeEditUrl) {
+      window.open(this.serverSettings.activeThemeEditUrl, "_blank");
     }
   }
 
-  async handleRevertLogo() {
-    this.saving = true;
-    this.error = undefined;
-    try {
-      const updated = await revertToDefaultLogo();
-      this.serverSettings = updated;
-      this.activeEditSection = null;
-      this.showToast(
-        "Reverted to Default",
-        "FleetForce standard logo restored.",
-        "success"
-      );
-    } catch (e) {
-      this.error = (e && e.body && e.body.message) || "Could not revert logo.";
-    } finally {
-      this.saving = false;
-    }
+  handleOpenThemesSetup() {
+    const url =
+      (this.serverSettings && this.serverSettings.themesSetupUrl) ||
+      "/lightning/setup/ThemingAndBranding/home";
+    window.open(url, "_blank");
   }
 
   showToast(title, message, variant) {

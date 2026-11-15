@@ -10,41 +10,15 @@ jest.mock(
   () => ({
     default: jest.fn().mockResolvedValue({
       iconStyle: "modern",
-      customLogoUrl: null,
-      defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
-      hasCustomLogo: false,
-      settingId: "a00000000000001AAA",
-      canEdit: true
-    })
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  "@salesforce/apex/FleetDisplaySettingsController.saveCustomLogo",
-  () => ({
-    default: jest.fn().mockResolvedValue({
-      iconStyle: "silhouette",
-      customLogoUrl:
-        "/sfc/servlet.shepherd/version/download/068000000000001AAA",
-      defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
-      hasCustomLogo: true,
-      settingId: "a00000000000001AAA",
-      canEdit: true
-    })
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  "@salesforce/apex/FleetDisplaySettingsController.revertToDefaultLogo",
-  () => ({
-    default: jest.fn().mockResolvedValue({
-      iconStyle: "silhouette",
-      customLogoUrl: null,
-      defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
-      hasCustomLogo: false,
-      settingId: "a00000000000001AAA",
+      hasCustomTheme: true,
+      activeThemeId: "0S1Wm000000046rKAA",
+      activeThemeName: "Fleetforce",
+      activeThemeEditUrl:
+        "/lightning/setup/ThemingAndBranding/0S1Wm000000046rKAA/edit",
+      themesSetupUrl: "/lightning/setup/ThemingAndBranding/home",
+      activeBrandColor: "#0176D3",
+      activeBrandImageUrl: "/file-asset/fleetforce__lockuphorizontallight?v=1",
+      overrideLoadingImage: true,
       canEdit: true
     })
   }),
@@ -53,10 +27,15 @@ jest.mock(
 
 const MOCK_BRAND_SETTINGS = {
   iconStyle: "silhouette",
-  customLogoUrl: null,
-  defaultLogoUrl: "/file-asset/Fleetforce_Waypoint_Logo",
-  hasCustomLogo: false,
-  settingId: "a00000000000001AAA",
+  hasCustomTheme: true,
+  activeThemeId: "0S1Wm000000046rKAA",
+  activeThemeName: "Fleetforce",
+  activeThemeEditUrl:
+    "/lightning/setup/ThemingAndBranding/0S1Wm000000046rKAA/edit",
+  themesSetupUrl: "/lightning/setup/ThemingAndBranding/home",
+  activeBrandColor: "#0176D3",
+  activeBrandImageUrl: "/file-asset/fleetforce__lockuphorizontallight?v=1",
+  overrideLoadingImage: true,
   canEdit: true
 };
 
@@ -68,7 +47,7 @@ describe("c-fleet-brand-theme", () => {
     jest.clearAllMocks();
   });
 
-  it("renders 2 brand cards in overview mode with default FleetForce logo", async () => {
+  it("renders 2 brand cards in overview mode with active custom theme", async () => {
     const element = createElement("c-fleet-brand-theme", {
       is: FleetBrandTheme
     });
@@ -84,11 +63,21 @@ describe("c-fleet-brand-theme", () => {
       (c) => c.querySelector("h3").textContent
     );
     expect(headings[0]).toContain("Vehicle Icon Style");
-    expect(headings[1]).toContain("Company Brand Logo");
+    expect(headings[1]).toContain("Salesforce Themes & Branding");
 
-    const logoImg = element.shadowRoot.querySelector(".logo-preview-img");
-    expect(logoImg).not.toBeNull();
-    expect(logoImg.src).toContain("Fleetforce_Waypoint_Logo");
+    // Check active theme link and name
+    const themeLink = element.shadowRoot.querySelector("a");
+    expect(themeLink).not.toBeNull();
+    expect(themeLink.textContent.trim()).toBe("Fleetforce");
+    expect(themeLink.href).toContain(
+      "/lightning/setup/ThemingAndBranding/0S1Wm000000046rKAA/edit"
+    );
+
+    // Check vehicle images rendered with icon variant and iconStyle
+    const vehicleImages = element.shadowRoot.querySelectorAll(
+      "c-fleet-vehicle-image"
+    );
+    expect(vehicleImages.length).toBe(3);
   });
 
   it("toggles icon style editing mode when clicking Modify Icon Style", async () => {
@@ -113,7 +102,11 @@ describe("c-fleet-brand-theme", () => {
     expect(tiles.length).toBe(5);
   });
 
-  it("toggles logo upload mode when clicking Upload Company Logo", async () => {
+  it("opens theme edit and setup URLs when buttons are clicked", async () => {
+    const windowOpenSpy = jest
+      .spyOn(window, "open")
+      .mockImplementation(() => {});
+
     const element = createElement("c-fleet-brand-theme", {
       is: FleetBrandTheme
     });
@@ -123,17 +116,28 @@ describe("c-fleet-brand-theme", () => {
     await Promise.resolve();
 
     const buttons = element.shadowRoot.querySelectorAll("lightning-button");
-    const uploadBtn = Array.from(buttons).find(
-      (b) => b.label === "Upload Company Logo"
+    const editThemeBtn = Array.from(buttons).find(
+      (b) => b.label === "Edit Active Theme"
     );
-    expect(uploadBtn).toBeDefined();
-
-    uploadBtn.click();
-    await Promise.resolve();
-
-    const fileUpload = element.shadowRoot.querySelector(
-      "lightning-file-upload"
+    const openSetupBtn = Array.from(buttons).find(
+      (b) => b.label === "Open Themes & Branding in Setup"
     );
-    expect(fileUpload).not.toBeNull();
+
+    expect(editThemeBtn).toBeDefined();
+    expect(openSetupBtn).toBeDefined();
+
+    editThemeBtn.click();
+    expect(windowOpenSpy).toHaveBeenCalledWith(
+      "/lightning/setup/ThemingAndBranding/0S1Wm000000046rKAA/edit",
+      "_blank"
+    );
+
+    openSetupBtn.click();
+    expect(windowOpenSpy).toHaveBeenCalledWith(
+      "/lightning/setup/ThemingAndBranding/home",
+      "_blank"
+    );
+
+    windowOpenSpy.mockRestore();
   });
 });
