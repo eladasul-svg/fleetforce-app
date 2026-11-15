@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Service_Ticket__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Service Ticket Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Category__c</fieldNames>
+        <fieldNames>Priority__c</fieldNames>
+        <fieldNames>Due_Date__c</fieldNames>
+        <fieldNames>Summary__c</fieldNames>
+        <info
+    >&lt;p&gt;Triage reported defect or scheduled PM milestone. Assign the shop vendor, set due date, and log initial technician estimates.&lt;/p&gt;</info>
+        <picklistValueName>Draft</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Actual_Start__c</fieldNames>
+        <fieldNames>Vendor__c</fieldNames>
+        <fieldNames>Odometer__c</fieldNames>
+        <fieldNames>Total_Labor_Cost__c</fieldNames>
+        <fieldNames>Total_Parts_Cost__c</fieldNames>
+        <info
+    >&lt;p&gt;Vehicle actively in repair stall. Record line items, track labor hours and replacement parts, and attach vendor work order invoices to Files.&lt;/p&gt;</info>
+        <picklistValueName>In-Shop</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Actual_End__c</fieldNames>
+        <fieldNames>Grand_Total__c</fieldNames>
+        <fieldNames>Approval_Status__c</fieldNames>
+        <info
+    >&lt;p&gt;Work order complete and verified. Confirm all line items are recorded, warranty signatures obtained, and asset status returned to Active.&lt;/p&gt;</info>
+        <picklistValueName>Completed</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

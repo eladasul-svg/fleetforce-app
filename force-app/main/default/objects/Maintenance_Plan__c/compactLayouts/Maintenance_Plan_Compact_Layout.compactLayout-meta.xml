@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Maintenance_Plan_Compact_Layout</fullName>
+    <fields>Name</fields>
+    <fields>Asset_Type__c</fields>
+    <fields>Type__c</fields>
+    <fields>Frequency_Type__c</fields>
+    <fields>Interval_Value__c</fields>
+    <fields>Is_Recurring__c</fields>
+    <label>Maintenance Plan Compact Layout</label>
+</CompactLayout>
