@@ -1,0 +1,307 @@
+:host {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.branch-card {
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid #d8dde6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.branch-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-code {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.badge-type {
+  background-color: #ede9fe;
+  color: #6b21a8;
+}
+
+.badge-active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-closed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.section-col {
+  padding: 0 0.75rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+/* Column 1: Map & Location */
+.map-container {
+  height: 140px;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 0.65rem;
+}
+
+.map-placeholder {
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+  border-radius: 0.375rem;
+  border: 1px dashed #94a3b8;
+  color: #64748b;
+  margin-bottom: 0.65rem;
+}
+
+.location-address {
+  font-size: 0.82rem;
+  color: #334155;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  line-height: 1.35;
+}
+
+.branch-contact-links {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+}
+
+/* Column 2: Manager Profile */
+.manager-profile {
+  display: flex;
+  gap: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.manager-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f766e;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1.5px #0f766e;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initials {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.manager-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.manager-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0070d2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.manager-name:hover {
+  text-decoration: underline;
+}
+
+.manager-title {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.manager-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #334155;
+  text-decoration: none;
+}
+
+.contact-link:hover {
+  color: #0070d2;
+}
+
+.no-manager-card {
+  padding: 1.5rem 1rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Column 3: Capacity & Operational Snapshot */
+.capacity-box {
+  margin-bottom: 0.85rem;
+}
+
+.capacity-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.25rem;
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill-optimal {
+  background-color: #10b981;
+}
+
+.progress-fill-warning {
+  background-color: #f59e0b;
+}
+
+.progress-fill-critical {
+  background-color: #ef4444;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.metric-tile {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.metric-icon-wrap {
+  flex-shrink: 0;
+}
+
+.metric-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+@media (max-width: 900px) {
+  .section-col {
+    margin-bottom: 1.25rem;
+  }
+}

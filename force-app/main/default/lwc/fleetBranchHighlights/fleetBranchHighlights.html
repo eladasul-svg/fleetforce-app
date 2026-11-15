@@ -1,0 +1,303 @@
+<template>
+  <article class="branch-card slds-card">
+    <template lwc:if={isLoading}>
+      <div class="slds-p-around_large slds-align_absolute-center">
+        <lightning-spinner
+          alternative-text="Loading branch highlights..."
+          size="medium"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <template lwc:elseif={hasData}>
+      <!-- Header Banner -->
+      <div class="card-header">
+        <div class="header-left">
+          <lightning-icon
+            icon-name="standard:location"
+            size="medium"
+            alternative-text="Branch Location"
+          ></lightning-icon>
+          <div>
+            <h2 class="branch-title">{highlights.name}</h2>
+            <div class="header-badges">
+              <template lwc:if={highlights.branchCode}>
+                <span class="badge badge-code">{highlights.branchCode}</span>
+              </template>
+              <template lwc:if={highlights.status}>
+                <span class={statusBadgeClass}>{highlights.status}</span>
+              </template>
+              <template lwc:if={highlights.locationType}>
+                <span class="badge badge-type">{highlights.locationType}</span>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-right slds-grid slds-grid_vertical-align-center">
+          <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="border-filled"
+            size="small"
+            alternative-text="Refresh Highlights"
+            title="Refresh Highlights"
+            onclick={handleRefresh}
+            class="slds-m-right_x-small"
+          ></lightning-button-icon>
+
+          <template lwc:if={highlights.googleMapsUrl}>
+            <lightning-button
+              label="Open in Maps"
+              icon-name="utility:new_window"
+              icon-position="right"
+              variant="neutral"
+              onclick={handleOpenMap}
+              class="open-maps-btn"
+            ></lightning-button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Main Body Columns -->
+      <div class="card-body">
+        <div class="slds-grid slds-wrap">
+          <!-- Column 1: Map & Location Footprint -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 section-col"
+          >
+            <div class="section-label">Location & Geographic Footprint</div>
+
+            <template lwc:if={hasMap}>
+              <div class="map-container">
+                <lightning-map
+                  map-markers={mapMarkers}
+                  zoom-level="14"
+                  list-view="hidden"
+                ></lightning-map>
+              </div>
+            </template>
+            <template lwc:else>
+              <div class="map-placeholder">
+                <lightning-icon
+                  icon-name="utility:location"
+                  size="small"
+                  variant="inverse"
+                  alternative-text="No Coordinates"
+                  class="slds-m-bottom_xx-small"
+                ></lightning-icon>
+                <span>No Coordinates Available</span>
+              </div>
+            </template>
+
+            <template lwc:if={highlights.fullAddress}>
+              <div class="location-address">
+                <lightning-icon
+                  icon-name="utility:checkin"
+                  size="xx-small"
+                  alternative-text="Address"
+                ></lightning-icon>
+                <span>{highlights.fullAddress}</span>
+              </div>
+            </template>
+
+            <div class="branch-contact-links">
+              <template lwc:if={branchTel}>
+                <a href={branchTel} class="contact-link" title="Call Branch">
+                  <lightning-icon
+                    icon-name="utility:call"
+                    size="xx-small"
+                    alternative-text="Phone"
+                  ></lightning-icon>
+                  <span>{highlights.phone}</span>
+                </a>
+              </template>
+              <template lwc:if={branchMailto}>
+                <a
+                  href={branchMailto}
+                  class="contact-link"
+                  title="Email Branch"
+                >
+                  <lightning-icon
+                    icon-name="utility:email"
+                    size="xx-small"
+                    alternative-text="Email"
+                  ></lightning-icon>
+                  <span>{highlights.email}</span>
+                </a>
+              </template>
+            </div>
+          </div>
+
+          <!-- Column 2: Branch Leadership -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 section-col"
+          >
+            <div class="section-label">Branch Leadership</div>
+
+            <template lwc:if={highlights.manager}>
+              <div class="manager-profile">
+                <div class="manager-avatar" title={highlights.manager.name}>
+                  <template lwc:if={highlights.manager.photoUrl}>
+                    <img
+                      src={highlights.manager.photoUrl}
+                      alt={highlights.manager.name}
+                      class="avatar-img"
+                    />
+                  </template>
+                  <template lwc:else>
+                    <span class="avatar-initials"
+                      >{highlights.manager.initials}</span
+                    >
+                  </template>
+                </div>
+
+                <div class="manager-info">
+                  <a
+                    href="#"
+                    class="manager-name"
+                    onclick={handleOpenManager}
+                    title="View Contact Record"
+                  >
+                    {highlights.manager.name}
+                  </a>
+                  <div class="manager-title">{highlights.manager.title}</div>
+
+                  <div class="manager-links">
+                    <template lwc:if={managerTel}>
+                      <a
+                        href={managerTel}
+                        class="contact-link"
+                        title="Call Manager"
+                      >
+                        <lightning-icon
+                          icon-name="utility:call"
+                          size="xx-small"
+                          alternative-text="Phone"
+                        ></lightning-icon>
+                        <span>{highlights.manager.phone}</span>
+                      </a>
+                    </template>
+                    <template lwc:if={managerMailto}>
+                      <a
+                        href={managerMailto}
+                        class="contact-link"
+                        title="Email Manager"
+                      >
+                        <lightning-icon
+                          icon-name="utility:email"
+                          size="xx-small"
+                          alternative-text="Email"
+                        ></lightning-icon>
+                        <span>{highlights.manager.email}</span>
+                      </a>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template lwc:else>
+              <div class="no-manager-card">
+                <lightning-icon
+                  icon-name="utility:user"
+                  size="small"
+                  alternative-text="No Manager"
+                  class="slds-m-bottom_xx-small"
+                ></lightning-icon>
+                <div>No Branch Manager Assigned</div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Column 3: Capacity Utilization & Live Operations -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 section-col"
+          >
+            <div class="section-label">Operational Snapshot & Capacity</div>
+
+            <!-- Capacity Bar -->
+            <div class="capacity-box">
+              <div class="capacity-header">
+                <span>Bay Capacity ({highlights.capacityUtilizationPct}%)</span>
+                <span
+                  >{highlights.totalVehicles} / {highlights.capacity} Bays</span
+                >
+              </div>
+              <div class="progress-bar-bg" title="Capacity Utilization">
+                <div class={capacityFillClass} style={capacityFillStyle}></div>
+              </div>
+            </div>
+
+            <!-- KPI Tiles -->
+            <div class="metrics-grid">
+              <!-- Tile 1: Active Road-Ready Vehicles -->
+              <div class="metric-tile">
+                <div class="metric-icon-wrap">
+                  <lightning-icon
+                    icon-name="standard:service_resource"
+                    size="small"
+                    alternative-text="Active Vehicles"
+                  ></lightning-icon>
+                </div>
+                <div class="metric-text">
+                  <span class="metric-value">{highlights.activeVehicles}</span>
+                  <span class="metric-label"
+                    >Road Ready ({highlights.totalVehicles} total)</span
+                  >
+                </div>
+              </div>
+
+              <!-- Tile 2: In-Shop Maintenance -->
+              <div class="metric-tile">
+                <div class="metric-icon-wrap">
+                  <lightning-icon
+                    icon-name="utility:wrench"
+                    size="small"
+                    alternative-text="In Shop"
+                  ></lightning-icon>
+                </div>
+                <div class="metric-text">
+                  <span class="metric-value">{highlights.inShopVehicles}</span>
+                  <span class="metric-label"
+                    >In Shop ({highlights.openServiceTickets} tickets)</span
+                  >
+                </div>
+              </div>
+
+              <!-- Tile 3: Assigned Drivers -->
+              <div class="metric-tile">
+                <div class="metric-icon-wrap">
+                  <lightning-icon
+                    icon-name="standard:avatar"
+                    size="small"
+                    alternative-text="Drivers"
+                  ></lightning-icon>
+                </div>
+                <div class="metric-text">
+                  <span class="metric-value">{highlights.assignedDrivers}</span>
+                  <span class="metric-label">Assigned Drivers</span>
+                </div>
+              </div>
+
+              <!-- Tile 4: Active Route Plans -->
+              <div class="metric-tile">
+                <div class="metric-icon-wrap">
+                  <lightning-icon
+                    icon-name="standard:dispatch_order"
+                    size="small"
+                    alternative-text="Route Plans"
+                  ></lightning-icon>
+                </div>
+                <div class="metric-text">
+                  <span class="metric-value"
+                    >{highlights.activeRoutePlans}</span
+                  >
+                  <span class="metric-label">Active Route Plans</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </article>
+</template>
