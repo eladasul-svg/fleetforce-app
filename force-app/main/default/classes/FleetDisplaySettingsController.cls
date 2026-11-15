@@ -48,10 +48,444 @@ public with sharing class FleetDisplaySettingsController {
     public String label;
     @AuraEnabled
     public String value;
-    Option(String label, String value) {
+    public Option(String label, String value) {
       this.label = label;
       this.value = value;
     }
+  }
+
+  public class GeneralSettings {
+    @AuraEnabled
+    public Boolean enableAiInsights;
+    @AuraEnabled
+    public String aiProvider;
+    @AuraEnabled
+    public Boolean enableExtendedPrivacy;
+    @AuraEnabled
+    public Boolean autoCreateDtcTickets;
+    @AuraEnabled
+    public Decimal maintenanceGraceDays;
+    @AuraEnabled
+    public Decimal odometerDriftThreshold;
+    @AuraEnabled
+    public Decimal telemetryRetentionDays;
+    @AuraEnabled
+    public Boolean hasGoogleKey;
+    @AuraEnabled
+    public Boolean hasAnthropicKey;
+    @AuraEnabled
+    public Boolean hasOpenAiKey;
+    @AuraEnabled
+    public String maskedGoogleKey;
+    @AuraEnabled
+    public String maskedAnthropicKey;
+    @AuraEnabled
+    public String maskedOpenAiKey;
+    @AuraEnabled
+    public Boolean canEdit;
+    @AuraEnabled
+    public List<Option> aiProviders;
+  }
+
+  public class BrandSettings {
+    @AuraEnabled
+    public String iconStyle;
+    @AuraEnabled
+    public Boolean useCustomTheme;
+    @AuraEnabled
+    public String customThemeName;
+    @AuraEnabled
+    public String customBrandColor;
+    @AuraEnabled
+    public String customLogoUrl;
+    @AuraEnabled
+    public String defaultLogoUrl;
+    @AuraEnabled
+    public Boolean hasCustomLogo;
+    @AuraEnabled
+    public Boolean hasCustomTheme;
+    @AuraEnabled
+    public Id activeThemeId;
+    @AuraEnabled
+    public String activeThemeName;
+    @AuraEnabled
+    public String activeThemeEditUrl;
+    @AuraEnabled
+    public String themesSetupUrl;
+    @AuraEnabled
+    public String activeBrandColor;
+    @AuraEnabled
+    public String activeBrandImageUrl;
+    @AuraEnabled
+    public Boolean overrideLoadingImage;
+    @AuraEnabled
+    public Id settingId;
+    @AuraEnabled
+    public Id currentUserId;
+    @AuraEnabled
+    public Boolean canEdit;
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static GeneralSettings getGeneralSettings() {
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    GeneralSettings g = new GeneralSettings();
+    g.enableAiInsights = org.fleetforce__Enable_AI_Insights__c != null
+      ? org.fleetforce__Enable_AI_Insights__c
+      : true;
+    g.enableExtendedPrivacy = org.fleetforce__Enable_Extended_Privacy__c != null
+      ? org.fleetforce__Enable_Extended_Privacy__c
+      : false;
+    g.autoCreateDtcTickets = org.fleetforce__Auto_Create_DTC_Tickets__c != null
+      ? org.fleetforce__Auto_Create_DTC_Tickets__c
+      : true;
+    g.maintenanceGraceDays = org.fleetforce__Maintenance_Grace_Days__c != null
+      ? org.fleetforce__Maintenance_Grace_Days__c
+      : 14;
+    g.odometerDriftThreshold = org.fleetforce__Odometer_Drift_Threshold__c !=
+      null
+      ? org.fleetforce__Odometer_Drift_Threshold__c
+      : 5;
+    g.telemetryRetentionDays = org.fleetforce__Telemetry_Retention_Days__c !=
+      null
+      ? org.fleetforce__Telemetry_Retention_Days__c
+      : 90;
+    g.hasGoogleKey = String.isNotBlank(org.fleetforce__Google_Api_Key__c);
+    g.hasAnthropicKey = String.isNotBlank(org.fleetforce__Anthropic_Api_Key__c);
+    g.hasOpenAiKey = String.isNotBlank(org.fleetforce__OpenAI_Api_Key__c);
+    g.maskedGoogleKey = maskKey(org.fleetforce__Google_Api_Key__c);
+    g.maskedAnthropicKey = maskKey(org.fleetforce__Anthropic_Api_Key__c);
+    g.maskedOpenAiKey = maskKey(org.fleetforce__OpenAI_Api_Key__c);
+    g.canEdit = canEditGeneral();
+    g.aiProviders = buildAvailableAiProviders(
+      g.hasGoogleKey,
+      g.hasAnthropicKey,
+      g.hasOpenAiKey
+    );
+    // Determine active provider from configured models
+    if (String.isNotBlank(org.fleetforce__AI_Provider__c)) {
+      g.aiProvider = org.fleetforce__AI_Provider__c;
+    } else if (!g.aiProviders.isEmpty()) {
+      g.aiProvider = g.aiProviders[0].value;
+    } else {
+      g.aiProvider = null;
+    }
+    return g;
+  }
+
+  @AuraEnabled
+  public static GeneralSettings saveGeneralSettings(
+    Boolean enableAiInsights,
+    String aiProvider,
+    Boolean enableExtendedPrivacy,
+    String googleApiKey,
+    String anthropicApiKey,
+    String openAiApiKey,
+    Boolean autoCreateDtcTickets,
+    Decimal maintenanceGraceDays,
+    Decimal odometerDriftThreshold,
+    Decimal telemetryRetentionDays
+  ) {
+    if (!canEditGeneral()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce general settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    if (enableAiInsights != null) {
+      org.fleetforce__Enable_AI_Insights__c = enableAiInsights == true;
+    }
+    if (enableExtendedPrivacy != null) {
+      org.fleetforce__Enable_Extended_Privacy__c =
+        enableExtendedPrivacy == true;
+    }
+    if (autoCreateDtcTickets != null) {
+      org.fleetforce__Auto_Create_DTC_Tickets__c = autoCreateDtcTickets == true;
+    }
+    if (maintenanceGraceDays != null) {
+      org.fleetforce__Maintenance_Grace_Days__c = maintenanceGraceDays;
+    }
+    if (odometerDriftThreshold != null) {
+      org.fleetforce__Odometer_Drift_Threshold__c = odometerDriftThreshold;
+    }
+    if (telemetryRetentionDays != null) {
+      org.fleetforce__Telemetry_Retention_Days__c = telemetryRetentionDays;
+    }
+
+    if (String.isNotBlank(googleApiKey) && !googleApiKey.contains('••')) {
+      org.fleetforce__Google_Api_Key__c = googleApiKey.trim() == 'CLEAR'
+        ? null
+        : googleApiKey.trim();
+    }
+    if (String.isNotBlank(anthropicApiKey) && !anthropicApiKey.contains('••')) {
+      org.fleetforce__Anthropic_Api_Key__c = anthropicApiKey.trim() == 'CLEAR'
+        ? null
+        : anthropicApiKey.trim();
+    }
+    if (String.isNotBlank(openAiApiKey) && !openAiApiKey.contains('••')) {
+      org.fleetforce__OpenAI_Api_Key__c = openAiApiKey.trim() == 'CLEAR'
+        ? null
+        : openAiApiKey.trim();
+    }
+
+    if (String.isNotBlank(aiProvider)) {
+      org.fleetforce__AI_Provider__c = aiProvider.trim();
+    }
+    upsert org;
+    return getGeneralSettings();
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static BrandSettings getBrandSettings() {
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    BrandSettings b = new BrandSettings();
+    String style = org.fleetforce__Vehicle_Icon_Style__c;
+    b.iconStyle = style != null && STYLES.contains(style.toLowerCase())
+      ? style.toLowerCase()
+      : DEFAULT_STYLE;
+    b.useCustomTheme = org.fleetforce__Use_Custom_Theme__c == true;
+    b.customThemeName = String.isNotBlank(org.fleetforce__Custom_Theme_Name__c)
+      ? org.fleetforce__Custom_Theme_Name__c
+      : 'FleetForce Packaged Theme';
+    b.customBrandColor = String.isNotBlank(
+        org.fleetforce__Custom_Brand_Color__c
+      )
+      ? org.fleetforce__Custom_Brand_Color__c
+      : '#0F1E33';
+    b.customLogoUrl = org.fleetforce__Custom_Logo_Url__c;
+    b.hasCustomLogo = String.isNotBlank(org.fleetforce__Custom_Logo_Url__c);
+    b.defaultLogoUrl = '/file-asset/Fleetforce_Waypoint_Logo';
+    b.settingId = org.Id;
+    b.currentUserId = UserInfo.getUserId();
+    b.themesSetupUrl = '/lightning/setup/ThemingAndBranding/home';
+    b.canEdit = canEditBrand();
+
+    // Query custom LightningExperienceTheme records
+    try {
+      List<LightningExperienceTheme> customThemes = [
+        SELECT
+          Id,
+          DeveloperName,
+          MasterLabel,
+          Description,
+          DefaultBrandingSetId,
+          ShouldOverrideLoadingImage
+        FROM LightningExperienceTheme
+        ORDER BY LastModifiedDate DESC
+        LIMIT 1
+      ];
+
+      if (!customThemes.isEmpty()) {
+        LightningExperienceTheme active = customThemes[0];
+        b.hasCustomTheme = true;
+        b.activeThemeId = active.Id;
+        b.activeThemeName = active.MasterLabel;
+        b.activeThemeEditUrl =
+          '/lightning/setup/ThemingAndBranding/' +
+          active.Id +
+          '/edit';
+        b.overrideLoadingImage = active.ShouldOverrideLoadingImage == true;
+
+        if (active.DefaultBrandingSetId != null) {
+          for (BrandingSetProperty prop : [
+            SELECT PropertyName, PropertyValue
+            FROM BrandingSetProperty
+            WHERE BrandingSetId = :active.DefaultBrandingSetId
+          ]) {
+            if (
+              prop.PropertyName == 'BRAND_COLOR' &&
+              String.isNotBlank(prop.PropertyValue)
+            ) {
+              b.activeBrandColor = prop.PropertyValue;
+            } else if (
+              prop.PropertyName == 'BRAND_IMAGE' &&
+              String.isNotBlank(prop.PropertyValue)
+            ) {
+              b.activeBrandImageUrl = prop.PropertyValue;
+            } else if (
+              prop.PropertyName == 'OVERRIDE_LOADING_PAGE' &&
+              prop.PropertyValue == 'true'
+            ) {
+              b.overrideLoadingImage = true;
+            }
+          }
+        }
+      } else {
+        b.hasCustomTheme = false;
+        b.activeThemeName = 'Salesforce Cosmos (Default)';
+        b.activeThemeEditUrl = null;
+        b.overrideLoadingImage = false;
+      }
+    } catch (Exception e) {
+      b.hasCustomTheme = false;
+      b.activeThemeName = 'Salesforce Cosmos (Default)';
+    }
+
+    return b;
+  }
+
+  @AuraEnabled
+  public static BrandSettings saveBrandIconStyle(String iconStyle) {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    if (String.isNotBlank(iconStyle)) {
+      String s = iconStyle.trim().toLowerCase();
+      if (STYLES.contains(s)) {
+        org.fleetforce__Vehicle_Icon_Style__c = s;
+      }
+    }
+    upsert org;
+    return getBrandSettings();
+  }
+
+  @AuraEnabled
+  public static BrandSettings saveCustomLogo(Id contentVersionId) {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    if (contentVersionId == null) {
+      throw new AuraHandledException('ContentVersion Id is required.');
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Custom_Logo_Url__c =
+      '/sfc/servlet.shepherd/version/download/' + contentVersionId;
+    org.fleetforce__Use_Custom_Theme__c = true;
+    upsert org;
+    return getBrandSettings();
+  }
+
+  @AuraEnabled
+  public static BrandSettings revertToDefaultLogo() {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Custom_Logo_Url__c = null;
+    upsert org;
+    return getBrandSettings();
+  }
+
+  @AuraEnabled
+  public static BrandSettings saveBrandSettings(
+    String iconStyle,
+    Boolean useCustomTheme,
+    String customThemeName,
+    String customBrandColor,
+    String customLogoUrl
+  ) {
+    if (!canEditBrand()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce brand settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    if (String.isNotBlank(iconStyle)) {
+      String s = iconStyle.trim().toLowerCase();
+      if (STYLES.contains(s)) {
+        org.fleetforce__Vehicle_Icon_Style__c = s;
+      }
+    }
+    org.fleetforce__Use_Custom_Theme__c = useCustomTheme == true;
+    org.fleetforce__Custom_Theme_Name__c = customThemeName;
+    org.fleetforce__Custom_Brand_Color__c = String.isNotBlank(customBrandColor)
+      ? customBrandColor.trim()
+      : '#0F1E33';
+    org.fleetforce__Custom_Logo_Url__c = customLogoUrl;
+    upsert org;
+    return getBrandSettings();
+  }
+
+  private static String maskKey(String key) {
+    if (String.isBlank(key)) {
+      return '';
+    }
+    String trimmed = key.trim();
+    if (trimmed.length() <= 8) {
+      return '••••••••';
+    }
+    return trimmed.substring(0, 4) +
+      '••••' +
+      trimmed.substring(trimmed.length() - 4);
+  }
+
+  private static List<Option> buildAvailableAiProviders(
+    Boolean hasGoogle,
+    Boolean hasAnthropic,
+    Boolean hasOpenAi
+  ) {
+    List<Option> optionsList = new List<Option>();
+    if (hasGoogle) {
+      optionsList.add(
+        new Option('Google Gemini 2.5 Flash (Fast)', 'Gemini 2.5 Flash')
+      );
+      optionsList.add(
+        new Option('Google Gemini 2.5 Pro (Deep Analytics)', 'Gemini 2.5 Pro')
+      );
+    }
+    if (hasAnthropic) {
+      optionsList.add(
+        new Option('Anthropic Claude 3.5 Sonnet', 'Claude 3.5 Sonnet')
+      );
+      optionsList.add(
+        new Option('Anthropic Claude 3.5 Haiku', 'Claude 3.5 Haiku')
+      );
+    }
+    if (hasOpenAi) {
+      optionsList.add(new Option('OpenAI GPT-4o', 'GPT-4o'));
+      optionsList.add(new Option('OpenAI GPT-4o mini', 'GPT-4o mini'));
+    }
+    return optionsList;
+  }
+
+  private static Boolean canEditGeneral() {
+    Schema.DescribeSObjectResult d = Schema.sObjectType.fleetforce__Fleet_Display_Setting__c;
+    if (!d.isUpdateable() || !d.isCreateable()) {
+      return false;
+    }
+    for (
+      Schema.SObjectField f : new List<Schema.SObjectField>{
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Enable_AI_Insights__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__AI_Provider__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Enable_Extended_Privacy__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Google_Api_Key__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Anthropic_Api_Key__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__OpenAI_Api_Key__c
+      }
+    ) {
+      if (!f.getDescribe().isUpdateable()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static Boolean canEditBrand() {
+    Schema.DescribeSObjectResult d = Schema.sObjectType.fleetforce__Fleet_Display_Setting__c;
+    if (!d.isUpdateable() || !d.isCreateable()) {
+      return false;
+    }
+    for (
+      Schema.SObjectField f : new List<Schema.SObjectField>{
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Vehicle_Icon_Style__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Use_Custom_Theme__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Custom_Theme_Name__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Custom_Brand_Color__c,
+        fleetforce__Fleet_Display_Setting__c.fleetforce__Custom_Logo_Url__c
+      }
+    ) {
+      if (!f.getDescribe().isUpdateable()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public class ProfileRow {

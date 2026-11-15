@@ -82,6 +82,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>fleetDigitalGlovebox</componentName>
+                <identifier>fleetforce_fleetDigitalGlovebox</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>digitalGloveboxTabContent</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
                     <value>relatedTabContent</value>
@@ -110,6 +120,20 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>detailTab</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>digitalGloveboxTabContent</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Digital Glovebox</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>digitalGloveboxTab</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

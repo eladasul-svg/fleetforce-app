@@ -1,0 +1,372 @@
+<template>
+  <lightning-card
+    title="AI Strategic Insights Engine"
+    icon-name="standard:service_crew_member"
+  >
+    <div class="slds-p-around_medium">
+      <!-- Active Model & BYOK Status Bar -->
+      <div
+        class="slds-box slds-box_x-small slds-theme_shade slds-m-bottom_medium slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap"
+      >
+        <div
+          class="slds-grid slds-grid_vertical-align-center slds-wrap slds-m-right_medium"
+        >
+          <lightning-icon
+            icon-name="utility:ai"
+            size="small"
+            class="slds-m-right_small"
+          ></lightning-icon>
+          <div class="slds-m-right_medium slds-m-vertical_xx-small">
+            <span class="slds-text-title_bold slds-m-right_x-small"
+              >Strategic Engine:</span
+            >
+            <template lwc:if={hasKey}>
+              <span class="slds-badge slds-theme_success"
+                >Active BYOK: {modelDisplayName}</span
+              >
+            </template>
+            <template lwc:else>
+              <span class="slds-badge slds-theme_warning"
+                >Key Required: {modelDisplayName}</span
+              >
+            </template>
+          </div>
+
+          <div style="min-width: 320px" class="slds-m-vertical_xx-small">
+            <lightning-combobox
+              name="activeModel"
+              variant="label-hidden"
+              value={activeModelValue}
+              options={modelOptions}
+              placeholder="Switch Active AI Engine..."
+              onchange={handleModelChange}
+              disabled={isSwitchingModel}
+            ></lightning-combobox>
+          </div>
+        </div>
+        <div class="slds-m-vertical_xx-small">
+          <lightning-button
+            label="Configure API Keys"
+            variant="neutral"
+            icon-name="utility:settings"
+            onclick={handleNavigateGeneral}
+          ></lightning-button>
+        </div>
+      </div>
+
+      <!-- Natural Language Strategic Prompt Box -->
+      <div
+        class="slds-box slds-theme_default slds-m-bottom_large"
+        style="border: 1px solid #0176d3; background: #fbfdff"
+      >
+        <div
+          class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small"
+        >
+          <lightning-icon
+            icon-name="utility:chat"
+            size="x-small"
+            class="slds-m-right_xx-small"
+          ></lightning-icon>
+          <h3 class="slds-text-heading_small slds-text-title_bold">
+            Executive Strategic Prompt
+          </h3>
+        </div>
+        <p
+          class="slds-text-body_small slds-text-color_weak slds-m-bottom_small"
+        >
+          Ask cross-cutting analytical questions across 10,000+ vehicles. The
+          reasoning engine correlates service tickets, telematics signals,
+          telemetry violations, and fuel logs org-wide.
+        </p>
+
+        <div class="slds-grid slds-wrap slds-gutters_small">
+          <div class="slds-col slds-size_1-of-1 slds-medium-size_5-of-6">
+            <lightning-input
+              type="text"
+              label="Strategic Query"
+              variant="label-hidden"
+              placeholder="e.g., Which branches have vehicles past scheduled maintenance that risk voiding OEM warranty?"
+              value={searchPrompt}
+              onchange={handlePromptChange}
+              onkeydown={handleKeyDown}
+            ></lightning-input>
+          </div>
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-6 slds-m-top_xx-small slds-medium-m-top_none"
+          >
+            <lightning-button
+              variant="brand"
+              label="Analyze Fleet"
+              icon-name="utility:sparkles"
+              onclick={handleExecuteQuery}
+              disabled={isQuerying}
+              class="analyze-btn slds-size_1-of-1"
+            ></lightning-button>
+          </div>
+        </div>
+
+        <!-- Quick Suggested Prompt Chips -->
+        <div
+          class="slds-m-top_small slds-grid slds-wrap slds-grid_vertical-align-center"
+        >
+          <span
+            class="slds-text-title_caps slds-text-color_weak slds-m-right_x-small"
+            style="font-size: 0.7rem"
+            >Quick Insights:</span
+          >
+          <button
+            class="slds-button slds-button_neutral slds-m-right_xx-small slds-m-bottom_xx-small prompt-chip"
+            onclick={handleQuickPrompt}
+            data-prompt="Which branches have vehicles past scheduled maintenance that risk voiding OEM warranty?"
+          >
+            ⚠️ Warranty Void Risks by Branch
+          </button>
+          <button
+            class="slds-button slds-button_neutral slds-m-right_xx-small slds-m-bottom_xx-small prompt-chip"
+            onclick={handleQuickPrompt}
+            data-prompt="Evaluate Scope 1 carbon and fuel inefficiency hotspots for EV fleet conversion"
+          >
+            ⚡ EV Conversion Hotspots
+          </button>
+          <button
+            class="slds-button slds-button_neutral slds-m-right_xx-small slds-m-bottom_xx-small prompt-chip"
+            onclick={handleQuickPrompt}
+            data-prompt="Identify telematics signal loss and duty-of-care gaps"
+          >
+            📡 Telematics Signal Losses
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Query Result Card -->
+      <template lwc:if={isQuerying}>
+        <div
+          class="slds-box slds-p-around_large slds-text-align_center slds-m-bottom_large"
+          style="background: #f8fafc"
+        >
+          <lightning-spinner
+            alternative-text="Synthesizing fleet data..."
+            size="small"
+          ></lightning-spinner>
+          <p class="slds-text-title_bold slds-m-top_medium">
+            Cross-referencing telemetry, maintenance schedules, and warranty SLA
+            parameters...
+          </p>
+        </div>
+      </template>
+
+      <template lwc:if={customQueryResult}>
+        <div class="slds-m-bottom_large">
+          <div
+            class="slds-text-title_caps slds-text-color_weak slds-m-bottom_xx-small"
+          >
+            Live Strategic Synthesis
+          </div>
+          <div
+            class="insight-card slds-box slds-theme_default slds-p-around_medium"
+            style="border-left: 6px solid #c23934"
+          >
+            <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+              <div>
+                <span class="slds-badge slds-theme_error slds-m-right_x-small"
+                  >{customQueryResult.severity}</span
+                >
+                <span class="slds-text-title_caps slds-text-color_weak"
+                  >{customQueryResult.category}</span
+                >
+                <h3
+                  class="slds-text-heading_medium slds-text-title_bold slds-m-top_xx-small"
+                >
+                  {customQueryResult.title}
+                </h3>
+              </div>
+            </div>
+
+            <div
+              class="slds-box slds-box_x-small slds-theme_shade slds-m-bottom_small"
+            >
+              <p class="slds-text-body_regular">
+                <strong>Executive Summary:</strong> {customQueryResult.summary}
+              </p>
+            </div>
+
+            <div
+              class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_small"
+            >
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <span class="slds-text-title_caps slds-text-color_weak"
+                  >Root Cause Diagnosis</span
+                >
+                <p class="slds-text-body_small slds-m-top_xx-small">
+                  {customQueryResult.rootCause}
+                </p>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <span class="slds-text-title_caps slds-text-color_weak"
+                  >Quantitative Exposure</span
+                >
+                <div class="slds-m-top_xx-small">
+                  <span
+                    class="slds-badge slds-theme_inverse"
+                    style="font-size: 0.8rem"
+                    >{customQueryResult.quantitativeImpact}</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Affected Branches -->
+            <div class="slds-m-bottom_medium">
+              <span
+                class="slds-text-title_caps slds-text-color_weak slds-m-right_x-small"
+                >Affected Branches:</span
+              >
+              <template
+                for:each={customQueryResult.affectedBranches}
+                for:item="b"
+              >
+                <span key={b} class="slds-badge slds-m-right_xx-small"
+                  >{b}</span
+                >
+              </template>
+            </div>
+
+            <!-- Action Buttons -->
+            <div
+              class="slds-grid slds-grid_align-end slds-border_top slds-p-top_small"
+            >
+              <template for:each={customQueryResult.actions} for:item="act">
+                <lightning-button
+                  key={act.actionKey}
+                  variant={act.variant}
+                  label={act.label}
+                  icon-name={act.iconName}
+                  data-action={act.actionKey}
+                  data-insight={customQueryResult.id}
+                  onclick={handleExecuteAction}
+                  class="slds-m-left_x-small"
+                ></lightning-button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Pre-Built Strategic Anomaly Stream -->
+      <div>
+        <div
+          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+        >
+          <div>
+            <h3 class="slds-text-heading_small slds-text-title_bold">
+              Enterprise Anomaly Stream
+            </h3>
+            <p class="slds-text-body_small slds-text-color_weak">
+              Continuous algorithmic audits flagged across 10,000+ vehicles.
+            </p>
+          </div>
+          <div>
+            <span class="slds-badge slds-theme_warning"
+              >{prebuiltInsightsCount} Active Alerts</span
+            >
+          </div>
+        </div>
+
+        <div class="slds-grid slds-wrap slds-gutters_medium">
+          <template for:each={prebuiltInsights} for:item="item">
+            <div
+              key={item.id}
+              class="slds-col slds-size_1-of-1 slds-m-bottom_medium"
+            >
+              <div
+                class="insight-card slds-box slds-theme_default slds-p-around_medium"
+              >
+                <div
+                  class="slds-grid slds-grid_align-spread slds-m-bottom_small"
+                >
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <span class={item.badgeClass}>{item.severity}</span>
+                    <span
+                      class="slds-text-title_caps slds-text-color_weak slds-m-left_small"
+                      >{item.category}</span
+                    >
+                  </div>
+                  <div>
+                    <code class="slds-text-body_small">{item.id}</code>
+                  </div>
+                </div>
+
+                <h4
+                  class="slds-text-heading_small slds-text-title_bold slds-m-bottom_xx-small"
+                >
+                  {item.title}
+                </h4>
+                <p class="slds-text-body_regular slds-m-bottom_small">
+                  {item.summary}
+                </p>
+
+                <div
+                  class="slds-grid slds-wrap slds-gutters_small slds-box slds-box_x-small slds-theme_shade slds-m-bottom_small"
+                >
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3"
+                  >
+                    <span class="slds-text-color_weak slds-text-body_small"
+                      >Root Cause:</span
+                    >
+                    <div class="slds-text-body_small">{item.rootCause}</div>
+                  </div>
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3"
+                  >
+                    <span class="slds-text-color_weak slds-text-body_small"
+                      >Exposure:</span
+                    >
+                    <div class="slds-text-title_bold slds-text-color_error">
+                      {item.quantitativeImpact}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-border_top slds-p-top_small"
+                >
+                  <div>
+                    <span
+                      class="slds-text-color_weak slds-text-body_small slds-m-right_xx-small"
+                      >Branches:</span
+                    >
+                    <template
+                      for:each={item.affectedBranches}
+                      for:item="branch"
+                    >
+                      <span
+                        key={branch}
+                        class="slds-badge slds-m-right_xx-small"
+                        >{branch}</span
+                      >
+                    </template>
+                  </div>
+                  <div>
+                    <template for:each={item.actions} for:item="act">
+                      <lightning-button
+                        key={act.actionKey}
+                        variant={act.variant}
+                        label={act.label}
+                        icon-name={act.iconName}
+                        data-action={act.actionKey}
+                        data-insight={item.id}
+                        onclick={handleExecuteAction}
+                        class="slds-m-left_x-small"
+                      ></lightning-button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </lightning-card>
+</template>

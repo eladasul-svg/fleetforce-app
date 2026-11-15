@@ -382,10 +382,12 @@ export default class FleetforceAssistant extends LightningElement {
   }
 
   viewProposal(p) {
-    const isUpdate = p.action === "update";
+    // Routing proposals (action "routing.*") change an existing route and carry their own title.
+    const isUpdate = p.action !== "create";
     const name = p.recordName ? ` "${p.recordName}"` : "";
     return {
-      title: `${isUpdate ? "Update" : "Create"} ${p.objectLabel}${name}`,
+      title:
+        p.title || `${isUpdate ? "Update" : "Create"} ${p.objectLabel}${name}`,
       reason: p.reason,
       isUpdate,
       changes: (p.changes || []).map((c, key) => ({

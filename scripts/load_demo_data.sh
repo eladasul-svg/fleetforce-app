@@ -1,17 +1,18 @@
 #!/bin/bash
 # Loads the multi-country demo into an org that already has force-app deployed: the SFDMU dataset
 # (data/sfdmu-export: 4 branches in Lisbon, London, Tel Aviv and Chicago, 35 vehicles and their records), then the
-# re-runnable Apex seeds (locations around each branch, tasks, events, bookings, driver app) and the data trust sample.
+# re-runnable Apex seeds (locations around each branch, tasks, events, bookings, driver app, the Beer Sheva routing
+# demo) and the data trust sample.
 # Every step can be re-run: SFDMU upserts on external IDs and the seeds delete and recreate their own records.
 #
 # Usage:  ./scripts/load_demo_data.sh <org-alias>
-# The org needs the FleetAdmin, FleetforceAdmin and FleetforceDataTrust permission sets on the running user.
+# The org needs the FleetAdmin, FleetforceAdmin, FleetforceDataTrust and FleetforceRouting permission sets on the running user.
 set -e
 ORG="${1:?Usage: $0 <org-alias>}"
 cd "$(dirname "$0")/.."
 
 echo "── Permission sets"
-for ps in FleetAdmin FleetforceAdmin FleetforceDataTrust; do
+for ps in FleetAdmin FleetforceAdmin FleetforceDataTrust FleetforceRouting; do
   sf org assign permset --name "$ps" --target-org "$ORG" > /dev/null 2>&1 || true
 done
 
@@ -24,7 +25,7 @@ if grep -q "," data/sfdmu-export/reports/MissingParentRecordsReport.csv 2>/dev/n
   echo "   ⚠ some lookups could not be resolved: data/sfdmu-export/reports/MissingParentRecordsReport.csv"
 fi
 
-for s in seed_branch_locations seed_tasks seed_events seed_motorpool_bookings seed_driver_app; do
+for s in seed_branch_locations seed_tasks seed_events seed_motorpool_bookings seed_driver_app seed_routing_demo; do
   echo "── $s"
   sf apex run --file "scripts/apex/$s.apex" --target-org "$ORG" | grep -E "USER_DEBUG|Error|error" | sed 's/.*DEBUG|//' || true
 done

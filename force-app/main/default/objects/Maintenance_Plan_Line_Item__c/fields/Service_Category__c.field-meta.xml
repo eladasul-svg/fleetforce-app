@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Service_Category__c</fullName>
+    <label>Service Category</label>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Oil &amp; Fluids</fullName>
+                <default>true</default>
+                <label>Oil &amp; Fluids</label>
+            </value>
+            <value>
+                <fullName>Tires &amp; Brakes</fullName>
+                <default>false</default>
+                <label>Tires &amp; Brakes</label>
+            </value>
+            <value>
+                <fullName>Powertrain</fullName>
+                <default>false</default>
+                <label>Powertrain</label>
+            </value>
+            <value>
+                <fullName>Electrical &amp; Battery</fullName>
+                <default>false</default>
+                <label>Electrical &amp; Battery</label>
+            </value>
+            <value>
+                <fullName>Annual Inspection</fullName>
+                <default>false</default>
+                <label>Annual Inspection</label>
+            </value>
+            <value>
+                <fullName>Comprehensive Service</fullName>
+                <default>false</default>
+                <label>Comprehensive Service</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,252 @@
+<template>
+  <template lwc:if={loading}><p class="hint">Loading your route…</p></template>
+  <template lwc:if={error}>
+    <p class="hint error" role="alert">{error}</p>
+  </template>
+  <template lwc:if={empty}>
+    <p class="hint">No route for you today.</p>
+  </template>
+
+  <template lwc:if={hasRoute}>
+    <section class="card">
+      <div class="route-head">
+        <div>
+          <h2 class="title">{route.name}</h2>
+          <p class="muted">{summary}</p>
+        </div>
+        <label class={scanButtonClass}>
+          <input
+            type="file"
+            class="scan-input"
+            accept="image/*,application/pdf,.pdf"
+            disabled={scanning}
+            onchange={handleFileChange}
+          />
+          <span>{scanButtonLabel}</span>
+        </label>
+      </div>
+
+      <template lwc:if={scanning}>
+        <div class="scan-status" role="status">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Reading delivery note &amp; locating destination…</span>
+        </div>
+      </template>
+
+      <template lwc:if={scanError}>
+        <p class="scan-error" role="alert">{scanError}</p>
+      </template>
+
+      <template lwc:if={next}>
+        <div class="next">
+          <p class="label">Next stop · {next.eta}</p>
+          <p class="next__name">{next.label}</p>
+          <template lwc:if={next.address}>
+            <p class="muted">{next.address}</p>
+          </template>
+          <template lwc:if={next.accessNotes}>
+            <p class="muted">{next.accessNotes}</p>
+          </template>
+          <template lwc:if={navigateUrl}>
+            <a class="btn" href={navigateUrl} target="_blank" rel="noopener">
+              Navigate
+            </a>
+          </template>
+        </div>
+      </template>
+    </section>
+
+    <section class="card">
+      <ol class="stops">
+        <template for:each={stops} for:item="s">
+          <li key={s.id} class={s.cls}>
+            <span class="eta">{s.eta}</span>
+            <div class="stop__body">
+              <span class="name">{s.label}</span>
+              <template lwc:if={s.address}>
+                <span class="stop__sub">{s.address}</span>
+              </template>
+            </div>
+            <span class="muted">{s.until}</span>
+          </li>
+        </template>
+      </ol>
+    </section>
+  </template>
+
+  <template lwc:if={toast}>
+    <div class="toast" role="status">{toast}</div>
+  </template>
+
+  <template lwc:if={showSheet}>
+    <div class="scrim" onclick={closeSheet}></div>
+    <section
+      class="sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirm scanned stop"
+    >
+      <header class="sheet__head">
+        <div>
+          <h2>Confirm delivery stop</h2>
+          <template lwc:if={sheetSubtitle}>
+            <p class="muted">{sheetSubtitle}</p>
+          </template>
+        </div>
+        <button
+          type="button"
+          class="sheet__close"
+          aria-label="Close"
+          disabled={saving}
+          onclick={closeSheet}
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="sheet__body">
+        <template lwc:if={sheetError}>
+          <p class="scan-error" role="alert">{sheetError}</p>
+        </template>
+
+        <template lwc:if={form.geocodeWarning}>
+          <p class="warn-box">{form.geocodeWarning}</p>
+        </template>
+
+        <label class="field">
+          <span>Customer / Recipient</span>
+          <input
+            type="text"
+            data-field="customerName"
+            value={form.customerName}
+            oninput={handleFieldInput}
+          />
+        </label>
+
+        <div class="field">
+          <div class="field__label-row">
+            <span>Destination address / site</span>
+            <button
+              type="button"
+              class="link-btn"
+              disabled={geocoding}
+              onclick={handleRegeocode}
+            >
+              {geocodeBtnLabel}
+            </button>
+          </div>
+          <input
+            type="text"
+            data-field="destinationAddress"
+            value={form.destinationAddress}
+            oninput={handleFieldInput}
+          />
+          <template lwc:if={coordHint}>
+            <span class="coord-hint">{coordHint}</span>
+          </template>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span>Latitude</span>
+            <input
+              type="number"
+              step="any"
+              data-field="latitude"
+              value={form.latitude}
+              oninput={handleFieldInput}
+            />
+          </label>
+          <label class="field">
+            <span>Longitude</span>
+            <input
+              type="number"
+              step="any"
+              data-field="longitude"
+              value={form.longitude}
+              oninput={handleFieldInput}
+            />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span>Contact name</span>
+            <input
+              type="text"
+              data-field="contactName"
+              value={form.contactName}
+              oninput={handleFieldInput}
+            />
+          </label>
+          <label class="field">
+            <span>Contact phone</span>
+            <input
+              type="text"
+              data-field="contactPhone"
+              value={form.contactPhone}
+              oninput={handleFieldInput}
+            />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label class="field">
+            <span>Document #</span>
+            <input
+              type="text"
+              data-field="docNumber"
+              value={form.docNumber}
+              oninput={handleFieldInput}
+            />
+          </label>
+          <label class="field">
+            <span>Order #</span>
+            <input
+              type="text"
+              data-field="orderNumber"
+              value={form.orderNumber}
+              oninput={handleFieldInput}
+            />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Cargo summary</span>
+          <input
+            type="text"
+            data-field="cargoSummary"
+            value={form.cargoSummary}
+            oninput={handleFieldInput}
+          />
+        </label>
+
+        <label class="field">
+          <span>Routing load weight (kg, optional)</span>
+          <input
+            type="number"
+            step="any"
+            placeholder="Leave blank to skip capacity check"
+            data-field="loadKg"
+            value={form.loadKg}
+            oninput={handleFieldInput}
+          />
+          <template lwc:if={weightHint}>
+            <span class="coord-hint">{weightHint}</span>
+          </template>
+        </label>
+      </div>
+
+      <footer class="sheet__foot">
+        <button
+          type="button"
+          class="btn btn--wide"
+          disabled={saving}
+          onclick={handleConfirmScan}
+        >
+          {confirmLabel}
+        </button>
+      </footer>
+    </section>
+  </template>
+</template>

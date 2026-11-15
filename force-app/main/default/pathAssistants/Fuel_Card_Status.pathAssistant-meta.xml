@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Fuel_Card__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Fuel Card Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Provider__c</fieldNames>
+        <fieldNames>Assigned_Asset__c</fieldNames>
+        <fieldNames>Assigned_Driver__c</fieldNames>
+        <fieldNames>Daily_Limit__c</fieldNames>
+        <fieldNames>Fuel_Type_Allowed__c</fieldNames>
+        <info
+    >&lt;p&gt;Fuel card active and authorized for purchases up to daily spend limits.&lt;/p&gt;</info>
+        <picklistValueName>Active</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Daily_Limit__c</fieldNames>
+        <fieldNames>Provider__c</fieldNames>
+        <info
+    >&lt;p&gt;Card temporarily suspended pending investigation of suspicious charges or administrative review.&lt;/p&gt;</info>
+        <picklistValueName>Suspended</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>External_ID__c</fieldNames>
+        <fieldNames>Provider__c</fieldNames>
+        <info
+    >&lt;p&gt;Card reported lost or stolen. Deactivate card immediately with provider and issue replacement.&lt;/p&gt;</info>
+        <picklistValueName>Lost/Stolen</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Expiration_Date__c</fieldNames>
+        <fieldNames>Provider__c</fieldNames>
+        <info
+    >&lt;p&gt;Card reached its expiration date. Distribute renewed card to assigned driver or branch.&lt;/p&gt;</info>
+        <picklistValueName>Expired</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <info
+    >&lt;p&gt;Card permanently cancelled or vehicle decommissioned.&lt;/p&gt;</info>
+        <picklistValueName>Cancelled</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

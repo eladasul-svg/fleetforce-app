@@ -133,4 +133,97 @@ private class FleetDisplaySettingsControllerTest {
         .fleetforce__Default_Distance_Unit__c
     );
   }
+
+  @IsTest
+  static void generalSettingsAreRetrievedAndSaved() {
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      FleetDisplaySettingsController.GeneralSettings g = FleetDisplaySettingsController.getGeneralSettings();
+      System.assertNotEquals(null, g);
+      System.assert(g.canEdit);
+
+      FleetDisplaySettingsController.GeneralSettings saved = FleetDisplaySettingsController.saveGeneralSettings(
+        true,
+        'Claude 3.5 Sonnet',
+        true,
+        'AIzaSyDummyGoogleKey12345',
+        'sk-ant-dummy-anthropic-key-12345',
+        'sk-dummy-openai-key-12345',
+        true,
+        21,
+        7,
+        180
+      );
+      System.assertEquals(true, saved.enableAiInsights);
+      System.assertEquals('Claude 3.5 Sonnet', saved.aiProvider);
+      System.assertEquals(true, saved.enableExtendedPrivacy);
+      System.assertEquals(true, saved.autoCreateDtcTickets);
+      System.assertEquals(21, saved.maintenanceGraceDays);
+      System.assertEquals(7, saved.odometerDriftThreshold);
+      System.assertEquals(180, saved.telemetryRetentionDays);
+      System.assertEquals(true, saved.hasGoogleKey);
+      System.assertEquals(true, saved.hasAnthropicKey);
+      System.assertEquals(true, saved.hasOpenAiKey);
+      System.assert(saved.maskedGoogleKey.contains('••••'));
+      System.assert(saved.aiProviders.size() >= 4);
+
+      fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+      System.assertEquals(true, org.fleetforce__Enable_AI_Insights__c);
+      System.assertEquals('Claude 3.5 Sonnet', org.fleetforce__AI_Provider__c);
+      System.assertEquals(true, org.fleetforce__Enable_Extended_Privacy__c);
+      System.assertEquals(true, org.fleetforce__Auto_Create_DTC_Tickets__c);
+      System.assertEquals(21, org.fleetforce__Maintenance_Grace_Days__c);
+      System.assertEquals(7, org.fleetforce__Odometer_Drift_Threshold__c);
+      System.assertEquals(180, org.fleetforce__Telemetry_Retention_Days__c);
+      System.assertEquals(
+        'AIzaSyDummyGoogleKey12345',
+        org.fleetforce__Google_Api_Key__c
+      );
+    }
+  }
+
+  @IsTest
+  static void brandSettingsAreRetrievedAndSaved() {
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      FleetDisplaySettingsController.BrandSettings b = FleetDisplaySettingsController.getBrandSettings();
+      System.assertNotEquals(null, b);
+      System.assert(b.canEdit);
+
+      FleetDisplaySettingsController.BrandSettings saved = FleetDisplaySettingsController.saveBrandSettings(
+        'modern',
+        true,
+        'Acme Global Fleet',
+        '#0176D3',
+        'https://example.com/logo.png'
+      );
+      System.assertEquals('modern', saved.iconStyle);
+      System.assertEquals(true, saved.useCustomTheme);
+      System.assertEquals('Acme Global Fleet', saved.customThemeName);
+      System.assertEquals('#0176D3', saved.customBrandColor);
+
+      // Test individual saveBrandIconStyle
+      FleetDisplaySettingsController.BrandSettings styleSaved = FleetDisplaySettingsController.saveBrandIconStyle(
+        'futuristic'
+      );
+      System.assertEquals('futuristic', styleSaved.iconStyle);
+
+      // Create test ContentVersion for logo
+      ContentVersion cv = new ContentVersion(
+        Title = 'Test Company Logo',
+        PathOnClient = 'test_logo.png',
+        VersionData = Blob.valueOf('Fake PNG Image Data')
+      );
+      insert cv;
+
+      FleetDisplaySettingsController.BrandSettings logoSaved = FleetDisplaySettingsController.saveCustomLogo(
+        cv.Id
+      );
+      System.assertEquals(true, logoSaved.hasCustomLogo);
+      System.assert(logoSaved.customLogoUrl.contains(String.valueOf(cv.Id)));
+
+      // Test revertToDefaultLogo
+      FleetDisplaySettingsController.BrandSettings reverted = FleetDisplaySettingsController.revertToDefaultLogo();
+      System.assertEquals(false, reverted.hasCustomLogo);
+      System.assertEquals(null, reverted.customLogoUrl);
+    }
+  }
 }

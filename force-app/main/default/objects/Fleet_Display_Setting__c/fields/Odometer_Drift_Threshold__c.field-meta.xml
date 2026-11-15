@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Odometer_Drift_Threshold__c</fullName>
+    <defaultValue>5</defaultValue>
+    <description
+  >Percentage variance threshold between telematics odometer and manual driver readings before triggering an audit alert.</description>
+    <externalId>false</externalId>
+    <label>Odometer Drift Tolerance (%)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

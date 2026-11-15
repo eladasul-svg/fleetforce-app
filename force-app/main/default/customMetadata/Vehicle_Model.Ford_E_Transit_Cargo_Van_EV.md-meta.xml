@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomMetadata
+  xmlns="http://soap.sforce.com/2006/04/metadata"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+>
     <label>Ford E-Transit Cargo Van EV</label>
     <protected>false</protected>
     <values>
@@ -8,6 +12,26 @@
     </values>
     <values>
         <field>Source__c</field>
-        <value xsi:type="xsd:string">Not EPA rated (heavy-duty / over 8,500 lb GVWR)</value>
+        <value
+      xsi:type="xsd:string"
+    >Not EPA rated (heavy-duty / over 8,500 lb GVWR)</value>
+    </values>
+    <values>
+        <field>Manufacturer_Handbook_URL__c</field>
+        <value
+      xsi:type="xsd:string"
+    >https://www.ford.com/support/vehicle/e-transit/owner-manuals/</value>
+    </values>
+    <values>
+        <field>Infotainment_Video_URL__c</field>
+        <value
+      xsi:type="xsd:string"
+    >https://www.youtube.com/watch?v=f2dI3L41qB0</value>
+    </values>
+    <values>
+        <field>Emergency_Guide_URL__c</field>
+        <value
+      xsi:type="xsd:string"
+    >https://www.ford.com/support/category/service-maintenance/emergency/</value>
     </values>
 </CustomMetadata>

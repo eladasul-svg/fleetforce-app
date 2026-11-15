@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Assistant_Session__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>When the change came through the assistant.</description>
+    <label>Assistant Session</label>
+    <referenceTo>Assistant_Session__c</referenceTo>
+    <relationshipLabel>Route Events</relationshipLabel>
+    <relationshipName>Route_Events</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

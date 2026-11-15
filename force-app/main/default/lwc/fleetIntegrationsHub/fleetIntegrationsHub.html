@@ -1,0 +1,545 @@
+<template>
+  <lightning-card
+    title="Telematics Connectors & Integrations"
+    icon-name="custom:custom67"
+  >
+    <div class="slds-p-around_medium">
+      <!-- Top Summary KPI Strip -->
+      <div class="slds-grid slds-wrap slds-gutters_small slds-m-bottom_medium">
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-m-bottom_x-small"
+        >
+          <div class="kpi-card slds-box slds-p-around_small slds-theme_shade">
+            <div class="slds-text-title_caps slds-text-color_weak">
+              Supported Connectors
+            </div>
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+            >
+              <lightning-icon
+                icon-name="utility:connected_apps"
+                size="small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span class="slds-text-heading_medium slds-text-title_bold"
+                >{totalConnectorsCount}</span
+              >
+              <span class="slds-badge slds-m-left_small slds-theme_success"
+                >Ready</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-m-bottom_x-small"
+        >
+          <div class="kpi-card slds-box slds-p-around_small slds-theme_shade">
+            <div class="slds-text-title_caps slds-text-color_weak">
+              Active Data Streams
+            </div>
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+            >
+              <lightning-icon
+                icon-name="utility:broadcast"
+                size="small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span class="slds-text-heading_medium slds-text-title_bold"
+                >{totalStreamsCount}</span
+              >
+              <span
+                class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
+                >({healthyStreamsCount} Healthy)</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-m-bottom_x-small"
+        >
+          <div class="kpi-card slds-box slds-p-around_small slds-theme_shade">
+            <div class="slds-text-title_caps slds-text-color_weak">
+              Monitored Assets
+            </div>
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+            >
+              <lightning-icon
+                icon-name="utility:custom_apps"
+                size="small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span class="slds-text-heading_medium slds-text-title_bold"
+                >{monitoredAssetsCount}</span
+              >
+              <span
+                class="slds-text-body_small slds-text-color_weak slds-m-left_x-small"
+                >Vehicles Linked</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-m-bottom_x-small"
+        >
+          <div class="kpi-card slds-box slds-p-around_small slds-theme_shade">
+            <div class="slds-text-title_caps slds-text-color_weak">
+              Ingestion Health
+            </div>
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-m-top_xx-small"
+            >
+              <lightning-icon
+                icon-name="utility:success"
+                variant="success"
+                size="small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span
+                class="slds-text-heading_medium slds-text-title_bold slds-text-color_success"
+                >Operational</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Banner -->
+      <div
+        class="slds-box slds-theme_default slds-m-bottom_medium slds-grid slds-grid_vertical-align-center"
+      >
+        <lightning-icon
+          icon-name="utility:info_alt"
+          size="small"
+          class="slds-m-right_small"
+        ></lightning-icon>
+        <div class="slds-text-body_regular">
+          Connect and manage external telematics service providers. Inbound
+          signals update vehicle odometers, GPS map coordinates, diagnostic
+          trouble codes (DTCs), and carbon emission metrics in real time.
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <template lwc:if={isLoading}>
+        <div style="position: relative; min-height: 8rem">
+          <lightning-spinner
+            alternative-text="Loading telematics connectors..."
+            size="medium"
+          ></lightning-spinner>
+        </div>
+      </template>
+
+      <!-- Connector Cards Grid -->
+      <template lwc:if={hasConnectors}>
+        <div class="slds-grid slds-wrap slds-gutters_medium">
+          <template for:each={connectors} for:item="c">
+            <div
+              key={c.key}
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_medium"
+            >
+              <div
+                class="connector-card slds-box slds-theme_default slds-card slds-p-around_medium"
+              >
+                <!-- Card Header -->
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+                >
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <div class="provider-avatar slds-m-right_small">
+                      <lightning-icon
+                        icon-name="custom:custom67"
+                        size="medium"
+                      ></lightning-icon>
+                    </div>
+                    <div>
+                      <h3 class="slds-text-heading_small slds-text-title_bold">
+                        {c.name}
+                      </h3>
+                      <span class="slds-text-body_small slds-text-color_weak"
+                        >{c.protocol}</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <span class={c.badgeClass}>{c.status}</span>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <p
+                  class="slds-text-body_small slds-text-color_weak slds-m-bottom_small"
+                  style="min-height: 2.6rem"
+                >
+                  {c.description}
+                </p>
+
+                <!-- Capabilities Pills -->
+                <div class="slds-m-bottom_small">
+                  <div
+                    class="slds-text-title_caps slds-text-color_weak slds-m-bottom_xx-small"
+                    style="font-size: 0.7rem"
+                  >
+                    Stream Capabilities
+                  </div>
+                  <div class="slds-wrap">
+                    <template for:each={c.capabilities} for:item="cap">
+                      <span
+                        key={cap}
+                        class="capability-pill slds-badge slds-m-right_xx-small slds-m-bottom_xx-small"
+                      >
+                        {cap}
+                      </span>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Connection Attributes -->
+                <div
+                  class="slds-box slds-box_x-small slds-theme_shade slds-m-bottom_medium"
+                >
+                  <div
+                    class="slds-grid slds-wrap slds-gutters_x-small"
+                    style="font-size: 0.8rem"
+                  >
+                    <div
+                      class="slds-col slds-size_1-of-2 slds-m-bottom_xx-small"
+                    >
+                      <span class="slds-text-color_weak">Endpoint:</span>
+                      <div class="slds-truncate" title={c.endpoint}>
+                        <code>{c.endpoint}</code>
+                      </div>
+                    </div>
+                    <div
+                      class="slds-col slds-size_1-of-2 slds-m-bottom_xx-small"
+                    >
+                      <span class="slds-text-color_weak"
+                        >Telemetry Streams:</span
+                      >
+                      <div>
+                        <strong>{c.totalStreams}</strong> ({c.healthyStreams}
+                        healthy)
+                      </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                      <span class="slds-text-color_weak"
+                        >Monitored Assets:</span
+                      >
+                      <div><strong>{c.monitoredAssets}</strong> vehicles</div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                      <span class="slds-text-color_weak">Last Sync:</span>
+                      <div>{c.formattedLastSync}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-border_top slds-p-top_small"
+                >
+                  <div>
+                    <lightning-button
+                      label="Test Ping"
+                      variant="neutral"
+                      icon-name="utility:sync"
+                      data-key={c.key}
+                      onclick={handleTestPing}
+                      class="slds-m-right_x-small"
+                      disabled={isActionInProgress}
+                    ></lightning-button>
+                    <lightning-button
+                      label="Sync Now"
+                      variant="neutral"
+                      icon-name="utility:download"
+                      data-key={c.key}
+                      onclick={handleSyncNow}
+                      disabled={isActionInProgress}
+                    ></lightning-button>
+                  </div>
+                  <div>
+                    <lightning-button
+                      label="Configure"
+                      variant="brand"
+                      icon-name="utility:settings"
+                      data-key={c.key}
+                      onclick={handleOpenConfig}
+                    ></lightning-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
+  </lightning-card>
+
+  <!-- CONFIGURATION MODAL -->
+  <template lwc:if={showModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+      aria-modal="true"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            title="Close"
+            onclick={closeModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="close"
+              variant="inverse"
+              size="small"
+            ></lightning-icon>
+            <span class="slds-assistive-text">Close</span>
+          </button>
+          <h2 class="slds-text-heading_medium slds-hyphenate">
+            Configure {activeModalTitle}
+          </h2>
+          <p
+            class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
+          >
+            Credentials and polling configurations are securely stored and
+            encrypted.
+          </p>
+        </header>
+
+        <div
+          class="slds-modal__content slds-p-around_medium"
+          style="position: relative; max-height: 60vh; overflow-y: auto"
+        >
+          <template lwc:if={isSavingConfig}>
+            <lightning-spinner
+              alternative-text="Saving connector configuration..."
+              size="medium"
+            ></lightning-spinner>
+          </template>
+
+          <!-- Ping Test Alert Result if any -->
+          <template lwc:if={pingResult}>
+            <div
+              class="slds-notify slds-notify_alert slds-theme_success slds-m-bottom_medium"
+              role="alert"
+            >
+              <lightning-icon
+                icon-name="utility:check"
+                variant="inverse"
+                size="x-small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <h2>{pingResult.message} ({pingResult.latencyMs} ms latency)</h2>
+            </div>
+          </template>
+
+          <!-- Form Content: Geotab -->
+          <template lwc:if={isGeotabModal}>
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Server Host"
+                  value={modalForm.server}
+                  name="server"
+                  onchange={handleFormChange}
+                  placeholder="my.geotab.com"
+                  required
+                ></lightning-input>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Database Name"
+                  value={modalForm.database}
+                  name="database"
+                  onchange={handleFormChange}
+                  placeholder="e.g. corp_fleet_db"
+                  required
+                ></lightning-input>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="API Username / Email"
+                  value={modalForm.username}
+                  name="username"
+                  onchange={handleFormChange}
+                  placeholder="telematics-svc@company.com"
+                  required
+                ></lightning-input>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="API Password"
+                  type="password"
+                  value={modalForm.password}
+                  name="password"
+                  onchange={handleFormChange}
+                  placeholder={passwordPlaceholder}
+                ></lightning-input>
+              </div>
+            </div>
+          </template>
+
+          <!-- Form Content: Samsara -->
+          <template lwc:if={isSamsaraModal}>
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                <lightning-input
+                  label="Samsara Cloud Base URL"
+                  value={modalForm.server}
+                  name="server"
+                  onchange={handleFormChange}
+                  placeholder="https://api.samsara.com"
+                  required
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                <lightning-input
+                  label="Samsara API Bearer Token"
+                  type="password"
+                  value={modalForm.apiKey}
+                  name="apiKey"
+                  onchange={handleFormChange}
+                  placeholder="samsara_api_••••••••••••••••"
+                  required
+                ></lightning-input>
+              </div>
+            </div>
+          </template>
+
+          <!-- Form Content: Webfleet -->
+          <template lwc:if={isWebfleetModal}>
+            <div class="slds-grid slds-wrap slds-gutters_small">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Webfleet Connect URL"
+                  value={modalForm.server}
+                  name="server"
+                  onchange={handleFormChange}
+                  placeholder="https://csv.webfleet.com"
+                  required
+                ></lightning-input>
+              </div>
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <lightning-input
+                  label="Account User"
+                  value={modalForm.username}
+                  name="username"
+                  onchange={handleFormChange}
+                  placeholder="webfleet_user"
+                  required
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                <lightning-input
+                  label="Webfleet API Key"
+                  type="password"
+                  value={modalForm.apiKey}
+                  name="apiKey"
+                  onchange={handleFormChange}
+                  placeholder="wf_••••••••••••••••"
+                  required
+                ></lightning-input>
+              </div>
+            </div>
+          </template>
+
+          <!-- Form Content: Custom Ingestion Webhook -->
+          <template lwc:if={isCustomWebhookModal}>
+            <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+              <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                Inbound Telemetry Webhook Endpoint
+              </div>
+              <div
+                class="slds-grid slds-grid_vertical-align-center slds-m-bottom_small"
+              >
+                <code
+                  class="slds-p-around_xx-small slds-truncate slds-size_1-of-1"
+                  style="background: #fff"
+                >
+                  {modalForm.webhookUrl}
+                </code>
+              </div>
+
+              <div class="slds-text-title_bold slds-m-bottom_xx-small">
+                Signing Secret Key
+              </div>
+              <div
+                class="slds-grid slds-grid_vertical-align-center slds-m-bottom_small"
+              >
+                <code
+                  class="slds-p-around_xx-small slds-truncate slds-size_1-of-1"
+                  style="background: #fff"
+                >
+                  {modalForm.webhookSecret}
+                </code>
+              </div>
+
+              <p class="slds-text-body_small slds-text-color_weak">
+                Third-party IoT devices and OEM systems can stream JSON payloads
+                directly to this endpoint with header
+                <code>X-FleetForce-Signature</code>.
+              </p>
+            </div>
+          </template>
+
+          <!-- Common Sync Settings -->
+          <template lwc:if={hasPollingFrequency}>
+            <div class="slds-m-top_small slds-border_top slds-p-top_small">
+              <lightning-combobox
+                label="Automated Sync Frequency"
+                value={modalForm.frequencyHours}
+                name="frequencyHours"
+                options={frequencyOptions}
+                onchange={handleFormChange}
+              ></lightning-combobox>
+            </div>
+          </template>
+        </div>
+
+        <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+          <lightning-button
+            label="Cancel"
+            onclick={closeModal}
+          ></lightning-button>
+          <div>
+            <lightning-button
+              label="Test Connection"
+              variant="neutral"
+              icon-name="utility:sync"
+              onclick={handleModalTestPing}
+              class="slds-m-right_x-small"
+              disabled={isSavingConfig}
+            ></lightning-button>
+            <lightning-button
+              label="Save Configuration"
+              variant="brand"
+              icon-name="utility:save"
+              onclick={handleSaveConfig}
+              disabled={isSavingConfig}
+            ></lightning-button>
+          </div>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

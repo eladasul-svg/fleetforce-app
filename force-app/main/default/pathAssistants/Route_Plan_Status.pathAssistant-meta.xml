@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Route_Plan__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Route Plan Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Plan_Date__c</fieldNames>
+        <fieldNames>Depot_Branch__c</fieldNames>
+        <fieldNames>Objective__c</fieldNames>
+        <info
+    >&lt;p&gt;Initial route planning configuration. Define depot location, planning date, and primary routing objective.&lt;/p&gt;</info>
+        <picklistValueName>Draft</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Provider__c</fieldNames>
+        <fieldNames>Objective__c</fieldNames>
+        <info
+    >&lt;p&gt;Route optimization solver in progress via OR-Tools or Cloud Optimization API.&lt;/p&gt;</info>
+        <picklistValueName>Optimizing</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Total_Distance_Km__c</fieldNames>
+        <fieldNames>Total_Duration_Min__c</fieldNames>
+        <fieldNames>Unassigned_Count__c</fieldNames>
+        <fieldNames>Solver_Summary__c</fieldNames>
+        <info
+    >&lt;p&gt;Optimization complete. Review route metrics, vehicle assignments, and unassigned jobs before publishing.&lt;/p&gt;</info>
+        <picklistValueName>Optimized</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Revision__c</fieldNames>
+        <info
+    >&lt;p&gt;Route plan published to mobile drivers and dispatch consoles for daily execution.&lt;/p&gt;</info>
+        <picklistValueName>Published</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Total_Distance_Km__c</fieldNames>
+        <info
+    >&lt;p&gt;Drivers are actively executing scheduled routes and logging stop completions.&lt;/p&gt;</info>
+        <picklistValueName>In Progress</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <info
+    >&lt;p&gt;All routes completed and driver post-trip logs verified.&lt;/p&gt;</info>
+        <picklistValueName>Completed</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Error__c</fieldNames>
+        <info
+    >&lt;p&gt;Route plan was cancelled or encountered an optimization error.&lt;/p&gt;</info>
+        <picklistValueName>Cancelled</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Allow_Manual_Override__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >If checked, manually specified non-blank names will not be overwritten by the auto-naming engine.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Allow Manual Override</label>
+    <type>Checkbox</type>
+</CustomField>

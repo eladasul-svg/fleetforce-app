@@ -51,3 +51,5 @@ scripts/migration/backup/
 data/sfdmu-export/target/
 data/sfdmu-export/reports/
 data/sfdmu-export/source/
+# Local secrets written by `elevenlabs onboard`
+/.env.local

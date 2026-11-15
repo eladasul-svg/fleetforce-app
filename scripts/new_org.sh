@@ -53,7 +53,7 @@ else
 fi
 
 echo "── Permission sets"
-for ps in FleetAdmin FleetforceAdmin FleetforceDataTrust FleetforceAssistantUser; do
+for ps in FleetAdmin FleetforceAdmin FleetforceDataTrust FleetforceAssistantUser FleetforceRouting; do
   sf org assign permset --name "$ps" --target-org "$ALIAS" > /dev/null 2>&1 || echo "   $ps not assigned"
 done
 

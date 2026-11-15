@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+.map {
+  height: 30rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  z-index: 0;
+}
+.error {
+  color: var(--slds-g-color-error-base-40, #ba0517);
+  margin-bottom: 0.5rem;
+}

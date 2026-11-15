@@ -1,0 +1,23 @@
+.kpi-card {
+  border-radius: 8px;
+  transition: transform 0.15s ease-in-out;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+}
+
+.connector-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.connector-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.capability-pill {
+  font-size: 0.72rem;
+  font-weight: 500;
+}

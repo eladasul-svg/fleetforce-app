@@ -444,6 +444,9 @@
     fleetforce__VIN__c: ${{ fake.bothify("1FT????##?K######", letters="ABCDEFGHJKLMNPRSTUVWXYZ") }}
     fleetforce__Serial__c: SN-${{ fake.year() }}-${{ "%04d" % (id + 100) }}-${{ fake.numerify("####") }}
     fleetforce__Key_Tag_ID__c: KT-${{ "%03d" % (id + 100) }}
+    fleetforce__Make__c: ${{ ["Ford", "Ram", "Chevrolet", "Isuzu", "Mercedes-Benz"] | random }}
+    fleetforce__Model__c: ${{ ["Transit-250", "F-150", "ProMaster 2500", "NPR-HD", "Sprinter 2500"] | random }}
+    fleetforce__Model_Year__c: ${{ ["2022", "2023", "2024", "2025"] | random }}
     fleetforce__Body_Type__c: ${{ (["Minivan"] * 12 + ["Pickup"] * 8 + ["Truck"] * 8 + ["SUV"] * 4 + ["Sedan"] * 3) | random }}
     fleetforce__Engine_Type__c: ${{ (["ICE"] * 15 + ["Diesel"] * 10 + ["Hybrid"] * 6 + ["Electric"] * 4) | random }}
     fleetforce__Fuel_Type__c: ${{ (["Gasoline"] * 15 + ["Diesel"] * 10 + ["Hybrid"] * 6 + ["Electric"] * 4) | random }}
@@ -467,6 +470,10 @@
       random_number:
         min: 28000
         max: 85000
+    fleetforce__Residual_Value__c:
+      random_number:
+        min: 18000
+        max: 56000
     fleetforce__Fuel_Capacity__c: ${{ [16, 16, 20, 20, 24, 24, 30] | random }}
     fleetforce__Fuel_Energy_Level__c:
       random_number:
@@ -792,3 +799,150 @@
       fake: email
     fleetforce__Guest_Phone__c: ${{ fake.numerify("(###) 555-####") }}
     # Requestor_User__c intentionally null — User lookup; no seeded User records
+
+# ── 10. FUEL LOGS (50) ────────────────────────────────────────────────────────
+- object: fleetforce__Fuel_Log__c
+  count: 50
+  fields:
+    Name: FL-${{ fake.numerify("#####") }}
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Driver__c:
+      random_choice:
+        - reference: drv01
+        - reference: drv02
+        - reference: drv03
+        - reference: drv04
+        - reference: drv05
+        - reference: drv06
+        - reference: drv07
+        - reference: drv08
+        - reference: drv09
+        - reference: drv10
+        - reference: drv11
+        - reference: drv12
+        - reference: drv13
+        - reference: drv14
+        - reference: drv15
+        - reference: drv16
+        - reference: drv17
+        - reference: drv18
+        - reference: drv19
+        - reference: drv20
+    fleetforce__Product_Type__c: ${{ (["Diesel"] * 20 + ["Petrol"] * 20 + ["Electric Charge."] * 10) | random }}
+    fleetforce__Volume__c:
+      random_number:
+        min: 15
+        max: 85
+    fleetforce__Unit_Cost__c:
+      random_choice:
+        - choice:
+            pick: 3.85
+            probability: 2
+        - choice:
+            pick: 4.15
+            probability: 2
+        - choice:
+            pick: 0.38
+            probability: 1
+    fleetforce__Total_Cost__c:
+      random_number:
+        min: 50
+        max: 320
+    fleetforce__Fuel_Economy__c:
+      random_number:
+        min: 8
+        max: 28
+    fleetforce__Transaction_Date__c:
+      date_between:
+        start_date: -180d
+        end_date: -1d
+    fleetforce__Odometer__c:
+      random_number:
+        min: 5000
+        max: 120000
+    fleetforce__Vendor_Name__c: ${{ ["Shell", "Chevron", "ExxonMobil", "BP", "ChargePoint", "Tesla Supercharger"] | random }}
+
+# ── 11. CARBON LOGS (40) ──────────────────────────────────────────────────────
+- object: fleetforce__Carbon_Log__c
+  count: 40
+  fields:
+    Name: CL-${{ fake.numerify("#####") }}
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Date__c:
+      date_between:
+        start_date: -180d
+        end_date: -1d
+    fleetforce__Scope__c: ${{ (["Scope 1 (Combustion)"] * 30 + ["Scope 2 (Purchased Energy/EV)."] * 10) | random }}
+    fleetforce__Calc_Method__c: ${{ (["Standard EPA"] * 25 + ["DEFRA (UK)"] * 10 + ["Regional Grid (EV)."] * 5) | random }}
+    fleetforce__Emission_Factor__c: 2.68
+    fleetforce__CO2_KG__c:
+      random_number:
+        min: 40
+        max: 450
+    fleetforce__Offset_Status__c: ${{ (["Unmitigated"] * 25 + ["Partially Offset"] * 10 + ["Neutralized."] * 5) | random }}
+
+# ── 12. CITATIONS (20) ────────────────────────────────────────────────────────
+- object: fleetforce__Citation__c
+  count: 20
+  fields:
+    Name: CIT-${{ fake.numerify("#####") }}
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Driver__c:
+      random_choice:
+        - reference: drv01
+        - reference: drv02
+        - reference: drv03
+        - reference: drv04
+        - reference: drv05
+        - reference: drv06
+        - reference: drv07
+        - reference: drv08
+        - reference: drv09
+        - reference: drv10
+        - reference: drv11
+        - reference: drv12
+        - reference: drv13
+        - reference: drv14
+        - reference: drv15
+        - reference: drv16
+        - reference: drv17
+        - reference: drv18
+        - reference: drv19
+        - reference: drv20
+    fleetforce__Ticket_Number__c: ${{ fake.bothify("TK-######") }}
+    fleetforce__Citation_Date__c:
+      date_between:
+        start_date: -120d
+        end_date: -1d
+    fleetforce__Violation_Type__c: ${{ (["Speeding"] * 8 + ["Parking"] * 6 + ["Red Light Camera"] * 3 + ["Toll Evasion"] * 2 + ["Expired Tags."] * 1) | random }}
+    fleetforce__Fine_Amount__c: ${{ [75, 120, 150, 250, 300, 500] | random }}
+    fleetforce__Admin_Fee__c: ${{ [15, 25, 35] | random }}
+    fleetforce__Total_Amount__c: ${{ [90, 145, 185, 275, 335, 535] | random }}
+    fleetforce__Status__c: ${{ (["New"] * 8 + ["Paid"] * 8 + ["Contested"] * 3 + ["Closed."] * 1) | random }}
+    fleetforce__Liability_Status__c: ${{ (["Company Liable"] * 10 + ["Transferred to Driver"] * 6 + ["Driver Accepted."] * 4) | random }}
+    fleetforce__Issuing_Authority__c: ${{ ["State Police", "Municipal Traffic Authority", "Department of Transportation"] | random }}
+
+# ── 13. ASSET DOCUMENTS (50) ──────────────────────────────────────────────────
+- object: fleetforce__Asset_Document__c
+  count: 50
+  fields:
+    Name: DOC-${{ fake.numerify("#####") }}
+    fleetforce__Fleet_Asset__c:
+      random_reference: fleetforce__Fleet_Asset__c
+    fleetforce__Doc_Type__c: ${{ (["Registration"] * 15 + ["Insurance Card"] * 15 + ["Inspection Report"] * 12 + ["Title"] * 5 + ["Permit (Commercial)"] * 3) | random }}
+    fleetforce__Doc_Number__c: ${{ fake.bothify("DOC-#####-???") }}
+    fleetforce__Issuing_Authority__c: ${{ ["Department of Motor Vehicles", "Travelers Fleet Underwriting", "State Inspection Bureau", "Commercial Transport Agency"] | random }}
+    fleetforce__Compliance_State__c: ${{ ["GA", "CO", "TX", "IL", "AZ"] | random }}
+    fleetforce__Jurisdiction_Type__c: State
+    fleetforce__Valid_From__c:
+      date_between:
+        start_date: -365d
+        end_date: -60d
+    fleetforce__Valid_Until__c:
+      date_between:
+        start_date: -15d
+        end_date: +240d
+    fleetforce__Status__c: ${{ (["Current"] * 35 + ["Expiring Soon"] * 10 + ["Expired"] * 5) | random }}

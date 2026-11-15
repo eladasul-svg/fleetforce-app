@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enable_Extended_Privacy__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Automates Privacy4Cars-style digital sanitization tasks when vehicles transfer drivers or enter maintenance.</description>
+    <externalId>false</externalId>
+    <label>Enable Extended Privacy</label>
+    <type>Checkbox</type>
+</CustomField>

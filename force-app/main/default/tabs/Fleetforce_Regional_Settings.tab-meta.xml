@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flexiPage>Fleetforce_Regional_Settings</flexiPage>
+    <label>Regional Settings</label>
+    <motif>Custom31: Globe</motif>
+</CustomTab>

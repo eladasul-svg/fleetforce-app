@@ -1,0 +1,98 @@
+.brand-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+
+.tile {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  background: #fff;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.tile:hover {
+  border-color: #64748b;
+}
+
+.tile:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.tile--selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.tile__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tile__name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.tile__blurb {
+  margin: 0.1rem 0 0.5rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.tile__samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.logo-preview-box {
+  background: #0f1e33;
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+}
+
+.logo-preview-img {
+  max-height: 55px;
+  max-width: 240px;
+  object-fit: contain;
+}
+
+.color-pill {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-family: monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+}
+
+.logo-theme-box {
+  background: #0f1e33;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+}
+
+.theme-logo-preview {
+  max-height: 48px;
+  max-width: 220px;
+  object-fit: contain;
+  display: block;
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Subject_Asset__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description
+  >The car being moved (car sharing relocation), optional.</description>
+    <label>Subject Asset</label>
+    <referenceTo>Fleet_Asset__c</referenceTo>
+    <relationshipLabel>Route Jobs (as subject)</relationshipLabel>
+    <relationshipName>Subject_Route_Jobs</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

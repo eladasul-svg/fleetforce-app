@@ -1,0 +1,404 @@
+<template>
+  <lightning-card
+    title="Record Auto-Naming Rules"
+    icon-name="standard:custom_notification"
+  >
+    <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+      <template lwc:if={isLoading}>
+        <div class="slds-p-around_xx-large slds-text-align_center">
+          <lightning-spinner
+            alternative-text="Loading rules"
+            size="medium"
+          ></lightning-spinner>
+        </div>
+      </template>
+
+      <template lwc:else>
+        <!-- Object Navigation Tabs -->
+        <div class="slds-border_bottom slds-m-bottom_medium slds-grid">
+          <template for:each={objectTabs} for:item="tab">
+            <div
+              key={tab.apiName}
+              class={tab.cssClass}
+              data-object={tab.apiName}
+              onclick={handleSelectObject}
+            >
+              <span>{tab.label}</span>
+              <span class="slds-badge slds-m-left_x-small"
+                >{tab.recordCount}</span
+              >
+            </div>
+          </template>
+        </div>
+
+        <template lwc:if={selectedObjectConfig}>
+          <!-- ══════════════════════════════════════════════════════════ -->
+          <!-- STEP 1: VIEW MODE (READ-ONLY PATTERN & PREVIEW)           -->
+          <!-- ══════════════════════════════════════════════════════════ -->
+          <template lwc:if={isViewMode}>
+            <div class="slds-grid slds-wrap slds-gutters">
+              <!-- Left: Current Rule Summary & Actions -->
+              <div class="slds-col slds-size_1-of-1 slds-large-size_7-of-12">
+                <div class="slds-box slds-box_small slds-m-bottom_medium">
+                  <div
+                    class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+                  >
+                    <div>
+                      <h3 class="slds-text-heading_small">
+                        {selectedObjectConfig.label} Naming Rule
+                      </h3>
+                      <p class="slds-text-color_weak slds-text-body_small">
+                        Currently active convention for this object in
+                        Salesforce.
+                      </p>
+                    </div>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <template lwc:if={selectedObjectConfig.isActive}>
+                        <span class="slds-badge slds-theme_success"
+                          >Active</span
+                        >
+                      </template>
+                      <template lwc:else>
+                        <span class="slds-badge slds-theme_shade"
+                          >Inactive</span
+                        >
+                      </template>
+                      <span class="slds-badge slds-m-left_x-small"
+                        >{overrideBadgeText}</span
+                      >
+                    </div>
+                  </div>
+
+                  <div class="slds-m-bottom_medium">
+                    <label
+                      class="slds-text-title_bold slds-m-bottom_xx-small slds-show"
+                      >Current Formula Pattern:</label
+                    >
+                    <div class="pattern-display-box">
+                      {selectedObjectConfig.currentPattern}
+                    </div>
+                  </div>
+
+                  <div
+                    class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-top_medium"
+                  >
+                    <lightning-button
+                      variant="brand"
+                      label="Modify Formula"
+                      icon-name="utility:edit"
+                      onclick={handleEnterEditMode}
+                    >
+                    </lightning-button>
+
+                    <lightning-button
+                      variant="neutral"
+                      label="Recalculate All Records"
+                      icon-name="utility:refresh"
+                      onclick={handleOpenBatchModal}
+                    >
+                    </lightning-button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Live Preview & Safety Notice -->
+              <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-12">
+                <div class="preview-box slds-m-bottom_medium">
+                  <div
+                    class="slds-grid slds-grid_align-spread slds-m-bottom_xx-small"
+                  >
+                    <span class="slds-text-title_caps slds-text-color_weak"
+                      >Real-Time Evaluation Preview</span
+                    >
+                    <span class={charCountClass}>{charCount} / 80 chars</span>
+                  </div>
+                  <div class="preview-title slds-m-vertical_x-small">
+                    {livePreview}
+                  </div>
+                  <p class="slds-text-body_small slds-text-color_weak">
+                    Preview evaluated against representative org record.
+                  </p>
+                </div>
+
+                <div class="slds-box slds-box_small slds-theme_shade">
+                  <h4 class="slds-text-title_bold slds-m-bottom_xx-small">
+                    <lightning-icon
+                      icon-name="utility:shield"
+                      size="x-small"
+                      class="slds-m-right_xx-small"
+                    ></lightning-icon>
+                    Enterprise Safety &amp; Fallbacks
+                  </h4>
+                  <ul
+                    class="slds-list_dotted slds-text-body_small slds-text-color_weak"
+                  >
+                    <li>
+                      <strong>Auto-Sanitization:</strong> Empty brackets
+                      <code>()</code>, dangling separators <code>· -</code>, and
+                      double spaces are automatically pruned.
+                    </li>
+                    <li>
+                      <strong>Length Guard:</strong> Truncates cleanly at 80
+                      characters to prevent database DML exceptions.
+                    </li>
+                    <li>
+                      <strong>Graceful Fallback:</strong> If all tokens evaluate
+                      to empty, automatically cascades to Asset ID &rarr; VIN
+                      &rarr; Standard Object Label.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- ══════════════════════════════════════════════════════════ -->
+          <!-- STEP 2: EDIT MODE (INTERACTIVE EDITOR WITH ACTIONS)       -->
+          <!-- ══════════════════════════════════════════════════════════ -->
+          <template lwc:if={isEditMode}>
+            <div class="slds-box slds-theme_default slds-m-bottom_medium">
+              <div class="slds-grid slds-wrap slds-gutters">
+                <!-- Left Column: Formula Inputs & Field Tokens -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_7-of-12">
+                  <div
+                    class="slds-grid slds-grid_align-spread slds-m-bottom_small"
+                  >
+                    <div>
+                      <h3 class="slds-text-heading_small">
+                        Editing Formula: {selectedObjectConfig.label}
+                      </h3>
+                      <p class="slds-text-color_weak slds-text-body_small">
+                        Compose your naming formula using text, separators, and
+                        field tokens.
+                      </p>
+                    </div>
+                    <div>
+                      <lightning-input
+                        type="toggle"
+                        label="Active Rule"
+                        checked={draftIsActive}
+                        onchange={handleToggleActive}
+                        message-toggle-active="Active"
+                        message-toggle-inactive="Inactive"
+                      >
+                      </lightning-input>
+                    </div>
+                  </div>
+
+                  <div class="slds-m-bottom_small">
+                    <lightning-input
+                      type="checkbox"
+                      label="Allow Manual Override (Preserve custom names entered by dispatchers)"
+                      checked={draftAllowOverride}
+                      onchange={handleToggleOverride}
+                    >
+                    </lightning-input>
+                  </div>
+
+                  <div class="slds-form-element slds-m-bottom_small">
+                    <label
+                      class="slds-form-element__label"
+                      for="draftPatternInput"
+                      >Formula Pattern</label
+                    >
+                    <div class="slds-form-element__control">
+                      <input
+                        id="draftPatternInput"
+                        type="text"
+                        class="slds-input"
+                        value={draftPattern}
+                        oninput={handlePatternInput}
+                        placeholder="e.g. {Model_Year__c} {Make__c} {Model__c} · {License_Plate__c}"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Clickable Field Token Chips -->
+                  <div class="slds-m-top_small">
+                    <span
+                      class="slds-text-title_bold slds-m-bottom_xx-small slds-show"
+                      >Click to Insert Field Token:</span
+                    >
+                    <div class="slds-grid slds-wrap">
+                      <template for:each={availableFields} for:item="f">
+                        <span
+                          key={f.apiName}
+                          class="slds-badge field-chip"
+                          data-token={f.token}
+                          onclick={handleInsertToken}
+                          title={f.dataType}
+                        >
+                          + {f.label} ({f.apiName})
+                        </span>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Dynamic Live Preview & Fallbacks -->
+                <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-12">
+                  <div class="preview-box slds-m-bottom_medium">
+                    <div
+                      class="slds-grid slds-grid_align-spread slds-m-bottom_xx-small"
+                    >
+                      <span class="slds-text-title_caps slds-text-color_weak"
+                        >Real-Time Evaluation Preview</span
+                      >
+                      <span class={charCountClass}>{charCount} / 80 chars</span>
+                    </div>
+                    <div class="preview-title slds-m-vertical_x-small">
+                      {livePreview}
+                    </div>
+                    <p class="slds-text-body_small slds-text-color_weak">
+                      Updates dynamically as you add or remove field tokens.
+                    </p>
+                  </div>
+
+                  <div class="slds-box slds-box_small slds-theme_shade">
+                    <h4 class="slds-text-title_bold slds-m-bottom_xx-small">
+                      <lightning-icon
+                        icon-name="utility:shield"
+                        size="x-small"
+                        class="slds-m-right_xx-small"
+                      ></lightning-icon>
+                      Enterprise Safety &amp; Fallbacks
+                    </h4>
+                    <ul
+                      class="slds-list_dotted slds-text-body_small slds-text-color_weak"
+                    >
+                      <li>
+                        <strong>Auto-Sanitization:</strong> Empty brackets
+                        <code>()</code>, dangling separators <code>· -</code>,
+                        and double spaces are automatically pruned.
+                      </li>
+                      <li>
+                        <strong>Length Guard:</strong> Truncates cleanly at 80
+                        characters to prevent database DML exceptions.
+                      </li>
+                      <li>
+                        <strong>Graceful Fallback:</strong> If all tokens
+                        evaluate to empty, automatically cascades to Asset ID
+                        &rarr; VIN &rarr; Standard Object Label.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Editor Footer Action Toolbar -->
+              <div
+                class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center editor-footer"
+              >
+                <div>
+                  <lightning-button
+                    label="Revert to Default"
+                    icon-name="utility:undo"
+                    onclick={handleRevertToDefault}
+                    disabled={isSaving}
+                  >
+                  </lightning-button>
+                </div>
+                <div class="slds-grid slds-grid_vertical-align-center">
+                  <lightning-button
+                    label="Cancel"
+                    onclick={handleCancelEdit}
+                    disabled={isSaving}
+                    class="slds-m-right_x-small"
+                  >
+                  </lightning-button>
+                  <lightning-button
+                    variant="neutral"
+                    label="Save"
+                    icon-name="utility:save"
+                    onclick={handleSaveOnly}
+                    disabled={isSaving}
+                    class="slds-m-right_x-small"
+                  >
+                  </lightning-button>
+                  <lightning-button
+                    variant="brand"
+                    label="Save &amp; Recalculate"
+                    icon-name="utility:refresh"
+                    onclick={handleSaveAndRecalculate}
+                    disabled={isSaving}
+                  >
+                  </lightning-button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+      </template>
+    </div>
+
+    <!-- Recalculation Confirmation & Progress Modal -->
+    <template lwc:if={isBatchModalOpen}>
+      <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <button
+              class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+              title="Close"
+              onclick={handleCloseBatchModal}
+            >
+              <lightning-icon
+                icon-name="utility:close"
+                alternative-text="Close"
+                variant="inverse"
+                size="small"
+              ></lightning-icon>
+            </button>
+            <h2 class="slds-modal__title slds-hyphenate">
+              Bulk Record Recalculation
+            </h2>
+          </header>
+          <div class="slds-modal__content slds-p-around_medium">
+            <template lwc:if={isBatchRunning}>
+              <div class="slds-text-align_center slds-p-vertical_large">
+                <lightning-spinner
+                  alternative-text="Recalculating records"
+                  size="medium"
+                ></lightning-spinner>
+                <p class="slds-text-heading_small slds-m-top_medium">
+                  Recalculating {selectedObjectConfig.label} names...
+                </p>
+                <p class="slds-text-color_weak slds-m-top_xx-small">
+                  Batch status: {batchStatus}
+                </p>
+              </div>
+            </template>
+            <template lwc:else>
+              <p class="slds-m-bottom_medium">
+                You are about to recalculate the <strong>Name</strong> field
+                across all
+                <strong>{selectedObjectConfig.recordCount}</strong>
+                {selectedObjectConfig.label} records using this pattern:
+              </p>
+              <div class="pattern-display-box slds-m-bottom_medium">
+                {patternForRecalculation}
+              </div>
+              <p class="slds-text-body_small slds-text-color_weak">
+                This job runs asynchronously via Batch Apex in batches of 200
+                without blocking user activity.
+              </p>
+            </template>
+          </div>
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseBatchModal}
+              disabled={isBatchRunning}
+            ></lightning-button>
+            <lightning-button
+              variant="brand"
+              label="Start Recalculation"
+              onclick={handleStartBatch}
+              disabled={isBatchRunning}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+  </lightning-card>
+</template>

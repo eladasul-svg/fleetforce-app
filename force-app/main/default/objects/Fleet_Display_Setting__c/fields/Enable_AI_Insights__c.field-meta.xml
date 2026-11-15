@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enable_AI_Insights__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description
+  >Enables executive and operational AI Insights engine across FleetForce.</description>
+    <externalId>false</externalId>
+    <label>Enable AI Insights</label>
+    <type>Checkbox</type>
+</CustomField>

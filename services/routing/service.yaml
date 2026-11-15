@@ -1,0 +1,56 @@
+# Cloud Run multi-container service. cloudbuild.yaml fills in SERVICE_NAME, API_IMAGE, OSRM_IMAGE.
+# The API container is the ingress; OSRM is a sidecar on localhost:5000 that starts first.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: SERVICE_NAME
+  annotations:
+    run.googleapis.com/launch-stage: GA
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0" # set to "1" for demos
+        autoscaling.knative.dev/maxScale: "3"
+        run.googleapis.com/container-dependencies: '{"api":["osrm"]}'
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 8
+      timeoutSeconds: 300
+      serviceAccountName: fleetforce-routing@PROJECT_ID.iam.gserviceaccount.com
+      containers:
+        - name: api
+          image: API_IMAGE
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OSRM_URL
+              value: http://localhost:5000
+            - name: MATRIX_SOURCE
+              value: osrm
+            - name: VROOM_THREADS
+              value: "2"
+            - name: FLEETFORCE_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: fleetforce-routing-keys
+                  key: latest
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+        - name: osrm
+          image: OSRM_IMAGE
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          startupProbe:
+            tcpSocket:
+              port: 5000
+            periodSeconds: 5
+            failureThreshold: 24

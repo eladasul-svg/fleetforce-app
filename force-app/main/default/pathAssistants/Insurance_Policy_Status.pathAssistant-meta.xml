@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Insurance_Policy__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Insurance Policy Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Provider__c</fieldNames>
+        <fieldNames>Policy_Type__c</fieldNames>
+        <fieldNames>Effective_Date__c</fieldNames>
+        <fieldNames>Expiration_Date__c</fieldNames>
+        <info
+    >&lt;p&gt;Policy setup in progress. Confirm carrier terms, coverage start date, and upload the signed policy binder to Files.&lt;/p&gt;</info>
+        <picklistValueName>Pending</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Coverage_Limit__c</fieldNames>
+        <fieldNames>Deductible__c</fieldNames>
+        <fieldNames>Support_Phone__c</fieldNames>
+        <fieldNames>Policy_Doc_URL__c</fieldNames>
+        <info
+    >&lt;p&gt;Policy is active and covering linked fleet vehicles. Ensure claims hotline is updated and certificates are generated.&lt;/p&gt;</info>
+        <picklistValueName>Active</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Expiration_Date__c</fieldNames>
+        <fieldNames>Provider__c</fieldNames>
+        <info
+    >&lt;p&gt;Policy expired. Check renewal status or transfer linked vehicles to an active policy.&lt;/p&gt;</info>
+        <picklistValueName>Expired</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <fieldNames>Support_Phone__c</fieldNames>
+        <info
+    >&lt;p&gt;Policy terminated or cancelled by fleet administration or carrier.&lt;/p&gt;</info>
+        <picklistValueName>Cancelled</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>

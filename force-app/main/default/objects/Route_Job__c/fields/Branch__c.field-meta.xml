@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Branch__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Planning depot.</description>
+    <label>Branch</label>
+    <referenceTo>Fleet_Branch__c</referenceTo>
+    <relationshipLabel>Route Jobs</relationshipLabel>
+    <relationshipName>Route_Jobs</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

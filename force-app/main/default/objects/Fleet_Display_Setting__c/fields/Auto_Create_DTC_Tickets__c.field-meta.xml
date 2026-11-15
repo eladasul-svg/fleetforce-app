@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auto_Create_DTC_Tickets__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description
+  >Automatically generates Draft Service Tickets when critical Diagnostic Trouble Codes (DTCs) are ingested from telematics.</description>
+    <externalId>false</externalId>
+    <label>Auto-Create DTC Service Tickets</label>
+    <type>Checkbox</type>
+</CustomField>

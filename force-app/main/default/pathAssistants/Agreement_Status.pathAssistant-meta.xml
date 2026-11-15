@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Agreement__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Agreement Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Vendor__c</fieldNames>
+        <fieldNames>Type__c</fieldNames>
+        <fieldNames>Committed_Units__c</fieldNames>
+        <fieldNames>Agreement_Doc__c</fieldNames>
+        <info
+    >&lt;p&gt;Master agreement drafting in progress. Define financial models, rebate structures, and upload agreement documents.&lt;/p&gt;</info>
+        <picklistValueName>Draft</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Start_Date__c</fieldNames>
+        <fieldNames>End_Date__c</fieldNames>
+        <fieldNames>Current_Unit_Count__c</fieldNames>
+        <fieldNames>Rebate_Amount__c</fieldNames>
+        <info
+    >&lt;p&gt;Agreement is active. Track active vehicle deployments against committed volume tiers and rebate thresholds.&lt;/p&gt;</info>
+        <picklistValueName>Active</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>End_Date__c</fieldNames>
+        <fieldNames>Current_Unit_Count__c</fieldNames>
+        <info
+    >&lt;p&gt;Agreement term has reached its scheduled expiration date. Initiate renewal negotiations or contract closeout.&lt;/p&gt;</info>
+        <picklistValueName>Expired</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Status__c</fieldNames>
+        <info
+    >&lt;p&gt;Agreement was terminated prior to full term completion.&lt;/p&gt;</info>
+        <picklistValueName>Terminated</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>
