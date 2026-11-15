@@ -35,5 +35,33 @@
         <label>Policy Number / Name</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Provider__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Policy_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Coverage_Limit__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Deductible__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Effective_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Expiration_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Provider__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Policy_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Coverage_Limit__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Deductible__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Effective_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Expiration_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

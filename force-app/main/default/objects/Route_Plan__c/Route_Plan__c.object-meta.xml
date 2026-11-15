@@ -38,6 +38,34 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Route Plans</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Plan_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Depot_Branch__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Provider__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Total_Distance_Km__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Total_Duration_Min__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Unassigned_Count__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Plan_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Depot_Branch__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Provider__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Total_Distance_Km__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Total_Duration_Min__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Unassigned_Count__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

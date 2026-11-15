@@ -164,7 +164,34 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Reservations</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Requestor_Contact__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Assigned_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Origin_Branch__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Destination_Branch__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Start_Time__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >End_Time__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Requestor_Contact__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Assigned_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Origin_Branch__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Destination_Branch__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Start_Time__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >End_Time__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

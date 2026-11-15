@@ -169,7 +169,34 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Service Tickets</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Fleet_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Summary__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Category__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Priority__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Scheduled_Start__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Grand_Total__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fleet_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Summary__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Category__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Priority__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Scheduled_Start__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Grand_Total__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

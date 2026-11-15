@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Fleet_Asset__c</columns>
+    <columns>Fuel_Card__c</columns>
+    <columns>Driver__c</columns>
     <columns>Transaction_Date__c</columns>
+    <columns>Volume__c</columns>
+    <columns>Unit_Cost__c</columns>
     <columns>Total_Cost__c</columns>
+    <columns>Vendor_Name__c</columns>
     <filterScope>Everything</filterScope>
     <label>All Fuel Logs</label>
 </ListView>

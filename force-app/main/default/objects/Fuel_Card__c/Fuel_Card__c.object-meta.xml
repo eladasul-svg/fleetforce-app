@@ -34,5 +34,29 @@
         <label>Card Number / Name</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Provider__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Assigned_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Assigned_Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Daily_Limit__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Expiration_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Provider__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Assigned_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Assigned_Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Daily_Limit__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Expiration_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

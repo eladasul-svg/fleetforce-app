@@ -35,5 +35,25 @@
         <label>Qualification Title</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields>Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Cert_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Authority__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Valid_Until__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Cert_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Authority__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Valid_Until__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
 </CustomObject>

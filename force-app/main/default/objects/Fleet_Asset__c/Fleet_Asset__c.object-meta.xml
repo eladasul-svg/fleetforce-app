@@ -163,7 +163,30 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Fleet Assets</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >License_Plate__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Make__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Model__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Model_Year__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Branch__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Is_Active__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >License_Plate__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Make__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Model__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Model_Year__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Branch__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Is_Active__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

@@ -35,5 +35,29 @@
         <label>Device Name / Serial</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Fleet_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Equipment_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Manufacturer__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Model__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>IMEI__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Firmware_Ver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fleet_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Equipment_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Manufacturer__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Model__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>IMEI__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Firmware_Ver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

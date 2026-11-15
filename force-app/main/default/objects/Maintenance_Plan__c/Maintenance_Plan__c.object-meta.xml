@@ -35,5 +35,29 @@
         <label>Maintenance Plan Name</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Asset_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Frequency_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Interval_Value__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Calendar_Interval_Months__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Is_Recurring__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Asset_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Frequency_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Interval_Value__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Calendar_Interval_Months__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Is_Recurring__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

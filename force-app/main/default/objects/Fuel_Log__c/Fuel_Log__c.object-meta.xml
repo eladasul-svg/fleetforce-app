@@ -5,5 +5,35 @@
     <label>Fuel Log</label>
     <pluralLabel>Fuel Logs</pluralLabel>
     <nameField><label>Name</label><type>Text</type></nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Fleet_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Fuel_Card__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Transaction_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Volume__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Unit_Cost__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Total_Cost__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Vendor_Name__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fleet_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fuel_Card__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Transaction_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Volume__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Unit_Cost__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Total_Cost__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Vendor_Name__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
 </CustomObject>

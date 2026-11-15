@@ -34,5 +34,25 @@
         <label>Agreement Name</label>
         <type>Text</type>
     </nameField>
+    <searchLayouts>
+        <customTabListAdditionalFields>Vendor__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Start_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >End_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Committed_Units__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>Vendor__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Start_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >End_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Committed_Units__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

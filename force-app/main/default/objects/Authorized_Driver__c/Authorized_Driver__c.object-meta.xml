@@ -165,7 +165,32 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Authorized Drivers</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Fleet_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Has_Key__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Start_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >End_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Is_Active__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fleet_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Has_Key__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Start_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >End_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Is_Active__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

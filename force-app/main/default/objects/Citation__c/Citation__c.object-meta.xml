@@ -167,7 +167,32 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Citations</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Ticket_Number__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Fleet_Asset__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Driver__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Violation_Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Citation_Date__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Total_Amount__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Ticket_Number__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Fleet_Asset__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Driver__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Violation_Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Citation_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Total_Amount__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

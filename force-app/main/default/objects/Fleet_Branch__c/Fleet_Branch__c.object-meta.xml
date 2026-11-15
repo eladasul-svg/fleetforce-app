@@ -164,7 +164,30 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Fleet Branches</pluralLabel>
-    <searchLayouts />
+    <searchLayouts>
+        <customTabListAdditionalFields
+    >Branch_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Type__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>City__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >US_State__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Capacity__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields
+    >Approving_Manager__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields
+    >Branch_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>City__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >US_State__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Capacity__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields
+    >Approving_Manager__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
