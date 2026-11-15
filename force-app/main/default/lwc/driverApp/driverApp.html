@@ -240,23 +240,14 @@
               </template>
             </section>
 
-            <div class="section__head"><h3>Glovebox documents</h3></div>
-            <template lwc:if={documents.length}>
-              <template for:each={documents} for:item="d">
-                <div key={d.id} class="card row">
-                  <div class="row__main">
-                    <p class="row__title">{d.docType}</p>
-                    <p class="row__sub">{d.sub}</p>
-                  </div>
-                  <span class={d.chipCls}>{d.chipText}</span>
-                </div>
-              </template>
-            </template>
-            <template lwc:else
-              ><p class="hint">
-                No documents on file for this vehicle.
-              </p></template
-            >
+            <div class="section__head">
+              <h3>Digital Glovebox &amp; OEM Manuals</h3>
+            </div>
+            <div class="glovebox-embed">
+              <c-fleet-digital-glovebox
+                record-id={vehicle.id}
+              ></c-fleet-digital-glovebox>
+            </div>
 
             <div class="section__head">
               <h3>Service and maintenance</h3>
