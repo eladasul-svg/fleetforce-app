@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Citation__c</entityName>
+    <fieldName>Status__c</fieldName>
+    <masterLabel>Citation Status</masterLabel>
+    <pathAssistantSteps>
+        <fieldNames>Citation_Date__c</fieldNames>
+        <fieldNames>Ticket_Number__c</fieldNames>
+        <fieldNames>Violation_Type__c</fieldNames>
+        <fieldNames>Fine_Amount__c</fieldNames>
+        <info
+    >&lt;p&gt;Review citation details and ensure a scanned copy is attached to Files. Verify the vehicle allocation and assign driver responsibility.&lt;/p&gt;</info>
+        <picklistValueName>New</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Driver__c</fieldNames>
+        <fieldNames>Liability_Status__c</fieldNames>
+        <fieldNames>Deduct_From_Payroll__c</fieldNames>
+        <fieldNames>Points__c</fieldNames>
+        <info
+    >&lt;p&gt;Liability transferred to the driver. Confirm payroll deduction terms or direct court payment instructions.&lt;/p&gt;</info>
+        <picklistValueName>Liability Transferred</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Court_Date__c</fieldNames>
+        <fieldNames>Issuing_Authority__c</fieldNames>
+        <fieldNames>Ticket_Number__c</fieldNames>
+        <info
+    >&lt;p&gt;Citation is contested. Log hearing notices and legal filings as tasks in the Activity Timeline.&lt;/p&gt;</info>
+        <picklistValueName>Contested</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Fine_Amount__c</fieldNames>
+        <fieldNames>Admin_Fee__c</fieldNames>
+        <fieldNames>Total_Amount__c</fieldNames>
+        <info
+    >&lt;p&gt;Fine payment settled. Upload the municipal receipt or payment confirmation to Files.&lt;/p&gt;</info>
+        <picklistValueName>Paid</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Total_Amount__c</fieldNames>
+        <fieldNames>Status__c</fieldNames>
+        <info
+    >&lt;p&gt;Citation settled and closed across fleet records and accounting.&lt;/p&gt;</info>
+        <picklistValueName>Closed.</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>__MASTER__</recordTypeName>
+</PathAssistant>
