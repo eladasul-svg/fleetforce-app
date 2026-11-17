@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Grants permission to use Admin Mode in the Driver App to select and view the app as any active driver.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field
+    >Fleet_Display_Setting__c.Allow_Admin_Mode_In_Driver_App__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>FleetForce Driver App Admin Mode</label>
+</PermissionSet>

@@ -2,68 +2,272 @@
   <div class="app">
     <!-- top bar -->
     <header class="top">
-      <div class="brand">
-        <svg class="brand__symbol" viewBox="10 10 46 46" aria-hidden="true">
-          <circle
-            cx="18"
-            cy="46"
-            r="6"
-            fill="none"
-            stroke="#8CC8F2"
-            stroke-width="4"
-          ></circle>
-          <path
-            d="M23 42 C40 40 24 22 40 21"
-            fill="none"
-            stroke="#8CC8F2"
-            stroke-width="5"
-            stroke-linecap="round"
-          ></path>
-          <circle cx="46" cy="19" r="7.5" fill="#3FC795"></circle>
-        </svg>
-        <img class="brand__word" src={wordmarkUrl} alt="fleetforce" />
-        <span class="brand__sub">Driver</span>
+      <div class="top__left">
+        <template lwc:if={showHamburger}>
+          <button
+            type="button"
+            class="hamburger-btn"
+            onclick={openDrawer}
+            aria-label="Open navigation menu"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </template>
+        <div class="brand">
+          <svg class="brand__symbol" viewBox="10 10 46 46" aria-hidden="true">
+            <circle
+              cx="18"
+              cy="46"
+              r="6"
+              fill="none"
+              stroke="#8CC8F2"
+              stroke-width="4"
+            ></circle>
+            <path
+              d="M23 42 C40 40 24 22 40 21"
+              fill="none"
+              stroke="#8CC8F2"
+              stroke-width="5"
+              stroke-linecap="round"
+            ></path>
+            <circle cx="46" cy="19" r="7.5" fill="#3FC795"></circle>
+          </svg>
+          <img class="brand__word" src={wordmarkUrl} alt="fleetforce" />
+          <span class="brand__sub">Driver</span>
+        </div>
       </div>
-      <button
-        type="button"
-        class="bell"
-        onclick={handleBell}
-        aria-label="Notifications"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+      <template lwc:if={showBell}>
+        <button
+          type="button"
+          class="bell"
+          onclick={handleBell}
+          aria-label="Notifications"
         >
-          <path
-            d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0"
-          ></path>
-        </svg>
-        <template lwc:if={hasNotices}
-          ><span class="bell__badge">{noticeBadge}</span></template
-        >
-      </button>
+          <svg
+            viewBox="0 0 24 24"
+            width="22"
+            height="22"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0"
+            ></path>
+          </svg>
+          <template lwc:if={hasNotices}
+            ><span class="bell__badge">{noticeBadge}</span></template
+          >
+        </button>
+      </template>
     </header>
 
-    <div class="demo">
-      <span class="demo__label">Demo · viewing as</span>
-      <select
-        class="demo__select"
-        onchange={handleDriver}
-        aria-label="Choose a driver"
-      >
-        <template for:each={driverOptions} for:item="d">
-          <option key={d.value} value={d.value} selected={d.selected}>
-            {d.label}
-          </option>
-        </template>
-      </select>
-    </div>
+    <!-- Side Navigation Drawer -->
+    <template lwc:if={isDrawerOpen}>
+      <div class="drawer-scrim" onclick={closeDrawer}></div>
+      <aside class="drawer" role="dialog" aria-label="Navigation Menu">
+        <div class="drawer__header">
+          <div class="drawer__user">
+            <div class="drawer__avatar">{driverInitials}</div>
+            <div class="drawer__user-info">
+              <strong class="drawer__user-name">{driverName}</strong>
+              <div class="drawer__user-meta">
+                <span class="drawer__badge">{driverStatus}</span>
+                <template lwc:if={vehicle}>
+                  <span class="drawer__plate">{vehicle.plate}</span>
+                </template>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="drawer__close"
+            onclick={closeDrawer}
+            aria-label="Close Menu"
+          >
+            &times;
+          </button>
+        </div>
+
+        <nav class="drawer__nav">
+          <template for:each={allNavOptions} for:item="item">
+            <button
+              key={item.key}
+              type="button"
+              class={item.drawerCls}
+              data-view={item.key}
+              onclick={handleDrawerNav}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d={item.icon}></path>
+              </svg>
+              <span>{item.label}</span>
+              <template lwc:if={item.activeBadge}>
+                <span class="drawer__nav-badge">{item.activeBadge}</span>
+              </template>
+            </button>
+          </template>
+        </nav>
+
+        <div class="drawer__divider"></div>
+
+        <div class="drawer__section">
+          <button
+            type="button"
+            class="drawer__link"
+            onclick={handleOpenNavCustomizer}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              ></path>
+            </svg>
+            <span>Customize Bottom Bar</span>
+          </button>
+        </div>
+
+        <div class="drawer__footer">
+          <div class="drawer__status">
+            <span class={pwaStatusDotCls}></span>
+            <span>{pwaStatusText}</span>
+          </div>
+          <span class="drawer__version">FleetForce Driver v1.2</span>
+        </div>
+      </aside>
+    </template>
+
+    <!-- Offline Alert Banner -->
+    <template lwc:if={isOffline}>
+      <div class="offline-banner" role="status">
+        <span class="offline-dot"></span>
+        <span
+          >Offline Mode &middot; Cached Digital Glovebox &amp; Vehicle Info
+          Available</span
+        >
+      </div>
+    </template>
+
+    <!-- PWA Install Prompt Banner -->
+    <template lwc:if={showInstallBanner}>
+      <aside class="pwa-banner" aria-label="Install App">
+        <div class="pwa-banner__main">
+          <div class="pwa-banner__icon">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </div>
+          <div class="pwa-banner__text">
+            <strong>Install FleetForce Driver</strong>
+            <p>Full-screen app &amp; offline digital glovebox</p>
+          </div>
+        </div>
+        <div class="pwa-banner__actions">
+          <button
+            type="button"
+            class="btn btn--primary btn--tiny"
+            onclick={handleInstallClick}
+          >
+            {installButtonLabel}
+          </button>
+          <button
+            type="button"
+            class="pwa-banner__close"
+            onclick={handleDismissInstallBanner}
+            aria-label="Dismiss"
+          >
+            &times;
+          </button>
+        </div>
+      </aside>
+      <template lwc:if={showIosInstructions}>
+        <div class="ios-instructions">
+          <p>
+            Tap <strong>Share</strong> (the box with arrow &uarr; at the bottom
+            of Safari), then scroll down and tap
+            <strong>Add to Home Screen</strong>.
+          </p>
+        </div>
+      </template>
+    </template>
+
+    <!-- Admin Mode Driver Selector Bar (Only rendered when Admin Mode is allowed) -->
+    <template lwc:if={showAdminBar}>
+      <div class="admin-bar">
+        <div class="admin-bar__badge">
+          <svg
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span>Admin Mode</span>
+        </div>
+        <div class="admin-bar__select-wrap">
+          <select
+            class="admin-bar__select"
+            onchange={handleDriver}
+            aria-label="Admin Mode: Select driver to view as"
+          >
+            <template for:each={driverOptions} for:item="d">
+              <option key={d.value} value={d.value} selected={d.selected}>
+                {d.label}
+              </option>
+            </template>
+          </select>
+        </div>
+      </div>
+    </template>
 
     <main class="body">
       <template lwc:if={loading}>
@@ -74,6 +278,62 @@
       </template>
       <template lwc:elseif={error}>
         <div class="state"><p class="error">{error}</p></div>
+      </template>
+      <template lwc:elseif={isUnlinked}>
+        <div class="unlinked-card">
+          <div class="unlinked-icon">
+            <svg
+              viewBox="0 0 24 24"
+              width="44"
+              height="44"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="17" y1="8" x2="23" y2="14"></line>
+              <line x1="23" y1="8" x2="17" y2="14"></line>
+            </svg>
+          </div>
+          <h2 class="unlinked-title">No Connected Driver Profile</h2>
+          <p class="unlinked-desc">
+            Your Salesforce account (<strong class="unlinked-account"
+              >{unlinkedUserName}</strong
+            >
+            &bull; {unlinkedUserEmail}) is not currently linked to an active
+            FleetForce driver profile.
+          </p>
+          <div class="unlinked-hint-box">
+            <strong>How to get access:</strong>
+            <ul>
+              <li>
+                If you are an employee driver, ask your fleet administrator to
+                link your Salesforce user to your Contact record in Setup.
+              </li>
+              <li>
+                If you are a fleet driver, sign in using your dedicated driver
+                portal credentials.
+              </li>
+            </ul>
+          </div>
+          <div class="unlinked-actions">
+            <template lwc:if={isGuestUser}>
+              <a href="/driver/login" class="btn btn--primary btn--wide"
+                >Sign In to Driver Portal</a
+              >
+            </template>
+            <button
+              type="button"
+              class="btn btn--ghost btn--wide"
+              onclick={handleReload}
+            >
+              Refresh Status
+            </button>
+          </div>
+        </div>
       </template>
       <template lwc:elseif={ready}>
         <!-- ================= HOME ================= -->
@@ -91,6 +351,43 @@
           </template>
 
           <template lwc:if={hasVehicle}>
+            <template lwc:if={hasMultipleVehicles}>
+              <div class="vehicle-select-bar">
+                <label class="vehicle-select-label" for="homeVehicleSelect"
+                  >Switch Vehicle:</label
+                >
+                <div class="vehicle-select-wrap">
+                  <select
+                    id="homeVehicleSelect"
+                    class="vehicle-select-input"
+                    onchange={handleSwitchVehicleSelect}
+                    aria-label="Select active vehicle"
+                  >
+                    <template for:each={vehicleDropdownOptions} for:item="opt">
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        selected={opt.selected}
+                      >
+                        {opt.label}
+                      </option>
+                    </template>
+                  </select>
+                  <svg
+                    class="vehicle-select-caret"
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </template>
+
             <section class="card vcard">
               <div class="vcard__art">
                 <c-fleet-vehicle-image
@@ -102,8 +399,32 @@
                 ></c-fleet-vehicle-image>
               </div>
               <div class="vcard__head">
-                <h2 class="vcard__name">{vehicle.name}</h2>
-                <span class="plate">{vehicle.plate}</span>
+                <div class="vcard__identity">
+                  <h2 class="vcard__name">{vehicle.name}</h2>
+                  <span class="plate">{vehicle.plate}</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--small btn--ghost vcard__glovebox-btn"
+                  data-key="glovebox"
+                  onclick={handleAction}
+                  title="Open Digital Glovebox"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class="vcard__btn-icon"
+                  >
+                    <path
+                      d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"
+                    ></path>
+                  </svg>
+                  <span>Glovebox</span>
+                </button>
               </div>
               <ul class="chips">
                 <template for:each={vehicleChips} for:item="c"
@@ -161,14 +482,19 @@
           <template lwc:else>
             <section class="card empty">
               <h2>No vehicle assigned</h2>
-              <p>You can book one from the motorpool.</p>
-              <button
-                type="button"
-                class="btn btn--primary"
-                onclick={handleBook}
-              >
-                Book a vehicle
-              </button>
+              <template lwc:if={showBookings}>
+                <p>You can book one from the motorpool.</p>
+                <button
+                  type="button"
+                  class="btn btn--primary"
+                  onclick={handleBook}
+                >
+                  Book a vehicle
+                </button>
+              </template>
+              <template lwc:else>
+                <p>Contact your fleet administrator to assign a vehicle.</p>
+              </template>
             </section>
           </template>
 
@@ -205,6 +531,53 @@
         <!-- ================= VEHICLE ================= -->
         <template lwc:if={isVehicle}>
           <template lwc:if={hasVehicle}>
+            <template lwc:if={hasMultipleVehicles}>
+              <div class="vehicle-select-bar">
+                <label class="vehicle-select-label" for="vehicleSelect"
+                  >Switch Vehicle:</label
+                >
+                <div class="vehicle-select-wrap">
+                  <select
+                    id="vehicleSelect"
+                    class="vehicle-select-input"
+                    onchange={handleSwitchVehicleSelect}
+                    aria-label="Select authorized vehicle"
+                  >
+                    <template for:each={vehicleDropdownOptions} for:item="opt">
+                      <option
+                        key={opt.value}
+                        value={opt.value}
+                        selected={opt.selected}
+                      >
+                        {opt.label}
+                      </option>
+                    </template>
+                  </select>
+                  <svg
+                    class="vehicle-select-caret"
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </template>
+
+            <div class="section__head">
+              <h3>Digital Glovebox &amp; OEM Manuals</h3>
+            </div>
+            <div class="glovebox-embed">
+              <c-fleet-digital-glovebox
+                record-id={vehicle.id}
+                is-driver-mode="true"
+              ></c-fleet-digital-glovebox>
+            </div>
+
             <h2 class="page">Where is my car</h2>
             <section class="card mapcard">
               <template lwc:if={hasLocation}>
@@ -241,15 +614,6 @@
             </section>
 
             <div class="section__head">
-              <h3>Digital Glovebox &amp; OEM Manuals</h3>
-            </div>
-            <div class="glovebox-embed">
-              <c-fleet-digital-glovebox
-                record-id={vehicle.id}
-              ></c-fleet-digital-glovebox>
-            </div>
-
-            <div class="section__head">
               <h3>Service and maintenance</h3>
               <button
                 type="button"
@@ -277,16 +641,21 @@
 
             <div class="section__head"><h3>Vehicles I can drive</h3></div>
             <template for:each={authorized} for:item="a">
-              <div key={a.key} class="card row">
+              <div
+                key={a.key}
+                class="card row row--clickable"
+                data-asset-id={a.assetId}
+                onclick={handleSwitchVehicle}
+              >
                 <div class="row__main">
                   <p class="row__title">{a.name}</p>
                   <p class="row__sub">{a.sub} {a.until}</p>
                 </div>
                 <template lwc:if={a.isCurrent}
-                  ><span class="chip chip--ok">Current</span></template
+                  ><span class="chip chip--ok">Active</span></template
                 >
-                <template lwc:elseif={a.keyText}
-                  ><span class="chip">{a.keyText}</span></template
+                <template lwc:elseif={a.badgeText}
+                  ><span class="chip">{a.badgeText}</span></template
                 >
               </div>
             </template>
@@ -301,47 +670,138 @@
 
         <!-- ================= TRIPS ================= -->
         <template lwc:if={isTrips}>
-          <h2 class="page">Bookings</h2>
-          <button
-            type="button"
-            class="btn btn--primary btn--wide"
-            onclick={handleBook}
-          >
-            Book a vehicle
-          </button>
-          <template lwc:if={hasReservations}>
-            <template for:each={reservations} for:item="r">
-              <div key={r.id} class="card row">
-                <div class="row__main">
-                  <p class="row__title">{r.vehicle}</p>
-                  <p class="row__sub">{r.when} → {r.until}</p>
-                  <p class="row__sub">{r.branch}{r.zoneSuffix}</p>
-                </div>
-                <span class={r.chipCls}>{r.status}</span>
-              </div>
-            </template>
-          </template>
-          <template lwc:else
-            ><p class="hint">No upcoming bookings.</p></template
-          >
+          <div class="section__head">
+            <h2 class="page" style="margin: 0">Trips &amp; Mileage</h2>
+            <button
+              type="button"
+              class="btn btn--primary btn--small"
+              onclick={handleOpenLogTrip}
+            >
+              + Log Trip
+            </button>
+          </div>
 
-          <div class="section__head"><h3>Recent trips</h3></div>
-          <template lwc:if={hasTrips}>
-            <template for:each={recentTrips} for:item="t">
-              <div key={t.id} class="card row">
-                <div class="row__main">
-                  <p class="row__title">{t.vehicle}</p>
-                  <p class="row__sub">{t.when} {t.damageText}</p>
-                </div>
-                <span class="row__right">{t.distanceText}</span>
+          <!-- Monthly Mileage KPI Card -->
+          <section class="card mileage-kpi">
+            <div class="mileage-kpi__header">
+              <div>
+                <span class="mileage-kpi__subtitle">This Month's Mileage</span>
+                <h3 class="mileage-kpi__total">{tripSummary.totalText}</h3>
               </div>
+              <div class="mileage-kpi__splits">
+                <div class="split-pill split-pill--biz">
+                  <span class="legend-dot legend-dot--biz"></span>
+                  <span>Business: {tripSummary.businessText}</span>
+                </div>
+                <div class="split-pill split-pill--priv">
+                  <span class="legend-dot legend-dot--priv"></span>
+                  <span>Private: {tripSummary.privateText}</span>
+                </div>
+              </div>
+            </div>
+            <div class="mileage-bar">
+              <div class="mileage-bar__biz" style={tripSummary.barStyle}></div>
+            </div>
+            <div class="mileage-kpi__legend">
+              <span>Business: {tripSummary.businessPct}</span>
+              <span>Private: {tripSummary.privatePct}</span>
+            </div>
+          </section>
+
+          <!-- Filter Strip -->
+          <div class="filter-strip">
+            <template for:each={tripFilterTabs} for:item="tab">
+              <button
+                key={tab.key}
+                type="button"
+                class={tab.cls}
+                data-filter={tab.key}
+                onclick={handleTripFilter}
+              >
+                {tab.label}
+              </button>
             </template>
+          </div>
+
+          <!-- Trip Logs List -->
+          <template lwc:if={hasFilteredTrips}>
+            <div class="trip-logs-list">
+              <template for:each={filteredTripLogs} for:item="t">
+                <div
+                  key={t.id}
+                  class="card trip-card"
+                  data-trip-id={t.id}
+                  onclick={handleTripClick}
+                >
+                  <div class="trip-card__head">
+                    <div>
+                      <span class="trip-card__number">{t.tripNumber}</span>
+                      <span class="trip-card__asset">{t.assetName}</span>
+                    </div>
+                    <div class="trip-card__badges">
+                      <span class={t.typeCls}>{t.typeLabel}</span>
+                      <span class={t.statusCls}>{t.statusLabel}</span>
+                    </div>
+                  </div>
+                  <div class="trip-card__body">
+                    <p class="trip-card__route">{t.routeText}</p>
+                    <template lwc:if={t.businessPurpose}>
+                      <p class="trip-card__purpose">{t.businessPurpose}</p>
+                    </template>
+                    <template lwc:if={t.rejectionReason}>
+                      <div class="rejection-box">
+                        <strong>Revision requested:</strong> {t.rejectionReason}
+                      </div>
+                    </template>
+                  </div>
+                  <div class="trip-card__foot">
+                    <span class="trip-card__when">{t.whenText}</span>
+                    <div class="trip-card__distance-wrap">
+                      <span class="trip-card__distance">{t.distanceText}</span>
+                      <template lwc:if={t.canEdit}>
+                        <span class="trip-card__action">Edit &rarr;</span>
+                      </template>
+                      <template lwc:else>
+                        <span
+                          class="trip-card__locked"
+                          title="Approved or Locked"
+                          >🔒</span
+                        >
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
           </template>
-          <template lwc:else
-            ><p class="hint">
-              Your completed trips will appear here.
-            </p></template
-          >
+          <template lwc:else>
+            <p class="hint">No trips match this filter.</p>
+          </template>
+
+          <!-- Bookings -->
+          <template lwc:if={showBookings}>
+            <div class="section__head section__head--spaced">
+              <h3>Vehicle Bookings</h3>
+              <button type="button" class="link" onclick={handleBook}>
+                Book vehicle &rarr;
+              </button>
+            </div>
+            <template lwc:if={hasReservations}>
+              <template for:each={reservations} for:item="r">
+                <div key={r.id} class="card row">
+                  <div class="row__main">
+                    <p class="row__title">{r.vehicle}</p>
+                    <p class="row__sub">{r.when} → {r.until}</p>
+                    <p class="row__sub">{r.branch}{r.zoneSuffix}</p>
+                  </div>
+                  <span class={r.chipCls}>{r.status}</span>
+                </div>
+              </template>
+            </template>
+            <template lwc:else
+              ><p class="hint">No upcoming bookings.</p></template
+            >
+          </template>
         </template>
 
         <!-- ================= ROUTE ================= -->
@@ -451,32 +911,39 @@
       </template>
     </main>
 
-    <nav class="nav" aria-label="Main">
-      <template for:each={navItems} for:item="n">
-        <button
-          key={n.key}
-          type="button"
-          class={n.cls}
-          data-view={n.key}
-          aria-current={n.current}
-          onclick={handleNav}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+    <template lwc:if={showBottomNav}>
+      <nav class="nav" aria-label="Main">
+        <template for:each={navItems} for:item="n">
+          <button
+            key={n.key}
+            type="button"
+            class={n.cls}
+            data-view={n.key}
+            aria-current={n.current}
+            onclick={handleNav}
+            ontouchstart={handleNavTouchStart}
+            ontouchend={handleNavTouchEnd}
+            onmousedown={handleNavMouseDown}
+            onmouseup={handleNavMouseUp}
+            title={n.label}
           >
-            <path d={n.icon}></path>
-          </svg>
-          <span>{n.label}</span>
-        </button>
-      </template>
-    </nav>
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d={n.icon}></path>
+            </svg>
+            <span>{n.label}</span>
+          </button>
+        </template>
+      </nav>
+    </template>
 
     <!-- bottom sheet -->
     <template lwc:if={sheetOpen}>
@@ -544,6 +1011,59 @@
                 </div>
               </template>
             </template>
+
+            <!-- End Trip Classification (Business vs Private) -->
+            <template lwc:if={isEndtrip}>
+              <div class="field">
+                <span>Trip Type</span>
+                <div class="seg seg--wide">
+                  <button
+                    type="button"
+                    class={tripTypeBusinessCls}
+                    data-type="Business"
+                    onclick={handleEndTripType}
+                  >
+                    Business
+                  </button>
+                  <button
+                    type="button"
+                    class={tripTypePrivateCls}
+                    data-type="Private"
+                    onclick={handleEndTripType}
+                  >
+                    Private
+                  </button>
+                </div>
+              </div>
+
+              <template lwc:if={isEndTripBusiness}>
+                <label class="field">
+                  <span>Business Purpose</span>
+                  <input
+                    type="text"
+                    value={endTripPurpose}
+                    data-field="endTripPurpose"
+                    oninput={handleInput}
+                    placeholder="e.g. Client visit, branch meeting"
+                  />
+                </label>
+                <label class="field">
+                  <span>Expense Category</span>
+                  <select
+                    class="input select"
+                    data-field="endTripCategory"
+                    onchange={handleInput}
+                  >
+                    <template for:each={tripCategoryOptions} for:item="cat">
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    </template>
+                  </select>
+                </label>
+              </template>
+            </template>
+
             <label class="field"
               ><span>Odometer ({distanceUnit})</span>
               <input
@@ -584,6 +1104,154 @@
             <template lwc:if={isPretrip}
               ><p class="hint">{issueSummary}</p></template
             >
+          </template>
+
+          <!-- ================= LOG / EDIT TRIP SHEET ================= -->
+          <template lwc:if={isLogTripSheet}>
+            <label class="field">
+              <span>Vehicle</span>
+              <select
+                class="input select"
+                data-field="logTripAssetId"
+                onchange={handleInput}
+              >
+                <template for:each={vehicleSelectOptions} for:item="vo">
+                  <option key={vo.value} value={vo.value}>{vo.label}</option>
+                </template>
+              </select>
+            </label>
+
+            <div class="field">
+              <span>Trip Classification</span>
+              <div class="seg seg--wide">
+                <button
+                  type="button"
+                  class={logTripBusinessCls}
+                  data-type="Business"
+                  onclick={handleLogTripType}
+                >
+                  Business
+                </button>
+                <button
+                  type="button"
+                  class={logTripPrivateCls}
+                  data-type="Private"
+                  onclick={handleLogTripType}
+                >
+                  Private
+                </button>
+              </div>
+            </div>
+
+            <template lwc:if={isLogTripBusiness}>
+              <label class="field">
+                <span>Business Purpose</span>
+                <input
+                  type="text"
+                  value={logTripPurpose}
+                  data-field="logTripPurpose"
+                  oninput={handleInput}
+                  placeholder="e.g. Client consultation, parts delivery"
+                />
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <select
+                  class="input select"
+                  data-field="logTripCategory"
+                  onchange={handleInput}
+                >
+                  <template for:each={tripCategoryOptions} for:item="cat">
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  </template>
+                </select>
+              </label>
+            </template>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Start Time</span>
+                <input
+                  type="datetime-local"
+                  value={logStartTime}
+                  data-field="logStartTime"
+                  oninput={handleInput}
+                />
+              </label>
+              <label class="field">
+                <span>End Time</span>
+                <input
+                  type="datetime-local"
+                  value={logEndTime}
+                  data-field="logEndTime"
+                  oninput={handleInput}
+                />
+              </label>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Start Odometer</span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  value={logStartOdometer}
+                  data-field="logStartOdometer"
+                  oninput={handleInput}
+                />
+              </label>
+              <label class="field">
+                <span>End Odometer</span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  value={logEndOdometer}
+                  data-field="logEndOdometer"
+                  oninput={handleInput}
+                />
+              </label>
+            </div>
+
+            <template lwc:if={logCalculatedDistanceText}>
+              <div class="distance-preview">
+                Estimated Distance: <strong>{logCalculatedDistanceText}</strong>
+              </div>
+            </template>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Origin Address</span>
+                <input
+                  type="text"
+                  value={logOrigin}
+                  data-field="logOrigin"
+                  oninput={handleInput}
+                  placeholder="Origin"
+                />
+              </label>
+              <label class="field">
+                <span>Destination</span>
+                <input
+                  type="text"
+                  value={logDestination}
+                  data-field="logDestination"
+                  oninput={handleInput}
+                  placeholder="Destination"
+                />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Driver Notes</span>
+              <textarea
+                rows="2"
+                data-field="logNotes"
+                oninput={handleInput}
+                placeholder="Optional trip details or comments"
+              ></textarea>
+            </label>
           </template>
 
           <template lwc:if={isIssue}>
@@ -677,6 +1345,51 @@
               />
               <span>Filled up / fully charged</span></label
             >
+          </template>
+
+          <template lwc:if={isNavCustomizerSheet}>
+            <div class="customizer-intro">
+              <p>
+                Choose your quick shortcuts for the bottom navigation bar (up to
+                4 items). All tabs are always accessible from the side menu.
+              </p>
+            </div>
+            <div class="customizer-list">
+              <template for:each={navCustomizerOptions} for:item="opt">
+                <label key={opt.key} class="customizer-item">
+                  <input
+                    type="checkbox"
+                    checked={opt.checked}
+                    data-key={opt.key}
+                    onchange={handleToggleBottomNavItem}
+                  />
+                  <div class="customizer-item__main">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d={opt.icon}></path>
+                    </svg>
+                    <strong>{opt.label}</strong>
+                  </div>
+                  <template lwc:if={opt.checked}>
+                    <span class="customizer-item__slot"
+                      >Shortcut #{opt.slot}</span
+                    >
+                  </template>
+                </label>
+              </template>
+            </div>
+            <p class="customizer-hint">
+              Tip: Long-press any bottom bar tab anytime to reconfigure your
+              shortcuts.
+            </p>
           </template>
 
           <template lwc:if={isPhotoSheet}>

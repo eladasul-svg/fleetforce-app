@@ -1,0 +1,80 @@
+{
+  "type": "sfdc_cms__view",
+  "title": "Home",
+  "contentBody": {
+    "component": {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": {
+                "backgroundImageConfig": "",
+                "backgroundImageOverlay": "rgba(0,0,0,0)",
+                "componentSpacerSize": "",
+                "layoutDirectionDesktop": "row",
+                "layoutDirectionMobile": "column",
+                "layoutDirectionTablet": "column",
+                "maxContentWidth": "",
+                "sectionColumnGutterWidth": "",
+                "sectionConfig": "{\"UUID\":\"7818e499-12a6-4821-8cc6-f6cb026e225f\",\"columns\":[{\"UUID\":\"09089244-f2e7-43c3-a45d-881d9c72c5a5\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+                "sectionMinHeight": "",
+                "sectionVerticalAlign": "flex-start"
+              },
+              "children": [
+                {
+                  "children": [
+                    {
+                      "attributes": {
+                        "dxpStyle": {}
+                      },
+                      "definition": "fleetforce:driverApp",
+                      "id": "7f2ee0f7-acec-4b5b-9725-fa38597303bd",
+                      "type": "component"
+                    }
+                  ],
+                  "id": "09089244-f2e7-43c3-a45d-881d9c72c5a5",
+                  "name": "col1",
+                  "title": "Column 1",
+                  "type": "region"
+                }
+              ],
+              "definition": "community_layout:section",
+              "id": "7818e499-12a6-4821-8cc6-f6cb026e225f",
+              "type": "component"
+            }
+          ],
+          "id": "cf02b15f-e30e-44d2-a745-715359516f6c",
+          "name": "content",
+          "title": "Content",
+          "type": "region"
+        },
+        {
+          "children": [
+            {
+              "attributes": {
+                "customHeadTags": "<link rel=\"manifest\" href=\"/resource/fleetforce_driver_pwa/manifest.webmanifest\">\n<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n<meta name=\"apple-mobile-web-app-title\" content=\"Driver\">\n<meta name=\"theme-color\" content=\"#0B1528\">\n<link rel=\"apple-touch-icon\" href=\"/resource/fleetforce_driver_pwa/app-icon-192.png\">",
+                "description": "FleetForce Driver App, Digital Glovebox & Vehicle Mileage",
+                "pageTitle": "FleetForce Driver",
+                "recordId": "{!recordId}"
+              },
+              "definition": "community_builder:seoAssistant",
+              "id": "0d1a3ba8-b027-4c88-ba81-89986d415e45",
+              "type": "component"
+            }
+          ],
+          "id": "a08926f6-47ac-4b47-9ac2-0854fc2a632d",
+          "name": "sfdcHiddenRegion",
+          "title": "sfdcHiddenRegion",
+          "type": "region"
+        }
+      ],
+      "definition": "community_layout:sldsFlexibleLayout",
+      "id": "72860909-947b-47e0-a9a6-2683a2579d90",
+      "type": "component"
+    },
+    "dataProviders": [],
+    "themeLayoutType": "Inner",
+    "viewType": "home"
+  },
+  "urlName": "home"
+}

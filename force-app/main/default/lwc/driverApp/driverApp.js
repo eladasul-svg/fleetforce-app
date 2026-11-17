@@ -1,9 +1,12 @@
-import { LightningElement } from "lwc";
+import { LightningElement, api } from "lwc";
 import BRAND from "@salesforce/resourceUrl/FleetForceBrand";
+import DRIVER_PWA from "@salesforce/resourceUrl/fleetforce_driver_pwa";
 import getDrivers from "@salesforce/apex/DriverAppController.getDrivers";
 import getDashboard from "@salesforce/apex/DriverAppController.getDashboard";
 import startTrip from "@salesforce/apex/DriverAppController.startTrip";
 import endTrip from "@salesforce/apex/DriverAppController.endTrip";
+import logTrip from "@salesforce/apex/DriverAppController.logTrip";
+import updateTrip from "@salesforce/apex/DriverAppController.updateTrip";
 import reportIssue from "@salesforce/apex/DriverAppController.reportIssue";
 import logFuel from "@salesforce/apex/DriverAppController.logFuel";
 import attachPhoto from "@salesforce/apex/DriverAppController.attachPhoto";
@@ -31,6 +34,16 @@ const ISSUE_CATEGORIES = [
   { value: "Inspection", label: "Needs an inspection" },
   { value: "Warranty", label: "Warranty / recall" },
   { value: "Other", label: "Something else" }
+];
+const TRIP_CATEGORIES = [
+  { value: "Operations", label: "Operations" },
+  { value: "Client Visit", label: "Client Visit" },
+  { value: "Delivery", label: "Delivery" },
+  { value: "Branch Transfer", label: "Branch Transfer" },
+  { value: "Maintenance", label: "Maintenance" },
+  { value: "Commute", label: "Commute" },
+  { value: "Personal", label: "Personal" },
+  { value: "Other", label: "Other" }
 ];
 const MAX_PHOTOS = 3;
 // Demo build: these drivers have a story in the seed data (scripts/apex/seed_driver_app.apex), so they lead the picker.
@@ -96,17 +109,66 @@ function shrinkImage(file) {
   });
 }
 
+const ALL_NAV_DEFINITIONS = [
+  {
+    key: "home",
+    label: "Home",
+    icon: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"
+  },
+  {
+    key: "vehicle",
+    label: "Vehicle",
+    icon: "M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5"
+  },
+  {
+    key: "trips",
+    label: "Trips",
+    icon: "M5 4v16M5 5h11l-2 4 2 4H5"
+  },
+  {
+    key: "route",
+    label: "Route",
+    icon: "M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a3 3 0 0 1 3-3h7M18 9v6a3 3 0 0 1-3 3H8"
+  },
+  {
+    key: "me",
+    label: "Me",
+    icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
+  }
+];
+
 export default class DriverApp extends LightningElement {
+  @api motorpoolUrl;
+  @api hideBookings = false;
+
   drivers = [];
   driverId;
+  selectedAssetId;
   dash;
   loading = true;
   error;
   view = "home";
-  sheet; // pretrip | endtrip | issue | fuel | notices
+  sheet; // pretrip | endtrip | logTrip | issue | fuel | notices
   busy = false;
   sheetError;
   toast;
+
+  // PWA & Offline
+  showInstallBanner = false;
+  showIosInstructions = false;
+  isOffline = false;
+  deferredPrompt;
+  _onlineHandler;
+  _offlineHandler;
+  _beforeInstallHandler;
+
+  // Drawer & Nav Customization
+  isDrawerOpen = false;
+  bottomNavKeys = ["home", "vehicle", "trips", "route"];
+  _longPressTimer = null;
+
+  // filters
+  tripFilter = "all";
 
   // forms
   checks = {};
@@ -122,14 +184,159 @@ export default class DriverApp extends LightningElement {
   fuelFull = true;
   photos = [];
 
+  // end trip reporting
+  endTripType = "Business";
+  endTripPurpose = "";
+  endTripCategory = "Operations";
+
+  // log / edit trip
+  editingTripId;
+  logTripAssetId;
+  logTripType = "Business";
+  logTripPurpose = "";
+  logTripCategory = "Operations";
+  logStartTime = "";
+  logEndTime = "";
+  logStartOdometer = "";
+  logEndOdometer = "";
+  logOrigin = "";
+  logDestination = "";
+  logNotes = "";
+
   _toastTimer;
 
   connectedCallback() {
+    try {
+      const saved = localStorage.getItem("fleetforce_driver_bottom_nav_keys");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 2 && parsed.length <= 4) {
+          this.bottomNavKeys = parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
     this.init();
+    this.initPwa();
   }
 
   disconnectedCallback() {
     clearTimeout(this._toastTimer);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("online", this._onlineHandler);
+      window.removeEventListener("offline", this._offlineHandler);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        this._beforeInstallHandler
+      );
+    }
+  }
+
+  initPwa() {
+    if (typeof window === "undefined") return;
+
+    this.isOffline = !navigator.onLine;
+    this._onlineHandler = () => {
+      this.isOffline = false;
+      this.load();
+    };
+    this._offlineHandler = () => {
+      this.isOffline = true;
+    };
+    window.addEventListener("online", this._onlineHandler);
+    window.addEventListener("offline", this._offlineHandler);
+
+    // Check standalone mode or dismissed state
+    try {
+      const dismissedAt = localStorage.getItem("ff_pwa_dismissed");
+      const isDismissed =
+        dismissedAt && Date.now() - Number(dismissedAt) < 7 * 86400000;
+      const isStandalone =
+        (window.matchMedia &&
+          window.matchMedia("(display-mode: standalone)").matches) ||
+        window.navigator.standalone === true;
+
+      if (!isStandalone && !isDismissed) {
+        if (this.isIos) {
+          this.showInstallBanner = true;
+        } else {
+          this._beforeInstallHandler = (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            this.showInstallBanner = true;
+          };
+          window.addEventListener(
+            "beforeinstallprompt",
+            this._beforeInstallHandler
+          );
+        }
+      }
+    } catch {
+      // LocalStorage access non-fatal
+    }
+
+    // Inject PWA metadata into document head if missing
+    try {
+      /* eslint-disable @lwc/lwc/no-document-query */
+      if (!document.querySelector('link[rel="manifest"]')) {
+        const m = document.createElement("link");
+        m.rel = "manifest";
+        m.href = `${DRIVER_PWA}/manifest.webmanifest`;
+        document.head.appendChild(m);
+      }
+      if (
+        !document.querySelector('meta[name="apple-mobile-web-app-capable"]')
+      ) {
+        const m1 = document.createElement("meta");
+        m1.name = "apple-mobile-web-app-capable";
+        m1.content = "yes";
+        document.head.appendChild(m1);
+
+        const m2 = document.createElement("meta");
+        m2.name = "apple-mobile-web-app-status-bar-style";
+        m2.content = "black-translucent";
+        document.head.appendChild(m2);
+
+        const icon = document.createElement("link");
+        icon.rel = "apple-touch-icon";
+        icon.href = `${DRIVER_PWA}/app-icon-192.png`;
+        document.head.appendChild(icon);
+      }
+      /* eslint-enable @lwc/lwc/no-document-query */
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register(`${DRIVER_PWA}/sw.js`).catch(() => {});
+      }
+    } catch {
+      // Head injection non-fatal in restricted iframes
+    }
+  }
+
+  get installButtonLabel() {
+    return this.isIos ? "Install Guide" : "Install App";
+  }
+
+  async handleInstallClick() {
+    if (this.deferredPrompt) {
+      this.deferredPrompt.prompt();
+      const choice = await this.deferredPrompt.userChoice;
+      if (choice && choice.outcome === "accepted") {
+        this.showInstallBanner = false;
+      }
+      this.deferredPrompt = null;
+    } else if (this.isIos) {
+      this.showIosInstructions = !this.showIosInstructions;
+    }
+  }
+
+  handleDismissInstallBanner() {
+    this.showInstallBanner = false;
+    this.showIosInstructions = false;
+    try {
+      localStorage.setItem("ff_pwa_dismissed", String(Date.now()));
+    } catch {
+      // ignore
+    }
   }
 
   async init() {
@@ -139,27 +346,64 @@ export default class DriverApp extends LightningElement {
         const i = FEATURED_DRIVERS.indexOf(d.name);
         return i === -1 ? FEATURED_DRIVERS.length : i;
       };
-      this.drivers = all
+      this.drivers = (all || [])
         .map((d, i) => ({ d, i }))
         .sort((a, b) => rank(a.d) - rank(b.d) || a.i - b.i)
         .map((x) => x.d);
+
       if (this.drivers.length) {
         this.driverId = this.drivers[0].id;
-        await this.load();
       } else {
-        this.loading = false;
+        this.driverId = null;
       }
+      await this.load();
     } catch (e) {
       this.fail(e);
     }
+  }
+
+  async handleReload() {
+    await this.init();
   }
 
   async load() {
     this.loading = true;
     this.error = undefined;
     try {
-      this.dash = await getDashboard({ driverId: this.driverId });
+      this.dash = await getDashboard({
+        driverId: this.driverId,
+        selectedAssetId: this.selectedAssetId
+      });
+      if (this.dash && this.dash.driver && this.dash.driver.id) {
+        this.driverId = this.dash.driver.id;
+      }
+      if (this.dash && this.dash.vehicle) {
+        this.selectedAssetId = this.dash.vehicle.id;
+      }
+      // Cache for offline glovebox & dashboard access
+      try {
+        if (this.dash && this.dash.driver) {
+          localStorage.setItem(
+            `ff_dash_${this.driverId}`,
+            JSON.stringify(this.dash)
+          );
+        }
+      } catch {
+        // ignore
+      }
     } catch (e) {
+      // Try offline cache fallback
+      try {
+        const cached = localStorage.getItem(`ff_dash_${this.driverId}`);
+        if (cached) {
+          this.dash = JSON.parse(cached);
+          this.isOffline = true;
+          this.loading = false;
+          return;
+        }
+      } catch {
+        // ignore
+      }
       this.fail(e);
     } finally {
       this.loading = false;
@@ -197,37 +441,217 @@ export default class DriverApp extends LightningElement {
 
   async handleDriver(event) {
     this.driverId = event.target.value;
+    this.selectedAssetId = undefined;
     this.view = "home";
     await this.load();
   }
 
-  get navItems() {
-    return [
-      {
-        key: "home",
-        label: "Home",
-        icon: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"
-      },
-      {
-        key: "vehicle",
-        label: "Vehicle",
-        icon: "M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5"
-      },
-      {
-        key: "route",
-        label: "Route",
-        icon: "M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 15V9a3 3 0 0 1 3-3h7M18 9v6a3 3 0 0 1-3 3H8"
-      },
-      { key: "trips", label: "Trips", icon: "M5 4v16M5 5h11l-2 4 2 4H5" },
-      {
-        key: "me",
-        label: "Me",
-        icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
+  get showAdminBar() {
+    return this.dash && this.dash.isAdminMode === true;
+  }
+
+  get isUnlinked() {
+    return this.dash && this.dash.isDriverLinked === false;
+  }
+
+  get unlinkedUserName() {
+    return this.dash?.userName || "User";
+  }
+
+  get unlinkedUserEmail() {
+    return this.dash?.userEmail || "";
+  }
+
+  get isGuestUser() {
+    return this.dash?.isGuestUser === true;
+  }
+
+  get showHamburger() {
+    if (this.isUnlinked && !this.showAdminBar) {
+      return false;
+    }
+    return true;
+  }
+
+  get showBell() {
+    if (this.isUnlinked && !this.showAdminBar) {
+      return false;
+    }
+    return true;
+  }
+
+  get showBottomNav() {
+    if (this.isUnlinked && !this.showAdminBar) {
+      return false;
+    }
+    return true;
+  }
+
+  get driverInitials() {
+    if (!this.dash?.driver?.name) return "DR";
+    const parts = this.dash.driver.name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  get driverName() {
+    return this.dash?.driver?.name || "Driver";
+  }
+
+  get driverStatus() {
+    return this.dash?.driver?.status || "Active";
+  }
+
+  get pwaStatusDotCls() {
+    return `drawer__status-dot ${this.isOffline ? "drawer__status-dot--offline" : "drawer__status-dot--online"}`;
+  }
+
+  get pwaStatusText() {
+    return this.isOffline ? "Offline Mode (Cached)" : "Online & Synchronized";
+  }
+
+  get vehicleDropdownOptions() {
+    if (!this.authorized || !this.authorized.length) {
+      return [];
+    }
+    return this.authorized.map((a) => {
+      const typePart = a.authType ? ` [${a.authType}]` : "";
+      const activePart = a.isCurrent ? " (Active)" : "";
+      return {
+        value: a.assetId,
+        label: `${a.name}${a.plate ? " · " + a.plate : ""}${typePart}${activePart}`,
+        selected: a.isCurrent
+      };
+    });
+  }
+
+  async handleSwitchVehicleSelect(event) {
+    const assetId = event.target.value;
+    if (assetId && assetId !== this.vehicle?.id) {
+      this.selectedAssetId = assetId;
+      await this.load();
+    }
+  }
+
+  async handleSwitchVehicle(event) {
+    const assetId = event.currentTarget.dataset.assetId;
+    if (assetId && assetId !== this.selectedAssetId) {
+      this.selectedAssetId = assetId;
+      await this.load();
+    }
+  }
+
+  openDrawer() {
+    this.isDrawerOpen = true;
+  }
+
+  closeDrawer() {
+    this.isDrawerOpen = false;
+  }
+
+  handleDrawerNav(event) {
+    const view = event.currentTarget.dataset.view;
+    if (view) {
+      this.view = view;
+      this.closeDrawer();
+      this.scrollTop();
+    }
+  }
+
+  handleOpenNavCustomizer() {
+    this.closeDrawer();
+    this.sheet = "navCustomizer";
+  }
+
+  get isNavCustomizerSheet() {
+    return this.sheet === "navCustomizer";
+  }
+
+  get navCustomizerOptions() {
+    return ALL_NAV_DEFINITIONS.map((def) => {
+      const idx = this.bottomNavKeys.indexOf(def.key);
+      return {
+        ...def,
+        checked: idx !== -1,
+        slot: idx !== -1 ? idx + 1 : null
+      };
+    });
+  }
+
+  handleToggleBottomNavItem(event) {
+    const key = event.target.dataset.key;
+    const isChecked = event.target.checked;
+    let current = [...this.bottomNavKeys];
+    if (isChecked) {
+      if (current.length >= 4) {
+        current.pop();
       }
-    ].map((n) => ({
+      current.push(key);
+    } else {
+      if (current.length <= 2) {
+        this.showToast("At least 2 shortcuts required");
+        event.target.checked = true;
+        return;
+      }
+      current = current.filter((k) => k !== key);
+    }
+    this.bottomNavKeys = current;
+    try {
+      localStorage.setItem(
+        "fleetforce_driver_bottom_nav_keys",
+        JSON.stringify(current)
+      );
+    } catch {
+      // ignore
+    }
+  }
+
+  handleNavTouchStart() {
+    this._startLongPress();
+  }
+
+  handleNavTouchEnd() {
+    this._cancelLongPress();
+  }
+
+  handleNavMouseDown() {
+    this._startLongPress();
+  }
+
+  handleNavMouseUp() {
+    this._cancelLongPress();
+  }
+
+  _startLongPress() {
+    this._cancelLongPress();
+    // eslint-disable-next-line @lwc/lwc/no-async-operation
+    this._longPressTimer = setTimeout(() => {
+      this.sheet = "navCustomizer";
+    }, 600);
+  }
+
+  _cancelLongPress() {
+    if (this._longPressTimer) {
+      clearTimeout(this._longPressTimer);
+      this._longPressTimer = null;
+    }
+  }
+
+  get navItems() {
+    return ALL_NAV_DEFINITIONS.filter((item) =>
+      this.bottomNavKeys.includes(item.key)
+    ).map((n) => ({
       ...n,
       cls: `nav__btn${this.view === n.key ? " nav__btn--on" : ""}`,
       current: this.view === n.key ? "page" : "false"
+    }));
+  }
+
+  get allNavOptions() {
+    return ALL_NAV_DEFINITIONS.map((item) => ({
+      ...item,
+      drawerCls: `drawer__item${this.view === item.key ? " drawer__item--active" : ""}`,
+      activeBadge: this.view === item.key ? "Active" : null
     }));
   }
 
@@ -384,6 +808,12 @@ export default class DriverApp extends LightningElement {
     return [
       trip,
       {
+        key: "glovebox",
+        label: "Digital Glovebox",
+        hint: "Insurance & Reg",
+        icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"
+      },
+      {
         key: "navigate",
         label: "Navigate to car",
         hint: "Open in maps",
@@ -412,6 +842,9 @@ export default class DriverApp extends LightningElement {
     const key = event.currentTarget.dataset.key;
     if (key === "navigate") {
       this.navigate();
+    } else if (key === "glovebox") {
+      this.view = "vehicle";
+      this.scrollTop();
     } else {
       this.openSheet(key);
     }
@@ -450,9 +883,22 @@ export default class DriverApp extends LightningElement {
       : null;
   }
 
+  get showBookings() {
+    return !this.hideBookings;
+  }
+
   handleBook() {
-    // the booking page is the site's home page
-    window.location.assign(window.location.pathname.replace(/driver\/?$/, ""));
+    if (this.motorpoolUrl) {
+      window.location.assign(this.motorpoolUrl);
+      return;
+    }
+    // If hosted on /driver, navigate to the site root, else fallback to /motorpool
+    const path = window.location.pathname || "";
+    if (path.endsWith("/driver") || path.endsWith("/driver/")) {
+      window.location.assign(path.replace(/\/driver\/?$/, ""));
+    } else {
+      window.location.assign("/motorpool");
+    }
   }
 
   // ---------- vehicle ----------
@@ -510,7 +956,22 @@ export default class DriverApp extends LightningElement {
       key: a.assetId,
       sub: [a.plate, a.authType].filter(Boolean).join(" · "),
       until: a.endDate ? `until ${dateText(a.endDate)}` : "",
-      keyText: a.hasKey ? "Key issued" : ""
+      keyText: a.hasKey ? "Key issued" : "",
+      badgeText: a.isCurrent ? "Active" : a.isPrimary ? "Primary" : "Authorized"
+    }));
+  }
+
+  get hasMultipleVehicles() {
+    return (this.dash.authorized || []).length > 1;
+  }
+
+  get vehicleSelectorPills() {
+    return (this.dash.authorized || []).map((a) => ({
+      id: a.assetId,
+      name: a.name,
+      plate: a.plate,
+      isCurrent: a.isCurrent,
+      cls: `v-pill${a.isCurrent ? " v-pill--active" : ""}`
     }));
   }
 
@@ -545,6 +1006,126 @@ export default class DriverApp extends LightningElement {
   }
 
   // ---------- trips ----------
+  get tripSummary() {
+    const d = this.dash || {};
+    const total = d.monthTotalDistance || 0;
+    const biz = d.monthBusinessDistance || 0;
+    const priv = d.monthPrivateDistance || 0;
+    const pct = total > 0 ? Math.round((biz / total) * 100) : 0;
+    const unit = this.distanceUnit;
+    return {
+      totalText: `${number(total)} ${unit}`,
+      businessText: `${number(biz)} ${unit}`,
+      privateText: `${number(priv)} ${unit}`,
+      businessPct: `${pct}%`,
+      privatePct: `${100 - pct}%`,
+      barStyle: `width:${pct}%`
+    };
+  }
+
+  get tripFilterTabs() {
+    return [
+      { key: "all", label: "All Trips" },
+      { key: "business", label: "Business" },
+      { key: "private", label: "Private" },
+      { key: "review", label: "Needs Review" }
+    ].map((f) => ({
+      ...f,
+      cls: `filter-btn${this.tripFilter === f.key ? " filter-btn--active" : ""}`
+    }));
+  }
+
+  handleTripFilter(event) {
+    this.tripFilter = event.currentTarget.dataset.filter;
+  }
+
+  get filteredTripLogs() {
+    const logs = (this.dash?.tripLogs || []).map((t) => {
+      const isBiz = t.tripType === "Business";
+      const isPriv = t.tripType === "Private";
+      const status = t.approvalStatus;
+      let statusCls = "chip";
+      let statusLabel = status || "Submitted";
+      if (status === "Auto-Approved" || status === "Approved") {
+        statusCls = "chip chip--ok";
+        statusLabel = status === "Auto-Approved" ? "Auto-Approved" : "Approved";
+      } else if (status === "Rejected") {
+        statusCls = "chip chip--bad";
+        statusLabel = "Needs Revision";
+      } else {
+        statusCls = "chip chip--warn";
+        statusLabel = "Pending Review";
+      }
+      return {
+        ...t,
+        isBusiness: isBiz,
+        isPrivate: isPriv,
+        typeCls: `chip ${isBiz ? "chip--info" : "chip--neutral"}`,
+        typeLabel: t.tripType || "Business",
+        statusCls,
+        statusLabel,
+        distanceText:
+          t.distance != null
+            ? `${number(t.distance)} ${distanceUnit(t.distanceUnit)}`
+            : "–",
+        whenText: whenText(t.startTime, this.zone),
+        routeText:
+          [t.originAddress, t.destinationAddress].filter(Boolean).join(" → ") ||
+          "Local driving",
+        canEdit: t.canEdit
+      };
+    });
+
+    if (this.tripFilter === "business") {
+      return logs.filter((t) => t.isBusiness);
+    }
+    if (this.tripFilter === "private") {
+      return logs.filter((t) => t.isPrivate);
+    }
+    if (this.tripFilter === "review") {
+      return logs.filter(
+        (t) =>
+          t.approvalStatus === "Submitted" || t.approvalStatus === "Rejected"
+      );
+    }
+    return logs;
+  }
+
+  get hasFilteredTrips() {
+    return this.filteredTripLogs.length > 0;
+  }
+
+  handleOpenLogTrip() {
+    this.openSheet("logTrip");
+  }
+
+  handleTripClick(event) {
+    const tripId = event.currentTarget.dataset.tripId;
+    const trip = (this.dash?.tripLogs || []).find((t) => t.id === tripId);
+    if (!trip || !trip.canEdit) return;
+
+    this.sheetError = undefined;
+    this.editingTripId = trip.id;
+    this.logTripAssetId = trip.assetId;
+    this.logTripType = trip.tripType || "Business";
+    this.logTripPurpose = trip.businessPurpose || "";
+    this.logTripCategory = trip.category || "Operations";
+    this.logStartTime = trip.startTime
+      ? new Date(trip.startTime).toISOString().slice(0, 16)
+      : "";
+    this.logEndTime = trip.endTime
+      ? new Date(trip.endTime).toISOString().slice(0, 16)
+      : "";
+    this.logStartOdometer =
+      trip.odometerStart != null ? String(trip.odometerStart) : "";
+    this.logEndOdometer =
+      trip.odometerEnd != null ? String(trip.odometerEnd) : "";
+    this.logOrigin = trip.originAddress || "";
+    this.logDestination = trip.destinationAddress || "";
+    this.logNotes = trip.driverNotes || "";
+    this.sheet = "logTrip";
+  }
+
   get reservations() {
     return (this.dash.reservations || []).map((r) => ({
       ...r,
@@ -679,6 +1260,31 @@ export default class DriverApp extends LightningElement {
         v && v.odometer != null ? String(Math.round(v.odometer)) : "";
       this.energy = v && v.energyLevel != null ? Math.round(v.energyLevel) : 50;
       this.checks = CHECKS.reduce((m, c) => ({ ...m, [c.key]: true }), {});
+      if (key === "endtrip") {
+        this.endTripType = "Business";
+        this.endTripPurpose = "";
+        this.endTripCategory = "Operations";
+      }
+    }
+    if (key === "logTrip") {
+      this.editingTripId = undefined;
+      this.logTripAssetId = this.vehicle
+        ? this.vehicle.id
+        : this.authorized[0] && this.authorized[0].assetId;
+      this.logTripType = "Business";
+      this.logTripPurpose = "";
+      this.logTripCategory = "Operations";
+      const now = new Date();
+      this.logEndTime = now.toISOString().slice(0, 16);
+      now.setHours(now.getHours() - 1);
+      this.logStartTime = now.toISOString().slice(0, 16);
+      const v = this.dash.vehicle;
+      const curOdo = v && v.odometer != null ? Math.round(v.odometer) : 0;
+      this.logStartOdometer = curOdo ? String(curOdo) : "";
+      this.logEndOdometer = curOdo ? String(curOdo + 15) : "";
+      this.logOrigin = (this.dash.driver && this.dash.driver.branch) || "";
+      this.logDestination = "";
+      this.logNotes = "";
     }
     if (key === "issue") {
       this.issueCategory = "Corrective Repair";
@@ -709,6 +1315,59 @@ export default class DriverApp extends LightningElement {
   get isEndtrip() {
     return this.sheet === "endtrip";
   }
+  get isEndTrip() {
+    return this.sheet === "endtrip";
+  }
+  get isEndTripBusiness() {
+    return this.endTripType === "Business";
+  }
+  get tripTypeBusinessCls() {
+    return `btn ${this.endTripType === "Business" ? "btn--primary" : "btn--ghost"}`;
+  }
+  get tripTypePrivateCls() {
+    return `btn ${this.endTripType === "Private" ? "btn--primary" : "btn--ghost"}`;
+  }
+  handleEndTripType(event) {
+    this.endTripType = event.currentTarget.dataset.type;
+  }
+
+  get isLogTripSheet() {
+    return this.sheet === "logTrip";
+  }
+  get isLogTripBusiness() {
+    return this.logTripType === "Business";
+  }
+  get logTripBusinessCls() {
+    return `btn ${this.logTripType === "Business" ? "btn--primary" : "btn--ghost"}`;
+  }
+  get logTripPrivateCls() {
+    return `btn ${this.logTripType === "Private" ? "btn--primary" : "btn--ghost"}`;
+  }
+  handleLogTripType(event) {
+    this.logTripType = event.currentTarget.dataset.type;
+  }
+
+  get logCalculatedDistanceText() {
+    const s =
+      this.logStartOdometer === "" ? null : Number(this.logStartOdometer);
+    const e = this.logEndOdometer === "" ? null : Number(this.logEndOdometer);
+    if (s != null && e != null && e >= s) {
+      return `${number(e - s)} ${this.distanceUnit}`;
+    }
+    return "";
+  }
+
+  get tripCategoryOptions() {
+    return TRIP_CATEGORIES;
+  }
+
+  get vehicleSelectOptions() {
+    return (this.authorized || []).map((a) => ({
+      value: a.assetId,
+      label: `${a.name} (${a.plate || "No plate"})`
+    }));
+  }
+
   get isTripSheet() {
     return this.sheet === "pretrip" || this.sheet === "endtrip";
   }
@@ -726,12 +1385,14 @@ export default class DriverApp extends LightningElement {
     return (
       {
         pretrip: "Pre-trip check",
-        endtrip: "End your trip",
+        endtrip: "End your trip & log mileage",
+        logTrip: this.editingTripId ? "Edit trip submission" : "Log a trip",
         issue: "Report an issue",
         fuel:
           this.vehicle && this.vehicle.fuelType === "Electric"
             ? "Log charging"
             : "Log fuel",
+        navCustomizer: "Customize Bottom Bar",
         notices: "Notifications"
       }[this.sheet] || ""
     );
@@ -884,6 +1545,12 @@ export default class DriverApp extends LightningElement {
     this.busy = true;
     this.sheetError = undefined;
     try {
+      if (this.isNavCustomizerSheet) {
+        this.closeSheet();
+        this.showToast("Bottom navigation updated.");
+        this.busy = false;
+        return;
+      }
       const v = this.dash.vehicle;
       const odo = this.odometer === "" ? null : Number(this.odometer);
       if (this.isTripSheet) {
@@ -918,10 +1585,74 @@ export default class DriverApp extends LightningElement {
             odometer: odo,
             energyPercent: this.energy,
             conditionNotes: report,
-            newDamage: this.anyIssue
+            newDamage: this.anyIssue,
+            tripType: this.endTripType || "Business",
+            businessPurpose: this.endTripPurpose,
+            category: this.endTripCategory
           });
           await this.uploadPhotos(this.dash.openTrip.id);
-          this.showToast("Trip ended. Thank you!");
+          this.showToast("Trip ended & mileage reported.");
+        }
+      } else if (this.isLogTripSheet) {
+        if (!this.logTripAssetId) {
+          this.sheetError = "Please select a vehicle.";
+          this.busy = false;
+          return;
+        }
+        if (this.logTripType === "Business" && !this.logTripPurpose?.trim()) {
+          this.sheetError = "Please enter a business purpose for this trip.";
+          this.busy = false;
+          return;
+        }
+        const sOdo =
+          this.logStartOdometer === "" ? null : Number(this.logStartOdometer);
+        const eOdo =
+          this.logEndOdometer === "" ? null : Number(this.logEndOdometer);
+        if (sOdo != null && eOdo != null && eOdo < sOdo) {
+          this.sheetError = "End odometer cannot be less than start odometer.";
+          this.busy = false;
+          return;
+        }
+        if (this.editingTripId) {
+          await updateTrip({
+            tripId: this.editingTripId,
+            driverId: this.driverId,
+            tripType: this.logTripType,
+            businessPurpose: this.logTripPurpose,
+            category: this.logTripCategory,
+            startTime: this.logStartTime
+              ? new Date(this.logStartTime).toISOString()
+              : null,
+            endTime: this.logEndTime
+              ? new Date(this.logEndTime).toISOString()
+              : null,
+            startOdometer: sOdo,
+            endOdometer: eOdo,
+            originAddress: this.logOrigin,
+            destinationAddress: this.logDestination,
+            driverNotes: this.logNotes
+          });
+          this.showToast("Trip updated and resubmitted.");
+        } else {
+          await logTrip({
+            driverId: this.driverId,
+            assetId: this.logTripAssetId,
+            tripType: this.logTripType,
+            businessPurpose: this.logTripPurpose,
+            category: this.logTripCategory,
+            startTime: this.logStartTime
+              ? new Date(this.logStartTime).toISOString()
+              : null,
+            endTime: this.logEndTime
+              ? new Date(this.logEndTime).toISOString()
+              : null,
+            startOdometer: sOdo,
+            endOdometer: eOdo,
+            originAddress: this.logOrigin,
+            destinationAddress: this.logDestination,
+            driverNotes: this.logNotes
+          });
+          this.showToast("Trip logged successfully.");
         }
       } else if (this.isIssue) {
         if (!this.notes.trim()) {
@@ -971,8 +1702,10 @@ export default class DriverApp extends LightningElement {
     return (
       {
         pretrip: "Start trip",
-        endtrip: "End trip",
+        endtrip: "End & Submit",
+        logTrip: this.editingTripId ? "Update & Resubmit" : "Submit Trip Log",
         issue: "Send report",
+        navCustomizer: "Done",
         fuel: "Save"
       }[this.sheet] || "Save"
     );

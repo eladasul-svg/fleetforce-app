@@ -129,6 +129,51 @@ public without sharing class DriverAppController {
     public String distanceUnit;
   }
 
+  public class TripLogInfo {
+    @AuraEnabled
+    public Id id;
+    @AuraEnabled
+    public String name;
+    @AuraEnabled
+    public Id assetId;
+    @AuraEnabled
+    public String assetName;
+    @AuraEnabled
+    public String tripType; // Business | Private | Commute
+    @AuraEnabled
+    public String businessPurpose;
+    @AuraEnabled
+    public String category;
+    @AuraEnabled
+    public Datetime startTime;
+    @AuraEnabled
+    public Datetime endTime;
+    @AuraEnabled
+    public Decimal odometerStart;
+    @AuraEnabled
+    public Decimal odometerEnd;
+    @AuraEnabled
+    public Decimal distance;
+    @AuraEnabled
+    public String distanceUnit;
+    @AuraEnabled
+    public String originAddress;
+    @AuraEnabled
+    public String destinationAddress;
+    @AuraEnabled
+    public String approvalStatus; // Draft | Submitted | Auto-Approved | Approved | Rejected
+    @AuraEnabled
+    public Boolean autoApproved;
+    @AuraEnabled
+    public String rejectionReason;
+    @AuraEnabled
+    public String driverNotes;
+    @AuraEnabled
+    public Boolean isLocked;
+    @AuraEnabled
+    public Boolean canEdit;
+  }
+
   public class ReservationInfo {
     @AuraEnabled
     public Id id;
@@ -250,6 +295,8 @@ public without sharing class DriverAppController {
     public Date endDate;
     @AuraEnabled
     public Boolean isCurrent;
+    @AuraEnabled
+    public Boolean isPrimary;
   }
 
   public class FuelCardInfo {
@@ -307,6 +354,141 @@ public without sharing class DriverAppController {
     public FuelCardInfo fuelCard;
     @AuraEnabled
     public List<Notice> notices = new List<Notice>();
+    @AuraEnabled
+    public Decimal monthTotalDistance = 0;
+    @AuraEnabled
+    public Decimal monthBusinessDistance = 0;
+    @AuraEnabled
+    public Decimal monthPrivateDistance = 0;
+    @AuraEnabled
+    public Decimal monthBusinessPercent = 0;
+    @AuraEnabled
+    public List<TripLogInfo> tripLogs = new List<TripLogInfo>();
+    @AuraEnabled
+    public Boolean isAdminMode = false;
+    @AuraEnabled
+    public Boolean isDriverLinked = true;
+    @AuraEnabled
+    public String userEmail;
+    @AuraEnabled
+    public String userName;
+    @AuraEnabled
+    public Boolean isGuestUser = false;
+  }
+
+  @TestVisible
+  public static Boolean isAdminModeAllowed() {
+    fleetforce__Fleet_Display_Setting__c setting = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    Boolean settingAllowed = (setting == null ||
+    setting.Id == null ||
+    setting.fleetforce__Allow_Admin_Mode_In_Driver_App__c == true);
+    if (!settingAllowed) {
+      return false;
+    }
+    Id currentUserId = UserInfo.getUserId();
+    List<User> currentUser = [
+      SELECT Profile.PermissionsModifyAllData, Profile.Name
+      FROM User
+      WHERE Id = :currentUserId
+      LIMIT 1
+    ];
+    if (!currentUser.isEmpty()) {
+      if (
+        currentUser[0].Profile.PermissionsModifyAllData == true ||
+        currentUser[0].Profile.Name == 'System Administrator'
+      ) {
+        return true;
+      }
+    }
+    List<PermissionSetAssignment> psa = [
+      SELECT Id
+      FROM PermissionSetAssignment
+      WHERE
+        AssigneeId = :currentUserId
+        AND (PermissionSet.Name = 'FleetforceDriverAppAdmin'
+        OR PermissionSet.Name = 'FleetforceAdmin'
+        OR PermissionSet.Name = 'FleetAdmin')
+      LIMIT 1
+    ];
+    return !psa.isEmpty();
+  }
+
+  @TestVisible
+  public static Contact resolveCurrentDriver() {
+    Id currentUserId = UserInfo.getUserId();
+    List<User> uList = [
+      SELECT ContactId, Email
+      FROM User
+      WHERE Id = :currentUserId
+      LIMIT 1
+    ];
+    // 1. Community User (User.ContactId)
+    if (!uList.isEmpty() && uList[0].ContactId != null) {
+      List<Contact> userContacts = [
+        SELECT Id, Name, fleetforce__Driver_Status__c
+        FROM Contact
+        WHERE
+          Id = :uList[0].ContactId
+          AND fleetforce__Contact_Type__c = 'Driver'
+        LIMIT 1
+      ];
+      if (!userContacts.isEmpty()) {
+        return userContacts[0];
+      }
+    }
+    // 2. Internal User explicitly linked via Contact.fleetforce__Related_User__c
+    List<Contact> linkedByUser = [
+      SELECT Id, Name, fleetforce__Driver_Status__c
+      FROM Contact
+      WHERE
+        fleetforce__Related_User__c = :currentUserId
+        AND fleetforce__Contact_Type__c = 'Driver'
+      LIMIT 1
+    ];
+    if (!linkedByUser.isEmpty()) {
+      return linkedByUser[0];
+    }
+    // 3. User matched by Email
+    if (!uList.isEmpty() && String.isNotBlank(uList[0].Email)) {
+      List<Contact> matchedByEmail = [
+        SELECT Id, Name, fleetforce__Driver_Status__c
+        FROM Contact
+        WHERE Email = :uList[0].Email AND fleetforce__Contact_Type__c = 'Driver'
+        ORDER BY LastModifiedDate DESC
+        LIMIT 1
+      ];
+      if (!matchedByEmail.isEmpty()) {
+        return matchedByEmail[0];
+      }
+    }
+    // No match: user is not a driver. Return null without silent fallback.
+    return null;
+  }
+
+  @TestVisible
+  public static Id getFirstAvailableDriverId() {
+    // Prefer a driver with an active vehicle
+    List<fleetforce__Fleet_Asset__c> assets = [
+      SELECT fleetforce__Driver__c
+      FROM fleetforce__Fleet_Asset__c
+      WHERE
+        fleetforce__Driver__c != NULL
+        AND fleetforce__Driver__r.fleetforce__Contact_Type__c = 'Driver'
+        AND fleetforce__Is_Active__c = TRUE
+      ORDER BY Name
+      LIMIT 1
+    ];
+    if (!assets.isEmpty()) {
+      return assets[0].fleetforce__Driver__c;
+    }
+    List<Contact> drivers = [
+      SELECT Id
+      FROM Contact
+      WHERE fleetforce__Contact_Type__c = 'Driver'
+      ORDER BY Name
+      LIMIT 1
+    ];
+    return drivers.isEmpty() ? null : drivers[0].Id;
   }
 
   // ------------------------------------------------------------------------------------------------------------
@@ -314,6 +496,17 @@ public without sharing class DriverAppController {
   @AuraEnabled
   public static List<DriverOption> getDrivers() {
     try {
+      if (!isAdminModeAllowed()) {
+        Contact current = resolveCurrentDriver();
+        if (current == null) {
+          return new List<DriverOption>();
+        }
+        DriverOption opt = new DriverOption();
+        opt.id = current.Id;
+        opt.name = current.Name;
+        opt.status = current.fleetforce__Driver_Status__c;
+        return new List<DriverOption>{ opt };
+      }
       List<Contact> drivers = [
         SELECT Id, Name, fleetforce__Driver_Status__c
         FROM Contact
@@ -334,26 +527,90 @@ public without sharing class DriverAppController {
           vehicleByDriver.put(a.fleetforce__Driver__c, a.Name);
         }
       }
+
+      Map<Id, Integer> authCountByDriver = new Map<Id, Integer>();
+      for (AggregateResult ar : [
+        SELECT fleetforce__Driver__c dId, COUNT(Id) cnt
+        FROM fleetforce__Authorized_Driver__c
+        WHERE
+          fleetforce__Driver__c IN :drivers
+          AND fleetforce__Is_Active__c = TRUE
+        GROUP BY fleetforce__Driver__c
+      ]) {
+        authCountByDriver.put((Id) ar.get('dId'), (Integer) ar.get('cnt'));
+      }
+
+      Contact current = resolveCurrentDriver();
       List<DriverOption> withVehicle = new List<DriverOption>();
       List<DriverOption> without = new List<DriverOption>();
+      DriverOption currentOption = null;
       for (Contact c : drivers) {
         DriverOption o = new DriverOption();
         o.id = c.Id;
         o.name = c.Name;
         o.status = c.fleetforce__Driver_Status__c;
-        o.vehicle = vehicleByDriver.get(c.Id);
-        (o.vehicle == null ? without : withVehicle).add(o);
+        String vName = vehicleByDriver.get(c.Id);
+        Integer vCount = authCountByDriver.get(c.Id);
+        if (vName != null && vCount != null && vCount > 1) {
+          o.vehicle = vName + ' (' + vCount + ' vehicles)';
+        } else if (vName != null) {
+          o.vehicle = vName;
+        } else if (vCount != null && vCount > 1) {
+          o.vehicle = '(' + vCount + ' vehicles)';
+        }
+        if (current != null && c.Id == current.Id) {
+          currentOption = o;
+        } else {
+          (o.vehicle == null ? without : withVehicle).add(o);
+        }
       }
-      withVehicle.addAll(without);
-      return withVehicle;
+      List<DriverOption> result = new List<DriverOption>();
+      if (currentOption != null) {
+        result.add(currentOption);
+      }
+      result.addAll(withVehicle);
+      result.addAll(without);
+      return result;
     } catch (Exception e) {
       throw new AuraHandledException('Could not load drivers.');
     }
   }
 
-  @AuraEnabled
   public static Dashboard getDashboard(Id driverId) {
+    return getDashboard(driverId, null);
+  }
+
+  @AuraEnabled
+  public static Dashboard getDashboard(Id driverId, Id selectedAssetId) {
     try {
+      Boolean adminAllowed = isAdminModeAllowed();
+      Contact resolved = resolveCurrentDriver();
+      if (!adminAllowed || driverId == null) {
+        if (resolved != null) {
+          driverId = resolved.Id;
+        }
+      }
+      if (driverId == null) {
+        if (!adminAllowed) {
+          Dashboard emptyDash = new Dashboard();
+          emptyDash.isDriverLinked = false;
+          emptyDash.isAdminMode = false;
+          emptyDash.userEmail = UserInfo.getUserEmail();
+          emptyDash.userName = UserInfo.getName();
+          emptyDash.isGuestUser = (UserInfo.getUserType() == 'Guest');
+          return emptyDash;
+        } else {
+          driverId = getFirstAvailableDriverId();
+          if (driverId == null) {
+            Dashboard emptyDash = new Dashboard();
+            emptyDash.isDriverLinked = false;
+            emptyDash.isAdminMode = true;
+            emptyDash.userEmail = UserInfo.getUserEmail();
+            emptyDash.userName = UserInfo.getName();
+            return emptyDash;
+          }
+        }
+      }
       Contact c = [
         SELECT
           Id,
@@ -377,6 +634,7 @@ public without sharing class DriverAppController {
         LIMIT 1
       ];
       Dashboard d = new Dashboard();
+      d.isAdminMode = adminAllowed;
       Date today = Date.today();
 
       DriverInfo di = new DriverInfo();
@@ -431,6 +689,7 @@ public without sharing class DriverAppController {
         ai.hasKey = a.fleetforce__Has_Key__c;
         ai.endDate = a.fleetforce__End_Date__c;
         ai.isCurrent = false;
+        ai.isPrimary = false;
         d.authorized.add(ai);
         authType.put(a.fleetforce__Fleet_Asset__c, a.fleetforce__Type__c);
       }
@@ -442,7 +701,10 @@ public without sharing class DriverAppController {
           Id,
           Name,
           fleetforce__Actual_Check_Out__c,
+          fleetforce__Actual_Check_In__c,
           fleetforce__Odometer_Start__c,
+          fleetforce__Odometer_End__c,
+          fleetforce__Distance_Driven__c,
           fleetforce__Status__c,
           fleetforce__Fleet_Asset__c,
           fleetforce__Fleet_Asset__r.Name,
@@ -465,32 +727,41 @@ public without sharing class DriverAppController {
         openTripAsset = t.fleetforce__Fleet_Asset__c;
       }
 
-      // current vehicle: the one on the open trip, else the one assigned to the driver
+      // current vehicle: requested vehicle, else open trip asset, else primary driver asset, else first authorized
       fleetforce__Fleet_Asset__c asset;
-      if (openTripAsset != null) {
-        asset = assetById(openTripAsset);
-      } else {
-        List<fleetforce__Fleet_Asset__c> mine = [
-          SELECT Id
-          FROM fleetforce__Fleet_Asset__c
-          WHERE
-            fleetforce__Driver__c = :driverId
-            AND fleetforce__Is_Active__c = TRUE
-          ORDER BY Name
-          LIMIT 1
-        ];
-        if (!mine.isEmpty()) {
-          asset = assetById(mine[0].Id);
-        }
+      Id primaryAssetId;
+      List<fleetforce__Fleet_Asset__c> mine = [
+        SELECT Id
+        FROM fleetforce__Fleet_Asset__c
+        WHERE
+          fleetforce__Driver__c = :driverId
+          AND fleetforce__Is_Active__c = TRUE
+        ORDER BY Name
+        LIMIT 1
+      ];
+      if (!mine.isEmpty()) {
+        primaryAssetId = mine[0].Id;
       }
+
+      if (selectedAssetId != null) {
+        asset = assetById(selectedAssetId);
+      } else if (openTripAsset != null) {
+        asset = assetById(openTripAsset);
+      } else if (primaryAssetId != null) {
+        asset = assetById(primaryAssetId);
+      } else if (!d.authorized.isEmpty()) {
+        asset = assetById(d.authorized[0].assetId);
+      }
+
       if (asset != null) {
         d.vehicle = vehicleOf(asset, authType.get(asset.Id));
         for (AuthorizedInfo ai : d.authorized) {
-          ai.isCurrent = ai.assetId == asset.Id;
+          ai.isCurrent = (ai.assetId == asset.Id);
+          ai.isPrimary = (ai.assetId == primaryAssetId);
         }
       }
 
-      // recent trips
+      // recent trips (allocations)
       for (fleetforce__Allocation__c t : [
         SELECT
           Id,
@@ -513,6 +784,93 @@ public without sharing class DriverAppController {
       ]) {
         d.recentTrips.add(tripOf(t));
       }
+
+      // logged trips (business and private trip reporting)
+      Date startOfMonth = today.toStartOfMonth();
+      Decimal mTotal = 0;
+      Decimal mBiz = 0;
+      Decimal mPriv = 0;
+      for (fleetforce__Trip__c t : [
+        SELECT
+          Id,
+          Name,
+          fleetforce__Fleet_Asset__c,
+          fleetforce__Fleet_Asset__r.Name,
+          fleetforce__Trip_Type__c,
+          fleetforce__Business_Purpose__c,
+          fleetforce__Category__c,
+          fleetforce__Start_Time__c,
+          fleetforce__End_Time__c,
+          fleetforce__Start_Odometer__c,
+          fleetforce__End_Odometer__c,
+          fleetforce__Distance__c,
+          fleetforce__Distance_Unit__c,
+          fleetforce__Origin_Address__c,
+          fleetforce__Destination_Address__c,
+          fleetforce__Approval_Status__c,
+          fleetforce__Auto_Approved__c,
+          fleetforce__Rejection_Reason__c,
+          fleetforce__Driver_Notes__c,
+          fleetforce__Locked__c
+        FROM fleetforce__Trip__c
+        WHERE fleetforce__Driver__c = :driverId
+        ORDER BY fleetforce__Start_Time__c DESC NULLS LAST, CreatedDate DESC
+        LIMIT 30
+      ]) {
+        TripLogInfo ti = new TripLogInfo();
+        ti.id = t.Id;
+        ti.name = t.Name;
+        ti.assetId = t.fleetforce__Fleet_Asset__c;
+        ti.assetName = t.fleetforce__Fleet_Asset__r != null
+          ? t.fleetforce__Fleet_Asset__r.Name
+          : '';
+        ti.tripType = String.isNotBlank(t.fleetforce__Trip_Type__c)
+          ? t.fleetforce__Trip_Type__c
+          : 'Business';
+        ti.businessPurpose = t.fleetforce__Business_Purpose__c;
+        ti.category = t.fleetforce__Category__c;
+        ti.startTime = t.fleetforce__Start_Time__c;
+        ti.endTime = t.fleetforce__End_Time__c;
+        ti.odometerStart = t.fleetforce__Start_Odometer__c;
+        ti.odometerEnd = t.fleetforce__End_Odometer__c;
+        ti.distance = t.fleetforce__Distance__c != null
+          ? t.fleetforce__Distance__c
+          : 0;
+        ti.distanceUnit = t.fleetforce__Distance_Unit__c;
+        ti.originAddress = t.fleetforce__Origin_Address__c;
+        ti.destinationAddress = t.fleetforce__Destination_Address__c;
+        ti.approvalStatus = String.isNotBlank(t.fleetforce__Approval_Status__c)
+          ? t.fleetforce__Approval_Status__c
+          : 'Submitted';
+        ti.autoApproved = t.fleetforce__Auto_Approved__c == true;
+        ti.rejectionReason = t.fleetforce__Rejection_Reason__c;
+        ti.driverNotes = t.fleetforce__Driver_Notes__c;
+        ti.isLocked =
+          t.fleetforce__Locked__c == true ||
+          t.fleetforce__Approval_Status__c == 'Approved' ||
+          t.fleetforce__Approval_Status__c == 'Auto-Approved';
+        ti.canEdit = !ti.isLocked;
+        d.tripLogs.add(ti);
+
+        if (
+          t.fleetforce__Start_Time__c != null &&
+          t.fleetforce__Start_Time__c.date() >= startOfMonth &&
+          t.fleetforce__Distance__c != null
+        ) {
+          mTotal += t.fleetforce__Distance__c;
+          if (t.fleetforce__Trip_Type__c == 'Business') {
+            mBiz += t.fleetforce__Distance__c;
+          } else {
+            mPriv += t.fleetforce__Distance__c;
+          }
+        }
+      }
+      d.monthTotalDistance = mTotal;
+      d.monthBusinessDistance = mBiz;
+      d.monthPrivateDistance = mPriv;
+      d.monthBusinessPercent = mTotal > 0
+        ? ((mBiz / mTotal) * 100).setScale(0)
+        : 0;
 
       // reservations: current and upcoming first, then the most recent past ones
       Datetime now = Datetime.now();
@@ -773,7 +1131,6 @@ public without sharing class DriverAppController {
     }
   }
 
-  @AuraEnabled
   public static void endTrip(
     Id allocationId,
     Decimal odometer,
@@ -781,13 +1138,39 @@ public without sharing class DriverAppController {
     String conditionNotes,
     Boolean newDamage
   ) {
+    endTrip(
+      allocationId,
+      odometer,
+      energyPercent,
+      conditionNotes,
+      newDamage,
+      'Business',
+      null,
+      null
+    );
+  }
+
+  @AuraEnabled
+  public static void endTrip(
+    Id allocationId,
+    Decimal odometer,
+    Decimal energyPercent,
+    String conditionNotes,
+    Boolean newDamage,
+    String tripType,
+    String businessPurpose,
+    String category
+  ) {
     try {
       fleetforce__Allocation__c t = [
         SELECT
           Id,
           fleetforce__Driver__c,
           fleetforce__Fleet_Asset__c,
+          fleetforce__Fleet_Asset__r.fleetforce__Effective_Distance_Unit__c,
           fleetforce__Odometer_Start__c,
+          fleetforce__Actual_Check_Out__c,
+          fleetforce__Origin_Branch__r.Name,
           fleetforce__Has_New_Damage__c
         FROM fleetforce__Allocation__c
         WHERE Id = :allocationId
@@ -798,11 +1181,10 @@ public without sharing class DriverAppController {
       t.fleetforce__Odometer_End__c = odometer;
       t.fleetforce__Fuel_Level_In__c = energyPercent;
       t.fleetforce__Condition_In__c = conditionNotes;
+      Decimal distance = 0;
       if (odometer != null && t.fleetforce__Odometer_Start__c != null) {
-        t.fleetforce__Distance_Driven__c = Math.max(
-          0,
-          odometer - t.fleetforce__Odometer_Start__c
-        );
+        distance = Math.max(0, odometer - t.fleetforce__Odometer_Start__c);
+        t.fleetforce__Distance_Driven__c = distance;
       }
       t.fleetforce__Has_New_Damage__c =
         t.fleetforce__Has_New_Damage__c == true ||
@@ -828,9 +1210,243 @@ public without sharing class DriverAppController {
             : conditionNotes
         );
       }
+
+      // Automatically create the audited Trip__c record
+      if (
+        t.fleetforce__Driver__c != null &&
+        t.fleetforce__Fleet_Asset__c != null
+      ) {
+        String cleanType = String.isNotBlank(tripType) ? tripType : 'Business';
+        fleetforce__Trip__c trip = new fleetforce__Trip__c(
+          fleetforce__Driver__c = t.fleetforce__Driver__c,
+          fleetforce__Fleet_Asset__c = t.fleetforce__Fleet_Asset__c,
+          fleetforce__Allocation__c = t.Id,
+          fleetforce__Trip_Type__c = cleanType,
+          fleetforce__Business_Purpose__c = businessPurpose,
+          fleetforce__Category__c = category,
+          fleetforce__Start_Time__c = t.fleetforce__Actual_Check_Out__c != null
+            ? t.fleetforce__Actual_Check_Out__c
+            : Datetime.now().addHours(-1),
+          fleetforce__End_Time__c = Datetime.now(),
+          fleetforce__Start_Odometer__c = t.fleetforce__Odometer_Start__c,
+          fleetforce__End_Odometer__c = odometer,
+          fleetforce__Distance__c = distance,
+          fleetforce__Distance_Unit__c = t.fleetforce__Fleet_Asset__r != null &&
+            String.isNotBlank(
+              t.fleetforce__Fleet_Asset__r.fleetforce__Effective_Distance_Unit__c
+            )
+            ? t.fleetforce__Fleet_Asset__r.fleetforce__Effective_Distance_Unit__c
+            : 'Miles',
+          fleetforce__Origin_Address__c = t.fleetforce__Origin_Branch__r != null
+            ? t.fleetforce__Origin_Branch__r.Name
+            : '',
+          fleetforce__Driver_Notes__c = conditionNotes
+        );
+
+        if (cleanType == 'Private') {
+          trip.fleetforce__Approval_Status__c = 'Auto-Approved';
+          trip.fleetforce__Auto_Approved__c = true;
+          trip.fleetforce__Approval_Date__c = Datetime.now();
+        } else if (
+          cleanType == 'Business' &&
+          String.isNotBlank(businessPurpose) &&
+          distance <= 250
+        ) {
+          trip.fleetforce__Approval_Status__c = 'Auto-Approved';
+          trip.fleetforce__Auto_Approved__c = true;
+          trip.fleetforce__Approval_Date__c = Datetime.now();
+        } else {
+          trip.fleetforce__Approval_Status__c = 'Submitted';
+          trip.fleetforce__Auto_Approved__c = false;
+        }
+        insert trip;
+      }
     } catch (Exception e) {
       throw new AuraHandledException(
         'We could not end your trip. Please try again.'
+      );
+    }
+  }
+
+  @AuraEnabled
+  public static Id logTrip(
+    Id driverId,
+    Id assetId,
+    String tripType,
+    String businessPurpose,
+    String category,
+    Datetime startTime,
+    Datetime endTime,
+    Decimal startOdometer,
+    Decimal endOdometer,
+    String originAddress,
+    String destinationAddress,
+    String driverNotes
+  ) {
+    try {
+      if (driverId == null || assetId == null) {
+        throw new AuraHandledException(
+          'Driver and vehicle are required to log a trip.'
+        );
+      }
+      fleetforce__Fleet_Asset__c a = [
+        SELECT Id, fleetforce__Effective_Distance_Unit__c
+        FROM fleetforce__Fleet_Asset__c
+        WHERE Id = :assetId
+        LIMIT 1
+      ];
+
+      Decimal distance = 0;
+      if (
+        endOdometer != null &&
+        startOdometer != null &&
+        endOdometer >= startOdometer
+      ) {
+        distance = endOdometer - startOdometer;
+      }
+
+      String cleanType = String.isNotBlank(tripType) ? tripType : 'Business';
+      fleetforce__Trip__c trip = new fleetforce__Trip__c(
+        fleetforce__Driver__c = driverId,
+        fleetforce__Fleet_Asset__c = assetId,
+        fleetforce__Trip_Type__c = cleanType,
+        fleetforce__Business_Purpose__c = businessPurpose,
+        fleetforce__Category__c = category,
+        fleetforce__Start_Time__c = startTime != null
+          ? startTime
+          : Datetime.now(),
+        fleetforce__End_Time__c = endTime != null ? endTime : Datetime.now(),
+        fleetforce__Start_Odometer__c = startOdometer,
+        fleetforce__End_Odometer__c = endOdometer,
+        fleetforce__Distance__c = distance,
+        fleetforce__Distance_Unit__c = String.isNotBlank(
+            a.fleetforce__Effective_Distance_Unit__c
+          )
+          ? a.fleetforce__Effective_Distance_Unit__c
+          : 'Miles',
+        fleetforce__Origin_Address__c = originAddress,
+        fleetforce__Destination_Address__c = destinationAddress,
+        fleetforce__Driver_Notes__c = driverNotes
+      );
+
+      if (cleanType == 'Private') {
+        trip.fleetforce__Approval_Status__c = 'Auto-Approved';
+        trip.fleetforce__Auto_Approved__c = true;
+        trip.fleetforce__Approval_Date__c = Datetime.now();
+      } else if (
+        cleanType == 'Business' &&
+        String.isNotBlank(businessPurpose) &&
+        distance <= 250
+      ) {
+        trip.fleetforce__Approval_Status__c = 'Auto-Approved';
+        trip.fleetforce__Auto_Approved__c = true;
+        trip.fleetforce__Approval_Date__c = Datetime.now();
+      } else {
+        trip.fleetforce__Approval_Status__c = 'Submitted';
+        trip.fleetforce__Auto_Approved__c = false;
+      }
+
+      insert trip;
+      return trip.Id;
+    } catch (AuraHandledException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'Could not save your trip log. Please try again.'
+      );
+    }
+  }
+
+  @AuraEnabled
+  public static void updateTrip(
+    Id tripId,
+    Id driverId,
+    String tripType,
+    String businessPurpose,
+    String category,
+    Datetime startTime,
+    Datetime endTime,
+    Decimal startOdometer,
+    Decimal endOdometer,
+    String originAddress,
+    String destinationAddress,
+    String driverNotes
+  ) {
+    try {
+      if (tripId == null) {
+        throw new AuraHandledException('Trip ID is required.');
+      }
+      fleetforce__Trip__c trip = [
+        SELECT
+          Id,
+          fleetforce__Driver__c,
+          fleetforce__Approval_Status__c,
+          fleetforce__Locked__c
+        FROM fleetforce__Trip__c
+        WHERE Id = :tripId
+        LIMIT 1
+      ];
+
+      if (
+        trip.fleetforce__Locked__c == true ||
+        trip.fleetforce__Approval_Status__c == 'Approved'
+      ) {
+        throw new AuraHandledException(
+          'This trip has been approved and locked against changes.'
+        );
+      }
+
+      Decimal distance = 0;
+      if (
+        endOdometer != null &&
+        startOdometer != null &&
+        endOdometer >= startOdometer
+      ) {
+        distance = endOdometer - startOdometer;
+      }
+
+      String cleanType = String.isNotBlank(tripType) ? tripType : 'Business';
+      trip.fleetforce__Trip_Type__c = cleanType;
+      trip.fleetforce__Business_Purpose__c = businessPurpose;
+      trip.fleetforce__Category__c = category;
+      if (startTime != null)
+        trip.fleetforce__Start_Time__c = startTime;
+      if (endTime != null)
+        trip.fleetforce__End_Time__c = endTime;
+      trip.fleetforce__Start_Odometer__c = startOdometer;
+      trip.fleetforce__End_Odometer__c = endOdometer;
+      trip.fleetforce__Distance__c = distance;
+      trip.fleetforce__Origin_Address__c = originAddress;
+      trip.fleetforce__Destination_Address__c = destinationAddress;
+      trip.fleetforce__Driver_Notes__c = driverNotes;
+
+      // If it was rejected, resubmitting clears rejection reason and sets to Submitted or Auto-Approved
+      if (
+        trip.fleetforce__Approval_Status__c == 'Rejected' ||
+        trip.fleetforce__Approval_Status__c == 'Submitted'
+      ) {
+        trip.fleetforce__Rejection_Reason__c = null;
+        if (
+          cleanType == 'Private' ||
+          (cleanType == 'Business' &&
+          String.isNotBlank(businessPurpose) &&
+          distance <= 250)
+        ) {
+          trip.fleetforce__Approval_Status__c = 'Auto-Approved';
+          trip.fleetforce__Auto_Approved__c = true;
+          trip.fleetforce__Approval_Date__c = Datetime.now();
+        } else {
+          trip.fleetforce__Approval_Status__c = 'Submitted';
+          trip.fleetforce__Auto_Approved__c = false;
+        }
+      }
+
+      update trip;
+    } catch (AuraHandledException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'Could not update your trip. Please try again.'
       );
     }
   }
@@ -1183,6 +1799,20 @@ public without sharing class DriverAppController {
           'Your vehicle is in the workshop',
           t.summary
         );
+      }
+    }
+    for (TripLogInfo ti : d.tripLogs) {
+      if (ti.approvalStatus == 'Rejected') {
+        addNotice(
+          d,
+          'trip',
+          'warn',
+          'Trip ' + ti.name + ' requires revision',
+          String.isNotBlank(ti.rejectionReason)
+            ? ti.rejectionReason
+            : 'Please review and update trip purpose/details.'
+        );
+        break;
       }
     }
     d.notices.sort(new NoticeOrder());

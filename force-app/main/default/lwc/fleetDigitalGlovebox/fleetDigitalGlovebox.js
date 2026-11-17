@@ -18,10 +18,21 @@ export default class FleetDigitalGlovebox extends NavigationMixin(
   LightningElement
 ) {
   @api recordId;
+  _isDriverMode = false;
+  @api
+  get isDriverMode() {
+    return this._isDriverMode === true || this._isDriverMode === "true";
+  }
+  set isDriverMode(val) {
+    this._isDriverMode = val === true || val === "true";
+  }
 
   @track payload;
   @track loading = true;
   @track error;
+
+  @track showDocModal = false;
+  @track activeDoc = null;
 
   @track showAddModal = false;
   @track savingDoc = false;
@@ -48,6 +59,22 @@ export default class FleetDigitalGlovebox extends NavigationMixin(
       this.payload = undefined;
       this.loading = false;
     }
+  }
+
+  get canManageDocs() {
+    return !this.isDriverMode;
+  }
+
+  get canChangePlan() {
+    return !this.isDriverMode;
+  }
+
+  get showVehicleBanner() {
+    return !this.isDriverMode;
+  }
+
+  get showRecordPageAction() {
+    return !this.isDriverMode;
   }
 
   get complianceDocumentsCount() {
@@ -124,6 +151,22 @@ export default class FleetDigitalGlovebox extends NavigationMixin(
       { label: "Lease Agreement", value: "Lease Agreement" },
       { label: "Warranty Document", value: "Warranty Document" }
     ];
+  }
+
+  handleOpenDocCertificate(event) {
+    const docId =
+      event.currentTarget.dataset.certId || event.currentTarget.dataset.id;
+    if (!docId || !this.payload?.complianceDocuments) return;
+    const doc = this.payload.complianceDocuments.find((d) => d.id === docId);
+    if (doc) {
+      this.activeDoc = doc;
+      this.showDocModal = true;
+    }
+  }
+
+  handleCloseDocModal() {
+    this.showDocModal = false;
+    this.activeDoc = null;
   }
 
   handleViewAssetDocument(event) {

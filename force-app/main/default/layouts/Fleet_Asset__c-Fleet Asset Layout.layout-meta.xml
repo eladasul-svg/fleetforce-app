@@ -560,6 +560,16 @@
         <relatedList>Reservation__c.Assigned_Asset__c</relatedList>
     </relatedLists>
     <relatedLists>
+        <fields>NAME</fields>
+        <fields>Driver__c</fields>
+        <fields>Trip_Type__c</fields>
+        <fields>Distance__c</fields>
+        <fields>Distance_Unit__c</fields>
+        <fields>Approval_Status__c</fields>
+        <fields>Start_Time__c</fields>
+        <relatedList>Trip__c.Fleet_Asset__c</relatedList>
+    </relatedLists>
+    <relatedLists>
         <relatedList>RelatedFileList</relatedList>
     </relatedLists>
     <relatedLists>

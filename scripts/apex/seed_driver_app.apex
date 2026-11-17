@@ -33,6 +33,7 @@ delete [SELECT Id FROM fleetforce__Allocation__c WHERE Name LIKE 'TRIP-DEMO%'];
 delete [SELECT Id FROM fleetforce__Citation__c WHERE Name = 'DEMO citation' OR fleetforce__Ticket_Number__c LIKE 'DEMO-%'];
 delete [SELECT Id FROM fleetforce__Telemetry_Violation__c WHERE fleetforce__Limit__c = 'DEMO-DRIVER'];
 delete [SELECT Id FROM fleetforce__Service_Ticket__c WHERE fleetforce__Approval_Notes__c = 'DEMO-DRIVER' OR fleetforce__Summary__c LIKE 'DEMO:%'];
+delete [SELECT Id FROM fleetforce__Trip__c WHERE fleetforce__Accounting_Export_Batch__c = 'DEMO-DRIVER'];
 
 // every demo driver needs a current vehicle: keep the one already assigned, else take their first authorized one
 Map<Id, fleetforce__Fleet_Asset__c> carOf = new Map<Id, fleetforce__Fleet_Asset__c>();
@@ -81,6 +82,8 @@ List<fleetforce__Citation__c> citations = new List<fleetforce__Citation__c>();
 List<fleetforce__Telemetry_Violation__c> violations = new List<fleetforce__Telemetry_Violation__c>();
 List<fleetforce__Service_Ticket__c> tickets = new List<fleetforce__Service_Ticket__c>();
 List<fleetforce__Asset_Document__c> docUpdates = new List<fleetforce__Asset_Document__c>();
+List<fleetforce__Trip__c> tripLogs = new List<fleetforce__Trip__c>();
+List<fleetforce__Authorized_Driver__c> newAuths = new List<fleetforce__Authorized_Driver__c>();
 Date today = Date.today();
 
 Contact chloe = drivers.get('Chloe Bennett');
@@ -115,7 +118,83 @@ if (chloe != null && carOf.containsKey(chloe.Id)) {
             fleetforce__Origin_Branch__c = pool[1].fleetforce__Branch__c, fleetforce__Cost_Center__c = 'DEMO-DRIVER', fleetforce__Status__c = 'Pending',
             fleetforce__Start_Time__c = localTime(today.addDays(5), 9, 0, pool[1].fleetforce__Effective_Time_Zone__c),
             fleetforce__End_Time__c = localTime(today.addDays(6), 17, 0, pool[1].fleetforce__Effective_Time_Zone__c)));
+
+        // Ensure Chloe has secondary authorization for pool[0] so vehicle switching is immediately demoable
+        List<fleetforce__Authorized_Driver__c> existingAuth = [
+            SELECT Id FROM fleetforce__Authorized_Driver__c
+            WHERE fleetforce__Driver__c = :chloe.Id AND fleetforce__Fleet_Asset__c = :pool[0].Id
+        ];
+        if (existingAuth.isEmpty()) {
+            newAuths.add(new fleetforce__Authorized_Driver__c(
+                fleetforce__Driver__c = chloe.Id,
+                fleetforce__Fleet_Asset__c = pool[0].Id,
+                fleetforce__Type__c = 'Secondary',
+                fleetforce__Is_Active__c = true,
+                fleetforce__Has_Key__c = true,
+                fleetforce__Start_Date__c = today.addDays(-30)
+            ));
+        }
     }
+
+    // Demo trips: 1 approved business, 1 auto-approved private, 1 rejected needing revision
+    tripLogs.add(new fleetforce__Trip__c(
+        fleetforce__Fleet_Asset__c = car.Id,
+        fleetforce__Driver__c = chloe.Id,
+        fleetforce__Trip_Type__c = 'Business',
+        fleetforce__Business_Purpose__c = 'Quarterly site review with ACME Industrial',
+        fleetforce__Category__c = 'Client Visit',
+        fleetforce__Start_Time__c = Datetime.now().addDays(-3).addHours(-4),
+        fleetforce__End_Time__c = Datetime.now().addDays(-3).addHours(-2),
+        fleetforce__Start_Odometer__c = 14200,
+        fleetforce__End_Odometer__c = 14245,
+        fleetforce__Distance__c = 45,
+        fleetforce__Distance_Unit__c = 'mi',
+        fleetforce__Origin_Address__c = 'Downtown Depot',
+        fleetforce__Destination_Address__c = 'ACME Plaza, Suite 400',
+        fleetforce__Approval_Status__c = 'Approved',
+        fleetforce__Auto_Approved__c = true,
+        fleetforce__Accounting_Export_Batch__c = 'DEMO-DRIVER',
+        fleetforce__Driver_Notes__c = 'DEMO-TRIP ACME meeting'
+    ));
+
+    tripLogs.add(new fleetforce__Trip__c(
+        fleetforce__Fleet_Asset__c = car.Id,
+        fleetforce__Driver__c = chloe.Id,
+        fleetforce__Trip_Type__c = 'Private',
+        fleetforce__Category__c = 'Personal',
+        fleetforce__Start_Time__c = Datetime.now().addDays(-5).addHours(-2),
+        fleetforce__End_Time__c = Datetime.now().addDays(-5).addHours(-1),
+        fleetforce__Start_Odometer__c = 14180,
+        fleetforce__End_Odometer__c = 14198,
+        fleetforce__Distance__c = 18,
+        fleetforce__Distance_Unit__c = 'mi',
+        fleetforce__Origin_Address__c = 'Downtown Depot',
+        fleetforce__Destination_Address__c = 'River West Shopping',
+        fleetforce__Approval_Status__c = 'Auto-Approved',
+        fleetforce__Auto_Approved__c = true,
+        fleetforce__Accounting_Export_Batch__c = 'DEMO-DRIVER',
+        fleetforce__Driver_Notes__c = 'DEMO-TRIP Personal errand'
+    ));
+
+    tripLogs.add(new fleetforce__Trip__c(
+        fleetforce__Fleet_Asset__c = car.Id,
+        fleetforce__Driver__c = chloe.Id,
+        fleetforce__Trip_Type__c = 'Business',
+        fleetforce__Business_Purpose__c = 'Routine field visit',
+        fleetforce__Category__c = 'Operations',
+        fleetforce__Start_Time__c = Datetime.now().addDays(-1).addHours(-5),
+        fleetforce__End_Time__c = Datetime.now().addDays(-1).addHours(-1),
+        fleetforce__Start_Odometer__c = 14260,
+        fleetforce__End_Odometer__c = 14385,
+        fleetforce__Distance__c = 125,
+        fleetforce__Distance_Unit__c = 'mi',
+        fleetforce__Origin_Address__c = 'Downtown Depot',
+        fleetforce__Destination_Address__c = 'Eastern Substation 4',
+        fleetforce__Approval_Status__c = 'Rejected',
+        fleetforce__Rejection_Reason__c = 'Trips exceeding 100 miles require specific job work-order ID and pre-clearance notes.',
+        fleetforce__Accounting_Export_Batch__c = 'DEMO-DRIVER',
+        fleetforce__Driver_Notes__c = 'DEMO-TRIP Needs revision'
+    ));
 }
 
 Contact hannah = drivers.get('Hannah Lindqvist');
@@ -156,5 +235,8 @@ insert citations;
 insert violations;
 insert tickets;
 update docUpdates;
+insert newAuths;
+insert tripLogs;
 System.debug('Driver demo: ' + drivers.size() + ' drivers, ' + reservations.size() + ' reservations, ' + trips.size() + ' open trip, '
-    + citations.size() + ' citation, ' + violations.size() + ' violation, ' + tickets.size() + ' ticket');
+    + citations.size() + ' citation, ' + violations.size() + ' violation, ' + tickets.size() + ' ticket, '
+    + tripLogs.size() + ' trip logs, ' + newAuths.size() + ' extra auths');

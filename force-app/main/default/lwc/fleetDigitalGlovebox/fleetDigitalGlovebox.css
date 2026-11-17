@@ -27,9 +27,30 @@
   border: 1px solid #dddbda;
 }
 
-.doc-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.doc-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (max-width: 600px) {
+  .doc-card {
+    padding: 0.65rem !important;
+  }
+  .doc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .doc-actions a,
+  .doc-actions button {
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.55rem !important;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
 }
 
 .oem-card {

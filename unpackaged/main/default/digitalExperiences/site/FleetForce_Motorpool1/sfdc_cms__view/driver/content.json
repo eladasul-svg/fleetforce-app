@@ -11,6 +11,7 @@
                 "backgroundImageConfig": "",
                 "backgroundImageOverlay": "rgba(0,0,0,0)",
                 "componentSpacerSize": "",
+                "dxpStyle": {},
                 "layoutDirectionDesktop": "row",
                 "layoutDirectionMobile": "column",
                 "layoutDirectionTablet": "column",
@@ -24,7 +25,9 @@
                 {
                   "children": [
                     {
-                      "attributes": {},
+                      "attributes": {
+                        "dxpStyle": {}
+                      },
                       "definition": "fleetforce:driverApp",
                       "id": "7f2ee0f7-acec-4b5b-9725-fa38597303bd",
                       "type": "component"
@@ -50,8 +53,9 @@
           "children": [
             {
               "attributes": {
-                "customHeadTags": "",
-                "description": "",
+                "customHeadTags": "<link rel=\"manifest\" href=\"/resource/fleetforce_driver_pwa/manifest.webmanifest\">\n<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n<meta name=\"apple-mobile-web-app-title\" content=\"Driver\">\n<meta name=\"theme-color\" content=\"#0B1528\">\n<link rel=\"apple-touch-icon\" href=\"/resource/fleetforce_driver_pwa/app-icon-192.png\">",
+                "description": "FleetForce Driver App, Digital Glovebox & Vehicle Log",
+                "dxpStyle": {},
                 "pageTitle": "FleetForce Driver",
                 "recordId": "{!recordId}"
               },

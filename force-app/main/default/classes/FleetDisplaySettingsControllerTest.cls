@@ -224,6 +224,12 @@ private class FleetDisplaySettingsControllerTest {
       FleetDisplaySettingsController.BrandSettings reverted = FleetDisplaySettingsController.revertToDefaultLogo();
       System.assertEquals(false, reverted.hasCustomLogo);
       System.assertEquals(null, reverted.customLogoUrl);
+
+      // Test saveDriverAppSettings
+      FleetDisplaySettingsController.GeneralSettings driverSaved = FleetDisplaySettingsController.saveDriverAppSettings(
+        true
+      );
+      System.assertEquals(true, driverSaved.allowAdminModeInDriverApp);
     }
   }
 }

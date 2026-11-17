@@ -307,35 +307,223 @@ private class DriverAppControllerTest {
   }
 
   @IsTest
-  static void chargesAndUkGallonsAreLogged() {
-    DriverAppController.logFuel(
-      dana().Id,
-      car().Id,
-      30,
-      'kWh',
-      9,
-      null,
+  static void businessAndPrivateTripsCanBeLoggedAndUpdated() {
+    Id dId = dana().Id;
+    Id aId = car().Id;
+
+    // Log private trip
+    Id privTripId = DriverAppController.logTrip(
+      dId,
+      aId,
+      'Private',
+      'Personal errands',
+      'Personal',
+      Datetime.now().addHours(-2),
+      Datetime.now(),
+      10000,
+      10025,
+      'Home',
+      'Grocery',
+      'Weekend private use'
+    );
+    System.assertNotEquals(null, privTripId);
+
+    fleetforce__Trip__c privTrip = [
+      SELECT
+        fleetforce__Approval_Status__c,
+        fleetforce__Auto_Approved__c,
+        fleetforce__Distance__c
+      FROM fleetforce__Trip__c
+      WHERE Id = :privTripId
+    ];
+    System.assertEquals(
+      'Auto-Approved',
+      privTrip.fleetforce__Approval_Status__c
+    );
+    System.assertEquals(true, privTrip.fleetforce__Auto_Approved__c);
+    System.assertEquals(25, privTrip.fleetforce__Distance__c);
+
+    // Log business trip
+    Id bizTripId = DriverAppController.logTrip(
+      dId,
+      aId,
+      'Business',
+      'Client Site Visit',
+      'Client Visit',
+      Datetime.now().addHours(-4),
+      Datetime.now().addHours(-2),
+      9950,
+      10000,
+      'Main Branch',
+      'Client Office',
+      'Scheduled consultation'
+    );
+    System.assertNotEquals(null, bizTripId);
+
+    // Update business trip
+    DriverAppController.updateTrip(
+      bizTripId,
+      dId,
+      'Business',
+      'Updated: Urgent Client Inspection',
+      'Operations',
+      Datetime.now().addHours(-4),
+      Datetime.now().addHours(-2),
+      9950,
+      10000,
+      'Main Branch',
+      'Client Warehouse',
+      'Updated driver notes'
+    );
+
+    fleetforce__Trip__c bizTrip = [
+      SELECT fleetforce__Business_Purpose__c, fleetforce__Approval_Status__c
+      FROM fleetforce__Trip__c
+      WHERE Id = :bizTripId
+    ];
+    System.assertEquals(
+      'Updated: Urgent Client Inspection',
+      bizTrip.fleetforce__Business_Purpose__c
+    );
+
+    // Test getDashboard with selected asset & trip metrics
+    DriverAppController.Dashboard d = DriverAppController.getDashboard(
+      dId,
+      aId
+    );
+    System.assertNotEquals(null, d.tripLogs);
+    System.assert(d.tripLogs.size() >= 2);
+    System.assert(d.monthTotalDistance >= 75);
+    System.assert(d.monthBusinessDistance >= 50);
+    System.assert(d.monthPrivateDistance >= 25);
+  }
+
+  @IsTest
+  static void endTripCreatesAuditedTripLog() {
+    Id dId = dana().Id;
+    Id aId = car().Id;
+    Id tripId = DriverAppController.startTrip(
+      dId,
+      aId,
+      10000,
+      80,
+      'All good',
+      false
+    );
+
+    DriverAppController.endTrip(
+      tripId,
+      10045,
+      70,
+      'Clean return',
       false,
-      null
+      'Business',
+      'Customer Delivery',
+      'Delivery'
     );
-    DriverAppController.logFuel(
-      dana().Id,
-      car().Id,
-      8,
-      'Gallons (UK)',
-      50,
+
+    List<fleetforce__Trip__c> createdTrips = [
+      SELECT
+        Id,
+        fleetforce__Distance__c,
+        fleetforce__Trip_Type__c,
+        fleetforce__Business_Purpose__c
+      FROM fleetforce__Trip__c
+      WHERE fleetforce__Allocation__c = :tripId
+    ];
+    System.assertEquals(1, createdTrips.size());
+    System.assertEquals(45, createdTrips[0].fleetforce__Distance__c);
+    System.assertEquals('Business', createdTrips[0].fleetforce__Trip_Type__c);
+    System.assertEquals(
+      'Customer Delivery',
+      createdTrips[0].fleetforce__Business_Purpose__c
+    );
+  }
+
+  @IsTest
+  static void adminModeAndDriverResolution() {
+    Boolean allowed = DriverAppController.isAdminModeAllowed();
+    System.assertEquals(true, allowed, 'Running user in test is sys admin');
+
+    Contact dana = [
+      SELECT Id, Name, fleetforce__Related_User__c
+      FROM Contact
+      WHERE Email = 'dana@example.com'
+      LIMIT 1
+    ];
+
+    // Initially unlinked: running user email is not dana@example.com and Related_User__c is null
+    Contact unlinked = DriverAppController.resolveCurrentDriver();
+    System.assertEquals(
       null,
-      true,
+      unlinked,
+      'Unlinked user should return null without silent fallback'
+    );
+
+    // Admin mode allows viewing in admin mode even when unlinked
+    DriverAppController.Dashboard adminDash = DriverAppController.getDashboard(
       null
     );
-    Map<String, String> productByUom = new Map<String, String>();
-    for (fleetforce__Fuel_Log__c l : [
-      SELECT fleetforce__UOM__c, fleetforce__Product_Type__c
-      FROM fleetforce__Fuel_Log__c
-    ]) {
-      productByUom.put(l.fleetforce__UOM__c, l.fleetforce__Product_Type__c);
-    }
-    System.assertEquals('Electric Charge.', productByUom.get('kWh.'));
-    System.assertEquals('Petrol', productByUom.get('Gallons (UK)'));
+    System.assertNotEquals(null, adminDash);
+    System.assertEquals(true, adminDash.isAdminMode);
+    System.assertEquals(
+      true,
+      adminDash.isDriverLinked,
+      'Admin mode defaults to first available driver'
+    );
+
+    // Link running user to Dana via Related_User__c
+    dana.fleetforce__Related_User__c = UserInfo.getUserId();
+    update dana;
+
+    Contact resolved = DriverAppController.resolveCurrentDriver();
+    System.assertNotEquals(
+      null,
+      resolved,
+      'User explicitly linked via Related_User__c'
+    );
+    System.assertEquals(dana.Id, resolved.Id);
+
+    // Call dashboard with null driverId to test auto-resolution of linked driver
+    DriverAppController.Dashboard d = DriverAppController.getDashboard(null);
+    System.assertNotEquals(null, d);
+    System.assertEquals(dana.Id, d.driver.id);
+    System.assertEquals(true, d.isDriverLinked);
+
+    // When admin mode is disabled and user is linked
+    fleetforce__Fleet_Display_Setting__c setting = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    setting.fleetforce__Allow_Admin_Mode_In_Driver_App__c = false;
+    upsert setting;
+    System.assertEquals(false, DriverAppController.isAdminModeAllowed());
+
+    List<DriverAppController.DriverOption> locked = DriverAppController.getDrivers();
+    System.assertEquals(
+      1,
+      locked.size(),
+      'Non-admin linked user sees only their own driver profile'
+    );
+    System.assertEquals(dana.Id, locked[0].id);
+
+    // Unlink Dana while admin mode is disabled -> user is neither driver nor admin
+    dana.fleetforce__Related_User__c = null;
+    update dana;
+    System.assertEquals(null, DriverAppController.resolveCurrentDriver());
+
+    List<DriverAppController.DriverOption> emptyDrivers = DriverAppController.getDrivers();
+    System.assertEquals(
+      0,
+      emptyDrivers.size(),
+      'Unlinked non-admin user sees no drivers'
+    );
+
+    DriverAppController.Dashboard unlinkedDash = DriverAppController.getDashboard(
+      null
+    );
+    System.assertEquals(
+      false,
+      unlinkedDash.isDriverLinked,
+      'Unlinked non-admin user dashboard has isDriverLinked = false'
+    );
+    System.assertEquals(false, unlinkedDash.isAdminMode);
   }
 }

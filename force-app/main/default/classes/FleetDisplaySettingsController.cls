@@ -82,6 +82,8 @@ public with sharing class FleetDisplaySettingsController {
     @AuraEnabled
     public String maskedOpenAiKey;
     @AuraEnabled
+    public Boolean allowAdminModeInDriverApp;
+    @AuraEnabled
     public Boolean canEdit;
     @AuraEnabled
     public List<Option> aiProviders;
@@ -156,6 +158,10 @@ public with sharing class FleetDisplaySettingsController {
     g.maskedGoogleKey = maskKey(org.fleetforce__Google_Api_Key__c);
     g.maskedAnthropicKey = maskKey(org.fleetforce__Anthropic_Api_Key__c);
     g.maskedOpenAiKey = maskKey(org.fleetforce__OpenAI_Api_Key__c);
+    g.allowAdminModeInDriverApp = (org == null ||
+      org.Id == null)
+      ? true
+      : (org.fleetforce__Allow_Admin_Mode_In_Driver_App__c == true);
     g.canEdit = canEditGeneral();
     g.aiProviders = buildAvailableAiProviders(
       g.hasGoogleKey,
@@ -231,6 +237,22 @@ public with sharing class FleetDisplaySettingsController {
     if (String.isNotBlank(aiProvider)) {
       org.fleetforce__AI_Provider__c = aiProvider.trim();
     }
+    upsert org;
+    return getGeneralSettings();
+  }
+
+  @AuraEnabled
+  public static GeneralSettings saveDriverAppSettings(
+    Boolean allowAdminModeInDriverApp
+  ) {
+    if (!canEditGeneral()) {
+      throw new AuraHandledException(
+        'You do not have permission to change FleetForce general settings.'
+      );
+    }
+    fleetforce__Fleet_Display_Setting__c org = fleetforce__Fleet_Display_Setting__c.getOrgDefaults();
+    org.fleetforce__Allow_Admin_Mode_In_Driver_App__c = (allowAdminModeInDriverApp ==
+    true);
     upsert org;
     return getGeneralSettings();
   }

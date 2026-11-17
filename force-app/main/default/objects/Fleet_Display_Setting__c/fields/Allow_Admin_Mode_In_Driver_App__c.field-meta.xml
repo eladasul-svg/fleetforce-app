@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Allow_Admin_Mode_In_Driver_App__c</fullName>
+    <defaultValue>true</defaultValue>
+    <description
+  >Allows authorized fleet administrators with the Fleetforce Driver App Admin permission set to select and view the Driver App as any active driver.</description>
+    <externalId>false</externalId>
+    <label>Allow Admin Mode in Driver App</label>
+    <type>Checkbox</type>
+</CustomField>

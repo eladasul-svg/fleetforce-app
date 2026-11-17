@@ -2,6 +2,7 @@ import { LightningElement, wire } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getGeneralSettings from "@salesforce/apex/FleetDisplaySettingsController.getGeneralSettings";
 import saveGeneralSettings from "@salesforce/apex/FleetDisplaySettingsController.saveGeneralSettings";
+import saveDriverAppSettings from "@salesforce/apex/FleetDisplaySettingsController.saveDriverAppSettings";
 
 export default class FleetGeneralSettings extends LightningElement {
   loading = true;
@@ -23,6 +24,7 @@ export default class FleetGeneralSettings extends LightningElement {
     maskedGoogleKey: "",
     maskedAnthropicKey: "",
     maskedOpenAiKey: "",
+    allowAdminModeInDriverApp: true,
     canEdit: true,
     aiProviders: []
   };
@@ -37,7 +39,8 @@ export default class FleetGeneralSettings extends LightningElement {
     telemetryRetentionDays: 90,
     googleApiKey: "",
     anthropicApiKey: "",
-    openAiApiKey: ""
+    openAiApiKey: "",
+    allowAdminModeInDriverApp: true
   };
 
   @wire(getGeneralSettings)
@@ -65,7 +68,9 @@ export default class FleetGeneralSettings extends LightningElement {
       telemetryRetentionDays: this.serverSettings.telemetryRetentionDays || 90,
       googleApiKey: "",
       anthropicApiKey: "",
-      openAiApiKey: ""
+      openAiApiKey: "",
+      allowAdminModeInDriverApp:
+        this.serverSettings.allowAdminModeInDriverApp !== false
     };
   }
 
@@ -103,6 +108,17 @@ export default class FleetGeneralSettings extends LightningElement {
   }
   get isGovernanceEditing() {
     return this.activeEditSection === "governance";
+  }
+
+  // Section 5: Driver App
+  get isDriverAppOverview() {
+    return this.activeEditSection !== "driverApp";
+  }
+  get isDriverAppEditing() {
+    return this.activeEditSection === "driverApp";
+  }
+  handleEditDriverApp() {
+    this.activeEditSection = "driverApp";
   }
 
   get configuredKeysCount() {
@@ -201,6 +217,32 @@ export default class FleetGeneralSettings extends LightningElement {
 
   async handleSaveGovernance() {
     await this.saveCurrentDraft("Telemetry Drift & Governance settings saved.");
+  }
+
+  async handleSaveDriverApp() {
+    this.saving = true;
+    this.error = undefined;
+    try {
+      const updated = await saveDriverAppSettings({
+        allowAdminModeInDriverApp: this.draft.allowAdminModeInDriverApp === true
+      });
+      this.serverSettings = updated;
+      this.resetDraft();
+      this.activeEditSection = null;
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "Settings Saved",
+          message: "Driver App settings updated successfully.",
+          variant: "success"
+        })
+      );
+    } catch (e) {
+      this.error =
+        (e && e.body && e.body.message) ||
+        "Unable to save Driver App settings.";
+    } finally {
+      this.saving = false;
+    }
   }
 
   async saveCurrentDraft(successMsg) {

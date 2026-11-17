@@ -11,6 +11,7 @@
                 "backgroundImageConfig": "",
                 "backgroundImageOverlay": "rgba(0,0,0,0)",
                 "componentSpacerSize": "",
+                "dxpStyle": {},
                 "layoutDirectionDesktop": "row",
                 "layoutDirectionMobile": "column",
                 "layoutDirectionTablet": "column",
@@ -24,7 +25,9 @@
                 {
                   "children": [
                     {
-                      "attributes": {},
+                      "attributes": {
+                        "dxpStyle": {}
+                      },
                       "definition": "fleetforce:motorpoolBooking",
                       "id": "7dc61fe8-6e56-4732-a092-f59d6293992b",
                       "type": "component"
@@ -52,6 +55,7 @@
               "attributes": {
                 "customHeadTags": "",
                 "description": "",
+                "dxpStyle": {},
                 "pageTitle": "Home",
                 "recordId": "{!recordId}"
               },

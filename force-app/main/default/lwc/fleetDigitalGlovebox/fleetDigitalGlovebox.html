@@ -4,14 +4,16 @@
     icon-name="standard:document_reference"
   >
     <!-- Header Right Action -->
-    <div slot="actions">
-      <lightning-button
-        data-id="add-doc-btn"
-        label="Add Document"
-        icon-name="utility:upload"
-        onclick={handleOpenAddModal}
-      ></lightning-button>
-    </div>
+    <template lwc:if={canManageDocs}>
+      <div slot="actions">
+        <lightning-button
+          data-id="add-doc-btn"
+          label="Add Document"
+          icon-name="utility:upload"
+          onclick={handleOpenAddModal}
+        ></lightning-button>
+      </div>
+    </template>
 
     <!-- Main Container -->
     <div class="slds-p-horizontal_medium slds-p-bottom_medium">
@@ -43,45 +45,47 @@
       </template>
 
       <template lwc:elseif={payload}>
-        <!-- Vehicle Identity Ribbon -->
-        <div class="vehicle-banner slds-p-around_small slds-m-bottom_medium">
-          <div
-            class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-          >
-            <div class="slds-grid slds-grid_vertical-align-center">
-              <lightning-icon
-                icon-name="standard:asset_relationship"
-                size="small"
-                class="slds-m-right_small"
-              ></lightning-icon>
-              <div>
-                <span
-                  class="slds-text-heading_small slds-text-title_bold text-white"
-                >
-                  {payload.assetInfo.name}
+        <!-- Vehicle Identity Ribbon (Hidden in Driver Mode) -->
+        <template lwc:if={showVehicleBanner}>
+          <div class="vehicle-banner slds-p-around_small slds-m-bottom_medium">
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+            >
+              <div class="slds-grid slds-grid_vertical-align-center">
+                <lightning-icon
+                  icon-name="standard:asset_relationship"
+                  size="small"
+                  class="slds-m-right_small"
+                ></lightning-icon>
+                <div>
+                  <span
+                    class="slds-text-heading_small slds-text-title_bold text-white"
+                  >
+                    {payload.assetInfo.name}
+                  </span>
+                  <p class="slds-text-body_small text-subtle">
+                    VIN: <span class="mono-code">{payload.assetInfo.vin}</span>
+                    <template lwc:if={payload.assetInfo.licensePlate}>
+                      &nbsp;·&nbsp; Plate:
+                      <strong>{payload.assetInfo.licensePlate}</strong>
+                    </template>
+                    <template lwc:if={payload.assetInfo.branchName}>
+                      &nbsp;·&nbsp; Branch: {payload.assetInfo.branchName}
+                    </template>
+                  </p>
+                </div>
+              </div>
+              <div class="slds-grid slds-grid_vertical-align-center">
+                <span class="slds-badge slds-theme_info slds-m-right_x-small">
+                  {payload.assetInfo.odometer} {payload.assetInfo.distanceUnit}
                 </span>
-                <p class="slds-text-body_small text-subtle">
-                  VIN: <span class="mono-code">{payload.assetInfo.vin}</span>
-                  <template lwc:if={payload.assetInfo.licensePlate}>
-                    &nbsp;·&nbsp; Plate:
-                    <strong>{payload.assetInfo.licensePlate}</strong>
-                  </template>
-                  <template lwc:if={payload.assetInfo.branchName}>
-                    &nbsp;·&nbsp; Branch: {payload.assetInfo.branchName}
-                  </template>
-                </p>
+                <span class="slds-badge slds-badge_lightest">
+                  {payload.modelResources.modelLabel}
+                </span>
               </div>
             </div>
-            <div class="slds-grid slds-grid_vertical-align-center">
-              <span class="slds-badge slds-theme_info slds-m-right_x-small">
-                {payload.assetInfo.odometer} {payload.assetInfo.distanceUnit}
-              </span>
-              <span class="slds-badge slds-badge_lightest">
-                {payload.modelResources.modelLabel}
-              </span>
-            </div>
           </div>
-        </div>
+        </template>
 
         <!-- Glovebox Navigation Tabset -->
         <lightning-tabset variant="scoped" active-tab-value="compliance">
@@ -149,20 +153,35 @@
                         </div>
 
                         <div
-                          class="slds-grid slds-grid_align-end slds-grid_vertical-align-center"
+                          class="doc-actions slds-grid slds-grid_align-end slds-grid_vertical-align-center"
                         >
+                          <template lwc:if={showRecordPageAction}>
+                            <button
+                              type="button"
+                              data-id={doc.id}
+                              class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
+                              onclick={handleViewAssetDocument}
+                            >
+                              <lightning-icon
+                                icon-name="utility:record"
+                                size="xx-small"
+                                class="slds-m-right_xx-small"
+                              ></lightning-icon>
+                              View Asset Document
+                            </button>
+                          </template>
                           <button
                             type="button"
-                            data-id={doc.id}
-                            class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
-                            onclick={handleViewAssetDocument}
+                            data-cert-id={doc.id}
+                            class="slds-button slds-button_brand slds-button_small slds-m-right_x-small"
+                            onclick={handleOpenDocCertificate}
                           >
                             <lightning-icon
-                              icon-name="utility:record"
+                              icon-name="utility:preview"
                               size="xx-small"
                               class="slds-m-right_xx-small"
                             ></lightning-icon>
-                            View Asset Document
+                            View Certificate
                           </button>
                           <template lwc:if={doc.hasFiles}>
                             <a
@@ -295,21 +314,23 @@
                             </p>
                           </div>
                           <div
-                            class="slds-grid slds-grid_align-end slds-grid_vertical-align-center"
+                            class="doc-actions slds-grid slds-grid_align-end slds-grid_vertical-align-center"
                           >
-                            <button
-                              type="button"
-                              data-id={f.sourceRecordId}
-                              class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
-                              onclick={handleViewRecord}
-                            >
-                              <lightning-icon
-                                icon-name="utility:record"
-                                size="xx-small"
-                                class="slds-m-right_xx-small"
-                              ></lightning-icon>
-                              View Source Record
-                            </button>
+                            <template lwc:if={showRecordPageAction}>
+                              <button
+                                type="button"
+                                data-id={f.sourceRecordId}
+                                class="slds-button slds-button_neutral slds-button_small slds-m-right_x-small"
+                                onclick={handleViewRecord}
+                              >
+                                <lightning-icon
+                                  icon-name="utility:record"
+                                  size="xx-small"
+                                  class="slds-m-right_xx-small"
+                                ></lightning-icon>
+                                View Source Record
+                              </button>
+                            </template>
                             <a
                               href={f.downloadUrl}
                               target="_blank"
@@ -425,22 +446,24 @@
                 </template>
 
                 <!-- Drag-and-drop file upload zone -->
-                <div
-                  class="slds-box slds-theme_default slds-p-around_small slds-border_rounded"
-                >
-                  <span
-                    class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+                <template lwc:if={canManageDocs}>
+                  <div
+                    class="slds-box slds-theme_default slds-p-around_small slds-border_rounded"
                   >
-                    Upload Vehicle Document to Asset
-                  </span>
-                  <lightning-file-upload
-                    label="Attach File to Vehicle"
-                    name="vehicleFileUpload"
-                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                    record-id={recordId}
-                    onuploadfinished={handleUploadFinished}
-                  ></lightning-file-upload>
-                </div>
+                    <span
+                      class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xx-small"
+                    >
+                      Upload Vehicle Document to Asset
+                    </span>
+                    <lightning-file-upload
+                      label="Attach File to Vehicle"
+                      name="vehicleFileUpload"
+                      accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                      record-id={recordId}
+                      onuploadfinished={handleUploadFinished}
+                    ></lightning-file-upload>
+                  </div>
+                </template>
               </div>
             </div>
           </lightning-tab>
@@ -761,19 +784,21 @@
                       ></lightning-icon>
                       View Program Record
                     </button>
-                    <button
-                      type="button"
-                      class="slds-button slds-button_brand slds-button_small"
-                      data-id="change-plan-btn"
-                      onclick={handleOpenChangePlanModal}
-                    >
-                      <lightning-icon
-                        icon-name="utility:change_record_type"
-                        size="xx-small"
-                        class="slds-m-right_xx-small"
-                      ></lightning-icon>
-                      Change Program
-                    </button>
+                    <template lwc:if={canChangePlan}>
+                      <button
+                        type="button"
+                        class="slds-button slds-button_brand slds-button_small"
+                        data-id="change-plan-btn"
+                        onclick={handleOpenChangePlanModal}
+                      >
+                        <lightning-icon
+                          icon-name="utility:change_record_type"
+                          size="xx-small"
+                          class="slds-m-right_xx-small"
+                        ></lightning-icon>
+                        Change Program
+                      </button>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -1183,6 +1208,236 @@
               onclick={handleSavePlanAssignment}
               disabled={savingPlan}
             ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Digital Glovebox Certificate Viewer Modal -->
+    <template lwc:if={showDocModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        aria-modal="true"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+      >
+        <div class="slds-modal__container">
+          <header
+            class="slds-modal__header"
+            style="background: #0b2240; color: #ffffff"
+          >
+            <button
+              class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+              title="Close"
+              onclick={handleCloseDocModal}
+            >
+              <lightning-icon
+                icon-name="utility:close"
+                size="small"
+                variant="inverse"
+              ></lightning-icon>
+              <span class="slds-assistive-text">Close</span>
+            </button>
+            <div
+              class="slds-grid slds-grid_vertical-align-center slds-grid_align-center"
+            >
+              <lightning-icon
+                icon-name="utility:shield"
+                size="small"
+                variant="inverse"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <h2
+                class="slds-modal__title slds-hyphenate"
+                style="color: #ffffff; font-size: 1.15rem"
+              >
+                Digital Glovebox Certificate
+              </h2>
+            </div>
+            <p
+              class="slds-m-top_xx-small"
+              style="color: #94a3b8; font-size: 0.82rem"
+            >
+              Certified Vehicle Compliance &amp; Regulatory Record
+            </p>
+          </header>
+
+          <div
+            class="slds-modal__content slds-p-around_medium"
+            style="background: #f8fafc"
+          >
+            <!-- Document Header Banner -->
+            <div
+              class="slds-box slds-m-bottom_medium"
+              style="
+                background: #ffffff;
+                border-radius: 0.5rem;
+                border-left: 5px solid #0176d3;
+              "
+            >
+              <div
+                class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+              >
+                <div>
+                  <span
+                    class="slds-text-heading_medium"
+                    style="font-weight: 700; color: #0f172a"
+                  >
+                    {activeDoc.docType}
+                  </span>
+                  <p
+                    class="slds-text-body_regular slds-m-top_xx-small"
+                    style="color: #475569"
+                  >
+                    Document #:
+                    <strong class="mono-code" style="color: #0f172a"
+                      >{activeDoc.docNumber}</strong
+                    >
+                  </p>
+                </div>
+                <span
+                  class={activeDoc.expiryBadgeClass}
+                  style="font-size: 0.85rem; padding: 0.4rem 0.75rem"
+                >
+                  {activeDoc.expiryLabel}
+                </span>
+              </div>
+            </div>
+
+            <!-- Vehicle & Compliance Details Grid -->
+            <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <div
+                  class="slds-box slds-p-around_small"
+                  style="background: #ffffff; height: 100%"
+                >
+                  <h3
+                    class="slds-text-title_bold slds-m-bottom_x-small"
+                    style="color: #334155"
+                  >
+                    <lightning-icon
+                      icon-name="standard:asset_relationship"
+                      size="xx-small"
+                      class="slds-m-right_xx-small"
+                    ></lightning-icon>
+                    Vehicle Information
+                  </h3>
+                  <p class="slds-text-body_small slds-m-bottom_xx-small">
+                    Vehicle: <strong>{payload.assetInfo.name}</strong>
+                  </p>
+                  <p class="slds-text-body_small slds-m-bottom_xx-small">
+                    Plate: <strong>{payload.assetInfo.licensePlate}</strong>
+                  </p>
+                  <p class="slds-text-body_small slds-m-bottom_xx-small">
+                    VIN: <span class="mono-code">{payload.assetInfo.vin}</span>
+                  </p>
+                  <p class="slds-text-body_small">
+                    Branch: {payload.assetInfo.branchName}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+              >
+                <div
+                  class="slds-box slds-p-around_small"
+                  style="background: #ffffff; height: 100%"
+                >
+                  <h3
+                    class="slds-text-title_bold slds-m-bottom_x-small"
+                    style="color: #334155"
+                  >
+                    <lightning-icon
+                      icon-name="utility:identity"
+                      size="xx-small"
+                      class="slds-m-right_xx-small"
+                    ></lightning-icon>
+                    Authority &amp; Validity
+                  </h3>
+                  <template lwc:if={activeDoc.issuingAuthority}>
+                    <p class="slds-text-body_small slds-m-bottom_xx-small">
+                      Authority: <strong>{activeDoc.issuingAuthority}</strong>
+                    </p>
+                  </template>
+                  <template lwc:if={activeDoc.validFrom}>
+                    <p class="slds-text-body_small slds-m-bottom_xx-small">
+                      Valid From: {activeDoc.validFrom}
+                    </p>
+                  </template>
+                  <template lwc:if={activeDoc.validUntil}>
+                    <p class="slds-text-body_small slds-m-bottom_xx-small">
+                      Valid Through: <strong>{activeDoc.validUntil}</strong>
+                    </p>
+                  </template>
+                  <p class="slds-text-body_small">
+                    Status:
+                    <span class="slds-badge slds-badge_lightest"
+                      >{activeDoc.complianceState}</span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Official Security Seal / Footer -->
+            <div
+              class="slds-p-around_small slds-text-align_center"
+              style="background: #e2e8f0; border-radius: 0.375rem"
+            >
+              <p
+                class="slds-text-body_small"
+                style="color: #475569; font-weight: 500"
+              >
+                🔒 Verified Electronic Document &middot; FleetForce Telematics
+                &amp; Compliance Network
+              </p>
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+            <div>
+              <template lwc:if={activeDoc.docLink}>
+                <a
+                  href={activeDoc.docLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="slds-button slds-button_neutral slds-m-right_x-small"
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                    class="slds-m-right_xx-small"
+                  ></lightning-icon>
+                  Open External Source
+                </a>
+              </template>
+              <template lwc:if={activeDoc.hasFiles}>
+                <a
+                  href={activeDoc.fileDownloadUrl}
+                  target="_blank"
+                  download
+                  class="slds-button slds-button_brand slds-m-right_x-small"
+                >
+                  <lightning-icon
+                    icon-name="utility:download"
+                    size="xx-small"
+                    class="slds-m-right_xx-small"
+                  ></lightning-icon>
+                  Download File
+                </a>
+              </template>
+            </div>
+            <button
+              type="button"
+              class="slds-button slds-button_neutral"
+              onclick={handleCloseDocModal}
+            >
+              Close
+            </button>
           </footer>
         </div>
       </section>

@@ -64,7 +64,7 @@ describe("c-fleet-general-settings", () => {
     await Promise.resolve();
 
     const cards = element.shadowRoot.querySelectorAll(".setting-card");
-    expect(cards.length).toBe(4);
+    expect(cards.length).toBe(5);
 
     const headings = Array.from(cards).map(
       (c) => c.querySelector("h3").textContent
@@ -73,6 +73,7 @@ describe("c-fleet-general-settings", () => {
     expect(headings[1]).toContain("Digital Data Sanitization Protocol");
     expect(headings[2]).toContain("Maintenance & Work Order Automation");
     expect(headings[3]).toContain("Telemetry Drift & Data Governance");
+    expect(headings[4]).toContain("Driver App & Field Experience");
   });
 
   it("toggles independent edit mode when clicking Configure AI Keys", async () => {

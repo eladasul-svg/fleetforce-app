@@ -1,11 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>64.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>FleetForce Driver App</masterLabel>
-    <description>Mobile-first driver app: my vehicle, pre-trip check, report an issue, where is my car, documents, bookings and compliance.</description>
+    <description
+  >Mobile-first driver app: my vehicle, pre-trip check, report an issue, where is my car, documents, bookings and compliance.</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property
+        name="motorpoolUrl"
+        type="String"
+        label="Motorpool Booking URL"
+        description="URL for employee car-sharing bookings. Leave empty to use default or omit if not applicable."
+      />
+            <property
+        name="hideBookings"
+        type="Boolean"
+        label="Hide Motorpool Bookings"
+        description="Set to true if this organization only uses the Driver App and not the Motorpool booking system."
+        default="false"
+      />
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>
