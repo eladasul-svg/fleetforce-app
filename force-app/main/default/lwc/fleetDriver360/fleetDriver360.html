@@ -1,0 +1,952 @@
+<template>
+  <div class="driver-360-container slds-m-bottom_medium">
+    <template lwc:if={isLoading}>
+      <div class="slds-p-around_large slds-align_absolute-center">
+        <lightning-spinner
+          alternative-text="Loading Driver 360..."
+          size="medium"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <template lwc:elseif={hasData}>
+      <!-- Top Executive Driver Header -->
+      <header class="d360-header">
+        <div class="d360-header-left">
+          <div class="avatar-wrapper">
+            <template lwc:if={summary.photoUrl}>
+              <img
+                src={summary.photoUrl}
+                alt={summary.name}
+                class="driver-photo"
+              />
+            </template>
+            <template lwc:else>
+              <span class="driver-initials">{initials}</span>
+            </template>
+          </div>
+
+          <div class="driver-meta">
+            <div class="driver-name-row">
+              <h1 class="driver-name">{summary.name}</h1>
+              <span class={statusBadgeClass}>{summary.driverStatus}</span>
+              <template lwc:if={isDriverType}>
+                <span class="pill pill-neutral">Driver</span>
+              </template>
+              <template lwc:if={summary.branchName}>
+                <span class="pill pill-branch">
+                  <lightning-icon
+                    icon-name="utility:checkin"
+                    size="xx-small"
+                    class="slds-m-right_xx-small"
+                  ></lightning-icon>
+                  {summary.branchName}
+                </span>
+              </template>
+            </div>
+
+            <div class="driver-subrow">
+              <template lwc:if={summary.title}>
+                <span>{summary.title}</span>
+                <span>•</span>
+              </template>
+              <div class="driver-contacts">
+                <template lwc:if={summary.phone}>
+                  <a href={phoneHref} class="contact-link">
+                    <lightning-icon
+                      icon-name="utility:call"
+                      size="xx-small"
+                      variant="inverse"
+                    ></lightning-icon>
+                    {summary.phone}
+                  </a>
+                </template>
+                <template lwc:if={summary.email}>
+                  <a href={emailHref} class="contact-link">
+                    <lightning-icon
+                      icon-name="utility:email"
+                      size="xx-small"
+                      variant="inverse"
+                    ></lightning-icon>
+                    {summary.email}
+                  </a>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Bar -->
+        <div class="d360-actions">
+          <lightning-button
+            label="Assign Vehicle"
+            icon-name="utility:car"
+            variant="neutral"
+            onclick={handleOpenAssignModal}
+          ></lightning-button>
+
+          <template lwc:if={activeVehicle.hasVehicle}>
+            <lightning-button
+              label={keyButtonLabel}
+              icon-name="utility:key"
+              variant={keyButtonVariant}
+              onclick={handleToggleKey}
+              title="Click to toggle key access"
+            ></lightning-button>
+          </template>
+
+          <lightning-button
+            label="Log Trip"
+            icon-name="utility:routing_offline"
+            variant="neutral"
+            onclick={handleOpenTripModal}
+          ></lightning-button>
+
+          <lightning-button
+            label="Log Fuel"
+            icon-name="utility:moneybag"
+            variant="neutral"
+            onclick={handleOpenFuelModal}
+          ></lightning-button>
+
+          <lightning-button
+            label="Report Citation"
+            icon-name="utility:warning"
+            variant="neutral"
+            onclick={handleOpenCitationModal}
+          ></lightning-button>
+
+          <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="border-filled"
+            alternative-text="Refresh Driver 360"
+            title="Refresh Driver 360"
+            onclick={handleRefresh}
+          ></lightning-button-icon>
+        </div>
+      </header>
+
+      <!-- Row 1: Executive KPI Summary -->
+      <section class="kpi-grid">
+        <!-- Safety Score Tile -->
+        <div class="kpi-tile">
+          <div class="kpi-header">
+            <span class="kpi-label">Safety Score</span>
+            <span class={safetyRatingBadgeClass}>{summary.safetyRating}</span>
+          </div>
+          <div class="kpi-body">
+            <div class="safety-indicator-wrap">
+              <div class={safetyScoreCircleClass}>{summary.safetyScore}</div>
+              <div>
+                <span class="kpi-primary-val">{summary.safetyScore}</span>
+                <span class="kpi-unit">/ 100</span>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-subtext">
+            <lightning-icon
+              icon-name="utility:shield"
+              size="xx-small"
+              class="slds-m-right_xx-small"
+            ></lightning-icon>
+            Telematics-audited safety rating
+          </div>
+        </div>
+
+        <!-- Total Trips & Mileage Tile -->
+        <div class="kpi-tile">
+          <div class="kpi-header">
+            <span class="kpi-label">Trips & Mileage</span>
+            <span class="pill pill-neutral"
+              >{summary.totalTrips} Total Trips</span
+            >
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-primary-val">{summary.monthlyMileage}</span>
+            <span class="kpi-unit">{summary.distanceUnit} this month</span>
+          </div>
+          <div class="kpi-subtext">
+            <lightning-icon
+              icon-name="utility:location"
+              size="xx-small"
+              class="slds-m-right_xx-small"
+            ></lightning-icon>
+            <strong>{summary.lifetimeMileage} {summary.distanceUnit}</strong
+            >&nbsp;lifetime mileage logged
+          </div>
+        </div>
+
+        <!-- License Expiry Countdown Tile -->
+        <div class="kpi-tile">
+          <div class="kpi-header">
+            <span class="kpi-label">Driver License</span>
+            <span class={licenseBadgeClass}>{summary.licenseExpiryStatus}</span>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-primary-val">{licenseDaysDisplay}</span>
+          </div>
+          <div class="kpi-subtext">
+            <lightning-icon
+              icon-name="utility:identity"
+              size="xx-small"
+              class="slds-m-right_xx-small"
+            ></lightning-icon>
+            {licenseMetaText}
+          </div>
+        </div>
+
+        <!-- Medical Expiry Countdown Tile -->
+        <div class="kpi-tile">
+          <div class="kpi-header">
+            <span class="kpi-label">Medical Certificate</span>
+            <span class={medicalBadgeClass}>{summary.medicalExpiryStatus}</span>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-primary-val">{medicalDaysDisplay}</span>
+          </div>
+          <div class="kpi-subtext">
+            <lightning-icon
+              icon-name="utility:heart"
+              size="xx-small"
+              class="slds-m-right_xx-small"
+            ></lightning-icon>
+            {medicalMetaText}
+          </div>
+        </div>
+      </section>
+
+      <!-- Row 2: Operational Command Center -->
+      <section class="command-grid">
+        <!-- Card 1: Active Vehicle & Key Status -->
+        <div class="operational-card">
+          <div class="op-card-header">
+            <div class="op-card-title-group">
+              <lightning-icon
+                icon-name="standard:assigned_resource"
+                size="small"
+              ></lightning-icon>
+              <h2 class="op-card-title">Active Vehicle & Key Status</h2>
+            </div>
+            <template lwc:if={activeVehicle.hasVehicle}>
+              <span class={authLevelBadgeClass}
+                >{activeVehicle.authorizationLevel} Driver</span
+              >
+            </template>
+          </div>
+
+          <div class="op-card-content">
+            <template lwc:if={activeVehicle.hasVehicle}>
+              <!-- Vehicle Header -->
+              <div class="vehicle-main-info">
+                <div>
+                  <h3 class="vehicle-name">{vehicleHeadline}</h3>
+                  <div class="vehicle-plate-row">
+                    <span class="plate-badge"
+                      >{activeVehicle.licensePlate}</span
+                    >
+                    <template lwc:if={activeVehicle.vehicleClass}>
+                      <span class="pill pill-neutral"
+                        >{activeVehicle.vehicleClass}</span
+                      >
+                    </template>
+                    <template lwc:if={activeVehicle.vin}>
+                      <span class="vin-text">VIN: {activeVehicle.vin}</span>
+                    </template>
+                  </div>
+                </div>
+
+                <lightning-button
+                  label="View Asset"
+                  variant="base"
+                  icon-name="utility:forward"
+                  icon-position="right"
+                  onclick={handleNavigateVehicle}
+                ></lightning-button>
+              </div>
+
+              <!-- Key Control Box -->
+              <div class="key-control-box">
+                <div class="key-status-left">
+                  <lightning-icon
+                    icon-name="utility:key"
+                    size="medium"
+                    variant={keyIconVariant}
+                  ></lightning-icon>
+                  <div class="key-tag-info">
+                    <span class="key-headline">{keyHeadlineText}</span>
+                    <span class="key-tag-id">
+                      Key Tag: <strong>{keyTagDisplay}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                <lightning-button
+                  label={keyToggleActionLabel}
+                  variant={keyButtonVariant}
+                  onclick={handleToggleKey}
+                ></lightning-button>
+              </div>
+
+              <!-- Live Telemetry Vitals -->
+              <div class="telemetry-vitals-row">
+                <div class="vital-item">
+                  <span class="vital-label">Fuel / Energy Level</span>
+                  <div class="vital-value">
+                    {activeVehicle.fuelEnergyLevel}%
+                    <span
+                      class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small"
+                    >
+                      ({activeVehicle.fuelType})
+                    </span>
+                  </div>
+                  <div class="progress-container">
+                    <div
+                      class="progress-bar-fill"
+                      style={fuelProgressStyle}
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="vital-item">
+                  <span class="vital-label">Current Odometer</span>
+                  <div class="vital-value">
+                    {formattedOdometer}
+                    <span
+                      class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small"
+                    >
+                      {activeVehicle.distanceUnit}
+                    </span>
+                  </div>
+                  <span
+                    class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small"
+                  >
+                    Asset Status: <strong>{activeVehicle.vehicleStatus}</strong>
+                  </span>
+                </div>
+              </div>
+            </template>
+
+            <!-- Empty State when no vehicle assigned -->
+            <template lwc:else>
+              <div class="empty-state-box">
+                <lightning-icon
+                  icon-name="utility:car"
+                  size="large"
+                  variant="neutral"
+                ></lightning-icon>
+                <h3 class="empty-state-title">No Active Vehicle Assigned</h3>
+                <p class="empty-state-desc">
+                  This driver is not currently assigned to a permanent or
+                  checked-out vehicle.
+                </p>
+                <lightning-button
+                  label="Assign Vehicle Now"
+                  variant="brand"
+                  icon-name="utility:add"
+                  onclick={handleOpenAssignModal}
+                  class="slds-m-top_small"
+                ></lightning-button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Card 2: Driving Behavior & Telematics Insights -->
+        <div class="operational-card">
+          <div class="op-card-header">
+            <div class="op-card-title-group">
+              <lightning-icon
+                icon-name="standard:service_crew"
+                size="small"
+              ></lightning-icon>
+              <h2 class="op-card-title">
+                Driving Behavior & Telematics Insights
+              </h2>
+            </div>
+            <span class={riskLevelBadgeClass}>{telematics.riskLevel}</span>
+          </div>
+
+          <div class="op-card-content">
+            <!-- Telematics Counter Cards -->
+            <div class="telematics-grid">
+              <div class="telematics-counter-tile">
+                <lightning-icon
+                  icon-name="utility:jump_to_bottom"
+                  size="x-small"
+                  variant="error"
+                ></lightning-icon>
+                <span class="t-counter-val"
+                  >{telematics.harshBrakingCount}</span
+                >
+                <span class="t-counter-label">Harsh Braking</span>
+              </div>
+
+              <div class="telematics-counter-tile">
+                <lightning-icon
+                  icon-name="utility:forward"
+                  size="x-small"
+                  variant="warning"
+                ></lightning-icon>
+                <span class="t-counter-val"
+                  >{telematics.rapidAccelerationCount}</span
+                >
+                <span class="t-counter-label">Rapid Accel</span>
+              </div>
+
+              <div class="telematics-counter-tile">
+                <lightning-icon
+                  icon-name="utility:clock"
+                  size="x-small"
+                  variant="neutral"
+                ></lightning-icon>
+                <span class="t-counter-val">{telematics.idlingCount}</span>
+                <span class="t-counter-label">Excess Idling</span>
+              </div>
+
+              <div class="telematics-counter-tile">
+                <lightning-icon
+                  icon-name="utility:warning"
+                  size="x-small"
+                  variant="error"
+                ></lightning-icon>
+                <span class="t-counter-val">{telematics.speedingCount}</span>
+                <span class="t-counter-label">Speeding</span>
+              </div>
+            </div>
+
+            <!-- Business vs. Private Mileage Split -->
+            <div class="split-section slds-m-top_small">
+              <div class="split-header">
+                <span class="split-title"
+                  >Business vs. Private Mileage Split</span
+                >
+                <span class="slds-text-body_small slds-text-color_weak">
+                  Total:
+                  <strong
+                    >{mileageSplit.totalMileage} {summary.distanceUnit}</strong
+                  >
+                </span>
+              </div>
+
+              <!-- Segmented Progress Bar -->
+              <div class="segmented-bar">
+                <div
+                  class="segment-biz"
+                  style={businessBarWidth}
+                  title={businessTooltip}
+                ></div>
+                <div
+                  class="segment-priv"
+                  style={privateBarWidth}
+                  title={privateTooltip}
+                ></div>
+                <template lwc:if={hasCommuteMileage}>
+                  <div
+                    class="segment-comm"
+                    style={commuteBarWidth}
+                    title={commuteTooltip}
+                  ></div>
+                </template>
+              </div>
+
+              <!-- Split Legend -->
+              <div class="split-legend">
+                <div class="legend-item">
+                  <span class="legend-dot dot-biz"></span>
+                  <span class="legend-text"
+                    >Business: {mileageSplit.businessPct}%</span
+                  >
+                  <span class="legend-sub"
+                    >({mileageSplit.businessMileage}
+                    {summary.distanceUnit})</span
+                  >
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot dot-priv"></span>
+                  <span class="legend-text"
+                    >Private: {mileageSplit.privatePct}%</span
+                  >
+                  <span class="legend-sub"
+                    >({mileageSplit.privateMileage}
+                    {summary.distanceUnit})</span
+                  >
+                </div>
+                <template lwc:if={hasCommuteMileage}>
+                  <div class="legend-item">
+                    <span class="legend-dot dot-comm"></span>
+                    <span class="legend-text"
+                      >Commute: {mileageSplit.commutePct}%</span
+                    >
+                    <span class="legend-sub"
+                      >({mileageSplit.commuteMileage}
+                      {summary.distanceUnit})</span
+                    >
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Citations & Violations Callout -->
+            <div class="citations-callout slds-m-top_small">
+              <div class="citations-left">
+                <lightning-icon
+                  icon-name="utility:shield"
+                  size="small"
+                  variant="warning"
+                ></lightning-icon>
+                <div>
+                  <strong
+                    >{citations.count} Citations & Violations Logged</strong
+                  >
+                  <div class="slds-text-color_weak slds-text-body_small">
+                    Total Fines: ${citations.totalFine}
+                  </div>
+                </div>
+              </div>
+              <lightning-button
+                label="Report Citation"
+                variant="neutral"
+                onclick={handleOpenCitationModal}
+              ></lightning-button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <!-- Error State -->
+    <template lwc:elseif={error}>
+      <div
+        class="slds-p-around_medium slds-text-color_error slds-align_absolute-center"
+      >
+        <lightning-icon
+          icon-name="utility:error"
+          size="small"
+          variant="error"
+          class="slds-m-right_x-small"
+        ></lightning-icon>
+        <span>Error loading Driver 360: {errorMessage}</span>
+      </div>
+    </template>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 1: Assign Vehicle & Authorize                            -->
+    <!-- ============================================================== -->
+    <template lwc:if={showAssignVehicleModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning-button-icon
+              icon-name="utility:close"
+              class="slds-modal__close"
+              variant="bare-inverse"
+              title="Close"
+              onclick={handleCloseAssignModal}
+            ></lightning-button-icon>
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+              Assign & Authorize Vehicle
+            </h2>
+            <p class="slds-m-top_x-small slds-text-body_small">
+              Assign an active fleet vehicle to <strong>{summary.name}</strong>.
+            </p>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <lightning-combobox
+              label="Select Vehicle"
+              options={vehicleOptionsList}
+              value={selectedVehicleId}
+              placeholder="Search or pick an active asset..."
+              required
+              onchange={handleAssignVehicleChange}
+            ></lightning-combobox>
+
+            <lightning-combobox
+              label="Authorization Level"
+              options={authTypeOptions}
+              value={selectedAuthType}
+              required
+              class="slds-m-top_small"
+              onchange={handleAssignAuthTypeChange}
+            ></lightning-combobox>
+
+            <div class="slds-form-element slds-m-top_medium">
+              <lightning-input
+                type="checkbox"
+                label="Issue Key Access (Handover physical/digital key)"
+                checked={assignIssueKey}
+                onchange={handleAssignKeyChange}
+              ></lightning-input>
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseAssignModal}
+            ></lightning-button>
+            <lightning-button
+              label="Assign Vehicle"
+              variant="brand"
+              class="slds-m-left_x-small"
+              disabled={isSubmitting}
+              onclick={handleSaveAssignVehicle}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: Log Trip                                              -->
+    <!-- ============================================================== -->
+    <template lwc:if={showLogTripModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_medium"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning-button-icon
+              icon-name="utility:close"
+              class="slds-modal__close"
+              variant="bare-inverse"
+              title="Close"
+              onclick={handleCloseTripModal}
+            ></lightning-button-icon>
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+              Log Trip for {summary.name}
+            </h2>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="slds-grid slds-gutters">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                  label="Vehicle"
+                  options={vehicleOptionsList}
+                  value={tripVehicleId}
+                  required
+                  onchange={handleTripVehicleChange}
+                ></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                  label="Trip Type"
+                  options={tripTypeOptions}
+                  value={tripType}
+                  required
+                  onchange={handleTripTypeChange}
+                ></lightning-combobox>
+              </div>
+            </div>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="datetime"
+                  label="Start Time"
+                  value={tripStartTime}
+                  onchange={handleTripStartTimeChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="datetime"
+                  label="End Time"
+                  value={tripEndTime}
+                  onchange={handleTripEndTimeChange}
+                ></lightning-input>
+              </div>
+            </div>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  label="Distance (mi/km)"
+                  step="0.1"
+                  value={tripDistance}
+                  required
+                  onchange={handleTripDistanceChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  label="Start Odometer"
+                  value={tripStartOdo}
+                  onchange={handleTripStartOdoChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  label="End Odometer"
+                  value={tripEndOdo}
+                  onchange={handleTripEndOdoChange}
+                ></lightning-input>
+              </div>
+            </div>
+
+            <lightning-input
+              label="Business Purpose"
+              value={tripPurpose}
+              class="slds-m-top_small"
+              placeholder="e.g. Parts transfer, regional client consultation"
+              onchange={handleTripPurposeChange}
+            ></lightning-input>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  label="Origin Address"
+                  value={tripOrigin}
+                  onchange={handleTripOriginChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  label="Destination Address"
+                  value={tripDestination}
+                  onchange={handleTripDestinationChange}
+                ></lightning-input>
+              </div>
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseTripModal}
+            ></lightning-button>
+            <lightning-button
+              label="Save Trip"
+              variant="brand"
+              class="slds-m-left_x-small"
+              disabled={isSubmitting}
+              onclick={handleSaveTrip}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 3: Log Fuel                                              -->
+    <!-- ============================================================== -->
+    <template lwc:if={showLogFuelModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning-button-icon
+              icon-name="utility:close"
+              class="slds-modal__close"
+              variant="bare-inverse"
+              title="Close"
+              onclick={handleCloseFuelModal}
+            ></lightning-button-icon>
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+              Log Fuel / Charging Expense
+            </h2>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <lightning-combobox
+              label="Vehicle"
+              options={vehicleOptionsList}
+              value={fuelVehicleId}
+              required
+              onchange={handleFuelVehicleChange}
+            ></lightning-combobox>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="date"
+                  label="Transaction Date"
+                  value={fuelDate}
+                  required
+                  onchange={handleFuelDateChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                  label="Product Type"
+                  options={fuelProductTypeOptions}
+                  value={fuelProductType}
+                  required
+                  onchange={handleFuelProductTypeChange}
+                ></lightning-combobox>
+              </div>
+            </div>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  label="Volume (Gal / L / kWh)"
+                  step="0.01"
+                  value={fuelVolume}
+                  required
+                  onchange={handleFuelVolumeChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  formatter="currency"
+                  step="0.01"
+                  label="Total Cost ($)"
+                  value={fuelCost}
+                  required
+                  onchange={handleFuelCostChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                  type="number"
+                  label="Odometer"
+                  value={fuelOdometer}
+                  onchange={handleFuelOdometerChange}
+                ></lightning-input>
+              </div>
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseFuelModal}
+            ></lightning-button>
+            <lightning-button
+              label="Record Fuel"
+              variant="brand"
+              class="slds-m-left_x-small"
+              disabled={isSubmitting}
+              onclick={handleSaveFuel}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 4: Report Citation                                       -->
+    <!-- ============================================================== -->
+    <template lwc:if={showReportCitationModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning-button-icon
+              icon-name="utility:close"
+              class="slds-modal__close"
+              variant="bare-inverse"
+              title="Close"
+              onclick={handleCloseCitationModal}
+            ></lightning-button-icon>
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+              Report Citation or Violation
+            </h2>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <lightning-combobox
+              label="Vehicle"
+              options={vehicleOptionsList}
+              value={citationVehicleId}
+              required
+              onchange={handleCitationVehicleChange}
+            ></lightning-combobox>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  label="Citation / Ticket Number"
+                  value={citationTicketNumber}
+                  required
+                  onchange={handleCitationTicketNumberChange}
+                ></lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="date"
+                  label="Citation Date"
+                  value={citationDate}
+                  required
+                  onchange={handleCitationDateChange}
+                ></lightning-input>
+              </div>
+            </div>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                  label="Violation Type"
+                  options={citationViolationTypeOptions}
+                  value={citationViolationType}
+                  required
+                  onchange={handleCitationViolationTypeChange}
+                ></lightning-combobox>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="number"
+                  formatter="currency"
+                  step="0.01"
+                  label="Fine Amount ($)"
+                  value={citationFineAmount}
+                  required
+                  onchange={handleCitationFineAmountChange}
+                ></lightning-input>
+              </div>
+            </div>
+
+            <lightning-input
+              label="Issuing Authority"
+              value={citationAuthority}
+              class="slds-m-top_small"
+              placeholder="e.g. Highway Patrol, City Parking Enforcement"
+              onchange={handleCitationAuthorityChange}
+            ></lightning-input>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              onclick={handleCloseCitationModal}
+            ></lightning-button>
+            <lightning-button
+              label="Submit Citation"
+              variant="brand"
+              class="slds-m-left_x-small"
+              disabled={isSubmitting}
+              onclick={handleSaveCitation}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+  </div>
+</template>
