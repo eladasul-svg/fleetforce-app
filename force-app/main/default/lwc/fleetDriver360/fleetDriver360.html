@@ -512,6 +512,94 @@
           </div>
         </div>
       </section>
+
+      <!-- Row 3: Skills & Qualifications Overview -->
+      <section class="skills-grid slds-p-horizontal_large slds-p-bottom_large">
+        <div class="operational-card">
+          <div class="op-card-header">
+            <div class="op-card-title-group">
+              <lightning-icon
+                icon-name="standard:skill"
+                size="small"
+              ></lightning-icon>
+              <h2 class="op-card-title">Driver Skills & Qualifications</h2>
+              <span class="pill pill-neutral"
+                >{qualificationCount} Active / Logged</span
+              >
+            </div>
+            <lightning-button
+              label="Add Skill / Cert"
+              icon-name="utility:add"
+              variant="neutral"
+              onclick={handleOpenSkillModal}
+            ></lightning-button>
+          </div>
+
+          <div class="op-card-content">
+            <template lwc:if={hasQualifications}>
+              <div class="skills-catalog-grid">
+                <template for:each={qualifications} for:item="q">
+                  <div key={q.id} class="skill-card">
+                    <div class="skill-card-top">
+                      <span class={q.typeBadgeClass}>{q.type}</span>
+                      <span class={q.statusBadgeClass}>{q.expiryStatus}</span>
+                    </div>
+                    <h3 class="skill-card-title">{q.name}</h3>
+                    <div class="skill-card-details">
+                      <div class="proficiency-row">
+                        <span class="proficiency-label"
+                          >Level {q.proficiencyLevel} ·
+                          <strong>{q.proficiencyLabel}</strong></span
+                        >
+                        <div class="proficiency-dots">
+                          <span class="dot filled"></span>
+                          <span class={q.dot2Class}></span>
+                          <span class={q.dot3Class}></span>
+                          <span class={q.dot4Class}></span>
+                        </div>
+                      </div>
+                      <template lwc:if={q.authority}>
+                        <div class="skill-meta-text">
+                          <lightning-icon
+                            icon-name="utility:check"
+                            size="xx-small"
+                            class="slds-m-right_xx-small"
+                          ></lightning-icon>
+                          Authority: <strong>{q.authority}</strong>
+                          <template lwc:if={q.certId}>
+                            · ID: {q.certId}
+                          </template>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+            <template lwc:else>
+              <div class="empty-state-box">
+                <lightning-icon
+                  icon-name="utility:custom_apps"
+                  size="large"
+                  variant="neutral"
+                ></lightning-icon>
+                <h3 class="empty-state-title">No Qualifications Logged</h3>
+                <p class="empty-state-desc">
+                  Log certifications, internal fleet skills (EV, HazMat, Lift
+                  Gate), or language badges for route dispatch skill matching.
+                </p>
+                <lightning-button
+                  label="Add Qualification Now"
+                  variant="brand"
+                  icon-name="utility:add"
+                  onclick={handleOpenSkillModal}
+                  class="slds-m-top_small"
+                ></lightning-button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
     </template>
 
     <!-- Error State -->
@@ -942,6 +1030,116 @@
               class="slds-m-left_x-small"
               disabled={isSubmitting}
               onclick={handleSaveCitation}
+            ></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 5: Add Skill / Qualification                             -->
+    <!-- ============================================================== -->
+    <template lwc:if={showSkillModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        class="slds-modal slds-fade-in-open slds-modal_small"
+        aria-modal="true"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning-button-icon
+              icon-name="utility:close"
+              class="slds-modal__close"
+              variant="bare-inverse"
+              title="Close"
+              onclick={handleCloseSkillModal}
+            ></lightning-button-icon>
+            <h2 class="slds-modal__title slds-hyphenate">
+              Add Driver Skill or Qualification
+            </h2>
+            <p
+              class="slds-m-top_x-small slds-text-color_weak slds-text-body_small"
+            >
+              Record a new skill, endorsement, or certificate to support routing
+              skill-matching.
+            </p>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="slds-form slds-form_stacked">
+              <lightning-input
+                label="Qualification / Skill Title"
+                placeholder="e.g. EV High-Voltage Operator, HazMat Endorsement"
+                value={newSkillTitle}
+                onchange={handleSkillTitleChange}
+                required
+              ></lightning-input>
+
+              <div class="slds-grid slds-gutters slds-m-top_small">
+                <div class="slds-col slds-size_1-of-2">
+                  <lightning-combobox
+                    label="Type"
+                    value={newSkillType}
+                    options={skillTypeOptions}
+                    onchange={handleSkillTypeChange}
+                    required
+                  ></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                  <lightning-combobox
+                    label="Proficiency Level"
+                    value={newSkillProficiency}
+                    options={skillProficiencyOptions}
+                    onchange={handleSkillProficiencyChange}
+                    required
+                  ></lightning-combobox>
+                </div>
+              </div>
+
+              <div class="slds-grid slds-gutters slds-m-top_small">
+                <div class="slds-col slds-size_1-of-2">
+                  <lightning-input
+                    type="date"
+                    label="Valid Until (Expiry Date)"
+                    value={newSkillValidUntil}
+                    onchange={handleSkillValidUntilChange}
+                  ></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                  <lightning-input
+                    label="Certificate / Badge ID"
+                    placeholder="e.g. EV-88912"
+                    value={newSkillCertId}
+                    onchange={handleSkillCertIdChange}
+                  ></lightning-input>
+                </div>
+              </div>
+
+              <lightning-input
+                label="Issuing Authority"
+                placeholder="e.g. Fleet Academy, US DOT, NSC"
+                value={newSkillAuthority}
+                onchange={handleSkillAuthorityChange}
+                class="slds-m-top_small"
+              ></lightning-input>
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <lightning-button
+              label="Cancel"
+              variant="neutral"
+              onclick={handleCloseSkillModal}
+            ></lightning-button>
+            <lightning-button
+              label="Save Qualification"
+              variant="brand"
+              icon-name="utility:save"
+              onclick={handleSaveSkill}
+              disabled={isSavingSkill}
+              class="slds-m-left_x-small"
             ></lightning-button>
           </footer>
         </div>

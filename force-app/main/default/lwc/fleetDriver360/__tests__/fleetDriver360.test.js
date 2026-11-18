@@ -52,6 +52,12 @@ jest.mock(
   { virtual: true }
 );
 
+jest.mock(
+  "@salesforce/apex/FleetDriver360Controller.addDriverQualification",
+  () => ({ default: jest.fn().mockResolvedValue("a0Q000000000001") }),
+  { virtual: true }
+);
+
 const MOCK_DRIVER_DATA = {
   summary: {
     contactId: "003000000000001",
@@ -118,7 +124,40 @@ const MOCK_DRIVER_DATA = {
   citations: {
     count: 1,
     totalFine: 125.0
-  }
+  },
+  qualificationCount: 2,
+  activeSkillsCount: 2,
+  qualifications: [
+    {
+      id: "a0Q000000000001",
+      name: "EV High-Voltage Operator Badge",
+      type: "Internal Skill",
+      proficiency: "3 - Expert",
+      proficiencyLevel: 3,
+      proficiencyLabel: "Expert",
+      status: "Valid",
+      isValid: true,
+      expiryStatus: "Valid (180d)",
+      authority: "Fleet Academy",
+      certId: "EV-88912",
+      typeBadgeClass: "badge-skill",
+      statusBadgeClass: "pill-active"
+    },
+    {
+      id: "a0Q000000000002",
+      name: "Defensive Driving Certification",
+      type: "Certification",
+      proficiency: "2 - Intermediate",
+      proficiencyLevel: 2,
+      proficiencyLabel: "Intermediate",
+      status: "Valid",
+      isValid: true,
+      expiryStatus: "Expiring Soon (30d)",
+      authority: "NSC",
+      typeBadgeClass: "badge-cert",
+      statusBadgeClass: "pill-warning"
+    }
+  ]
 };
 
 const MOCK_VEHICLES = [
@@ -186,6 +225,13 @@ describe("c-fleet-driver-360", () => {
       e.textContent.trim()
     );
     expect(counterVals).toEqual(["1", "0", "2", "1"]);
+
+    // Qualifications & Skills
+    const skillTitles = [...root.querySelectorAll(".skill-card-title")].map(
+      (e) => e.textContent.trim()
+    );
+    expect(skillTitles).toContain("EV High-Voltage Operator Badge");
+    expect(skillTitles).toContain("Defensive Driving Certification");
   });
 
   it("handles key status toggle", async () => {
@@ -221,6 +267,33 @@ describe("c-fleet-driver-360", () => {
     await flush();
 
     expect(root.querySelector(".slds-modal__container")).not.toBeNull();
+
+    const closeBtn = root.querySelector(
+      "lightning-button-icon.slds-modal__close"
+    );
+    closeBtn.click();
+    await flush();
+
+    expect(root.querySelector(".slds-modal__container")).toBeNull();
+  });
+
+  it("opens and closes add skill modal", async () => {
+    const el = mount();
+    getDriver360Data.emit(MOCK_DRIVER_DATA);
+    getAvailableVehicles.emit(MOCK_VEHICLES);
+    await flush();
+
+    const root = el.shadowRoot;
+    const buttons = Array.from(root.querySelectorAll("lightning-button"));
+    const addSkillBtn = buttons.find((b) => b.label === "Add Skill / Cert");
+    expect(addSkillBtn).toBeDefined();
+    addSkillBtn.click();
+    await flush();
+
+    expect(root.querySelector(".slds-modal__container")).not.toBeNull();
+    expect(root.querySelector(".slds-modal__title").textContent.trim()).toBe(
+      "Add Driver Skill or Qualification"
+    );
 
     const closeBtn = root.querySelector(
       "lightning-button-icon.slds-modal__close"

@@ -111,6 +111,27 @@ private class FleetDriver360ControllerTest {
       fleetforce__Status__c = 'New'
     );
     insert cit;
+
+    // 8. Create Driver Qualifications
+    fleetforce__Driver_Qualification__c dq1 = new fleetforce__Driver_Qualification__c(
+      fleetforce__Driver__c = driver.Id,
+      Name = 'EV High-Voltage Operator Badge',
+      fleetforce__Type__c = 'Internal Skill',
+      fleetforce__Proficiency__c = '3 - Expert',
+      fleetforce__Status__c = 'Valid',
+      fleetforce__Valid_From__c = Date.today().addMonths(-6),
+      fleetforce__Valid_Until__c = Date.today().addDays(180)
+    );
+    fleetforce__Driver_Qualification__c dq2 = new fleetforce__Driver_Qualification__c(
+      fleetforce__Driver__c = driver.Id,
+      Name = 'Defensive Driving Certification',
+      fleetforce__Type__c = 'Certification',
+      fleetforce__Proficiency__c = '2 - Intermediate',
+      fleetforce__Status__c = 'Valid',
+      fleetforce__Valid_From__c = Date.today().addYears(-1),
+      fleetforce__Valid_Until__c = Date.today().addDays(30)
+    );
+    insert new List<fleetforce__Driver_Qualification__c>{ dq1, dq2 };
   }
 
   @isTest
@@ -156,6 +177,20 @@ private class FleetDriver360ControllerTest {
     // Citations
     System.assertEquals(1, data.citations.count);
     System.assertEquals(150.00, data.citations.totalFine);
+
+    // Qualifications
+    System.assertNotEquals(null, data.qualifications);
+    System.assertEquals(2, data.qualificationCount);
+    System.assertEquals(2, data.activeSkillsCount);
+    System.assertEquals(
+      'Defensive Driving Certification',
+      data.qualifications[0].name
+    );
+    System.assertEquals(2, data.qualifications[0].proficiencyLevel);
+    System.assertEquals(
+      'Intermediate',
+      data.qualifications[0].proficiencyLabel
+    );
   }
 
   @isTest
@@ -281,5 +316,37 @@ private class FleetDriver360ControllerTest {
     );
     System.assertNotEquals(null, citId);
     Test.stopTest();
+  }
+
+  @isTest
+  static void testAddDriverQualification() {
+    Contact driver = [SELECT Id FROM Contact WHERE LastName = 'Vance' LIMIT 1];
+
+    Test.startTest();
+    Id qualId = FleetDriver360Controller.addDriverQualification(
+      driver.Id,
+      'HazMat Dangerous Goods',
+      'Certification',
+      '3 - Expert',
+      Date.today().addYears(2),
+      'HZ-901',
+      'US DOT'
+    );
+    Test.stopTest();
+
+    System.assertNotEquals(null, qualId);
+    fleetforce__Driver_Qualification__c dq = [
+      SELECT
+        Name,
+        fleetforce__Type__c,
+        fleetforce__Proficiency__c,
+        fleetforce__Status__c
+      FROM fleetforce__Driver_Qualification__c
+      WHERE Id = :qualId
+    ];
+    System.assertEquals('HazMat Dangerous Goods', dq.Name);
+    System.assertEquals('Certification', dq.fleetforce__Type__c);
+    System.assertEquals('3 - Expert', dq.fleetforce__Proficiency__c);
+    System.assertEquals('Valid', dq.fleetforce__Status__c);
   }
 }

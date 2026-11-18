@@ -19,6 +19,12 @@ public with sharing class FleetDriver360Controller {
     public List<RecentTrip> recentTrips;
     @AuraEnabled
     public List<RecentViolation> recentViolations;
+    @AuraEnabled
+    public List<DriverQualificationDTO> qualifications;
+    @AuraEnabled
+    public Integer qualificationCount = 0;
+    @AuraEnabled
+    public Integer activeSkillsCount = 0;
   }
 
   public class DriverSummary {
@@ -190,6 +196,47 @@ public with sharing class FleetDriver360Controller {
     public Datetime timestamp;
     @AuraEnabled
     public String vehicleName;
+  }
+
+  public class DriverQualificationDTO {
+    @AuraEnabled
+    public Id id;
+    @AuraEnabled
+    public String name;
+    @AuraEnabled
+    public String type;
+    @AuraEnabled
+    public String proficiency;
+    @AuraEnabled
+    public Integer proficiencyLevel;
+    @AuraEnabled
+    public String proficiencyLabel;
+    @AuraEnabled
+    public String status;
+    @AuraEnabled
+    public Boolean isValid;
+    @AuraEnabled
+    public Date validFrom;
+    @AuraEnabled
+    public Date validUntil;
+    @AuraEnabled
+    public Integer daysRemaining;
+    @AuraEnabled
+    public String expiryStatus;
+    @AuraEnabled
+    public String certId;
+    @AuraEnabled
+    public String authority;
+    @AuraEnabled
+    public Boolean isMandatory;
+    @AuraEnabled
+    public Boolean doesExpire;
+    @AuraEnabled
+    public String verificationUrl;
+    @AuraEnabled
+    public String typeBadgeClass;
+    @AuraEnabled
+    public String statusBadgeClass;
   }
 
   public class VehicleOption {
@@ -568,6 +615,113 @@ public with sharing class FleetDriver360Controller {
       }
       result.citations = cs;
 
+      // 6. Driver Qualifications & Skills
+      List<fleetforce__Driver_Qualification__c> quals = [
+        SELECT
+          Id,
+          Name,
+          fleetforce__Type__c,
+          fleetforce__Proficiency__c,
+          fleetforce__Status__c,
+          fleetforce__Valid_From__c,
+          fleetforce__Valid_Until__c,
+          fleetforce__Cert_ID__c,
+          fleetforce__Authority__c,
+          fleetforce__Is_Mandatory__c,
+          fleetforce__Does_Expire__c,
+          fleetforce__Verification_URL__c
+        FROM fleetforce__Driver_Qualification__c
+        WHERE fleetforce__Driver__c = :contactId
+        ORDER BY
+          fleetforce__Type__c ASC,
+          fleetforce__Valid_Until__c ASC NULLS LAST
+        LIMIT 50
+      ];
+
+      List<DriverQualificationDTO> qualList = new List<DriverQualificationDTO>();
+      Integer activeSkills = 0;
+      for (fleetforce__Driver_Qualification__c q : quals) {
+        DriverQualificationDTO dto = new DriverQualificationDTO();
+        dto.id = q.Id;
+        dto.name = q.Name;
+        dto.type = String.isNotBlank(q.fleetforce__Type__c)
+          ? q.fleetforce__Type__c
+          : 'Internal Skill';
+        dto.proficiency = q.fleetforce__Proficiency__c;
+        if (dto.proficiency != null && dto.proficiency.startsWith('1')) {
+          dto.proficiencyLevel = 1;
+          dto.proficiencyLabel = 'Beginner';
+        } else if (dto.proficiency != null && dto.proficiency.startsWith('2')) {
+          dto.proficiencyLevel = 2;
+          dto.proficiencyLabel = 'Intermediate';
+        } else if (dto.proficiency != null && dto.proficiency.startsWith('3')) {
+          dto.proficiencyLevel = 3;
+          dto.proficiencyLabel = 'Expert';
+        } else if (dto.proficiency != null && dto.proficiency.startsWith('4')) {
+          dto.proficiencyLevel = 4;
+          dto.proficiencyLabel = 'Native';
+        } else {
+          dto.proficiencyLevel = 2;
+          dto.proficiencyLabel = 'Intermediate';
+        }
+
+        dto.status = String.isNotBlank(q.fleetforce__Status__c)
+          ? q.fleetforce__Status__c
+          : 'Valid';
+        dto.validFrom = q.fleetforce__Valid_From__c;
+        dto.validUntil = q.fleetforce__Valid_Until__c;
+        dto.certId = q.fleetforce__Cert_ID__c;
+        dto.authority = q.fleetforce__Authority__c;
+        dto.isMandatory = q.fleetforce__Is_Mandatory__c == true;
+        dto.doesExpire = q.fleetforce__Does_Expire__c == true;
+        dto.verificationUrl = q.fleetforce__Verification_URL__c;
+
+        if (dto.validUntil != null) {
+          dto.daysRemaining = Date.today().daysBetween(dto.validUntil);
+          if (dto.daysRemaining < 0) {
+            dto.expiryStatus = 'Expired';
+            dto.isValid = false;
+            dto.statusBadgeClass = 'pill-error';
+          } else if (dto.daysRemaining <= 60) {
+            dto.expiryStatus = 'Expiring Soon (' + dto.daysRemaining + 'd)';
+            dto.isValid = true;
+            dto.statusBadgeClass = 'pill-warning';
+          } else {
+            dto.expiryStatus = 'Valid (' + dto.daysRemaining + 'd)';
+            dto.isValid = true;
+            dto.statusBadgeClass = 'pill-active';
+          }
+        } else {
+          dto.expiryStatus = 'Permanent';
+          dto.isValid = (dto.status == 'Valid');
+          dto.statusBadgeClass = dto.isValid ? 'pill-active' : 'pill-neutral';
+        }
+
+        if (dto.status == 'Expired' || dto.status == 'Revoked') {
+          dto.isValid = false;
+          dto.statusBadgeClass = 'pill-error';
+        }
+
+        if (dto.isValid) {
+          activeSkills++;
+        }
+
+        if (dto.type == 'Certification') {
+          dto.typeBadgeClass = 'badge-cert';
+        } else if (dto.type == 'Internal Skill') {
+          dto.typeBadgeClass = 'badge-skill';
+        } else if (dto.type.contains('Badge')) {
+          dto.typeBadgeClass = 'badge-access';
+        } else {
+          dto.typeBadgeClass = 'badge-lang';
+        }
+
+        qualList.add(dto);
+      }
+      result.qualifications = qualList;
+      result.qualificationCount = qualList.size();
+      result.activeSkillsCount = activeSkills;
+
       return result;
     } catch (Exception e) {
       throw new AuraHandledException(
@@ -808,6 +962,47 @@ public with sharing class FleetDriver360Controller {
     } catch (Exception e) {
       throw new AuraHandledException(
         'Unable to report citation: ' + e.getMessage()
+      );
+    }
+  }
+
+  @AuraEnabled
+  public static Id addDriverQualification(
+    Id contactId,
+    String title,
+    String qualType,
+    String proficiency,
+    Date validUntil,
+    String certId,
+    String authority
+  ) {
+    if (contactId == null || String.isBlank(title)) {
+      throw new AuraHandledException(
+        'Driver and Qualification Title are required.'
+      );
+    }
+    try {
+      fleetforce__Driver_Qualification__c dq = new fleetforce__Driver_Qualification__c(
+        fleetforce__Driver__c = contactId,
+        Name = title.trim(),
+        fleetforce__Type__c = String.isNotBlank(qualType)
+          ? qualType
+          : 'Internal Skill',
+        fleetforce__Proficiency__c = String.isNotBlank(proficiency)
+          ? proficiency
+          : '2 - Intermediate',
+        fleetforce__Status__c = 'Valid',
+        fleetforce__Valid_From__c = Date.today(),
+        fleetforce__Valid_Until__c = validUntil,
+        fleetforce__Cert_ID__c = certId,
+        fleetforce__Authority__c = authority,
+        fleetforce__Does_Expire__c = (validUntil != null)
+      );
+      insert as user dq;
+      return dq.Id;
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'Unable to add qualification: ' + e.getMessage()
       );
     }
   }

@@ -10,6 +10,7 @@ import assignVehicle from "@salesforce/apex/FleetDriver360Controller.assignVehic
 import quickLogTrip from "@salesforce/apex/FleetDriver360Controller.quickLogTrip";
 import quickLogFuel from "@salesforce/apex/FleetDriver360Controller.quickLogFuel";
 import quickReportCitation from "@salesforce/apex/FleetDriver360Controller.quickReportCitation";
+import addDriverQualification from "@salesforce/apex/FleetDriver360Controller.addDriverQualification";
 
 export default class FleetDriver360 extends NavigationMixin(LightningElement) {
   @api recordId;
@@ -27,7 +28,31 @@ export default class FleetDriver360 extends NavigationMixin(LightningElement) {
   showLogTripModal = false;
   showLogFuelModal = false;
   showReportCitationModal = false;
+  showSkillModal = false;
   isSubmitting = false;
+  isSavingSkill = false;
+
+  // Add Skill form fields
+  newSkillTitle = "";
+  newSkillType = "Internal Skill";
+  newSkillProficiency = "3 - Expert";
+  newSkillValidUntil = "";
+  newSkillCertId = "";
+  newSkillAuthority = "";
+
+  skillTypeOptions = [
+    { label: "Internal Skill", value: "Internal Skill" },
+    { label: "Certification", value: "Certification" },
+    { label: "Access Badge", value: "Access Badge." },
+    { label: "Language", value: "Language" }
+  ];
+
+  skillProficiencyOptions = [
+    { label: "1 - Beginner", value: "1 - Beginner" },
+    { label: "2 - Intermediate", value: "2 - Intermediate" },
+    { label: "3 - Expert", value: "3 - Expert" },
+    { label: "4 - Native", value: "4 - Native." }
+  ];
 
   // Assign Vehicle form fields
   selectedVehicleId = "";
@@ -300,6 +325,31 @@ export default class FleetDriver360 extends NavigationMixin(LightningElement) {
 
   get commuteTooltip() {
     return `Commute: ${this.mileageSplit.commuteMileage} ${this.summary.distanceUnit} (${this.mileageSplit.commutePct}%)`;
+  }
+
+  get qualifications() {
+    if (!this.data || !this.data.qualifications) return [];
+    return this.data.qualifications.map((q) => {
+      const level = q.proficiencyLevel || 2;
+      return {
+        ...q,
+        dot2Class: level >= 2 ? "dot filled" : "dot empty",
+        dot3Class: level >= 3 ? "dot filled" : "dot empty",
+        dot4Class: level >= 4 ? "dot filled" : "dot empty"
+      };
+    });
+  }
+
+  get hasQualifications() {
+    return this.qualifications.length > 0;
+  }
+
+  get qualificationCount() {
+    return this.data?.qualificationCount || 0;
+  }
+
+  get activeSkillsCount() {
+    return this.data?.activeSkillsCount || 0;
   }
 
   // --- Modal Picklists ---
@@ -753,6 +803,85 @@ export default class FleetDriver360 extends NavigationMixin(LightningElement) {
       );
     } finally {
       this.isSubmitting = false;
+    }
+  }
+
+  // --- Modal 5: Add Skill / Qualification Handlers ---
+
+  handleOpenSkillModal() {
+    this.newSkillTitle = "";
+    this.newSkillType = "Internal Skill";
+    this.newSkillProficiency = "3 - Expert";
+    this.newSkillValidUntil = "";
+    this.newSkillCertId = "";
+    this.newSkillAuthority = "";
+    this.showSkillModal = true;
+  }
+
+  handleCloseSkillModal() {
+    this.showSkillModal = false;
+  }
+
+  handleSkillTitleChange(e) {
+    this.newSkillTitle = e.detail.value;
+  }
+
+  handleSkillTypeChange(e) {
+    this.newSkillType = e.detail.value;
+  }
+
+  handleSkillProficiencyChange(e) {
+    this.newSkillProficiency = e.detail.value;
+  }
+
+  handleSkillValidUntilChange(e) {
+    this.newSkillValidUntil = e.detail.value;
+  }
+
+  handleSkillCertIdChange(e) {
+    this.newSkillCertId = e.detail.value;
+  }
+
+  handleSkillAuthorityChange(e) {
+    this.newSkillAuthority = e.detail.value;
+  }
+
+  async handleSaveSkill() {
+    if (!this.newSkillTitle || !this.newSkillTitle.trim()) {
+      this.showToast(
+        "Validation",
+        "Please enter qualification or skill title.",
+        "error"
+      );
+      return;
+    }
+
+    this.isSavingSkill = true;
+    try {
+      await addDriverQualification({
+        contactId: this.recordId,
+        title: this.newSkillTitle,
+        qualType: this.newSkillType,
+        proficiency: this.newSkillProficiency,
+        validUntil: this.newSkillValidUntil || null,
+        certId: this.newSkillCertId,
+        authority: this.newSkillAuthority
+      });
+      this.showToast(
+        "Qualification Added",
+        "Driver qualification recorded successfully.",
+        "success"
+      );
+      this.showSkillModal = false;
+      await refreshApex(this.wiredDriverResult);
+    } catch (e) {
+      this.showToast(
+        "Error Adding Qualification",
+        this.extractMessage(e),
+        "error"
+      );
+    } finally {
+      this.isSavingSkill = false;
     }
   }
 
