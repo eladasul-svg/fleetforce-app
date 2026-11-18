@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Same_Maintenance_Plan</fullName>
+    <active>true</active>
+    <description
+  >Ensures the parent line item belongs to the same Maintenance Plan.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Parent_Line_Item__c)),
+    Parent_Line_Item__r.Maintenance_Plan__c != Maintenance_Plan__c
+)</errorConditionFormula>
+    <errorDisplayField>Parent_Line_Item__c</errorDisplayField>
+    <errorMessage
+  >Parent Line Item must belong to the same Maintenance Plan.</errorMessage>
+</ValidationRule>

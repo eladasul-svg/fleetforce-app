@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Max_Hierarchy_Depth</fullName>
+    <active>true</active>
+    <description
+  >Enforces a 2-level hierarchy: a line item cannot select a parent that is itself a child of another line item.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Parent_Line_Item__c)),
+    NOT(ISBLANK(Parent_Line_Item__r.Parent_Line_Item__c))
+)</errorConditionFormula>
+    <errorDisplayField>Parent_Line_Item__c</errorDisplayField>
+    <errorMessage
+  >Line items can only be nested under a top-level milestone or service package.</errorMessage>
+</ValidationRule>

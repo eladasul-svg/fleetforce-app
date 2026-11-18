@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <description
+  >Differentiates between overarching Service Milestones/Packages and granular Tasks or Component replacements.</description>
+    <label>Type</label>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Milestone / Service Package</fullName>
+                <default>true</default>
+                <label>Milestone / Service Package</label>
+            </value>
+            <value>
+                <fullName>Component / Part Replacement</fullName>
+                <default>false</default>
+                <label>Component / Part Replacement</label>
+            </value>
+            <value>
+                <fullName>Inspection / Diagnostic</fullName>
+                <default>false</default>
+                <label>Inspection / Diagnostic</label>
+            </value>
+            <value>
+                <fullName>Fluid &amp; Filter Service</fullName>
+                <default>false</default>
+                <label>Fluid &amp; Filter Service</label>
+            </value>
+            <value>
+                <fullName>Tire &amp; Brake Service</fullName>
+                <default>false</default>
+                <label>Tire &amp; Brake Service</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

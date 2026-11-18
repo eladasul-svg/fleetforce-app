@@ -181,6 +181,16 @@ public with sharing class FleetDigitalGloveboxController {
     @AuraEnabled
     public String sopChecklist;
     @AuraEnabled
+    public String itemType;
+    @AuraEnabled
+    public Id parentLineItemId;
+    @AuraEnabled
+    public String parentLineItemName;
+    @AuraEnabled
+    public List<PlanLineItemSummary> childItems = new List<PlanLineItemSummary>();
+    @AuraEnabled
+    public Boolean hasChildItems = false;
+    @AuraEnabled
     public String milestoneBadgeClass;
     @AuraEnabled
     public String milestoneStatus; // 'Completed', 'Next Due', 'Upcoming'
@@ -582,7 +592,7 @@ public with sharing class FleetDigitalGloveboxController {
         : 0;
       Boolean foundNext = false;
 
-      for (fleetforce__Maintenance_Plan_Line_Item__c item : [
+      List<fleetforce__Maintenance_Plan_Line_Item__c> allItems = [
         SELECT
           Id,
           Name,
@@ -593,13 +603,23 @@ public with sharing class FleetDigitalGloveboxController {
           fleetforce__Components_Serviced__c,
           fleetforce__Estimated_Cost__c,
           fleetforce__Estimated_Hours__c,
-          fleetforce__SOP_Checklist__c
+          fleetforce__SOP_Checklist__c,
+          fleetforce__Type__c,
+          fleetforce__Parent_Line_Item__c,
+          fleetforce__Parent_Line_Item__r.Name
         FROM fleetforce__Maintenance_Plan_Line_Item__c
         WHERE fleetforce__Maintenance_Plan__c = :activePlanRecord.Id
         ORDER BY
           fleetforce__Sequence__c ASC NULLS LAST,
-          fleetforce__Milestone_Mileage__c ASC NULLS LAST
-      ]) {
+          fleetforce__Milestone_Mileage__c ASC NULLS LAST,
+          CreatedDate ASC
+      ];
+
+      Map<Id, PlanLineItemSummary> itemSummaryMap = new Map<Id, PlanLineItemSummary>();
+      List<PlanLineItemSummary> topLevelItems = new List<PlanLineItemSummary>();
+      List<PlanLineItemSummary> childItemsList = new List<PlanLineItemSummary>();
+
+      for (fleetforce__Maintenance_Plan_Line_Item__c item : allItems) {
         PlanLineItemSummary lis = new PlanLineItemSummary();
         lis.id = item.Id;
         lis.name = item.Name;
@@ -611,49 +631,75 @@ public with sharing class FleetDigitalGloveboxController {
         lis.estimatedCost = item.fleetforce__Estimated_Cost__c;
         lis.estimatedHours = item.fleetforce__Estimated_Hours__c;
         lis.sopChecklist = item.fleetforce__SOP_Checklist__c;
+        lis.itemType = item.fleetforce__Type__c;
+        lis.parentLineItemId = item.fleetforce__Parent_Line_Item__c;
+        lis.parentLineItemName = item.fleetforce__Parent_Line_Item__r != null
+          ? item.fleetforce__Parent_Line_Item__r.Name
+          : null;
 
-        if (
-          item.fleetforce__Milestone_Mileage__c != null &&
-          currentOdo >= item.fleetforce__Milestone_Mileage__c + 1500
-        ) {
-          lis.milestoneStatus = 'Completed';
-          lis.isCompleted = true;
-          lis.milestoneBadgeClass = 'slds-badge slds-theme_success';
-        } else if (
-          !foundNext &&
-          item.fleetforce__Milestone_Mileage__c != null &&
-          item.fleetforce__Milestone_Mileage__c >= (currentOdo - 1500)
-        ) {
-          lis.milestoneStatus = 'Next Due';
-          lis.isNextDue = true;
-          lis.milestoneBadgeClass = 'slds-badge slds-theme_warning';
-          foundNext = true;
-          ms.nextMilestone = lis;
-          ms.hasNextMilestone = true;
-          ms.nextMilestoneDueOdometer = item.fleetforce__Milestone_Mileage__c;
-          Decimal diff = item.fleetforce__Milestone_Mileage__c - currentOdo;
-          ms.nextMilestoneMilesRemaining = diff;
+        itemSummaryMap.put(item.Id, lis);
 
-          if (diff < 0) {
-            ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_error';
-            ms.nextMilestoneStatusLabel =
-              'OVERDUE by ' +
-              Math.abs(diff.intValue()) +
-              ' mi';
-          } else if (diff <= 1500) {
-            ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_warning';
-            ms.nextMilestoneStatusLabel = 'Due in ' + diff.intValue() + ' mi';
+        if (item.fleetforce__Parent_Line_Item__c == null) {
+          topLevelItems.add(lis);
+
+          if (
+            item.fleetforce__Milestone_Mileage__c != null &&
+            currentOdo >= item.fleetforce__Milestone_Mileage__c + 1500
+          ) {
+            lis.milestoneStatus = 'Completed';
+            lis.isCompleted = true;
+            lis.milestoneBadgeClass = 'slds-badge slds-theme_success';
+          } else if (
+            !foundNext &&
+            item.fleetforce__Milestone_Mileage__c != null &&
+            item.fleetforce__Milestone_Mileage__c >= (currentOdo - 1500)
+          ) {
+            lis.milestoneStatus = 'Next Due';
+            lis.isNextDue = true;
+            lis.milestoneBadgeClass = 'slds-badge slds-theme_warning';
+            foundNext = true;
+            ms.nextMilestone = lis;
+            ms.hasNextMilestone = true;
+            ms.nextMilestoneDueOdometer = item.fleetforce__Milestone_Mileage__c;
+            Decimal diff = item.fleetforce__Milestone_Mileage__c - currentOdo;
+            ms.nextMilestoneMilesRemaining = diff;
+
+            if (diff < 0) {
+              ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_error';
+              ms.nextMilestoneStatusLabel =
+                'OVERDUE by ' +
+                Math.abs(diff.intValue()) +
+                ' mi';
+            } else if (diff <= 1500) {
+              ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_warning';
+              ms.nextMilestoneStatusLabel = 'Due in ' + diff.intValue() + ' mi';
+            } else {
+              ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_info';
+              ms.nextMilestoneStatusLabel = 'Due in ' + diff.intValue() + ' mi';
+            }
           } else {
-            ms.nextMilestoneStatusBadgeClass = 'slds-badge slds-theme_info';
-            ms.nextMilestoneStatusLabel = 'Due in ' + diff.intValue() + ' mi';
+            lis.milestoneStatus = 'Upcoming';
+            lis.milestoneBadgeClass = 'slds-badge slds-badge_lightest';
           }
         } else {
-          lis.milestoneStatus = 'Upcoming';
-          lis.milestoneBadgeClass = 'slds-badge slds-badge_lightest';
+          childItemsList.add(lis);
         }
-
-        ms.lineItems.add(lis);
       }
+
+      // Attach child items to their parent milestone
+      for (PlanLineItemSummary child : childItemsList) {
+        if (itemSummaryMap.containsKey(child.parentLineItemId)) {
+          PlanLineItemSummary parent = itemSummaryMap.get(
+            child.parentLineItemId
+          );
+          parent.childItems.add(child);
+          parent.hasChildItems = true;
+        } else {
+          topLevelItems.add(child);
+        }
+      }
+
+      ms.lineItems = topLevelItems;
     } else {
       ms.hasActivePlan = false;
     }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Milestone_Cannot_Have_Parent</fullName>
+    <active>true</active>
+    <description
+  >Top-level milestone service packages cannot have a parent line item.</description>
+    <errorConditionFormula>AND(
+    ISPICKVAL(Type__c, 'Milestone / Service Package'),
+    NOT(ISBLANK(Parent_Line_Item__c))
+)</errorConditionFormula>
+    <errorDisplayField>Parent_Line_Item__c</errorDisplayField>
+    <errorMessage
+  >A Milestone / Service Package cannot have a parent line item. It must be a top-level milestone.</errorMessage>
+</ValidationRule>

@@ -49,6 +49,18 @@ private class FleetDigitalGloveboxControllerTest {
     };
     insert items;
 
+    fleetforce__Maintenance_Plan_Line_Item__c childItem = new fleetforce__Maintenance_Plan_Line_Item__c(
+      Name = 'Replace Front Ceramic Brake Pads',
+      fleetforce__Maintenance_Plan__c = plan.Id,
+      fleetforce__Parent_Line_Item__c = items[1].Id,
+      fleetforce__Type__c = 'Component / Part Replacement',
+      fleetforce__Sequence__c = 1,
+      fleetforce__Service_Category__c = 'Tires & Brakes',
+      fleetforce__Estimated_Cost__c = 180.00,
+      fleetforce__Estimated_Hours__c = 1.0
+    );
+    insert childItem;
+
     fleetforce__Fleet_Asset__c asset = new fleetforce__Fleet_Asset__c(
       Name = '2025 Ford F-150 · NH73CXK',
       fleetforce__VIN__c = '1FTFW1ED8NFC12345',
@@ -391,6 +403,36 @@ private class FleetDigitalGloveboxControllerTest {
       FleetDigitalGloveboxController.toEmbedUrl(
         'https://www.youtube.com/embed/f2dI3L41qB0'
       )
+    );
+  }
+
+  @IsTest
+  static void testLineItemHierarchy() {
+    fleetforce__Fleet_Asset__c asset = [
+      SELECT Id, fleetforce__Odometer__c
+      FROM fleetforce__Fleet_Asset__c
+      LIMIT 1
+    ];
+    Test.startTest();
+    FleetDigitalGloveboxController.GloveboxPayload payload = FleetDigitalGloveboxController.getGloveboxData(
+      asset.Id
+    );
+    Test.stopTest();
+
+    System.assertNotEquals(null, payload.maintenanceInfo);
+    System.assertEquals(true, payload.maintenanceInfo.hasActivePlan);
+    System.assertEquals(2, payload.maintenanceInfo.lineItems.size());
+
+    FleetDigitalGloveboxController.PlanLineItemSummary brakeMilestone = payload.maintenanceInfo.lineItems[1];
+    System.assertEquals(true, brakeMilestone.hasChildItems);
+    System.assertEquals(1, brakeMilestone.childItems.size());
+    System.assertEquals(
+      'Replace Front Ceramic Brake Pads',
+      brakeMilestone.childItems[0].name
+    );
+    System.assertEquals(
+      'Component / Part Replacement',
+      brakeMilestone.childItems[0].itemType
     );
   }
 }

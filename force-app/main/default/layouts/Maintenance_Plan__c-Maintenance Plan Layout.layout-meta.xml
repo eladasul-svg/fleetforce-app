@@ -108,6 +108,8 @@
     </platformActionList>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Type__c</fields>
+        <fields>Parent_Line_Item__c</fields>
         <fields>Sequence__c</fields>
         <fields>Milestone_Mileage__c</fields>
         <fields>Milestone_Months__c</fields>

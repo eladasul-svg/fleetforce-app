@@ -949,6 +949,53 @@
                           <p class="slds-text-body_small slds-m-bottom_x-small">
                             {item.componentsServiced}
                           </p>
+                          <template lwc:if={item.hasChildItems}>
+                            <div
+                              class="slds-m-bottom_x-small slds-p-around_xx-small slds-theme_default slds-border_rounded"
+                            >
+                              <span
+                                class="slds-text-title_caps slds-text-color_weak slds-show slds-m-bottom_xxx-small"
+                                style="font-size: 0.65rem"
+                              >
+                                Procedures &amp; Line Items
+                              </span>
+                              <template
+                                for:each={item.childItems}
+                                for:item="child"
+                              >
+                                <div
+                                  key={child.id}
+                                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-vertical_xxx-small"
+                                  style="border-bottom: 1px dashed #e5e5e5"
+                                >
+                                  <div>
+                                    <span
+                                      class="slds-text-body_small"
+                                      style="font-weight: 500"
+                                      >{child.name}</span
+                                    >
+                                    <template lwc:if={child.itemType}>
+                                      <span
+                                        class="slds-badge slds-badge_lightest slds-m-left_xx-small"
+                                        style="
+                                          font-size: 0.65rem;
+                                          padding: 1px 6px;
+                                        "
+                                      >
+                                        {child.itemType}
+                                      </span>
+                                    </template>
+                                  </div>
+                                  <span
+                                    class="slds-text-body_small slds-text-color_weak"
+                                  >
+                                    ${child.estimatedCost} ·
+                                    {child.estimatedHours}h
+                                  </span>
+                                </div>
+                              </template>
+                            </div>
+                          </template>
                           <div
                             class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-theme_default slds-p-around_xx-small slds-border_rounded"
                           >

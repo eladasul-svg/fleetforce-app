@@ -1,0 +1,899 @@
+<template>
+  <div class="slds-card slds-p-around_medium">
+    <!-- Loading Spinner -->
+    <template lwc:if={isLoading}>
+      <lightning-spinner
+        alternative-text="Loading Plan Overview"
+        size="medium"
+      ></lightning-spinner>
+    </template>
+
+    <template lwc:if={hasPayload}>
+      <!-- Top Action & Info Bar -->
+      <div
+        class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-wrap"
+      >
+        <div class="slds-m-bottom_x-small">
+          <div class="slds-media slds-media_center">
+            <div class="slds-media__figure">
+              <lightning-icon
+                icon-name="standard:maintenance_plan"
+                size="medium"
+              ></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+              <h2 class="slds-card__header-title slds-truncate">
+                <span class="slds-text-heading_small" style="font-weight: 700">
+                  Plan Lifecycle &amp; Fleet Overview
+                </span>
+              </h2>
+              <div class="slds-m-top_xxx-small">
+                <template lwc:if={plan.Asset_Type__c}>
+                  <span
+                    class="slds-badge slds-theme_success slds-m-right_xx-small"
+                  >
+                    {plan.Asset_Type__c} Fleet
+                  </span>
+                </template>
+                <template lwc:if={plan.Frequency_Type__c}>
+                  <span
+                    class="slds-badge slds-badge_lightest slds-m-right_xx-small"
+                  >
+                    {plan.Frequency_Type__c}
+                  </span>
+                </template>
+                <template lwc:if={plan.Calendar_Interval_Months__c}>
+                  <span
+                    class="slds-badge slds-badge_lightest slds-m-right_xx-small"
+                  >
+                    {plan.Calendar_Interval_Months__c} Months Duration
+                  </span>
+                </template>
+                <template lwc:if={plan.Warning_Miles__c}>
+                  <span class="slds-badge slds-badge_lightest">
+                    Threshold: {plan.Warning_Miles__c} mi
+                  </span>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slds-m-bottom_x-small">
+          <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="border-filled"
+            alternative-text="Refresh"
+            onclick={handleRefresh}
+          ></lightning-button-icon>
+        </div>
+      </div>
+
+      <!-- KPI Summary Strip -->
+      <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+        <div
+          class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5 slds-m-bottom_small"
+        >
+          <div class="kpi-tile">
+            <div class="kpi-value">{kpis.milestonesCount}</div>
+            <div class="kpi-label">Milestones</div>
+          </div>
+        </div>
+        <div
+          class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5 slds-m-bottom_small"
+        >
+          <div class="kpi-tile">
+            <div class="kpi-value">{kpis.proceduresCount}</div>
+            <div class="kpi-label">Procedures / Tasks</div>
+          </div>
+        </div>
+        <div
+          class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5 slds-m-bottom_small"
+        >
+          <div class="kpi-tile">
+            <div class="kpi-value" style="color: #0d6832">
+              ${kpis.totalEstimatedCost}
+            </div>
+            <div class="kpi-label">Total Plan Cost</div>
+          </div>
+        </div>
+        <div
+          class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5 slds-m-bottom_small"
+        >
+          <div class="kpi-tile">
+            <div class="kpi-value">{kpis.totalEstimatedHours}h</div>
+            <div class="kpi-label">Total Labor Hours</div>
+          </div>
+        </div>
+        <div
+          class="slds-col slds-size_1-of-1 slds-medium-size_1-of-5 slds-m-bottom_small"
+        >
+          <div class="kpi-tile" style="border-left: 4px solid #0176d3">
+            <div class="kpi-value" style="color: #0176d3">
+              {kpis.assignedAssetsCount}
+            </div>
+            <div class="kpi-label">
+              Vehicles Assigned ({kpis.eligibleAssetsCount} eligible)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Internal Tabs: Milestones vs Connected Fleet -->
+      <div class="plan-tabs-container">
+        <lightning-tabset variant="scoped">
+          <!-- TAB 1: Milestones & Procedures (Full Width) -->
+          <lightning-tab
+            label={milestonesTabLabel}
+            icon-name="standard:maintenance_plan"
+          >
+            <!-- Tab Toolbar -->
+            <div
+              class="tab-toolbar slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap"
+            >
+              <div>
+                <h3
+                  class="slds-text-heading_small"
+                  style="font-weight: 700; color: #1e293b"
+                >
+                  Lifecycle Milestones &amp; Procedures
+                </h3>
+                <p class="slds-text-body_small slds-text-color_weak">
+                  Manufacturer-recommended service schedule, tasks, and
+                  associated parts
+                </p>
+              </div>
+              <div class="slds-m-top_xxx-small">
+                <lightning-button
+                  label="Add Milestone"
+                  icon-name="utility:add"
+                  variant="neutral"
+                  data-action="add-milestone"
+                  onclick={handleOpenAddMilestone}
+                ></lightning-button>
+                <lightning-button
+                  label="Add Procedure"
+                  icon-name="utility:task"
+                  variant="brand"
+                  data-action="add-procedure"
+                  class="action-btn-spacing"
+                  onclick={handleOpenAddProcedure}
+                ></lightning-button>
+              </div>
+            </div>
+
+            <!-- Milestones List -->
+            <template lwc:if={hasMilestones}>
+              <template for:each={milestones} for:item="m">
+                <div key={m.id} class="milestone-card">
+                  <!-- Milestone Card Header -->
+                  <div
+                    class="milestone-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                  >
+                    <div
+                      class="slds-grid slds-grid_vertical-align-center slds-truncate"
+                    >
+                      <span class="seq-badge slds-m-right_small"
+                        >{m.sequence}</span
+                      >
+                      <div>
+                        <a
+                          href="javascript:void(0);"
+                          data-id={m.id}
+                          onclick={handleNavigateToLineItem}
+                          class="slds-text-heading_small slds-truncate"
+                          style="font-weight: 700; color: #0176d3"
+                        >
+                          {m.name}
+                        </a>
+                        <div class="slds-m-top_xxx-small">
+                          <template lwc:if={m.milestoneMileage}>
+                            <span
+                              class="slds-badge slds-theme_default slds-m-right_xx-small"
+                              style="font-size: 0.72rem; font-weight: 600"
+                            >
+                              📍 {m.milestoneMileage} mi
+                            </span>
+                          </template>
+                          <template lwc:if={m.milestoneMonths}>
+                            <span
+                              class="slds-badge slds-theme_default slds-m-right_xx-small"
+                              style="font-size: 0.72rem; font-weight: 600"
+                            >
+                              ⏱️ {m.milestoneMonths} Months
+                            </span>
+                          </template>
+                          <span
+                            class="slds-text-body_small slds-text-color_weak"
+                          >
+                            Category: {m.serviceCategory}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <div class="slds-text-align_right slds-m-right_medium">
+                        <span
+                          class="slds-text-body_regular"
+                          style="font-weight: 700; color: #181818"
+                        >
+                          ${m.subtotalCost}
+                        </span>
+                        <span
+                          class="slds-text-body_small slds-text-color_weak slds-show"
+                        >
+                          {m.subtotalHours} hrs · {m.childCount} tasks
+                        </span>
+                      </div>
+                      <lightning-button-menu
+                        alternative-text="Milestone Actions"
+                        menu-alignment="right"
+                      >
+                        <lightning-menu-item
+                          label="Add Procedure to Milestone"
+                          value="add_task"
+                          data-parentid={m.id}
+                          onclick={handleOpenAddProcedure}
+                        ></lightning-menu-item>
+                        <lightning-menu-item
+                          label="View Details"
+                          value="view"
+                          data-id={m.id}
+                          onclick={handleNavigateToLineItem}
+                        ></lightning-menu-item>
+                        <lightning-menu-item
+                          label="Delete Milestone"
+                          value="delete"
+                          data-id={m.id}
+                          onclick={handleDeleteItem}
+                        ></lightning-menu-item>
+                      </lightning-button-menu>
+                    </div>
+                  </div>
+
+                  <!-- Full Width Child Procedures Table -->
+                  <template lwc:if={m.childItems.length}>
+                    <div style="overflow-x: auto">
+                      <table class="proc-table">
+                        <thead>
+                          <tr>
+                            <th style="width: 3%">#</th>
+                            <th style="width: 28%">Procedure / Task Name</th>
+                            <th style="width: 18%">Type</th>
+                            <th style="width: 16%">Category</th>
+                            <th style="width: 21%">Components &amp; Scope</th>
+                            <th style="width: 10%">Cost &amp; Hours</th>
+                            <th style="width: 4%"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <template for:each={m.childItems} for:item="c">
+                            <tr key={c.id}>
+                              <td
+                                class="slds-text-color_weak"
+                                style="font-weight: 600"
+                              >
+                                {c.sequence}
+                              </td>
+                              <td>
+                                <a
+                                  href="javascript:void(0);"
+                                  data-id={c.id}
+                                  onclick={handleNavigateToLineItem}
+                                  style="font-weight: 600; color: #1e293b"
+                                >
+                                  {c.name}
+                                </a>
+                              </td>
+                              <td>
+                                <span class={c.typeBadgeClass}>
+                                  {c.itemType}
+                                </span>
+                              </td>
+                              <td class="slds-text-body_small">
+                                {c.serviceCategory}
+                              </td>
+                              <td
+                                class="slds-text-body_small slds-text-color_weak"
+                              >
+                                {c.componentsServiced}
+                              </td>
+                              <td>
+                                <span style="font-weight: 600; color: #0f172a">
+                                  ${c.estimatedCost}
+                                </span>
+                                <span
+                                  class="slds-text-body_small slds-text-color_weak slds-m-left_xx-small"
+                                >
+                                  · {c.estimatedHours}h
+                                </span>
+                              </td>
+                              <td>
+                                <lightning-button-icon
+                                  icon-name="utility:delete"
+                                  size="x-small"
+                                  variant="bare"
+                                  alternative-text="Delete"
+                                  data-id={c.id}
+                                  onclick={handleDeleteItem}
+                                ></lightning-button-icon>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+                  </template>
+                  <template lwc:else>
+                    <div
+                      class="slds-p-around_medium slds-text-align_center slds-theme_shade"
+                    >
+                      <span class="slds-text-body_small slds-text-color_weak">
+                        No procedures linked to this milestone yet.
+                      </span>
+                      <a
+                        href="javascript:void(0);"
+                        data-parentid={m.id}
+                        onclick={handleOpenAddProcedure}
+                        class="slds-m-left_xx-small slds-text-body_small"
+                        style="font-weight: 600"
+                      >
+                        + Add procedure
+                      </a>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </template>
+            <template lwc:else>
+              <div class="empty-state-box">
+                <lightning-icon
+                  icon-name="standard:service_crew"
+                  size="large"
+                  class="slds-m-bottom_small"
+                ></lightning-icon>
+                <h4 class="slds-text-heading_small slds-m-bottom_xx-small">
+                  No Milestones Configured Yet
+                </h4>
+                <p
+                  class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium"
+                >
+                  Add recommended OEM milestones (e.g. 15,000-Mile Service) to
+                  build your plan roadmap.
+                </p>
+                <lightning-button
+                  label="Create First Milestone"
+                  variant="brand"
+                  icon-name="utility:add"
+                  onclick={handleOpenAddMilestone}
+                ></lightning-button>
+              </div>
+            </template>
+          </lightning-tab>
+
+          <!-- TAB 2: Connected Fleet Vehicles (Side by Side Grid) -->
+          <lightning-tab label={vehiclesTabLabel} icon-name="standard:fleet">
+            <!-- Tab Toolbar -->
+            <div
+              class="tab-toolbar slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-wrap"
+            >
+              <div>
+                <h3
+                  class="slds-text-heading_small"
+                  style="font-weight: 700; color: #1e293b"
+                >
+                  Connected Fleet Vehicles
+                </h3>
+                <p class="slds-text-body_small slds-text-color_weak">
+                  Live odometer triggers, remaining miles, and scheduled service
+                  readiness
+                </p>
+              </div>
+              <div class="slds-m-top_xxx-small">
+                <lightning-button
+                  label="Assign Vehicles to Plan"
+                  icon-name="utility:custom_apps"
+                  variant="brand"
+                  data-action="assign-vehicles"
+                  onclick={handleOpenAssignVehicles}
+                ></lightning-button>
+              </div>
+            </div>
+
+            <!-- Vehicles Side-by-Side Grid (3 per row on desktop, 2 on tablet) -->
+            <template lwc:if={hasAssignedAssets}>
+              <div class="slds-grid slds-wrap slds-gutters">
+                <template for:each={assignedAssets} for:item="v">
+                  <div
+                    key={v.id}
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3 slds-m-bottom_medium"
+                  >
+                    <div class="vehicle-grid-card">
+                      <!-- Vehicle Header -->
+                      <div>
+                        <div
+                          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                        >
+                          <a
+                            href="javascript:void(0);"
+                            data-id={v.id}
+                            onclick={handleNavigateToAsset}
+                            class="slds-text-heading_small slds-truncate"
+                            style="font-weight: 700; color: #0176d3"
+                          >
+                            {v.name}
+                          </a>
+                          <lightning-button-icon
+                            icon-name="utility:close"
+                            size="small"
+                            variant="bare"
+                            alternative-text="Unassign vehicle"
+                            data-id={v.id}
+                            onclick={handleUnassignAsset}
+                          ></lightning-button-icon>
+                        </div>
+
+                        <div class="slds-m-top_xx-small">
+                          <span
+                            class="slds-badge slds-badge_lightest slds-m-right_xx-small"
+                            style="font-size: 0.7rem; font-weight: 600"
+                          >
+                            {v.licensePlate}
+                          </span>
+                          <span
+                            class="slds-badge slds-theme_default"
+                            style="font-size: 0.7rem"
+                          >
+                            {v.bodyType}
+                          </span>
+                        </div>
+
+                        <div
+                          class="slds-m-top_small slds-grid slds-grid_align-spread slds-text-body_small"
+                        >
+                          <span class="slds-text-color_weak"
+                            >Location / Hub:</span
+                          >
+                          <strong style="color: #334155">{v.branchName}</strong>
+                        </div>
+
+                        <div
+                          class="slds-m-top_xx-small slds-grid slds-grid_align-spread slds-text-body_small"
+                        >
+                          <span class="slds-text-color_weak">Odometer:</span>
+                          <strong style="color: #0f172a"
+                            >{v.odometer} mi</strong
+                          >
+                        </div>
+                      </div>
+
+                      <!-- Next Due Milestone Footer -->
+                      <div
+                        class="slds-m-top_medium slds-p-top_small slds-border_top"
+                      >
+                        <div class="slds-text-body_small slds-text-color_weak">
+                          Next Due Milestone:
+                        </div>
+                        <div
+                          class="slds-m-top_xxx-small slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                        >
+                          <span
+                            style="
+                              font-weight: 600;
+                              color: #1e293b;
+                              font-size: 0.82rem;
+                            "
+                            class="slds-truncate"
+                          >
+                            {v.nextMilestoneName}
+                          </span>
+                          <span
+                            class={v.milestoneBadgeClass}
+                            style="font-size: 0.68rem; font-weight: 600"
+                          >
+                            {v.milestoneStatusLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+            <template lwc:else>
+              <div class="empty-state-box">
+                <lightning-icon
+                  icon-name="standard:fleet"
+                  size="large"
+                  class="slds-m-bottom_small"
+                ></lightning-icon>
+                <h4 class="slds-text-heading_small slds-m-bottom_xx-small">
+                  No Vehicles Directly Assigned Yet
+                </h4>
+                <p
+                  class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium"
+                >
+                  Link vehicles to this maintenance plan to monitor live
+                  odometer triggers and automated service tickets.
+                </p>
+                <lightning-button
+                  label="Assign Vehicles Now"
+                  variant="brand"
+                  icon-name="utility:custom_apps"
+                  data-action="assign-vehicles"
+                  onclick={handleOpenAssignVehicles}
+                ></lightning-button>
+              </div>
+            </template>
+          </lightning-tab>
+        </lightning-tabset>
+      </div>
+    </template>
+  </div>
+
+  <!-- MODAL 1: Add Milestone -->
+  <template lwc:if={showAddMilestoneModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <lightning-button-icon
+            icon-name="utility:close"
+            alternative-text="Close"
+            variant="bare-inverse"
+            class="slds-modal__close"
+            onclick={handleCloseAddMilestone}
+          ></lightning-button-icon>
+          <h2 class="slds-text-heading_medium">Add Service Milestone</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-grid slds-wrap slds-gutters">
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Milestone Name"
+                placeholder="e.g. 15,000-Mile Scheduled Service"
+                value={milestoneForm.name}
+                data-field="name"
+                onchange={handleMilestoneInputChange}
+                required
+              ></lightning-input>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Sequence"
+                type="number"
+                value={milestoneForm.sequence}
+                data-field="sequence"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Milestone Mileage (mi)"
+                type="number"
+                placeholder="e.g. 15000"
+                value={milestoneForm.milestoneMileage}
+                data-field="milestoneMileage"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Milestone Months"
+                type="number"
+                placeholder="e.g. 12"
+                value={milestoneForm.milestoneMonths}
+                data-field="milestoneMonths"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-combobox
+                label="Service Category"
+                value={milestoneForm.serviceCategory}
+                options={categoryOptions}
+                data-field="serviceCategory"
+                onchange={handleMilestoneInputChange}
+              ></lightning-combobox>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Estimated Cost ($)"
+                type="number"
+                formatter="currency"
+                step="0.01"
+                value={milestoneForm.estimatedCost}
+                data-field="estimatedCost"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Estimated Hours"
+                type="number"
+                step="0.1"
+                value={milestoneForm.estimatedHours}
+                data-field="estimatedHours"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                label="Key Components Serviced"
+                placeholder="e.g. Engine Oil, Oil Filter, Tire Rotation"
+                value={milestoneForm.componentsServiced}
+                data-field="componentsServiced"
+                onchange={handleMilestoneInputChange}
+              ></lightning-input>
+            </div>
+          </div>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Cancel"
+            onclick={handleCloseAddMilestone}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Save Milestone"
+            variant="brand"
+            onclick={handleSaveMilestone}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- MODAL 2: Add Procedure -->
+  <template lwc:if={showAddProcedureModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <lightning-button-icon
+            icon-name="utility:close"
+            alternative-text="Close"
+            variant="bare-inverse"
+            class="slds-modal__close"
+            onclick={handleCloseAddProcedure}
+          ></lightning-button-icon>
+          <h2 class="slds-text-heading_medium">Add Procedure / Task</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-combobox
+                label="Parent Milestone"
+                value={procedureForm.parentLineItemId}
+                options={milestoneOptions}
+                data-field="parentLineItemId"
+                onchange={handleProcedureInputChange}
+                required
+              ></lightning-combobox>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Procedure / Task Name"
+                placeholder="e.g. Replace Engine Oil & Filter"
+                value={procedureForm.name}
+                data-field="name"
+                onchange={handleProcedureInputChange}
+                required
+              ></lightning-input>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-combobox
+                label="Type"
+                value={procedureForm.itemType}
+                options={typeOptions}
+                data-field="itemType"
+                onchange={handleProcedureInputChange}
+                required
+              ></lightning-combobox>
+            </div>
+
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-combobox
+                label="Service Category"
+                value={procedureForm.serviceCategory}
+                options={categoryOptions}
+                data-field="serviceCategory"
+                onchange={handleProcedureInputChange}
+              ></lightning-combobox>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Estimated Cost ($)"
+                type="number"
+                formatter="currency"
+                step="0.01"
+                value={procedureForm.estimatedCost}
+                data-field="estimatedCost"
+                onchange={handleProcedureInputChange}
+              ></lightning-input>
+            </div>
+            <div
+              class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+            >
+              <lightning-input
+                label="Estimated Hours"
+                type="number"
+                step="0.1"
+                value={procedureForm.estimatedHours}
+                data-field="estimatedHours"
+                onchange={handleProcedureInputChange}
+              ></lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+              <lightning-input
+                label="Parts / Components Required"
+                placeholder="e.g. 5W-30 Synthetic Oil, OEM Oil Filter Cartridge"
+                value={procedureForm.componentsServiced}
+                data-field="componentsServiced"
+                onchange={handleProcedureInputChange}
+              ></lightning-input>
+            </div>
+          </div>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Cancel"
+            onclick={handleCloseAddProcedure}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Save Procedure"
+            variant="brand"
+            onclick={handleSaveProcedure}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- MODAL 3: Assign Vehicles -->
+  <template lwc:if={showAssignVehiclesModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <lightning-button-icon
+            icon-name="utility:close"
+            alternative-text="Close"
+            variant="bare-inverse"
+            class="slds-modal__close"
+            onclick={handleCloseAssignVehicles}
+          ></lightning-button-icon>
+          <h2 class="slds-text-heading_medium">
+            Assign Fleet Vehicles to Plan
+          </h2>
+          <p
+            class="slds-m-top_x-small slds-text-body_small slds-text-color_weak"
+          >
+            Select eligible vehicles in your fleet to assign to this maintenance
+            schedule.
+          </p>
+        </header>
+        <div
+          class="slds-modal__content slds-p-around_medium"
+          style="max-height: 450px; overflow-y: auto"
+        >
+          <template lwc:if={hasEligibleAssets}>
+            <div
+              class="slds-p-around_xx-small slds-m-bottom_small slds-theme_shade slds-border_rounded slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+            >
+              <lightning-input
+                type="checkbox"
+                label="Select All Vehicles"
+                checked={isSelectAll}
+                onchange={handleToggleSelectAll}
+              ></lightning-input>
+              <span class="slds-badge slds-badge_lightest">
+                {selectedAssetsCount} Selected
+              </span>
+            </div>
+
+            <div class="slds-table_header-fixed_container">
+              <table
+                class="slds-table slds-table_cell-buffer slds-table_bordered"
+              >
+                <thead>
+                  <tr class="slds-line-height_reset">
+                    <th style="width: 3.25rem"></th>
+                    <th>Vehicle Name</th>
+                    <th>Plate</th>
+                    <th>Make / Model</th>
+                    <th>Odometer</th>
+                    <th>Branch</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template for:each={eligibleAssets} for:item="a">
+                    <tr key={a.id}>
+                      <td>
+                        <lightning-input
+                          type="checkbox"
+                          checked={a.isChecked}
+                          data-id={a.id}
+                          onchange={handleToggleAssetSelect}
+                        ></lightning-input>
+                      </td>
+                      <td>
+                        <strong>{a.name}</strong>
+                      </td>
+                      <td>{a.licensePlate}</td>
+                      <td>{a.makeModel}</td>
+                      <td>{a.odometer} mi</td>
+                      <td>{a.branchName}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </template>
+          <template lwc:else>
+            <div class="slds-text-align_center slds-p-around_large">
+              <p class="slds-text-body_regular slds-text-color_weak">
+                All matching vehicles in the fleet are already assigned to this
+                plan!
+              </p>
+            </div>
+          </template>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Cancel"
+            onclick={handleCloseAssignVehicles}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Assign Selected Vehicles"
+            variant="brand"
+            disabled={isAssignDisabled}
+            onclick={handleSaveVehicleAssignments}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>
