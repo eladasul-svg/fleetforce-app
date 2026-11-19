@@ -526,4 +526,72 @@ private class DriverAppControllerTest {
     );
     System.assertEquals(false, unlinkedDash.isAdminMode);
   }
+
+  @IsTest
+  static void credentialsCanBeUpdatedAndUploaded() {
+    Contact d = dana();
+    Date newExp = Date.today().addDays(365);
+
+    // Update Driver License
+    Id qualId = DriverAppController.updateCredential(
+      d.Id,
+      'Driver License',
+      'DL-TEST-999',
+      'CO DMV',
+      newExp,
+      'Class A CDL',
+      'CO'
+    );
+    System.assertNotEquals(null, qualId);
+
+    // Verify Contact updated
+    Contact updatedC = [
+      SELECT
+        fleetforce__License_Number__c,
+        fleetforce__License_Expiry__c,
+        fleetforce__License_Class__c,
+        fleetforce__License_State__c
+      FROM Contact
+      WHERE Id = :d.Id
+    ];
+    System.assertEquals('DL-TEST-999', updatedC.fleetforce__License_Number__c);
+    System.assertEquals(newExp, updatedC.fleetforce__License_Expiry__c);
+    System.assertEquals('Class A CDL', updatedC.fleetforce__License_Class__c);
+    System.assertEquals('CO', updatedC.fleetforce__License_State__c);
+
+    // Attach scan to the qualification
+    String base64 = EncodingUtil.base64Encode(
+      Blob.valueOf('sample license scan')
+    );
+    Id cvId = DriverAppController.attachPhoto(
+      qualId,
+      'license_scan.jpg',
+      base64
+    );
+    System.assertNotEquals(null, cvId);
+
+    // Update Medical Certificate
+    Date medExp = Date.today().addDays(180);
+    Id medQualId = DriverAppController.updateCredential(
+      d.Id,
+      'Medical Certificate',
+      'MED-TEST-123',
+      'FMCSA Medical Examiner',
+      medExp,
+      null,
+      null
+    );
+    System.assertNotEquals(null, medQualId);
+    Contact updatedMed = [
+      SELECT fleetforce__Medical_Cert__c
+      FROM Contact
+      WHERE Id = :d.Id
+    ];
+    System.assertEquals(medExp, updatedMed.fleetforce__Medical_Cert__c);
+
+    // Check dashboard returns URLs and qualifications
+    DriverAppController.Dashboard dash = DriverAppController.getDashboard(d.Id);
+    System.assertNotEquals(null, dash.driver);
+    System.assertNotEquals(null, dash.driver.licenseDocUrl);
+  }
 }

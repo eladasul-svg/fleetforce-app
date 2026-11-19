@@ -44,9 +44,13 @@ public without sharing class DriverAppController {
     @AuraEnabled
     public Integer licenseDaysLeft;
     @AuraEnabled
+    public String licenseDocUrl;
+    @AuraEnabled
     public Date medicalCert;
     @AuraEnabled
     public Integer medicalDaysLeft;
+    @AuraEnabled
+    public String medicalDocUrl;
     @AuraEnabled
     public Decimal safetyScore;
     @AuraEnabled
@@ -273,11 +277,17 @@ public without sharing class DriverAppController {
     @AuraEnabled
     public String authority;
     @AuraEnabled
+    public String certId;
+    @AuraEnabled
+    public String status;
+    @AuraEnabled
     public Date validUntil;
     @AuraEnabled
     public Integer daysLeft;
     @AuraEnabled
     public Boolean mandatory;
+    @AuraEnabled
+    public String docUrl;
   }
 
   public class AuthorizedInfo {
@@ -1033,11 +1043,14 @@ public without sharing class DriverAppController {
           : ct.fleetforce__Fleet_Asset__r.Name;
         d.citations.add(ci);
       }
+      Set<Id> entityIds = new Set<Id>{ driverId };
       for (fleetforce__Driver_Qualification__c q : [
         SELECT
           Id,
           fleetforce__Type__c,
           fleetforce__Authority__c,
+          fleetforce__Cert_ID__c,
+          fleetforce__Status__c,
           fleetforce__Valid_Until__c,
           fleetforce__Is_Mandatory__c
         FROM fleetforce__Driver_Qualification__c
@@ -1045,16 +1058,55 @@ public without sharing class DriverAppController {
         ORDER BY fleetforce__Type__c, fleetforce__Valid_Until__c NULLS LAST
         LIMIT 12
       ]) {
+        entityIds.add(q.Id);
         QualificationInfo qi = new QualificationInfo();
         qi.id = q.Id;
         qi.qualType = q.fleetforce__Type__c;
         qi.authority = q.fleetforce__Authority__c;
+        qi.certId = q.fleetforce__Cert_ID__c;
+        qi.status = q.fleetforce__Status__c;
         qi.validUntil = q.fleetforce__Valid_Until__c;
         qi.daysLeft = q.fleetforce__Valid_Until__c == null
           ? null
           : today.daysBetween(q.fleetforce__Valid_Until__c);
         qi.mandatory = q.fleetforce__Is_Mandatory__c;
         d.qualifications.add(qi);
+      }
+
+      Map<Id, String> latestDocUrlByEntity = new Map<Id, String>();
+      for (ContentDocumentLink cdl : [
+        SELECT LinkedEntityId, ContentDocument.LatestPublishedVersionId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId IN :entityIds
+        ORDER BY SystemModstamp DESC
+      ]) {
+        if (!latestDocUrlByEntity.containsKey(cdl.LinkedEntityId)) {
+          latestDocUrlByEntity.put(
+            cdl.LinkedEntityId,
+            '/sfc/servlet.shepherd/version/download/' +
+            cdl.ContentDocument.LatestPublishedVersionId
+          );
+        }
+      }
+
+      di.licenseDocUrl = latestDocUrlByEntity.get(driverId);
+      for (QualificationInfo qi : d.qualifications) {
+        qi.docUrl = latestDocUrlByEntity.get(qi.id);
+        if (
+          di.licenseDocUrl == null &&
+          qi.authority != null &&
+          (qi.authority.contains('DMV') ||
+          qi.authority.contains('Driver Services'))
+        ) {
+          di.licenseDocUrl = qi.docUrl;
+        }
+        if (
+          di.medicalDocUrl == null &&
+          qi.authority != null &&
+          (qi.authority.contains('FMCSA') || qi.authority.contains('Medical'))
+        ) {
+          di.medicalDocUrl = qi.docUrl;
+        }
       }
 
       buildNotices(d, today);
@@ -1542,25 +1594,203 @@ public without sharing class DriverAppController {
     }
   }
 
-  /** Attaches a (client-resized) photo to a trip or a ticket. base64 is the file content without the data: prefix. */
+  /** Updates a driver credential (license, medical, or qualification) and returns the qualification ID for document attachment. */
+  @AuraEnabled
+  public static Id updateCredential(
+    Id driverId,
+    String credentialType,
+    String certNumber,
+    String authority,
+    Date expirationDate,
+    String licenseClass,
+    String licenseState
+  ) {
+    try {
+      if (driverId == null) {
+        throw new AuraHandledException('Driver ID is required.');
+      }
+      if (String.isBlank(credentialType)) {
+        throw new AuraHandledException('Please select a credential type.');
+      }
+      if (expirationDate == null) {
+        throw new AuraHandledException('Please enter the expiration date.');
+      }
+
+      Id qualificationId;
+      String cleanType = credentialType.trim();
+
+      if (cleanType == 'Driver License') {
+        Contact c = new Contact(Id = driverId);
+        if (String.isNotBlank(certNumber)) {
+          c.fleetforce__License_Number__c = certNumber.trim();
+        }
+        if (String.isNotBlank(licenseClass)) {
+          c.fleetforce__License_Class__c = licenseClass.trim();
+        }
+        if (String.isNotBlank(licenseState)) {
+          c.fleetforce__License_State__c = licenseState.trim();
+        }
+        c.fleetforce__License_Expiry__c = expirationDate;
+        update c;
+
+        List<fleetforce__Driver_Qualification__c> existing = [
+          SELECT Id
+          FROM fleetforce__Driver_Qualification__c
+          WHERE
+            fleetforce__Driver__c = :driverId
+            AND (fleetforce__Authority__c LIKE '%DMV%'
+            OR fleetforce__Authority__c LIKE '%Driver Services%'
+            OR fleetforce__Cert_ID__c = :certNumber)
+          LIMIT 1
+        ];
+
+        fleetforce__Driver_Qualification__c q;
+        if (!existing.isEmpty()) {
+          q = new fleetforce__Driver_Qualification__c(Id = existing[0].Id);
+        } else {
+          q = new fleetforce__Driver_Qualification__c(
+            fleetforce__Driver__c = driverId,
+            fleetforce__Type__c = 'Certification',
+            fleetforce__Is_Mandatory__c = true
+          );
+        }
+        q.fleetforce__Cert_ID__c = String.isNotBlank(certNumber)
+          ? certNumber.trim()
+          : 'DL-' + driverId;
+        q.fleetforce__Authority__c = String.isNotBlank(authority)
+          ? authority.trim()
+          : (String.isNotBlank(licenseState)
+              ? licenseState + ' Department of Driver Services'
+              : 'State DMV');
+        q.fleetforce__Valid_Until__c = expirationDate;
+        q.fleetforce__Status__c = 'Valid';
+        upsert q;
+        qualificationId = q.Id;
+      } else if (cleanType == 'Medical Certificate') {
+        Contact c = new Contact(
+          Id = driverId,
+          fleetforce__Medical_Cert__c = expirationDate
+        );
+        update c;
+
+        List<fleetforce__Driver_Qualification__c> existing = [
+          SELECT Id
+          FROM fleetforce__Driver_Qualification__c
+          WHERE
+            fleetforce__Driver__c = :driverId
+            AND (fleetforce__Authority__c LIKE '%FMCSA%'
+            OR fleetforce__Authority__c LIKE '%Medical%'
+            OR fleetforce__Cert_ID__c = :certNumber)
+          LIMIT 1
+        ];
+
+        fleetforce__Driver_Qualification__c q;
+        if (!existing.isEmpty()) {
+          q = new fleetforce__Driver_Qualification__c(Id = existing[0].Id);
+        } else {
+          q = new fleetforce__Driver_Qualification__c(
+            fleetforce__Driver__c = driverId,
+            fleetforce__Type__c = 'Certification',
+            fleetforce__Is_Mandatory__c = true
+          );
+        }
+        q.fleetforce__Cert_ID__c = String.isNotBlank(certNumber)
+          ? certNumber.trim()
+          : 'MED-' + driverId;
+        q.fleetforce__Authority__c = String.isNotBlank(authority)
+          ? authority.trim()
+          : 'Federal Motor Carrier Safety Administration (FMCSA)';
+        q.fleetforce__Valid_Until__c = expirationDate;
+        q.fleetforce__Status__c = 'Valid';
+        upsert q;
+        qualificationId = q.Id;
+      } else {
+        fleetforce__Driver_Qualification__c q = new fleetforce__Driver_Qualification__c(
+          fleetforce__Driver__c = driverId,
+          fleetforce__Type__c = 'Certification',
+          fleetforce__Cert_ID__c = certNumber,
+          fleetforce__Authority__c = String.isNotBlank(authority)
+            ? authority.trim()
+            : cleanType,
+          fleetforce__Valid_Until__c = expirationDate,
+          fleetforce__Status__c = 'Valid',
+          fleetforce__Is_Mandatory__c = false
+        );
+        insert q;
+        qualificationId = q.Id;
+      }
+
+      return qualificationId;
+    } catch (AuraHandledException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new AuraHandledException(
+        'We could not save your credential: ' + e.getMessage()
+      );
+    }
+  }
+
+  /** Attaches a photo or document scan to a trip, ticket, or qualification. base64 is the file content without the data: prefix. */
   @AuraEnabled
   public static Id attachPhoto(Id parentId, String fileName, String base64) {
     try {
       if (parentId == null || String.isBlank(base64)) {
-        throw new AuraHandledException('There is no photo to upload.');
+        throw new AuraHandledException('There is no photo or file to upload.');
       }
+      String cleanName = String.isBlank(fileName)
+        ? 'Driver Document'
+        : fileName;
+      String pathExt = cleanName.contains('.') ? '' : '.jpg';
       ContentVersion cv = new ContentVersion(
-        Title = String.isBlank(fileName) ? 'Driver photo' : fileName,
-        PathOnClient = (String.isBlank(fileName) ? 'photo' : fileName) + '.jpg',
+        Title = cleanName,
+        PathOnClient = cleanName + pathExt,
         VersionData = EncodingUtil.base64Decode(base64),
         FirstPublishLocationId = parentId
       );
       insert cv;
+
+      if (
+        parentId.getSobjectType() ==
+        fleetforce__Driver_Qualification__c.SObjectType
+      ) {
+        fleetforce__Driver_Qualification__c q = [
+          SELECT fleetforce__Driver__c
+          FROM fleetforce__Driver_Qualification__c
+          WHERE Id = :parentId
+          LIMIT 1
+        ];
+        if (q.fleetforce__Driver__c != null) {
+          ContentVersion insertedCv = [
+            SELECT ContentDocumentId
+            FROM ContentVersion
+            WHERE Id = :cv.Id
+            LIMIT 1
+          ];
+          List<ContentDocumentLink> existingLinks = [
+            SELECT Id
+            FROM ContentDocumentLink
+            WHERE
+              ContentDocumentId = :insertedCv.ContentDocumentId
+              AND LinkedEntityId = :q.fleetforce__Driver__c
+            LIMIT 1
+          ];
+          if (existingLinks.isEmpty()) {
+            insert new ContentDocumentLink(
+              ContentDocumentId = insertedCv.ContentDocumentId,
+              LinkedEntityId = q.fleetforce__Driver__c,
+              ShareType = 'V'
+            );
+          }
+        }
+      }
+
       return cv.Id;
     } catch (AuraHandledException e) {
       throw e;
     } catch (Exception e) {
-      throw new AuraHandledException('We could not upload the photo.');
+      throw new AuraHandledException(
+        'We could not upload the document: ' + e.getMessage()
+      );
     }
   }
 

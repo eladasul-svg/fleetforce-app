@@ -29,8 +29,20 @@
 
 .doc-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.4rem;
+  width: 100%;
+}
+
+.doc-actions a,
+.doc-actions button {
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
 }
 
 @media (max-width: 600px) {
@@ -38,18 +50,12 @@
     padding: 0.65rem !important;
   }
   .doc-actions {
-    display: flex;
-    flex-wrap: wrap;
     gap: 0.35rem;
-    justify-content: flex-end;
-    width: 100%;
   }
   .doc-actions a,
   .doc-actions button {
     font-size: 0.72rem !important;
     padding: 0.3rem 0.55rem !important;
-    margin: 0 !important;
-    white-space: nowrap;
   }
 }
 

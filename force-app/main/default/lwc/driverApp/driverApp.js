@@ -10,6 +10,7 @@ import updateTrip from "@salesforce/apex/DriverAppController.updateTrip";
 import reportIssue from "@salesforce/apex/DriverAppController.reportIssue";
 import logFuel from "@salesforce/apex/DriverAppController.logFuel";
 import attachPhoto from "@salesforce/apex/DriverAppController.attachPhoto";
+import updateCredential from "@salesforce/apex/DriverAppController.updateCredential";
 import {
   distanceUnit,
   formatInZone,
@@ -84,9 +85,25 @@ function daysClass(days, warnAt = 30) {
   return days <= warnAt ? "chip chip--warn" : "chip chip--ok";
 }
 
-/** Resize a photo on the device before upload (long edge 1280 px, JPEG) so uploads stay small on mobile data. */
+/** Resize a photo on the device before upload (long edge 1280 px, JPEG) so uploads stay small on mobile data, or read PDF directly. */
 function shrinkImage(file) {
   return new Promise((resolve, reject) => {
+    if (file.type === "application/pdf") {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = result.split(",")[1];
+        resolve({
+          dataUrl:
+            "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23ef4444'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><path d='M14 2v6h6' fill='%23b91c1c'/><text x='7' y='18' font-size='6' fill='%23fff' font-weight='bold'>PDF</text></svg>",
+          base64,
+          isPdf: true
+        });
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
     const reader = new FileReader();
     reader.onerror = reject;
     reader.onload = () => {
@@ -101,7 +118,7 @@ function shrinkImage(file) {
           .getContext("2d")
           .drawImage(img, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
-        resolve({ dataUrl, base64: dataUrl.split(",")[1] });
+        resolve({ dataUrl, base64: dataUrl.split(",")[1], isPdf: false });
       };
       img.src = reader.result;
     };
@@ -202,6 +219,15 @@ export default class DriverApp extends LightningElement {
   logOrigin = "";
   logDestination = "";
   logNotes = "";
+
+  // credential self-service
+  credType = "Driver License";
+  credNumber = "";
+  credExpiry = "";
+  credState = "";
+  credClass = "";
+  credAuthority = "";
+  credTitle = "";
 
   _toastTimer;
 
@@ -1178,11 +1204,13 @@ export default class DriverApp extends LightningElement {
         .join(" · "),
       licenseChip: d.licenseExpiry ? daysText(d.licenseDaysLeft) : "",
       licenseCls: daysClass(d.licenseDaysLeft, 60),
+      licenseDocUrl: d.licenseDocUrl,
       medicalSub: d.medicalCert
         ? `valid until ${dateText(d.medicalCert)}`
         : "not on file",
       medicalChip: d.medicalCert ? daysText(d.medicalDaysLeft) : "",
-      medicalCls: daysClass(d.medicalDaysLeft, 60)
+      medicalCls: daysClass(d.medicalDaysLeft, 60),
+      medicalDocUrl: d.medicalDocUrl
     };
   }
 
@@ -1194,7 +1222,8 @@ export default class DriverApp extends LightningElement {
         ? `valid until ${dateText(q.validUntil)}`
         : "does not expire",
       chipText: q.validUntil ? daysText(q.daysLeft) : "",
-      chipCls: daysClass(q.daysLeft, 60)
+      chipCls: daysClass(q.daysLeft, 60),
+      docUrl: q.docUrl
     }));
   }
 
@@ -1381,6 +1410,23 @@ export default class DriverApp extends LightningElement {
     return this.sheet === "notices";
   }
 
+  get isCredentialSheet() {
+    return this.sheet === "credential";
+  }
+  get isDriverLicenseCredential() {
+    return this.credType === "Driver License";
+  }
+  get isMedicalCertCredential() {
+    return this.credType === "Medical Certificate";
+  }
+  get credentialTypeOptions() {
+    return [
+      { value: "Driver License", label: "Driver License" },
+      { value: "Medical Certificate", label: "Medical Certificate" },
+      { value: "Certification", label: "Other Certification / Skill" }
+    ];
+  }
+
   get sheetTitle() {
     return (
       {
@@ -1388,6 +1434,7 @@ export default class DriverApp extends LightningElement {
         endtrip: "End your trip & log mileage",
         logTrip: this.editingTripId ? "Edit trip submission" : "Log a trip",
         issue: "Report an issue",
+        credential: "Update & Upload Credential",
         fuel:
           this.vehicle && this.vehicle.fuelType === "Electric"
             ? "Log charging"
@@ -1396,6 +1443,77 @@ export default class DriverApp extends LightningElement {
         notices: "Notifications"
       }[this.sheet] || ""
     );
+  }
+
+  handleOpenCredentialSheet() {
+    this.credType = "Driver License";
+    this.credNumber = this.driver.licenseNumber || "";
+    this.credExpiry = this.driver.licenseExpiry || "";
+    this.credState = this.driver.licenseState || "";
+    this.credClass = this.driver.licenseClass || "Class D";
+    this.credAuthority = "";
+    this.credTitle = "";
+    this.openSheet("credential");
+  }
+
+  handleRenewCredential(event) {
+    const type = event.currentTarget.dataset.type;
+    if (type === "license") {
+      this.credType = "Driver License";
+      this.credNumber = this.driver.licenseNumber || "";
+      this.credExpiry = this.driver.licenseExpiry || "";
+      this.credState = this.driver.licenseState || "";
+      this.credClass = this.driver.licenseClass || "Class D";
+    } else if (type === "medical") {
+      this.credType = "Medical Certificate";
+      this.credNumber = "";
+      this.credExpiry = this.driver.medicalCert || "";
+      this.credAuthority =
+        "Federal Motor Carrier Safety Administration (FMCSA)";
+    } else {
+      const qId = event.currentTarget.dataset.id;
+      const q = (this.dash.qualifications || []).find((x) => x.id === qId);
+      this.credType = "Certification";
+      this.credTitle = q ? q.qualType : "";
+      this.credNumber = q ? q.certId || "" : "";
+      this.credAuthority = q ? q.authority || "" : "";
+      this.credExpiry = q ? q.validUntil || "" : "";
+    }
+    this.openSheet("credential");
+  }
+
+  handleCredentialTypeChange(event) {
+    this.credType = event.target.value;
+    if (this.credType === "Driver License") {
+      this.credNumber = this.driver.licenseNumber || "";
+      this.credExpiry = this.driver.licenseExpiry || "";
+      this.credState = this.driver.licenseState || "";
+      this.credClass = this.driver.licenseClass || "Class D";
+    } else if (this.credType === "Medical Certificate") {
+      this.credNumber = "";
+      this.credExpiry = this.driver.medicalCert || "";
+      this.credAuthority =
+        "Federal Motor Carrier Safety Administration (FMCSA)";
+    }
+  }
+
+  handleCredNumberInput(e) {
+    this.credNumber = e.target.value;
+  }
+  handleCredExpiryInput(e) {
+    this.credExpiry = e.target.value;
+  }
+  handleCredStateInput(e) {
+    this.credState = e.target.value;
+  }
+  handleCredClassInput(e) {
+    this.credClass = e.target.value;
+  }
+  handleCredAuthorityInput(e) {
+    this.credAuthority = e.target.value;
+  }
+  handleCredTitleInput(e) {
+    this.credTitle = e.target.value;
   }
 
   handleBell() {
@@ -1496,7 +1614,8 @@ export default class DriverApp extends LightningElement {
     return (
       this.sheet === "pretrip" ||
       this.sheet === "endtrip" ||
-      this.sheet === "issue"
+      this.sheet === "issue" ||
+      this.sheet === "credential"
     );
   }
   get canAddPhoto() {
@@ -1669,6 +1788,28 @@ export default class DriverApp extends LightningElement {
         });
         await this.uploadPhotos(ticketId);
         this.showToast("Report sent to the workshop.");
+      } else if (this.isCredentialSheet) {
+        if (!this.credExpiry) {
+          this.sheetError = "Please enter an expiration date.";
+          this.busy = false;
+          return;
+        }
+        const qualId = await updateCredential({
+          driverId: this.driverId,
+          credentialType:
+            this.credType === "Certification"
+              ? this.credTitle || "Certification"
+              : this.credType,
+          certNumber: this.credNumber,
+          authority: this.credAuthority,
+          expirationDate: this.credExpiry,
+          licenseClass: this.credClass,
+          licenseState: this.credState
+        });
+        if (this.photos.length > 0) {
+          await this.uploadPhotos(qualId);
+        }
+        this.showToast("Credential updated successfully.");
       } else if (this.isFuel) {
         await logFuel({
           driverId: this.driverId,

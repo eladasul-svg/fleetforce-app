@@ -836,28 +836,110 @@
             </div>
           </section>
 
-          <div class="section__head"><h3>My credentials</h3></div>
+          <div class="section__head">
+            <h3>My credentials</h3>
+            <button
+              type="button"
+              class="link"
+              onclick={handleOpenCredentialSheet}
+            >
+              + Update / Upload
+            </button>
+          </div>
           <div class="card row">
             <div class="row__main">
               <p class="row__title">Driver license</p>
               <p class="row__sub">{driver.licenseSub}</p>
+              <template lwc:if={driver.licenseDocUrl}>
+                <p class="row__action">
+                  <a
+                    href={driver.licenseDocUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link-sub"
+                    download
+                  >
+                    📄 View attached scan
+                  </a>
+                </p>
+              </template>
             </div>
-            <span class={driver.licenseCls}>{driver.licenseChip}</span>
+            <div class="row__end">
+              <span class={driver.licenseCls}>{driver.licenseChip}</span>
+              <button
+                type="button"
+                class="btn-icon-sub"
+                data-type="license"
+                onclick={handleRenewCredential}
+                title="Update driver license"
+              >
+                ✏️
+              </button>
+            </div>
           </div>
           <div class="card row">
             <div class="row__main">
               <p class="row__title">Medical certificate</p>
               <p class="row__sub">{driver.medicalSub}</p>
+              <template lwc:if={driver.medicalDocUrl}>
+                <p class="row__action">
+                  <a
+                    href={driver.medicalDocUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link-sub"
+                    download
+                  >
+                    📄 View attached cert
+                  </a>
+                </p>
+              </template>
             </div>
-            <span class={driver.medicalCls}>{driver.medicalChip}</span>
+            <div class="row__end">
+              <span class={driver.medicalCls}>{driver.medicalChip}</span>
+              <button
+                type="button"
+                class="btn-icon-sub"
+                data-type="medical"
+                onclick={handleRenewCredential}
+                title="Update medical certificate"
+              >
+                ✏️
+              </button>
+            </div>
           </div>
           <template for:each={qualifications} for:item="q">
             <div key={q.id} class="card row">
               <div class="row__main">
                 <p class="row__title">{q.title}</p>
                 <p class="row__sub">{q.sub}</p>
+                <template lwc:if={q.docUrl}>
+                  <p class="row__action">
+                    <a
+                      href={q.docUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="link-sub"
+                      download
+                    >
+                      📄 View attached document
+                    </a>
+                  </p>
+                </template>
               </div>
-              <span class={q.chipCls}>{q.chipText}</span>
+              <div class="row__end">
+                <span class={q.chipCls}>{q.chipText}</span>
+                <button
+                  type="button"
+                  class="btn-icon-sub"
+                  data-id={q.id}
+                  data-type="qualification"
+                  onclick={handleRenewCredential}
+                  title="Update qualification"
+                >
+                  ✏️
+                </button>
+              </div>
             </div>
           </template>
 
@@ -1392,6 +1474,146 @@
             </p>
           </template>
 
+          <template lwc:if={isCredentialSheet}>
+            <div class="field">
+              <span>Credential type</span>
+              <select class="input" onchange={handleCredentialTypeChange}>
+                <template for:each={credentialTypeOptions} for:item="opt">
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                </template>
+              </select>
+            </div>
+
+            <template lwc:if={isDriverLicenseCredential}>
+              <div class="grid grid--2">
+                <label class="field">
+                  <span>License number</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. CO-3829104"
+                    value={credNumber}
+                    oninput={handleCredNumberInput}
+                  />
+                </label>
+                <label class="field">
+                  <span>State / Region</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. CO"
+                    value={credState}
+                    oninput={handleCredStateInput}
+                  />
+                </label>
+              </div>
+              <div class="grid grid--2">
+                <label class="field">
+                  <span>License class</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. Class D, CDL-A"
+                    value={credClass}
+                    oninput={handleCredClassInput}
+                  />
+                </label>
+                <label class="field">
+                  <span>Expiration date</span>
+                  <input
+                    type="date"
+                    class="input"
+                    value={credExpiry}
+                    oninput={handleCredExpiryInput}
+                  />
+                </label>
+              </div>
+            </template>
+
+            <template lwc:elseif={isMedicalCertCredential}>
+              <div class="grid grid--2">
+                <label class="field">
+                  <span>Registry / Cert #</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. DOT-MED-1234"
+                    value={credNumber}
+                    oninput={handleCredNumberInput}
+                  />
+                </label>
+                <label class="field">
+                  <span>Issuing Authority</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. FMCSA Medical Examiner"
+                    value={credAuthority}
+                    oninput={handleCredAuthorityInput}
+                  />
+                </label>
+              </div>
+              <label class="field">
+                <span>Expiration date</span>
+                <input
+                  type="date"
+                  class="input"
+                  value={credExpiry}
+                  oninput={handleCredExpiryInput}
+                />
+              </label>
+            </template>
+
+            <template lwc:else>
+              <label class="field">
+                <span>Certification / Skill name</span>
+                <input
+                  type="text"
+                  class="input"
+                  placeholder="e.g. Forklift, Hazmat (ADR)"
+                  value={credTitle}
+                  oninput={handleCredTitleInput}
+                />
+              </label>
+              <div class="grid grid--2">
+                <label class="field">
+                  <span>Certification ID</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="Optional ID"
+                    value={credNumber}
+                    oninput={handleCredNumberInput}
+                  />
+                </label>
+                <label class="field">
+                  <span>Issuing Authority</span>
+                  <input
+                    type="text"
+                    class="input"
+                    placeholder="e.g. FleetForce Academy"
+                    value={credAuthority}
+                    oninput={handleCredAuthorityInput}
+                  />
+                </label>
+              </div>
+              <label class="field">
+                <span>Expiration date</span>
+                <input
+                  type="date"
+                  class="input"
+                  value={credExpiry}
+                  oninput={handleCredExpiryInput}
+                />
+              </label>
+            </template>
+
+            <p class="customizer-hint slds-m-top_x-small">
+              Attach a photo or scan of your document below (JPEG, PNG, or PDF).
+              The fleet safety office will verify your submission.
+            </p>
+          </template>
+
           <template lwc:if={isPhotoSheet}>
             <div class="photos">
               <template for:each={photos} for:item="p">
@@ -1410,10 +1632,10 @@
               </template>
               <template lwc:if={canAddPhoto}>
                 <label class="photo photo--add"
-                  ><span>+ Photo</span>
+                  ><span>+ Photo / Scan</span>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,application/pdf"
                     capture="environment"
                     onchange={handlePhoto}
                 /></label>

@@ -1,18 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
-    <emailDefault>false</emailDefault>
-    <headers>PersonalTagging</headers>
-    <headers>PublicTagging</headers>
+    <excludeButtons>DataDotComClean</excludeButtons>
+    <excludeButtons>OpenSlackRecordChannel</excludeButtons>
+    <excludeButtons>RequestUseSfdc</excludeButtons>
+    <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
         <detailHeading>false</detailHeading>
         <editHeading>true</editHeading>
         <label>Contact Information</label>
         <layoutColumns>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>OwnerId</field>
-            </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>Name</field>
@@ -31,15 +28,11 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Birthdate</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>ReportsToId</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>LeadSource</field>
+                <field>OwnerId</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -49,19 +42,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>HomePhone</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>MobilePhone</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>OtherPhone</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Fax</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -69,18 +50,65 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>AssistantName</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>AssistantPhone</field>
+                <field>Birthdate</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>
     <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>Driver Profile</label>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Contact_Type__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Driver_Status__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Driver_Branch__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Safety_Score__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Related_User__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>License_Number__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>License_Class__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>License_State__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>License_Expiry__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Medical_Cert__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <style>TwoColumnsLeftToRight</style>
+    </layoutSections>
+    <layoutSections>
         <customLabel>false</customLabel>
-        <detailHeading>false</detailHeading>
+        <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
         <label>Address Information</label>
         <layoutColumns>
@@ -99,16 +127,7 @@
     </layoutSections>
     <layoutSections>
         <customLabel>false</customLabel>
-        <detailHeading>false</detailHeading>
-        <editHeading>true</editHeading>
-        <label>Additional Information</label>
-        <layoutColumns/>
-        <layoutColumns/>
-        <style>TwoColumnsLeftToRight</style>
-    </layoutSections>
-    <layoutSections>
-        <customLabel>false</customLabel>
-        <detailHeading>false</detailHeading>
+        <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
         <label>System Information</label>
         <layoutColumns>
@@ -139,10 +158,13 @@
         <style>OneColumn</style>
     </layoutSections>
     <layoutSections>
-        <customLabel>false</customLabel>
+        <customLabel>true</customLabel>
         <detailHeading>false</detailHeading>
         <editHeading>false</editHeading>
-        <layoutColumns/>
+        <label>Custom Links</label>
+        <layoutColumns />
+        <layoutColumns />
+        <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
     <quickActionList>
@@ -158,22 +180,118 @@
             </layoutItem>
         </relatedContentItems>
     </relatedContent>
+    <!-- Fleet Related Lists: Assigned Vehicles -->
     <relatedLists>
-        <fields>OPPORTUNITY.NAME</fields>
-        <fields>OPPORTUNITY.STAGE_NAME</fields>
-        <fields>OPPORTUNITY.AMOUNT</fields>
-        <fields>OPPORTUNITY.CLOSE_DATE</fields>
-        <relatedList>RelatedOpportunityList</relatedList>
+        <fields>NAME</fields>
+        <fields>VIN__c</fields>
+        <fields>License_Plate__c</fields>
+        <fields>Make__c</fields>
+        <fields>Model__c</fields>
+        <fields>Model_Year__c</fields>
+        <fields>Status__c</fields>
+        <fields>Branch__c</fields>
+        <fields>Odometer__c</fields>
+        <relatedList>Fleet_Asset__c.Driver__c</relatedList>
     </relatedLists>
+    <!-- Fleet Related Lists: Driver Qualifications -->
     <relatedLists>
-        <fields>CASES.CASE_NUMBER</fields>
-        <fields>CASES.SUBJECT</fields>
-        <fields>CASES.PRIORITY</fields>
-        <fields>CASES.CREATED_DATE</fields>
-        <fields>CASES.STATUS</fields>
-        <fields>OWNER_NAME</fields>
-        <relatedList>RelatedCaseList</relatedList>
+        <fields>NAME</fields>
+        <fields>Type__c</fields>
+        <fields>Cert_ID__c</fields>
+        <fields>Authority__c</fields>
+        <fields>Status__c</fields>
+        <fields>Valid_From__c</fields>
+        <fields>Valid_Until__c</fields>
+        <relatedList>Driver_Qualification__c.Driver__c</relatedList>
     </relatedLists>
+    <!-- Fleet Related Lists: Schedule Assignments -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Fleet_Schedule__c</fields>
+        <fields>Fleet_Branch__c</fields>
+        <fields>Priority__c</fields>
+        <relatedList>Schedule_Assignment__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Authorized Vehicles -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Type__c</fields>
+        <fields>Has_Key__c</fields>
+        <fields>Is_Active__c</fields>
+        <fields>Start_Date__c</fields>
+        <fields>End_Date__c</fields>
+        <relatedList>Authorized_Driver__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Trips -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Start_Time__c</fields>
+        <fields>End_Time__c</fields>
+        <fields>Distance__c</fields>
+        <fields>Distance_Unit__c</fields>
+        <fields>Trip_Type__c</fields>
+        <fields>Approval_Status__c</fields>
+        <relatedList>Trip__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Vehicle Allocations / Checkouts -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Status__c</fields>
+        <fields>Scheduled_Start__c</fields>
+        <fields>Scheduled_End__c</fields>
+        <fields>Actual_Check_Out__c</fields>
+        <fields>Actual_Check_In__c</fields>
+        <fields>Distance_Driven__c</fields>
+        <relatedList>Allocation__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Fuel Logs -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Transaction_Date__c</fields>
+        <fields>Product_Type__c</fields>
+        <fields>Volume__c</fields>
+        <fields>Total_Cost__c</fields>
+        <fields>Odometer__c</fields>
+        <relatedList>Fuel_Log__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Citations & Violations -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Ticket_Number__c</fields>
+        <fields>Citation_Date__c</fields>
+        <fields>Violation_Type__c</fields>
+        <fields>Fine_Amount__c</fields>
+        <fields>Status__c</fields>
+        <relatedList>Citation__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Telematics Violations -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Type__c</fields>
+        <fields>Severity__c</fields>
+        <fields>Timestamp__c</fields>
+        <fields>Value__c</fields>
+        <relatedList>Telemetry_Violation__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Maintenance / Reported Issues -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Summary__c</fields>
+        <fields>Category__c</fields>
+        <fields>Priority__c</fields>
+        <fields>Status__c</fields>
+        <fields>Date_Reported__c</fields>
+        <relatedList>Service_Ticket__c.Reported_By__c</relatedList>
+    </relatedLists>
+    <!-- Activity & File lists -->
     <relatedLists>
         <fields>TASK.SUBJECT</fields>
         <fields>TASK.WHAT_NAME</fields>
@@ -194,30 +312,18 @@
         <relatedList>RelatedHistoryList</relatedList>
     </relatedLists>
     <relatedLists>
-        <fields>CAMPAIGN.NAME</fields>
-        <fields>CAMPAIGN.START_DATE</fields>
-        <fields>CAMPAIGN.CAMPAIGN_TYPE</fields>
-        <fields>CM.STATUS</fields>
-        <fields>CM.RESPONDED</fields>
-        <fields>CM.LAST_UPDATE</fields>
-        <relatedList>RelatedCampaignList</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <relatedList>RelatedNoteList</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>ACTIVITY.SUBJECT</fields>
-        <fields>EMAIL_STATUS.CREATED_DATE</fields>
-        <fields>EMAIL_STATUS.FIRST_OPEN_DATE</fields>
-        <fields>EMAIL_STATUS.TIMES_OPENED</fields>
-        <fields>EMAIL_STATUS.LAST_OPEN_DATE</fields>
-        <relatedList>RelatedEmailStatusList</relatedList>
+        <relatedList>RelatedFileList</relatedList>
     </relatedLists>
     <relatedObjects>AccountId</relatedObjects>
-    <runAssignmentRulesDefault>false</runAssignmentRulesDefault>
-    <showEmailCheckbox>true</showEmailCheckbox>
+    <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>true</showHighlightsPanel>
     <showInteractionLogPanel>true</showInteractionLogPanel>
-    <showRunAssignmentRulesCheckbox>true</showRunAssignmentRulesCheckbox>
+    <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
+    <summaryLayout>
+        <masterLabel>Contact Summary Layout</masterLabel>
+        <sizeX>4</sizeX>
+        <sizeY>0</sizeY>
+        <summaryLayoutStyle>Default</summaryLayoutStyle>
+    </summaryLayout>
 </Layout>

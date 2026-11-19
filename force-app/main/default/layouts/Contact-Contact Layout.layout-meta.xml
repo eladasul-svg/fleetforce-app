@@ -180,17 +180,38 @@
             </layoutItem>
         </relatedContentItems>
     </relatedContent>
-    <!-- Fleet Related Lists: Trips -->
+    <!-- Fleet Related Lists: Assigned Vehicles -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>VIN__c</fields>
+        <fields>License_Plate__c</fields>
+        <fields>Make__c</fields>
+        <fields>Model__c</fields>
+        <fields>Model_Year__c</fields>
+        <fields>Status__c</fields>
+        <fields>Branch__c</fields>
+        <fields>Odometer__c</fields>
+        <relatedList>Fleet_Asset__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Driver Qualifications -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Type__c</fields>
+        <fields>Cert_ID__c</fields>
+        <fields>Authority__c</fields>
+        <fields>Status__c</fields>
+        <fields>Valid_From__c</fields>
+        <fields>Valid_Until__c</fields>
+        <relatedList>Driver_Qualification__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Schedule Assignments -->
     <relatedLists>
         <fields>NAME</fields>
         <fields>Fleet_Asset__c</fields>
-        <fields>Start_Time__c</fields>
-        <fields>End_Time__c</fields>
-        <fields>Distance__c</fields>
-        <fields>Distance_Unit__c</fields>
-        <fields>Trip_Type__c</fields>
-        <fields>Approval_Status__c</fields>
-        <relatedList>Trip__c.Driver__c</relatedList>
+        <fields>Fleet_Schedule__c</fields>
+        <fields>Fleet_Branch__c</fields>
+        <fields>Priority__c</fields>
+        <relatedList>Schedule_Assignment__c.Driver__c</relatedList>
     </relatedLists>
     <!-- Fleet Related Lists: Authorized Vehicles -->
     <relatedLists>
@@ -202,6 +223,18 @@
         <fields>Start_Date__c</fields>
         <fields>End_Date__c</fields>
         <relatedList>Authorized_Driver__c.Driver__c</relatedList>
+    </relatedLists>
+    <!-- Fleet Related Lists: Trips -->
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Fleet_Asset__c</fields>
+        <fields>Start_Time__c</fields>
+        <fields>End_Time__c</fields>
+        <fields>Distance__c</fields>
+        <fields>Distance_Unit__c</fields>
+        <fields>Trip_Type__c</fields>
+        <fields>Approval_Status__c</fields>
+        <relatedList>Trip__c.Driver__c</relatedList>
     </relatedLists>
     <!-- Fleet Related Lists: Vehicle Allocations / Checkouts -->
     <relatedLists>
@@ -257,16 +290,6 @@
         <fields>Status__c</fields>
         <fields>Date_Reported__c</fields>
         <relatedList>Service_Ticket__c.Reported_By__c</relatedList>
-    </relatedLists>
-    <!-- Fleet Related Lists: Driver Qualifications -->
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>Type__c</fields>
-        <fields>Authority__c</fields>
-        <fields>Status__c</fields>
-        <fields>Valid_From__c</fields>
-        <fields>Valid_Until__c</fields>
-        <relatedList>Driver_Qualification__c.Driver__c</relatedList>
     </relatedLists>
     <!-- Activity & File lists -->
     <relatedLists>
