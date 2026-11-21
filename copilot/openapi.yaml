@@ -1,0 +1,234 @@
+openapi: 3.0.3
+info:
+  title: FleetForce Financial Reconciliation & Audit API
+  description: Enterprise API for Philips Fleet Reconciliation, Threshold Governance, Exception Triage, and Task Delegation.
+  version: 1.0.0
+servers:
+  - url: https://customization-power-6735-dev-ed.scratch.my.salesforce.com/services/apexrest/fleetforce/fleet/v1/reconciliation
+    description: FleetForce Salesforce Scratch Org (fleetforce-dev-13)
+paths:
+  /summary:
+    get:
+      operationId: getInvoiceReconciliationSummary
+      summary: Get Invoice Reconciliation Summary & Threshold Breaches
+      description: Returns top-level gross/net/VAT spend, reconciliation match rate, exception counts, and active governance threshold breaches for a vendor billing document.
+      parameters:
+        - name: docNumber
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Vendor billing document number (e.g. 731513513)
+        - name: invoiceId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Salesforce Fleet_Invoice__c record ID
+      responses:
+        "200":
+          description: Summary successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /exceptions:
+    get:
+      operationId: queryReconciliationExceptions
+      summary: Query Filtered Reconciliation Exceptions
+      description: Returns specific invoice exception lines by audit flag (unallocated spend, unregistered vehicles, unmapped drivers, driver recharges, high value lines).
+      parameters:
+        - name: docNumber
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Vendor billing document number
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              [
+                All,
+                Unallocated,
+                Unregistered_Vehicles,
+                Unmapped_Driver,
+                Recharges_and_Fines,
+                High_Value_Lines,
+                Missing_EoC_Credits,
+                Disputed
+              ]
+            default: All
+          description: Exception category filter
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum lines to return
+      responses:
+        "200":
+          description: Exceptions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /cost-centers:
+    get:
+      operationId: getCostCenterVariance
+      summary: Get Cost Center Spend Allocation & Variance
+      description: Aggregates invoice spend distribution and unallocated cost by Business Unit and Cost Center.
+      parameters:
+        - name: docNumber
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Vendor billing document number
+      responses:
+        "200":
+          description: Cost center variance successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /delegate:
+    post:
+      operationId: delegateLineTask
+      summary: Delegate Exception Line to Salesforce Task
+      description: Creates a standard Salesforce Task linked to the invoice line and shifts it into the In Progress queue.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelegationRequest"
+      responses:
+        "200":
+          description: Task successfully assigned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /resolve:
+    post:
+      operationId: resolveLineException
+      summary: Resolve Invoice Line Exception
+      description: Closes the linked Task and marks the invoice line as Clean/Resolved.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolutionRequest"
+      responses:
+        "200":
+          description: Line successfully resolved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /dispute-memo:
+    get:
+      operationId: getDisputeMemo
+      summary: Generate Commercial Vendor Dispute Notice
+      description: Generates an itemized commercial dispute letter for Ayvens citing unallocated vehicles and contested lines.
+      parameters:
+        - name: docNumber
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Vendor billing document number
+      responses:
+        "200":
+          description: Dispute memo generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+  /import:
+    post:
+      operationId: importVendorInvoice
+      summary: Import Vendor Bill Schedule (Pattern B/A)
+      description: Ingests raw CSV or structured line items, creates invoice and lines, and executes reconciliation audit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportRequest"
+      responses:
+        "200":
+          description: Invoice successfully imported and audited.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionResponse"
+components:
+  schemas:
+    ActionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+    ImportRequest:
+      type: object
+      required:
+        - billingDocNumber
+      properties:
+        billingDocNumber:
+          type: string
+        vendorName:
+          type: string
+        currencyIso:
+          type: string
+          enum: [GBP, EUR, USD]
+        csvData:
+          type: string
+        lines:
+          type: array
+          items:
+            type: object
+    DelegationRequest:
+      type: object
+      required:
+        - lineId
+        - subject
+      properties:
+        lineId:
+          type: string
+          description: Fleet_Invoice_Line__c Salesforce ID
+        subject:
+          type: string
+          description: Subject of the task
+        priority:
+          type: string
+          enum: [High, Normal, Low]
+          default: Normal
+        dueDate:
+          type: string
+          format: date
+          description: Due date (YYYY-MM-DD)
+        instructions:
+          type: string
+          description: Operational instructions
+    ResolutionRequest:
+      type: object
+      required:
+        - lineId
+        - resolutionNotes
+      properties:
+        lineId:
+          type: string
+          description: Fleet_Invoice_Line__c Salesforce ID
+        resolutionNotes:
+          type: string
+          description: Justification or payroll signoff notes

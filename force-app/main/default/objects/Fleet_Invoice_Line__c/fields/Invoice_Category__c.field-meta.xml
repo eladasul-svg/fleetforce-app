@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Invoice_Category__c</fullName>
+    <label>Invoice Category</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>false</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Monthly_Lease_Rental</fullName><default
+        >false</default><label>Monthly Lease Rental</label></value>
+            <value><fullName>Monthly_Payment</fullName><default
+        >false</default><label>Monthly Payment</label></value>
+            <value><fullName>Recharge</fullName><default>false</default><label
+        >Recharge</label></value>
+            <value><fullName>Termination_Credit_Note</fullName><default
+        >false</default><label>Termination Credit Note</label></value>
+            <value><fullName>First_Rental</fullName><default
+        >false</default><label>First Rental</label></value>
+            <value><fullName>Manual_Invoice</fullName><default
+        >false</default><label>Manual Invoice</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

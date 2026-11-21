@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Metric_Type__c</fullName>
+    <description
+  >Reconciliation metric or KPI evaluated by this threshold rule.</description>
+    <label>Metric Type</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Unallocated_Spend_Pct</fullName><default
+        >true</default><label>Unallocated Spend %</label></value>
+            <value><fullName>Single_Line_Max_Gross</fullName><default
+        >false</default><label>Single Line Max Gross</label></value>
+            <value><fullName>Recharge_Spend_Pct</fullName><default
+        >false</default><label>Recharge Spend %</label></value>
+            <value><fullName>Missing_Credit_Count</fullName><default
+        >false</default><label>Missing Credit Count</label></value>
+            <value><fullName>Mileage_Deviation_Pct</fullName><default
+        >false</default><label>Mileage Deviation %</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

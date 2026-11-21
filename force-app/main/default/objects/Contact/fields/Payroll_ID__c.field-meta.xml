@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payroll_ID__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description
+  >Driver corporate employee / payroll ID (matching SAP Pers.No.).</description>
+    <externalId>true</externalId>
+    <label>Payroll ID</label>
+    <length>50</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Recharge_Type__c</fullName>
+    <label>Recharge Type</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>false</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Replacement_Vehicle</fullName><default
+        >false</default><label>Replacement Vehicle (Spot Hire)</label></value>
+            <value><fullName>Fine_Admin_Fee</fullName><default
+        >false</default><label>Fines Processing Fee</label></value>
+            <value><fullName>Body_Repairs_Damage</fullName><default
+        >false</default><label>Body Repairs &amp; Damage</label></value>
+            <value><fullName>Service_Programme</fullName><default
+        >false</default><label>Service Programme &amp; Tyres</label></value>
+            <value><fullName>Parking_Fine</fullName><default
+        >false</default><label>Parking Fine</label></value>
+            <value><fullName>Vehicle_Movement</fullName><default
+        >false</default><label>Vehicle Movement / Logistics</label></value>
+            <value><fullName>Other</fullName><default>false</default><label
+        >Other Ancillary Charge</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,1256 @@
+<template>
+  <lightning-card
+    title="Financial Reconciliation &amp; Audit Engine"
+    icon-name="standard:currency"
+  >
+    <!-- Action Buttons in Card Header -->
+    <div slot="actions">
+      <lightning-button-group>
+        <lightning-button
+          label="Upload Bill"
+          icon-name="utility:upload"
+          onclick={handleOpenUploadModal}
+          disabled={isLoading}
+        >
+        </lightning-button>
+        <lightning-button
+          label="Run Audit"
+          icon-name="utility:sync"
+          onclick={handleRunAudit}
+          disabled={isLoading}
+        >
+        </lightning-button>
+        <lightning-button
+          label="Export CSV"
+          icon-name="utility:download"
+          onclick={handleExportExceptions}
+          disabled={isLoading}
+        >
+        </lightning-button>
+        <lightning-button
+          label="Dispute Notice"
+          variant="destructive-text"
+          icon-name="utility:email"
+          onclick={handleOpenDisputeModal}
+          disabled={isLoading}
+        >
+        </lightning-button>
+        <lightning-button
+          label="Approve"
+          variant="success"
+          icon-name="utility:check"
+          onclick={handleApproveInvoice}
+          disabled={isLoading}
+        >
+        </lightning-button>
+        <lightning-button
+          label="Dispute"
+          variant="destructive"
+          icon-name="utility:warning"
+          onclick={handleDisputeInvoice}
+          disabled={isLoading}
+        >
+        </lightning-button>
+      </lightning-button-group>
+    </div>
+
+    <div class="slds-p-around_medium">
+      <!-- Spinner -->
+      <template lwc:if={isLoading}>
+        <lightning-spinner
+          alternative-text="Processing..."
+          size="medium"
+        ></lightning-spinner>
+      </template>
+
+      <!-- Render only when summary data is loaded -->
+      <template lwc:if={summary}>
+        <!-- Subtitle Bar & Reconciliation Rate -->
+        <div
+          class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-p-horizontal_xx-small slds-wrap"
+          style="gap: 8px"
+        >
+          <div>
+            <span class="slds-text-heading_small slds-m-right_small"
+              >{summary.vendorName} Bill #{summary.billingDocNumber}</span
+            >
+            <span class={reviewStatusBadgeClass}>{reviewStatusLabel}</span>
+          </div>
+          <div class="slds-text-body_small slds-text-color_weak">
+            Reconciliation Match Rate:
+            <strong>{summary.cleanPercentage}%</strong> ({summary.cleanCount} of
+            {summary.lineCount} lines)
+          </div>
+        </div>
+
+        <!-- Calm Inline Governance Alert Strip (Zero-scroll, replaces large stacked boxes) -->
+        <template lwc:if={hasThresholdBreaches}>
+          <div class="slds-m-bottom_small governance-inline-pill">
+            <div class="slds-grid slds-grid_vertical-align-center">
+              <lightning-icon
+                icon-name="utility:warning"
+                variant="error"
+                size="x-small"
+                class="slds-m-right_x-small"
+              ></lightning-icon>
+              <span>
+                <strong>Governance Alert:</strong> {breachAlertSummaryText}.
+                Resolution required before payment release.
+              </span>
+            </div>
+            <a
+              href="javascript:void(0);"
+              onclick={handleSwitchToGovernanceTab}
+              class="pill-link"
+            >
+              View Rules &amp; Targets ↗
+            </a>
+          </div>
+        </template>
+
+        <!-- 4 Executive KPI Cards with Report Deep-Link Arrows -->
+        <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+          <!-- Card 1: Total Billed Gross -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-m-bottom_small"
+          >
+            <div class="kpi-card kpi-border-primary">
+              <div class="kpi-header-row">
+                <span class="kpi-title">Total Billed Gross</span>
+                <button
+                  class="report-link-btn"
+                  title="Open Spend by Category Report ↗"
+                  data-report="Invoice_Spend_by_Category"
+                  onclick={handleOpenReport}
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+              <div class="kpi-value">
+                <lightning-formatted-number
+                  value={summary.totalGross}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+              </div>
+              <div class="kpi-subtext">
+                Net:
+                <lightning-formatted-number
+                  value={summary.totalNet}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+                | VAT:
+                <lightning-formatted-number
+                  value={summary.totalVat}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Reconciled Clean -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-m-bottom_small"
+          >
+            <div class="kpi-card kpi-border-success">
+              <div class="kpi-header-row">
+                <span class="kpi-title">Reconciled Clean</span>
+                <button
+                  class="report-link-btn"
+                  title="Open Reconciliation Status Report ↗"
+                  data-report="Invoice_Reconciliation_Status"
+                  onclick={handleOpenReport}
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+              <div class="kpi-value slds-text-color_success">
+                <lightning-formatted-number
+                  value={summary.cleanAmount}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+              </div>
+              <div class="kpi-subtext">
+                {summary.cleanCount} lines ({summary.cleanPercentage}%) fully
+                verified
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Unallocated Leakage -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-m-bottom_small"
+          >
+            <div class="kpi-card kpi-border-danger">
+              <div class="kpi-header-row">
+                <span class="kpi-title">Unallocated Spend</span>
+                <button
+                  class="report-link-btn"
+                  title="Open Spend by Cost Center Report ↗"
+                  data-report="Invoice_Spend_by_Cost_Center"
+                  onclick={handleOpenReport}
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+              <div class="kpi-value slds-text-color_error">
+                <lightning-formatted-number
+                  value={summary.unallocatedAssetAmount}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+              </div>
+              <div class="kpi-subtext">
+                {summary.unallocatedAssetCount} unassigned assets |
+                {summary.unallocatedDriverCount} unmapped HR
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Operational Recharges -->
+          <div
+            class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-4 slds-m-bottom_small"
+          >
+            <div class="kpi-card kpi-border-warning">
+              <div class="kpi-header-row">
+                <span class="kpi-title">Recharges &amp; Fines</span>
+                <button
+                  class="report-link-btn"
+                  title="Open Recharges &amp; Fines Report ↗"
+                  data-report="Invoice_Recharges_and_Fines"
+                  onclick={handleOpenReport}
+                >
+                  <lightning-icon
+                    icon-name="utility:new_window"
+                    size="xx-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+              <div class="kpi-value" style="color: #fe9339">
+                <lightning-formatted-number
+                  value={summary.rechargeAmount}
+                  format-style="currency"
+                  currency-code={currencyCode}
+                ></lightning-formatted-number>
+              </div>
+              <div class="kpi-subtext">
+                {summary.rechargeCount} items flagged for payroll deduction
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Purposeful Tabs Hierarchy -->
+        <lightning-tabset
+          active-tab-value={activeTab}
+          onselect={handleTabSelect}
+        >
+          <!-- TAB 1: Needs Action (Pending Exceptions Queue) -->
+          <lightning-tab
+            label="Needs Action"
+            value="pending"
+            icon-name="utility:priority"
+          >
+            <!-- Header with dynamic queue counter badge -->
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-p-horizontal_xx-small"
+            >
+              <div>
+                <span class="slds-badge slds-theme_error slds-m-right_x-small"
+                  >{pendingQueueCount} items pending</span
+                >
+                <span class="slds-text-body_small slds-text-color_weak"
+                  >Exceptions requiring review or team delegation.</span
+                >
+              </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div
+              class="slds-m-bottom_small slds-grid slds-wrap"
+              style="gap: 6px"
+            >
+              <button
+                class={allPillClass}
+                data-filter="ALL"
+                onclick={handleFilterSelect}
+              >
+                All Pending ({pendingQueueCount})
+              </button>
+              <button
+                class={unallocatedAssetPillClass}
+                data-filter="Unallocated_Asset"
+                onclick={handleFilterSelect}
+              >
+                Unregistered Vehicles ({summary.unallocatedAssetCount})
+              </button>
+              <button
+                class={unallocatedDriverPillClass}
+                data-filter="Unallocated_Driver"
+                onclick={handleFilterSelect}
+              >
+                Unmapped Driver / ERP ({summary.unallocatedDriverCount})
+              </button>
+              <button
+                class={rechargePillClass}
+                data-filter="Recharge_Payroll_Deduction"
+                onclick={handleFilterSelect}
+              >
+                Recharges &amp; Fines ({summary.rechargeCount})
+              </button>
+              <button
+                class={over6kPillClass}
+                data-filter="Flagged_Over_6k"
+                onclick={handleFilterSelect}
+              >
+                &gt; €6k Threshold ({summary.flaggedOver6kCount})
+              </button>
+              <button
+                class={missingCreditPillClass}
+                data-filter="Missing_Repair_Credit"
+                onclick={handleFilterSelect}
+              >
+                Missing EoC Credits ({summary.missingCreditCount})
+              </button>
+              <button
+                class={disputedPillClass}
+                data-filter="Disputed"
+                onclick={handleFilterSelect}
+              >
+                Disputed ({summary.disputedCount})
+              </button>
+            </div>
+
+            <!-- Table of Pending Exceptions -->
+            <div
+              class="slds-scrollable"
+              style="max-height: 400px; overflow-x: auto; width: 100%"
+            >
+              <table
+                class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped"
+                style="min-width: 960px"
+              >
+                <thead>
+                  <tr class="slds-line-height_reset">
+                    <th scope="col" style="width: 120px">
+                      <div class="slds-truncate">Line #</div>
+                    </th>
+                    <th scope="col" style="width: 140px">
+                      <div class="slds-truncate">License Plate</div>
+                    </th>
+                    <th scope="col" style="width: 140px">
+                      <div class="slds-truncate">Driver</div>
+                    </th>
+                    <th scope="col" style="width: 130px">
+                      <div class="slds-truncate">Cost Center</div>
+                    </th>
+                    <th scope="col" style="width: 130px">
+                      <div class="slds-truncate">Category / Type</div>
+                    </th>
+                    <th
+                      scope="col"
+                      class="slds-text-align_right"
+                      style="width: 100px"
+                    >
+                      <div class="slds-truncate">Gross</div>
+                    </th>
+                    <th scope="col" style="width: 200px">
+                      <div class="slds-truncate">Audit Finding</div>
+                    </th>
+                    <th
+                      scope="col"
+                      class="slds-text-align_center"
+                      style="width: 130px"
+                    >
+                      <div class="slds-truncate">Action</div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template for:each={filteredPendingLines} for:item="line">
+                    <tr key={line.lineId}>
+                      <td>
+                        <div class="slds-truncate font-weight-bold">
+                          {line.lineNumber}
+                        </div>
+                      </td>
+                      <td>
+                        <template lwc:if={line.assetId}>
+                          <a
+                            href="javascript:void(0);"
+                            data-id={line.assetId}
+                            onclick={handleNavigateToAsset}
+                            class="slds-truncate"
+                          >
+                            {line.assetPlate}
+                          </a>
+                          <div
+                            class="slds-text-body_small slds-text-color_weak slds-truncate"
+                          >
+                            {line.assetModel}
+                          </div>
+                        </template>
+                        <template lwc:else>
+                          <span
+                            class="slds-text-color_error slds-text-title_bold"
+                            >{line.assetPlate}</span
+                          >
+                        </template>
+                      </td>
+                      <td>
+                        <div class="slds-truncate" title={line.driverName}>
+                          {line.driverName}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="slds-truncate" title={line.costCenterName}>
+                          {line.costCenterName}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="slds-truncate">{line.category}</div>
+                        <template lwc:if={line.rechargeType}>
+                          <span
+                            class="slds-badge slds-badge_lightest slds-m-top_xx-small"
+                            >{line.rechargeType}</span
+                          >
+                        </template>
+                      </td>
+                      <td class="slds-text-align_right">
+                        <strong>
+                          <lightning-formatted-number
+                            value={line.grossAmount}
+                            format-style="currency"
+                            currency-code={currencyCode}
+                          ></lightning-formatted-number>
+                        </strong>
+                      </td>
+                      <td>
+                        <div class="slds-cell-wrap" title={line.auditNotes}>
+                          <lightning-icon
+                            icon-name="utility:info"
+                            size="xx-small"
+                            class="slds-m-right_xx-small"
+                          ></lightning-icon>
+                          {line.auditNotes}
+                        </div>
+                      </td>
+                      <td class="slds-text-align_center">
+                        <div
+                          class="slds-grid slds-grid_align-center slds-grid_vertical-align-center"
+                          style="gap: 4px"
+                        >
+                          <lightning-button
+                            label="+ Task"
+                            icon-name="utility:task"
+                            size="small"
+                            variant="neutral"
+                            class="delegate-btn"
+                            data-id={line.lineId}
+                            onclick={handleOpenTaskModal}
+                          >
+                          </lightning-button>
+                          <lightning-button-menu
+                            icon-size="x-small"
+                            menu-alignment="right"
+                          >
+                            <lightning-menu-item
+                              label="Flag as Disputed"
+                              value="Disputed"
+                              data-id={line.lineId}
+                              onclick={handleMarkLineDisputed}
+                            ></lightning-menu-item>
+                            <lightning-menu-item
+                              label="Mark as Clean"
+                              value="Clean"
+                              data-id={line.lineId}
+                              onclick={handleMarkLineClean}
+                            ></lightning-menu-item>
+                          </lightning-button-menu>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                  <template lwc:if={hasNoFilteredPendingLines}>
+                    <tr>
+                      <td
+                        colspan="8"
+                        class="slds-text-align_center slds-p-around_large slds-text-color_weak"
+                      >
+                        <lightning-icon
+                          icon-name="utility:check"
+                          variant="success"
+                          size="small"
+                          class="slds-m-right_x-small"
+                        ></lightning-icon>
+                        No exceptions pending action in this category.
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </lightning-tab>
+
+          <!-- TAB 2: In Progress Tasks (Delegated Queue) -->
+          <lightning-tab
+            label="In Progress Tasks"
+            value="delegated"
+            icon-name="utility:task"
+          >
+            <div
+              class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small slds-p-horizontal_xx-small"
+            >
+              <div>
+                <span class="slds-badge slds-theme_warning slds-m-right_x-small"
+                  >{delegatedQueueCount} tasks open</span
+                >
+                <span class="slds-text-body_small slds-text-color_weak"
+                  >Exceptions delegated to team members / leasing company
+                  awaiting resolution.</span
+                >
+              </div>
+            </div>
+
+            <!-- Table of Delegated Lines with Active Tasks -->
+            <div
+              class="slds-scrollable"
+              style="max-height: 400px; overflow-x: auto; width: 100%"
+            >
+              <table
+                class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped"
+                style="min-width: 980px"
+              >
+                <thead>
+                  <tr class="slds-line-height_reset">
+                    <th scope="col" style="width: 110px">
+                      <div class="slds-truncate">Line #</div>
+                    </th>
+                    <th scope="col" style="width: 130px">
+                      <div class="slds-truncate">Vehicle Plate</div>
+                    </th>
+                    <th
+                      scope="col"
+                      class="slds-text-align_right"
+                      style="width: 90px"
+                    >
+                      <div class="slds-truncate">Gross</div>
+                    </th>
+                    <th scope="col" style="width: 260px">
+                      <div class="slds-truncate">Follow-Up Task Subject</div>
+                    </th>
+                    <th scope="col" style="width: 120px">
+                      <div class="slds-truncate">Assigned To</div>
+                    </th>
+                    <th scope="col" style="width: 100px">
+                      <div class="slds-truncate">Due Date</div>
+                    </th>
+                    <th
+                      scope="col"
+                      class="slds-text-align_center"
+                      style="width: 80px"
+                    >
+                      <div class="slds-truncate">Priority</div>
+                    </th>
+                    <th
+                      scope="col"
+                      class="slds-text-align_center"
+                      style="width: 120px"
+                    >
+                      <div class="slds-truncate">Action</div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template for:each={delegatedLines} for:item="line">
+                    <tr key={line.lineId}>
+                      <td>
+                        <div class="slds-truncate font-weight-bold">
+                          {line.lineNumber}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="slds-truncate font-weight-bold">
+                          {line.assetPlate}
+                        </div>
+                        <div class="slds-text-body_small slds-text-color_weak">
+                          {line.driverName}
+                        </div>
+                      </td>
+                      <td class="slds-text-align_right">
+                        <strong>
+                          <lightning-formatted-number
+                            value={line.grossAmount}
+                            format-style="currency"
+                            currency-code={currencyCode}
+                          ></lightning-formatted-number>
+                        </strong>
+                      </td>
+                      <td>
+                        <template lwc:if={line.taskId}>
+                          <a
+                            href="javascript:void(0);"
+                            data-id={line.taskId}
+                            onclick={handleNavigateToTask}
+                            class="slds-cell-wrap font-weight-bold"
+                          >
+                            <lightning-icon
+                              icon-name="standard:task"
+                              size="xx-small"
+                              class="slds-m-right_xx-small"
+                            ></lightning-icon>
+                            {line.taskSubject}
+                          </a>
+                        </template>
+                        <template lwc:else>
+                          <div class="slds-cell-wrap">{line.taskSubject}</div>
+                        </template>
+                      </td>
+                      <td>
+                        <div class="slds-truncate">{line.taskOwnerName}</div>
+                      </td>
+                      <td>
+                        <div class="slds-truncate">
+                          <lightning-formatted-date-time
+                            value={line.taskDueDate}
+                            year="numeric"
+                            month="short"
+                            day="2-digit"
+                          ></lightning-formatted-date-time>
+                        </div>
+                      </td>
+                      <td class="slds-text-align_center">
+                        <span class="priority-chip-high"
+                          >{line.taskPriority}</span
+                        >
+                      </td>
+                      <td class="slds-text-align_center">
+                        <div
+                          class="slds-grid slds-grid_align-center slds-grid_vertical-align-center"
+                          style="gap: 4px"
+                        >
+                          <lightning-button
+                            label="Resolve"
+                            icon-name="utility:check"
+                            size="small"
+                            variant="success"
+                            class="delegate-btn"
+                            data-id={line.lineId}
+                            onclick={handleResolveLineTask}
+                          >
+                          </lightning-button>
+                          <lightning-button-menu
+                            icon-size="x-small"
+                            menu-alignment="right"
+                          >
+                            <lightning-menu-item
+                              label="Flag as Disputed"
+                              value="Disputed"
+                              data-id={line.lineId}
+                              onclick={handleMarkLineDisputed}
+                            ></lightning-menu-item>
+                          </lightning-button-menu>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                  <template lwc:if={hasNoDelegatedLines}>
+                    <tr>
+                      <td
+                        colspan="8"
+                        class="slds-text-align_center slds-p-around_large slds-text-color_weak"
+                      >
+                        No tasks currently in progress. Select exceptions from
+                        "Needs Action" to delegate follow-up tasks.
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </lightning-tab>
+
+          <!-- TAB 3: Cost Center & Category Analytics -->
+          <lightning-tab
+            label="Spend &amp; Cost Centers"
+            value="analytics"
+            icon-name="utility:chart"
+          >
+            <div class="slds-m-top_x-small">
+              <!-- Spend by Category Card -->
+              <div class="slds-box slds-m-bottom_medium slds-theme_default">
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+                >
+                  <div
+                    class="slds-text-title_bold slds-grid slds-grid_vertical-align-center"
+                  >
+                    <lightning-icon
+                      icon-name="utility:pie_chart"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Monthly Spend by Category
+                  </div>
+                  <button
+                    class="report-link-btn"
+                    title="Open Full Spend by Category Report ↗"
+                    data-report="Invoice_Spend_by_Category"
+                    onclick={handleOpenReport}
+                  >
+                    <span class="slds-text-body_small slds-m-right_xx-small"
+                      >Open Report</span
+                    >
+                    <lightning-icon
+                      icon-name="utility:new_window"
+                      size="xx-small"
+                    ></lightning-icon>
+                  </button>
+                </div>
+                <div class="slds-scrollable_x">
+                  <table
+                    class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <div class="slds-truncate">Category</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Line Count</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Share (%)</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Total Gross</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template
+                        for:each={summary.categoryBreakdown}
+                        for:item="cat"
+                      >
+                        <tr key={cat.category}>
+                          <td><strong>{cat.category}</strong></td>
+                          <td class="slds-text-align_right">{cat.lineCount}</td>
+                          <td class="slds-text-align_right">
+                            {cat.percentage}%
+                          </td>
+                          <td class="slds-text-align_right">
+                            <strong>
+                              <lightning-formatted-number
+                                value={cat.grossAmount}
+                                format-style="currency"
+                                currency-code={currencyCode}
+                              ></lightning-formatted-number>
+                            </strong>
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Top Cost Centers Card -->
+              <div class="slds-box slds-theme_default">
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+                >
+                  <div
+                    class="slds-text-title_bold slds-grid slds-grid_vertical-align-center"
+                  >
+                    <lightning-icon
+                      icon-name="utility:matrix"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Top Cost Centers (SAP Allocation)
+                  </div>
+                  <button
+                    class="report-link-btn"
+                    title="Open Spend by Cost Center Report ↗"
+                    data-report="Invoice_Spend_by_Cost_Center"
+                    onclick={handleOpenReport}
+                  >
+                    <span class="slds-text-body_small slds-m-right_xx-small"
+                      >Open Report</span
+                    >
+                    <lightning-icon
+                      icon-name="utility:new_window"
+                      size="xx-small"
+                    ></lightning-icon>
+                  </button>
+                </div>
+                <div class="slds-scrollable_x" style="max-height: 350px">
+                  <table
+                    class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <div class="slds-truncate">Cost Center</div>
+                        </th>
+                        <th scope="col">
+                          <div class="slds-truncate">Company Name</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Line Count</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Total Gross</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template for:each={summary.topCostCenters} for:item="cc">
+                        <tr key={cc.costCenterId}>
+                          <td><strong>{cc.costCenterName}</strong></td>
+                          <td>{cc.companyName}</td>
+                          <td class="slds-text-align_right">{cc.lineCount}</td>
+                          <td class="slds-text-align_right">
+                            <strong>
+                              <lightning-formatted-number
+                                value={cc.grossAmount}
+                                format-style="currency"
+                                currency-code={currencyCode}
+                              ></lightning-formatted-number>
+                            </strong>
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </lightning-tab>
+
+          <!-- TAB 4: Audit Rules & Governance Engine -->
+          <lightning-tab
+            label="Audit Governance"
+            value="governance"
+            icon-name="utility:rules"
+          >
+            <div class="slds-m-top_x-small">
+              <div class="slds-box slds-m-bottom_medium slds-theme_default">
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+                >
+                  <div
+                    class="slds-text-title_bold slds-grid slds-grid_vertical-align-center"
+                  >
+                    <lightning-icon
+                      icon-name="utility:shield"
+                      size="x-small"
+                      class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    Configured Reconciliation Governance Rules
+                  </div>
+                  <div class="slds-text-body_small slds-text-color_weak">
+                    Active Rules:
+                    <strong>{processedActiveThresholds.length}</strong> |
+                    Breached:
+                    <strong class="slds-text-color_error"
+                      >{summary.breachedThresholds.length}</strong
+                    >
+                  </div>
+                </div>
+                <p
+                  class="slds-text-body_small slds-m-bottom_medium slds-text-color_weak"
+                >
+                  Thresholds are dynamically defined in
+                  <code>Fleet_Audit_Threshold__c</code> records to enforce
+                  corporate financial compliance without code changes.
+                </p>
+
+                <div class="slds-scrollable_x">
+                  <table
+                    class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped"
+                  >
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <div class="slds-truncate">
+                            Rule Name &amp; Rationale
+                          </div>
+                        </th>
+                        <th scope="col">
+                          <div class="slds-truncate">Metric / Operator</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Configured Limit</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_right">
+                          <div class="slds-truncate">Invoice Actual</div>
+                        </th>
+                        <th scope="col" class="slds-text-align_center">
+                          <div class="slds-truncate">Audit Status</div>
+                        </th>
+                        <th scope="col">
+                          <div class="slds-truncate">Severity</div>
+                        </th>
+                        <th scope="col">
+                          <div class="slds-truncate">Push Target</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template
+                        for:each={processedActiveThresholds}
+                        for:item="rule"
+                      >
+                        <tr key={rule.thresholdId}>
+                          <td>
+                            <strong>{rule.ruleName}</strong>
+                            <div
+                              class="slds-text-body_small slds-text-color_weak"
+                            >
+                              {rule.description}
+                            </div>
+                          </td>
+                          <td>
+                            <div>{rule.metricType}</div>
+                            <div
+                              class="slds-text-body_small slds-text-color_weak"
+                            >
+                              {rule.operatorLabel}
+                            </div>
+                          </td>
+                          <td class="slds-text-align_right">
+                            <strong>{rule.formattedThreshold}</strong>
+                          </td>
+                          <td class="slds-text-align_right">
+                            <span class="font-weight-bold"
+                              >{rule.formattedActual}</span
+                            >
+                          </td>
+                          <td class="slds-text-align_center">
+                            <span class={rule.statusBadgeClass}
+                              >{rule.statusLabel}</span
+                            >
+                          </td>
+                          <td>
+                            <span class={rule.severityBadgeClass}
+                              >{rule.severityLabel}</span
+                            >
+                          </td>
+                          <td>
+                            <span class="slds-badge slds-badge_lightest"
+                              >{rule.notificationTarget}</span
+                            >
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </lightning-tab>
+        </lightning-tabset>
+      </template>
+      <template lwc:else>
+        <div
+          class="slds-p-around_large slds-text-align_center slds-text-color_weak"
+        >
+          <lightning-icon
+            icon-name="utility:sync"
+            size="small"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          Loading reconciliation audit metrics...
+        </div>
+      </template>
+    </div>
+  </lightning-card>
+
+  <!-- Modal: Delegate Follow-Up Task -->
+  <template lwc:if={isTaskModalOpen}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_small"
+      aria-modal="true"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            title="Close"
+            onclick={handleCloseTaskModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="close"
+              variant="inverse"
+              size="small"
+            ></lightning-icon>
+          </button>
+          <h2 class="slds-modal__title slds-hyphenate">
+            Delegate Investigation Task
+          </h2>
+          <p
+            class="slds-m-top_x-small slds-text-body_small slds-text-color_weak"
+          >
+            Line: <strong>{selectedLineForTask.lineNumber}</strong> | Vehicle:
+            <strong>{selectedLineForTask.assetPlate}</strong> | Gross:
+            <strong>{currencySymbol}{selectedLineForTask.grossAmount}</strong>
+          </p>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-form slds-form_stacked">
+            <lightning-input
+              label="Task Subject"
+              value={taskSubject}
+              onchange={handleSubjectChange}
+              required
+            >
+            </lightning-input>
+
+            <div class="slds-grid slds-gutters slds-m-top_small">
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                  type="date"
+                  label="Due Date"
+                  value={taskDueDate}
+                  onchange={handleDueDateChange}
+                  required
+                >
+                </lightning-input>
+              </div>
+              <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                  label="Priority"
+                  value={taskPriority}
+                  options={priorityOptions}
+                  onchange={handlePriorityChange}
+                >
+                </lightning-combobox>
+              </div>
+            </div>
+
+            <div class="slds-m-top_small">
+              <lightning-textarea
+                label="Investigation Notes / Instructions"
+                value={taskComments}
+                onchange={handleCommentsChange}
+              >
+              </lightning-textarea>
+            </div>
+          </div>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Cancel"
+            onclick={handleCloseTaskModal}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Assign Task &amp; Move to In Progress"
+            variant="brand"
+            onclick={handleSaveTask}
+            disabled={isLoading}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- Modal: Upload Vendor Bill (Pattern C) -->
+  <template lwc:if={isUploadModalOpen}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+      aria-modal="true"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            title="Close"
+            onclick={handleCloseUploadModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="close"
+              variant="inverse"
+              size="small"
+            ></lightning-icon>
+          </button>
+          <h2 class="slds-modal__title slds-hyphenate">
+            Upload Vendor Bill Schedule (Pattern C)
+          </h2>
+          <p
+            class="slds-m-top_x-small slds-text-body_small slds-text-color_weak"
+          >
+            Drop Ayvens Excel/CSV consolidated billing file. Lines are
+            automatically parsed, cross-referenced with fleet assets, and
+            audited against thresholds.
+          </p>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-grid slds-gutters slds-m-bottom_medium">
+            <div class="slds-col slds-size_1-of-2">
+              <lightning-input
+                label="Billing Doc Number"
+                value={uploadDocNumber}
+                onchange={handleUploadDocNumberChange}
+                required
+              ></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+              <lightning-combobox
+                label="Billing Currency"
+                value={uploadCurrency}
+                options={currencyOptions}
+                onchange={handleUploadCurrencyChange}
+              ></lightning-combobox>
+            </div>
+          </div>
+
+          <!-- Dropzone -->
+          <div
+            class="upload-dropzone slds-m-bottom_medium slds-p-around_large slds-text-align_center"
+          >
+            <lightning-icon
+              icon-name="utility:upload"
+              size="large"
+              class="slds-m-bottom_small"
+            ></lightning-icon>
+            <div class="slds-text-heading_small slds-m-bottom_x-small">
+              Select or Drop Invoice File (.csv, .txt)
+            </div>
+            <lightning-input
+              type="file"
+              label="Upload CSV File"
+              variant="label-hidden"
+              accept=".csv, .txt"
+              onchange={handleFileChange}
+              class="slds-align_absolute-center"
+            ></lightning-input>
+            <template lwc:if={uploadFileName}>
+              <div class="slds-m-top_small slds-text-color_success">
+                <strong>Selected File:</strong> {uploadFileName}
+                ({uploadFileSizeBytes} KB)
+              </div>
+            </template>
+          </div>
+
+          <lightning-textarea
+            label="Or Paste CSV Content Directly"
+            value={uploadCsvContent}
+            onchange={handleUploadCsvChange}
+            placeholder="line_number,license_plate,driver_payroll,cost_center_code,category,gross_amount..."
+            rows="4"
+          ></lightning-textarea>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Cancel"
+            onclick={handleCloseUploadModal}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Import &amp; Run Automated Audit"
+            variant="brand"
+            icon-name="utility:process"
+            onclick={handleUploadSubmit}
+            disabled={isUploadSubmitDisabled}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- Modal: Commercial Dispute Notice (Vendor Close-The-Loop) -->
+  <template lwc:if={isDisputeModalOpen}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      class="slds-modal slds-fade-in-open slds-modal_medium"
+      aria-modal="true"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header slds-theme_shade">
+          <button
+            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            title="Close"
+            onclick={handleCloseDisputeModal}
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="close"
+              variant="inverse"
+              size="small"
+            ></lightning-icon>
+          </button>
+          <div
+            class="slds-grid slds-grid_vertical-align-center"
+            style="gap: 8px"
+          >
+            <lightning-icon
+              icon-name="utility:email"
+              size="small"
+              variant="error"
+            ></lightning-icon>
+            <h2 class="slds-modal__title slds-hyphenate">
+              Commercial Dispute Notice — Ayvens Doc #{summary.billingDocNumber}
+            </h2>
+          </div>
+          <p
+            class="slds-m-top_x-small slds-text-body_small slds-text-color_weak"
+          >
+            Formal commercial letter backed by itemized unallocated vehicles and
+            contested lines. Ready to send to Ayvens account executive.
+          </p>
+        </header>
+        <div
+          class="slds-modal__content slds-p-around_medium"
+          style="background-color: #fafbfc"
+        >
+          <div class="dispute-memo-box slds-p-around_medium">
+            <pre class="dispute-memo-text">{disputeMemoText}</pre>
+          </div>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            label="Close"
+            onclick={handleCloseDisputeModal}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Copy Notice to Clipboard"
+            icon-name="utility:copy"
+            onclick={handleCopyDisputeMemo}
+            class="slds-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Download Notice (.md)"
+            variant="brand"
+            icon-name="utility:download"
+            onclick={handleDownloadDisputeMemo}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

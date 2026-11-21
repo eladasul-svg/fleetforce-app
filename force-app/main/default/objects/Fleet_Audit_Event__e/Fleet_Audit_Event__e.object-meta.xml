@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description
+  >Published when an invoice audit threshold is breached to drive Teams/Copilot push notifications and Power Automate webhooks.</description>
+    <eventType>HighVolume</eventType>
+    <label>Fleet Audit Event</label>
+    <pluralLabel>Fleet Audit Events</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

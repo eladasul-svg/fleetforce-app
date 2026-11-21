@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Rule_Name__c</columns>
+    <columns>Metric_Type__c</columns>
+    <columns>Operator__c</columns>
+    <columns>Threshold_Value__c</columns>
+    <columns>Severity__c</columns>
+    <columns>Is_Active__c</columns>
+    <columns>Notification_Target__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All Audit Thresholds</label>
+</ListView>

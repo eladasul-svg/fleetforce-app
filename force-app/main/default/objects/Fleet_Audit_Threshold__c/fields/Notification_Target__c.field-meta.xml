@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Notification_Target__c</fullName>
+    <description
+  >Target outbound push channel or mechanism dispatched when this rule is breached.</description>
+    <label>Notification Target</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Chatter</fullName><default>true</default><label
+        >Chatter</label></value>
+            <value><fullName>Teams_Webhook</fullName><default
+        >false</default><label>Teams Webhook</label></value>
+            <value><fullName>Platform_Event</fullName><default
+        >false</default><label>Platform Event</label></value>
+            <value><fullName>Email_Digest</fullName><default
+        >false</default><label>Email Digest</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

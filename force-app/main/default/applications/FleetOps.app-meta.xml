@@ -2,6 +2,22 @@
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionOverrides>
         <actionName>View</actionName>
+        <content>Fleet_Invoice_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Fleet_Invoice__c</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>Fleet_Invoice_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Fleet_Invoice__c</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
         <content>Fleet_Asset_Record_Page</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
@@ -255,6 +271,9 @@
     <tabs>Citation__c</tabs>
     <tabs>Driver_Qualification__c</tabs>
     <tabs>Fleet_Asset__c</tabs>
+    <tabs>Fleet_Invoice__c</tabs>
+    <tabs>Cost_Center__c</tabs>
+    <tabs>Fleet_Audit_Threshold__c</tabs>
     <tabs>Fleet_Branch__c</tabs>
     <tabs>Fleet_Map_Explorer</tabs>
     <tabs>Fleet_Schedule__c</tabs>
@@ -321,6 +340,15 @@
         </mappings>
         <mappings>
             <tab>Fleet_Asset__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Fleet_Invoice__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Cost_Center__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Fleet_Audit_Threshold__c</tab>
         </mappings>
         <mappings>
             <tab>Fleet_Branch__c</tab>

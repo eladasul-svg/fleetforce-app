@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fleet_Invoice__c</fullName>
+    <description
+  >Parent invoice evaluated against the audit threshold rule.</description>
+    <label>Fleet Invoice</label>
+    <referenceTo>Fleet_Invoice__c</referenceTo>
+    <relationshipLabel>Audit Alerts</relationshipLabel>
+    <relationshipName>Audit_Alerts</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

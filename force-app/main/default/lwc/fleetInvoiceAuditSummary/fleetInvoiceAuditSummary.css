@@ -1,0 +1,184 @@
+/* Executive KPI Cards with Report Deep-Link */
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 12px 14px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.kpi-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.kpi-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #706e6b;
+}
+
+.report-link-btn {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #706e6b;
+  display: flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.report-link-btn:hover {
+  background: #f3f3f3;
+  color: #0176d3;
+}
+
+.kpi-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #080707;
+  line-height: 1.2;
+}
+
+.kpi-subtext {
+  font-size: 0.73rem;
+  color: #706e6b;
+  margin-top: 4px;
+}
+
+.kpi-border-primary {
+  border-top: 3.5px solid #0176d3;
+}
+.kpi-border-success {
+  border-top: 3.5px solid #2e844a;
+}
+.kpi-border-warning {
+  border-top: 3.5px solid #fe9339;
+}
+.kpi-border-danger {
+  border-top: 3.5px solid #ea001e;
+}
+
+/* Filter Pills */
+.filter-pill {
+  cursor: pointer;
+  border-radius: 16px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: #f3f3f3;
+  border: 1px solid #dddbda;
+  color: #3e3e3c;
+  transition: all 0.15s ease;
+}
+
+.filter-pill:hover {
+  background: #ecebea;
+}
+.filter-pill.active {
+  background: #0176d3;
+  color: #ffffff;
+  border-color: #0176d3;
+}
+
+/* Compact Inline Governance Alert Strip */
+.governance-inline-pill {
+  background: #fff8f8;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #991b1b;
+}
+
+.pill-link {
+  cursor: pointer;
+  font-weight: 600;
+  color: #0176d3;
+  text-decoration: underline;
+  margin-left: 8px;
+}
+
+.pill-link:hover {
+  color: #014486;
+}
+
+/* Row Action Buttons */
+.delegate-btn {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+
+/* Task Priority Indicators */
+.priority-chip-high {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.priority-chip-normal {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}
+
+/* Upload Dropzone (Pattern C) */
+.upload-dropzone {
+  border: 2px dashed #0176d3;
+  background: #f8fafc;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.upload-dropzone:hover {
+  background: #f1f5f9;
+  border-color: #014486;
+}
+
+/* Commercial Dispute Notice Memo Styling */
+.dispute-memo-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  max-height: 480px;
+  overflow-y: auto;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.dispute-memo-text {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #1e293b;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}

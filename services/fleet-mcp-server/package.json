@@ -1,0 +1,17 @@
+{
+  "name": "fleetforce-mcp-server",
+  "version": "1.0.0",
+  "description": "Enterprise Salesforce Model Context Protocol (MCP) Server for FleetForce Reconciliation, Audit Thresholds, and Microsoft 365 Copilot Integration",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "fleetforce-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test_mcp_client.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.1.0"
+  }
+}

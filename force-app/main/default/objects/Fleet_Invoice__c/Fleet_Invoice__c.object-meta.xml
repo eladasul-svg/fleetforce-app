@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment
+    >Action override created by Lightning App Builder during activation.</comment>
+        <content>Fleet_Invoice_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment
+    >Action override created by Lightning App Builder during activation.</comment>
+        <content>Fleet_Invoice_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description
+  >Monthly vendor invoice header (e.g., Ayvens, ALD, LeasePlan, Free2Move) containing aggregated billing lines and periodic reconciliation status.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Fleet Invoice</label>
+    <nameField>
+        <label>Invoice Reference</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Fleet Invoices</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>
